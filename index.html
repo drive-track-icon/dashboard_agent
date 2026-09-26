@@ -28,6 +28,10 @@
 
   <!-- ==================== VIEW 1: LOGIN SECTION ==================== -->
   <div id="loginView" class="login-view">
+    <!-- Cinematic Car Background Image & Dark Overlay -->
+    <div class="login-bg-image" aria-hidden="true"></div>
+    <div class="login-bg-overlay" aria-hidden="true"></div>
+
     <!-- Ambient glowing backgrounds in Red & Dark Charcoal -->
     <div class="ambient-glow glow-red-1"></div>
     <div class="ambient-glow glow-red-2"></div>
@@ -45,16 +49,10 @@
           </div>
           <h1 class="brand-title">D<span class="accent-red">RIVE</span></h1>
           <p class="brand-subtitle">Dashboard Reporting, Insight &amp; Visibility of Employee</p>
-          <div class="color-palette-tag">
-            <span class="dot dot-black"></span>
-            <span class="dot dot-gray"></span>
-            <span class="dot dot-red"></span>
-            <span>Tema Merah • Hitam • Abu-abu</span>
-          </div>
         </div>
 
-        <!-- Quick Demo Switcher Banner -->
-        <div class="quick-demo-box">
+        <!-- Quick Demo Switcher Banner (Hidden) -->
+        <div class="quick-demo-box hidden" style="display: none;">
           <p class="quick-demo-title"><i class="fa-solid fa-bolt text-red"></i> Akun Cepat Pengujian (1-Klik):</p>
           <div class="demo-buttons-grid">
             <button type="button" class="btn-demo btn-demo-admin" id="btnQuickAdmin" title="Klik untuk otomatis isi akun Admin">
@@ -71,7 +69,7 @@
         </div>
 
         <!-- Login Form -->
-        <form id="loginForm" class="login-form" novalidate>
+        <form id="loginForm" class="login-form mt-4" novalidate>
           <div class="form-group">
             <label for="loginUsername" class="form-label">
               <i class="fa-solid fa-user-tag text-red"></i> Username
@@ -111,18 +109,6 @@
             <i class="fa-solid fa-arrow-right-to-bracket"></i>
           </button>
         </form>
-
-        <!-- Role Legend Info -->
-        <div class="login-footer-info">
-          <div class="permission-item">
-            <i class="fa-solid fa-check-double text-red"></i>
-            <span><strong>Admin:</strong> Akses penuh (Tambah, Ubah, Hapus, Registrasi Pengguna)</span>
-          </div>
-          <div class="permission-item">
-            <i class="fa-solid fa-eye text-gray"></i>
-            <span><strong>User:</strong> Mode tinjauan (Hanya melihat data)</span>
-          </div>
-        </div>
 
       </div>
     </div>
@@ -177,13 +163,6 @@
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="data-management" id="navDataManagement">
-              <i class="fa-solid fa-boxes-stacked nav-icon"></i>
-              <span class="nav-label">Kelola Data Barang</span>
-              <span class="nav-tag" id="navDataTag">Semua</span>
-            </button>
-          </li>
-          <li class="nav-item">
             <button class="nav-link" data-page="timer" id="navTimer">
               <i class="fa-solid fa-stopwatch-20 nav-icon"></i>
               <span class="nav-label">Timer</span>
@@ -192,35 +171,27 @@
           </li>
         </ul>
 
-        <div class="nav-category-title">ADMINISTRASI SISTEM</div>
-        <ul class="nav-list">
-          <li class="nav-item">
-            <!-- This menu is admin-only. For user, it's either locked or guarded -->
-            <button class="nav-link" data-page="user-management" id="navUserManagement">
-              <i class="fa-solid fa-users-gear nav-icon"></i>
-              <span class="nav-label">Manajemen Team</span>
-              <span class="nav-badge-lock" id="navUserLockBadge">
-                <i class="fa-solid fa-lock"></i> Admin
-              </span>
-            </button>
-          </li>
-          <li class="nav-item">
-            <button class="nav-link" data-page="activity-log" id="navActivityLog">
-              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
-              <span class="nav-label">Log Aktivitas</span>
-            </button>
-          </li>
-        </ul>
-
-        <div class="nav-category-title">SISTEM &amp; PENGUJIAN</div>
-        <ul class="nav-list">
-          <li class="nav-item">
-            <button class="nav-link" data-page="settings" id="navSettings">
-              <i class="fa-solid fa-sliders nav-icon"></i>
-              <span class="nav-label">Pengaturan &amp; Demo</span>
-            </button>
-          </li>
-        </ul>
+        <div id="sidebarAdminSection">
+          <div class="nav-category-title">ADMINISTRASI SISTEM</div>
+          <ul class="nav-list">
+            <li class="nav-item">
+              <!-- This menu is admin-only. For user, it's either locked or guarded -->
+              <button class="nav-link" data-page="user-management" id="navUserManagement">
+                <i class="fa-solid fa-users-gear nav-icon"></i>
+                <span class="nav-label">Manajemen Team</span>
+                <span class="nav-badge-lock" id="navUserLockBadge">
+                  <i class="fa-solid fa-lock"></i> Admin
+                </span>
+              </button>
+            </li>
+            <li class="nav-item">
+              <button class="nav-link" data-page="activity-log" id="navActivityLog">
+                <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+                <span class="nav-label">Log Aktivitas</span>
+              </button>
+            </li>
+          </ul>
+        </div>
       </nav>
 
       <!-- Sidebar Footer -->
@@ -258,17 +229,55 @@
             <span class="pill-text" id="topbarRoleText">Admin (Akses Penuh)</span>
           </div>
 
-          <!-- Quick Role Switch Dropdown for Pair-Programming/Testing -->
-          <div class="dropdown-container">
-            <button class="btn btn-outline-gray btn-sm quick-switch-btn" id="btnQuickSwitch" title="Beralih peran secara instan untuk pengujian">
-              <i class="fa-solid fa-repeat text-red"></i>
-              <span class="hide-mobile">Ganti Peran</span>
-            </button>
-          </div>
-
           <!-- Realtime Clock -->
           <div class="realtime-clock hide-mobile" id="realtimeClock" title="Waktu Lokal">
             00:00:00 WIB
+          </div>
+
+          <!-- Dark / Light Mode Switcher Button -->
+          <button class="btn-icon-topbar" id="btnThemeMode" aria-label="Ubah Mode Gelap / Putih" title="Mode Tampilan: Gelap (Klik untuk beralih ke Mode Putih)">
+            <i class="fa-solid fa-moon" id="themeModeIcon"></i>
+          </button>
+
+          <!-- Theme Palette Switcher -->
+          <div class="dropdown-container">
+            <button class="btn-icon-topbar" id="btnThemeDropdown" aria-label="Ubah Tema Warna Dashboard" title="Ubah Tema Warna Dashboard">
+              <i class="fa-solid fa-palette"></i>
+            </button>
+            <div class="theme-dropdown glass-dropdown hidden" id="themeDropdownMenu">
+              <div class="theme-dropdown-header">
+                <div class="theme-header-title">
+                  <i class="fa-solid fa-palette text-red"></i>
+                  <span>Tema Warna Dashboard</span>
+                </div>
+                <button type="button" class="btn-theme-reset" id="btnThemeReset" title="Kembalikan ke Tema Merah Default">
+                  <i class="fa-solid fa-rotate-left"></i> Default
+                </button>
+              </div>
+              <div class="theme-mode-section">
+                <div class="theme-section-label">MODE TAMPILAN</div>
+                <div class="theme-mode-toggle-group">
+                  <button type="button" class="btn-mode-toggle active" id="btnModeDark" data-mode="dark">
+                    <i class="fa-solid fa-moon"></i> Mode Gelap
+                  </button>
+                  <button type="button" class="btn-mode-toggle" id="btnModeLight" data-mode="light">
+                    <i class="fa-solid fa-sun"></i> Mode Putih
+                  </button>
+                </div>
+              </div>
+              <div class="theme-dropdown-body">
+                <div class="theme-section-label">PILIH WARNA TEMA</div>
+                <div class="theme-palette-grid" id="themePaletteGrid">
+                  <!-- Rendered dynamically via JavaScript -->
+                </div>
+              </div>
+              <div class="theme-dropdown-footer">
+                <div class="theme-footer-status">
+                  <span class="theme-footer-dot" id="themeFooterDot"></span>
+                  <span class="theme-footer-text">Tema Aktif: <strong id="currentThemeName">Merah (Default)</strong></span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Notifications Button -->
@@ -291,7 +300,7 @@
           <!-- User Menu Profile Dropdown -->
           <div class="dropdown-container">
             <button class="user-topbar-profile" id="userTopbarBtn">
-              <img id="topbarUserAvatar" src="" alt="Avatar" class="avatar-sm">
+              <i class="fa-regular fa-circle-user user-topbar-icon"></i>
               <span class="topbar-username hide-mobile" id="topbarUserName">Admin</span>
               <i class="fa-solid fa-chevron-down caret-icon"></i>
             </button>
@@ -305,8 +314,8 @@
               <button class="dropdown-item" id="dropdownItemProfile">
                 <i class="fa-regular fa-id-badge"></i> Profil Akun
               </button>
-              <button class="dropdown-item" id="dropdownItemSwitchRole">
-                <i class="fa-solid fa-people-arrows text-red"></i> Ganti ke Akun Lain
+              <button class="dropdown-item" id="dropdownItemChangePassword">
+                <i class="fa-solid fa-key text-red"></i> Ubah Password
               </button>
               <div class="dropdown-divider"></div>
               <button class="dropdown-item text-danger" id="dropdownItemLogout">
@@ -882,17 +891,17 @@
 
         </section>
 
-        <!-- ==================== PAGE 5: SETTINGS & DEMO TESTER ==================== -->
+        <!-- ==================== PAGE 5: PROFIL AKUN ==================== -->
         <section class="page-section" id="pageSettings">
           
           <div class="page-title-bar">
             <div>
-              <h2 class="page-title">Pengaturan Sistem &amp; Alat Pengujian</h2>
-              <p class="page-desc">Konfigurasi sesi, pengujian peran antarmuka, dan reset data simulasi.</p>
+              <h2 class="page-title">Profil Akun</h2>
+              <p class="page-desc">Informasi rincian akun dan identitas pengguna aktif.</p>
             </div>
           </div>
 
-          <div class="settings-grid">
+          <div class="settings-grid" style="max-width: 650px;">
             
             <!-- Current Session Profile Card -->
             <div class="glass-panel settings-card">
@@ -914,57 +923,10 @@
                   <span class="detail-value" id="settingsEmail">admin@drive.internal</span>
                 </div>
                 <div class="detail-row">
-                  <span class="detail-label">Departemen:</span>
+                  <span class="detail-label" id="settingsDeptLabel">Layanan:</span>
                   <span class="detail-value" id="settingsDept">IT Infrastructure</span>
                 </div>
-                <div class="detail-row">
-                  <span class="detail-label">Hak Izin Barang:</span>
-                  <span class="detail-value text-red" id="settingsItemPerm">Tambah, Edit, Hapus (Penuh)</span>
-                </div>
-                <div class="detail-row">
-                  <span class="detail-label">Hak Izin Manajemen User:</span>
-                  <span class="detail-value" id="settingsUserPerm">Dapat Mendaftarkan User Baru</span>
-                </div>
               </div>
-            </div>
-
-            <!-- Instant Role Switcher for Pair-Programming/Testing -->
-            <div class="glass-panel settings-card">
-              <div class="card-header-flex">
-                <h4 class="card-title"><i class="fa-solid fa-shuffle text-red"></i> Penguji Hak Akses Cepat</h4>
-                <span class="badge badge-red-subtle">Interaktif</span>
-              </div>
-              <p class="text-muted">Gunakan tombol di bawah ini untuk langsung berpindah peran tanpa harus mengetik ulang kredensial di form login:</p>
-              
-              <div class="test-switcher-buttons">
-                <div class="switch-box box-admin">
-                  <h5><i class="fa-solid fa-crown text-red"></i> Akun Administrator</h5>
-                  <p>Mendapatkan tombol Tambah, Edit, Hapus, dan menu Daftar User Baru.</p>
-                  <button class="btn btn-primary btn-block btn-sm glow-effect-red" id="btnSettingsSwitchAdmin">
-                    Beralih ke Admin Sekarang
-                  </button>
-                </div>
-                
-                <div class="switch-box box-user">
-                  <h5><i class="fa-solid fa-user text-silver"></i> Akun Pengguna Biasa</h5>
-                  <p>Hanya melihat data (Read-Only). Semua aksi modifikasi dinonaktifkan.</p>
-                  <button class="btn btn-outline-gray btn-block btn-sm" id="btnSettingsSwitchUser">
-                    Beralih ke User Biasa Sekarang
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- Reset Data to Default -->
-            <div class="glass-panel settings-card border-red-subtle">
-              <div class="card-header-flex">
-                <h4 class="card-title"><i class="fa-solid fa-database text-red"></i> Pemulihan Data Sampel</h4>
-                <span class="badge badge-danger">Bahaya</span>
-              </div>
-              <p class="text-muted">Jika Anda telah memanipulasi, menambahkan, atau menghapus banyak data dan ingin mengembalikan ke sampel awal sistem (10 barang &amp; 4 user awal), klik tombol berikut:</p>
-              <button class="btn btn-outline-red" id="btnResetAllData">
-                <i class="fa-solid fa-rotate-left"></i> Reset ke Data Sampel Awal
-              </button>
             </div>
 
           </div>
@@ -1501,6 +1463,84 @@
           <button type="submit" class="btn btn-primary glow-effect-red">
             <i class="fa-solid fa-plus"></i>
             <span>Tambahkan Stopwatch</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 7: UBAH PASSWORD ==================== -->
+  <div class="modal-backdrop hidden" id="modalChangePassword">
+    <div class="modal-dialog modal-sm glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-key"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Ubah Password</h3>
+            <p class="modal-subtitle">Perbarui kata sandi akun Anda</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseChangePasswordModal" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formChangePassword" novalidate>
+        <div class="modal-body">
+          <div class="form-group">
+            <div class="label-row">
+              <label for="changePassCurrent" class="form-label">
+                Password Saat Ini <span class="required">*</span>
+              </label>
+              <button type="button" class="btn-link-toggle" id="btnToggleCurrentPass" aria-label="Lihat kata sandi saat ini">
+                <i class="fa-regular fa-eye" id="toggleCurrentPassIcon"></i>
+              </button>
+            </div>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="changePassCurrent" class="form-control" placeholder="Masukkan password saat ini" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="changePassNew" class="form-label">
+                Password Baru <span class="required">*</span>
+              </label>
+              <button type="button" class="btn-link-toggle" id="btnToggleNewPass" aria-label="Lihat kata sandi baru">
+                <i class="fa-regular fa-eye" id="toggleNewPassIcon"></i>
+              </button>
+            </div>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-key input-icon"></i>
+              <input type="password" id="changePassNew" class="form-control" placeholder="Minimal 6 karakter" minlength="6" required>
+            </div>
+            <small class="form-hint">Gunakan minimal 6 karakter kombinasi huruf &amp; angka.</small>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="changePassConfirm" class="form-label">
+                Konfirmasi Password Baru <span class="required">*</span>
+              </label>
+              <button type="button" class="btn-link-toggle" id="btnToggleConfirmPass" aria-label="Lihat konfirmasi kata sandi">
+                <i class="fa-regular fa-eye" id="toggleConfirmPassIcon"></i>
+              </button>
+            </div>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-shield-halved input-icon"></i>
+              <input type="password" id="changePassConfirm" class="form-control" placeholder="Ulangi password baru" minlength="6" required>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelChangePassword">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitChangePassword">
+            <i class="fa-solid fa-check"></i>
+            <span>Simpan Password</span>
           </button>
         </div>
       </form>

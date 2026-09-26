@@ -17,6 +17,8 @@ const DEFAULT_USERS = [
     email: 'admin@drive.internal',
     role: 'admin',
     department: 'CSO INBOUND',
+    themeColor: 'default',
+    displayMode: 'dark',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-01-10 08:30'
@@ -29,6 +31,8 @@ const DEFAULT_USERS = [
     email: 'siti.rahma@drive.internal',
     role: 'user',
     department: 'CSO DIGILIVE CHAT - WA',
+    themeColor: 'default',
+    displayMode: 'dark',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-01-15 09:15'
@@ -41,6 +45,8 @@ const DEFAULT_USERS = [
     email: 'ahmad.fauzi@drive.internal',
     role: 'user',
     department: 'CSO BACK OFFICE',
+    themeColor: 'default',
+    displayMode: 'dark',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-02-01 11:20'
@@ -53,6 +59,8 @@ const DEFAULT_USERS = [
     email: 'dewi.lestari@drive.internal',
     role: 'admin',
     department: 'TEAM LEADER',
+    themeColor: 'default',
+    displayMode: 'dark',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-01-05 14:00'
@@ -372,6 +380,10 @@ class AppState {
     // Chart instances
     this.monthlyChartInstance = null;
     this.categoryDonutInstance = null;
+
+    // Theme Customizer
+    this.currentTheme = 'default';
+    this.currentDisplayMode = 'dark';
   }
 
   initStorage() {
@@ -525,6 +537,355 @@ class AppState {
 const state = new AppState();
 
 // ==========================================
+// 2.5 THEME COLOR PALETTES & CUSTOMIZER
+// ==========================================
+
+const THEME_PALETTES = {
+  default: {
+    key: 'default',
+    name: 'Merah Crimson',
+    shortName: 'Merah (Default)',
+    desc: 'DRIVE Racing Crimson',
+    primary: '#e62e44',
+    hover: '#ff3851',
+    dark: '#b81427',
+    darker: '#7f0d1a',
+    rgb: '230, 46, 68',
+    hoverRgb: '255, 56, 81',
+    gradient: 'linear-gradient(135deg, #ff3851 0%, #b81427 100%)',
+    isDefault: true
+  },
+  blue: {
+    key: 'blue',
+    name: 'Biru Safir',
+    shortName: 'Biru Safir',
+    desc: 'Electric Modern Blue',
+    primary: '#2563eb',
+    hover: '#3b82f6',
+    dark: '#1d4ed8',
+    darker: '#1e3a8a',
+    rgb: '37, 99, 235',
+    hoverRgb: '59, 130, 246',
+    gradient: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)'
+  },
+  emerald: {
+    key: 'emerald',
+    name: 'Hijau Zamrud',
+    shortName: 'Hijau Zamrud',
+    desc: 'Fresh Emerald Green',
+    primary: '#10b981',
+    hover: '#34d399',
+    dark: '#059669',
+    darker: '#064e3b',
+    rgb: '16, 185, 129',
+    hoverRgb: '52, 211, 153',
+    gradient: 'linear-gradient(135deg, #34d399 0%, #059669 100%)'
+  },
+  purple: {
+    key: 'purple',
+    name: 'Ungu Neon',
+    shortName: 'Ungu Neon',
+    desc: 'Cyberpunk Violet',
+    primary: '#8b5cf6',
+    hover: '#a78bfa',
+    dark: '#7c3aed',
+    darker: '#4c1d95',
+    rgb: '139, 92, 246',
+    hoverRgb: '167, 139, 250',
+    gradient: 'linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)'
+  },
+  amber: {
+    key: 'amber',
+    name: 'Oranye Lava',
+    shortName: 'Oranye Lava',
+    desc: 'High Heat Amber',
+    primary: '#ea580c',
+    hover: '#f97316',
+    dark: '#c2410c',
+    darker: '#7c2d12',
+    rgb: '234, 88, 12',
+    hoverRgb: '249, 115, 22',
+    gradient: 'linear-gradient(135deg, #f97316 0%, #c2410c 100%)'
+  },
+  gold: {
+    key: 'gold',
+    name: 'Kuning Emas',
+    shortName: 'Kuning Emas',
+    desc: 'Luxury Cyber Gold',
+    primary: '#eab308',
+    hover: '#facc15',
+    dark: '#ca8a04',
+    darker: '#713f12',
+    rgb: '234, 179, 8',
+    hoverRgb: '250, 204, 21',
+    gradient: 'linear-gradient(135deg, #facc15 0%, #ca8a04 100%)'
+  },
+  cyan: {
+    key: 'cyan',
+    name: 'Biru Sian',
+    shortName: 'Biru Sian',
+    desc: 'Neon Aqua Cyan',
+    primary: '#06b6d4',
+    hover: '#22d3ee',
+    dark: '#0891b2',
+    darker: '#164e63',
+    rgb: '6, 182, 212',
+    hoverRgb: '34, 211, 238',
+    gradient: 'linear-gradient(135deg, #22d3ee 0%, #0891b2 100%)'
+  },
+  rose: {
+    key: 'rose',
+    name: 'Rose Magenta',
+    shortName: 'Rose Magenta',
+    desc: 'Vivid Hot Rose',
+    primary: '#f43f5e',
+    hover: '#fb7185',
+    dark: '#e11d48',
+    darker: '#881337',
+    rgb: '244, 63, 94',
+    hoverRgb: '251, 113, 133',
+    gradient: 'linear-gradient(135deg, #fb7185 0%, #e11d48 100%)'
+  },
+  indigo: {
+    key: 'indigo',
+    name: 'Indigo Elektrik',
+    shortName: 'Indigo Elektrik',
+    desc: 'Deep Royal Indigo',
+    primary: '#6366f1',
+    hover: '#818cf8',
+    dark: '#4f46e5',
+    darker: '#312e81',
+    rgb: '99, 102, 241',
+    hoverRgb: '129, 140, 248',
+    gradient: 'linear-gradient(135deg, #818cf8 0%, #4f46e5 100%)'
+  }
+};
+
+function getUserTheme(user) {
+  if (!user) return 'default';
+  const username = (user.username || user.id || '').toLowerCase();
+  try {
+    const saved = localStorage.getItem('drive_theme_color_' + username);
+    if (saved && THEME_PALETTES[saved]) return saved;
+  } catch (e) {
+    console.warn('LocalStorage read error for user theme:', e);
+  }
+  if (user.themeColor && THEME_PALETTES[user.themeColor]) {
+    return user.themeColor;
+  }
+  return 'default';
+}
+
+function applyThemeTokens(palette) {
+  const root = document.documentElement;
+  root.style.setProperty('--primary-rgb', palette.rgb);
+  root.style.setProperty('--hover-rgb', palette.hoverRgb);
+  root.style.setProperty('--red-primary', palette.primary);
+  root.style.setProperty('--red-hover', palette.hover);
+  root.style.setProperty('--red-dark', palette.dark);
+  root.style.setProperty('--red-darker', palette.darker);
+  root.style.setProperty('--red-subtle', `rgba(${palette.rgb}, 0.12)`);
+  root.style.setProperty('--red-border', `rgba(${palette.rgb}, 0.35)`);
+  root.style.setProperty('--red-glow', `rgba(${palette.rgb}, 0.45)`);
+  root.style.setProperty('--red-gradient', palette.gradient);
+  root.style.setProperty('--red-gradient-subtle', `linear-gradient(135deg, rgba(${palette.rgb}, 0.15) 0%, rgba(20, 23, 32, 0.4) 100%)`);
+  root.style.setProperty('--shadow-glow-red', `0 0 25px rgba(${palette.rgb}, 0.35)`);
+}
+
+function applyTheme(themeKey, notify = false) {
+  const palette = THEME_PALETTES[themeKey] || THEME_PALETTES.default;
+  state.currentTheme = palette.key;
+
+  applyThemeTokens(palette);
+  document.body.setAttribute('data-theme-color', palette.key);
+
+  // Save ONLY for the currently logged in user account
+  if (state.currentUser) {
+    state.currentUser.themeColor = palette.key;
+    const username = (state.currentUser.username || state.currentUser.id || '').toLowerCase();
+    try {
+      localStorage.setItem('drive_theme_color_' + username, palette.key);
+      state.setSession(state.currentUser);
+
+      const users = state.getUsers();
+      const userIndex = users.findIndex(u => (u.username || '').toLowerCase() === username);
+      if (userIndex !== -1) {
+        users[userIndex].themeColor = palette.key;
+        state.saveUsers(users);
+      }
+    } catch (e) {
+      console.warn('Gagal menyimpan tema per-user:', e);
+    }
+  }
+
+  updateThemeUI(palette);
+
+  // Update charts if present
+  if (state.items && state.items.length && typeof Chart !== 'undefined') {
+    const monthlyCanvas = document.getElementById('monthlyChart');
+    if (monthlyCanvas && monthlyCanvas.offsetParent !== null) {
+      renderCharts(state.items);
+    }
+  }
+
+  if (notify) {
+    showToast(
+      'Tema Warna Diperbarui',
+      palette.isDefault 
+        ? 'Tema akun ini dikembalikan ke warna Merah (Default).' 
+        : `Warna akun ini berhasil diubah ke tema ${palette.name}. Akun lain tidak terpengaruh.`,
+      'success'
+    );
+  }
+}
+
+function updateThemeUI(palette) {
+  if (UI.currentThemeName) {
+    UI.currentThemeName.textContent = palette.isDefault ? `${palette.name} (Default)` : palette.name;
+  }
+  if (UI.themeFooterDot) {
+    UI.themeFooterDot.style.background = palette.primary;
+    UI.themeFooterDot.style.boxShadow = `0 0 8px ${palette.primary}`;
+  }
+  if (UI.themePaletteGrid) {
+    UI.themePaletteGrid.querySelectorAll('.theme-color-card').forEach(card => {
+      const cardKey = card.getAttribute('data-theme-key');
+      if (cardKey === palette.key) {
+        card.classList.add('active');
+      } else {
+        card.classList.remove('active');
+      }
+    });
+  }
+}
+
+function renderThemePaletteUI() {
+  if (!UI.themePaletteGrid) return;
+  UI.themePaletteGrid.innerHTML = Object.values(THEME_PALETTES).map(p => `
+    <button type="button" class="theme-color-card ${state.currentTheme === p.key ? 'active' : ''}" data-theme-key="${p.key}" title="${p.name} - ${p.desc}">
+      <i class="fa-solid fa-check theme-check-icon"></i>
+      <span class="theme-swatch-circle" style="background: ${p.gradient}; box-shadow: 0 0 10px rgba(${p.rgb}, 0.5);"></span>
+      <span class="theme-card-name">${p.shortName}</span>
+      ${p.isDefault ? '<span class="theme-badge-default">Default</span>' : ''}
+    </button>
+  `).join('');
+
+  UI.themePaletteGrid.querySelectorAll('.theme-color-card').forEach(card => {
+    card.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const key = card.getAttribute('data-theme-key');
+      applyTheme(key, true);
+    });
+  });
+}
+
+function getUserDisplayMode(user) {
+  if (!user) return 'dark';
+  const username = (user.username || user.id || '').toLowerCase();
+  try {
+    const saved = localStorage.getItem('drive_display_mode_' + username);
+    if (saved && (saved === 'dark' || saved === 'light')) return saved;
+  } catch (e) {
+    console.warn('LocalStorage read error for display mode:', e);
+  }
+  if (user.displayMode && (user.displayMode === 'dark' || user.displayMode === 'light')) {
+    return user.displayMode;
+  }
+  return 'dark';
+}
+
+function setDisplayMode(mode, notify = false) {
+  const isLight = mode === 'light';
+  state.currentDisplayMode = isLight ? 'light' : 'dark';
+
+  if (isLight) {
+    document.body.classList.remove('theme-dark');
+    document.body.classList.add('theme-light');
+    document.body.setAttribute('data-display-mode', 'light');
+  } else {
+    document.body.classList.remove('theme-light');
+    document.body.classList.add('theme-dark');
+    document.body.setAttribute('data-display-mode', 'dark');
+  }
+
+  // Update navbar mode icon and tooltip
+  if (UI.themeModeIcon) {
+    UI.themeModeIcon.className = isLight ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  }
+  if (UI.btnThemeMode) {
+    UI.btnThemeMode.setAttribute('title', isLight ? 'Mode Tampilan: Putih (Klik untuk Mode Gelap)' : 'Mode Tampilan: Gelap (Klik untuk Mode Putih)');
+    UI.btnThemeMode.setAttribute('aria-label', isLight ? 'Mode Tampilan: Putih' : 'Mode Tampilan: Gelap');
+  }
+
+  // Update dropdown mode toggle buttons
+  if (UI.btnModeDark && UI.btnModeLight) {
+    UI.btnModeDark.classList.toggle('active', !isLight);
+    UI.btnModeLight.classList.toggle('active', isLight);
+  }
+
+  // Save ONLY for current logged in user account
+  if (state.currentUser) {
+    state.currentUser.displayMode = state.currentDisplayMode;
+    const username = (state.currentUser.username || state.currentUser.id || '').toLowerCase();
+    try {
+      localStorage.setItem('drive_display_mode_' + username, state.currentDisplayMode);
+      state.setSession(state.currentUser);
+
+      const users = state.getUsers();
+      const userIndex = users.findIndex(u => (u.username || '').toLowerCase() === username);
+      if (userIndex !== -1) {
+        users[userIndex].displayMode = state.currentDisplayMode;
+        state.saveUsers(users);
+      }
+    } catch (e) {
+      console.warn('Gagal menyimpan mode per-user:', e);
+    }
+  }
+
+  // Re-render charts to adjust grid/colors if present
+  if (state.items && state.items.length && typeof Chart !== 'undefined') {
+    const monthlyCanvas = document.getElementById('monthlyChart');
+    if (monthlyCanvas && monthlyCanvas.offsetParent !== null) {
+      renderCharts(state.items);
+    }
+  }
+
+  if (notify) {
+    showToast(
+      'Mode Tampilan Diperbarui',
+      isLight ? 'Beralih ke Mode Putih (Terang). Akun lain tidak terpengaruh.' : 'Beralih ke Mode Gelap. Akun lain tidak terpengaruh.',
+      'info'
+    );
+  }
+}
+
+function toggleDisplayMode(notify = true) {
+  const targetMode = state.currentDisplayMode === 'light' ? 'dark' : 'light';
+  setDisplayMode(targetMode, notify);
+}
+
+function initTheme() {
+  renderThemePaletteUI();
+
+  if (!state.currentUser) {
+    // On login view: ALWAYS default dark mode & default red theme!
+    state.currentTheme = 'default';
+    state.currentDisplayMode = 'dark';
+    applyThemeTokens(THEME_PALETTES.default);
+    document.body.setAttribute('data-theme-color', 'default');
+    document.body.classList.remove('theme-light');
+    document.body.classList.add('theme-dark');
+    document.body.setAttribute('data-display-mode', 'dark');
+  } else {
+    // When user is logged in: load this specific user's display mode & theme
+    const userMode = getUserDisplayMode(state.currentUser);
+    setDisplayMode(userMode, false);
+    const userTheme = getUserTheme(state.currentUser);
+    applyTheme(userTheme, false);
+  }
+}
+
+// ==========================================
 // 3. UI CONTROLLER & RENDERING
 // ==========================================
 
@@ -551,6 +912,8 @@ const UI = {
   sidebarUserRoleBadge: document.getElementById('sidebarUserRoleBadge'),
   sidebarModeNotice: document.getElementById('sidebarModeNotice'),
   navUserLockBadge: document.getElementById('navUserLockBadge'),
+  sidebarAdminSection: document.getElementById('sidebarAdminSection'),
+  sidebarTestingSection: document.getElementById('sidebarTestingSection'),
   btnLogoutSidebar: document.getElementById('btnLogoutSidebar'),
   breadcrumbTitle: document.getElementById('breadcrumbTitle'),
 
@@ -566,14 +929,39 @@ const UI = {
   dropdownRoleTag: document.getElementById('dropdownRoleTag'),
   dropdownItemLogout: document.getElementById('dropdownItemLogout'),
   dropdownItemProfile: document.getElementById('dropdownItemProfile'),
-  dropdownItemSwitchRole: document.getElementById('dropdownItemSwitchRole'),
-  btnQuickSwitch: document.getElementById('btnQuickSwitch'),
+  dropdownItemChangePassword: document.getElementById('dropdownItemChangePassword'),
+  btnThemeMode: document.getElementById('btnThemeMode'),
+  themeModeIcon: document.getElementById('themeModeIcon'),
+  btnThemeDropdown: document.getElementById('btnThemeDropdown'),
+  themeDropdownMenu: document.getElementById('themeDropdownMenu'),
+  btnThemeReset: document.getElementById('btnThemeReset'),
+  btnModeDark: document.getElementById('btnModeDark'),
+  btnModeLight: document.getElementById('btnModeLight'),
+  themePaletteGrid: document.getElementById('themePaletteGrid'),
+  currentThemeName: document.getElementById('currentThemeName'),
+  themeFooterDot: document.getElementById('themeFooterDot'),
   btnNotifications: document.getElementById('btnNotifications'),
   notificationDropdown: document.getElementById('notificationDropdown'),
   notificationList: document.getElementById('notificationList'),
   userRoleAlertBanner: document.getElementById('userRoleAlertBanner'),
   btnBannerSwitchAdmin: document.getElementById('btnBannerSwitchAdmin'),
   realtimeClock: document.getElementById('realtimeClock'),
+
+  // Change Password Modal
+  modalChangePassword: document.getElementById('modalChangePassword'),
+  formChangePassword: document.getElementById('formChangePassword'),
+  btnCloseChangePasswordModal: document.getElementById('btnCloseChangePasswordModal'),
+  btnCancelChangePassword: document.getElementById('btnCancelChangePassword'),
+  btnSubmitChangePassword: document.getElementById('btnSubmitChangePassword'),
+  changePassCurrent: document.getElementById('changePassCurrent'),
+  changePassNew: document.getElementById('changePassNew'),
+  changePassConfirm: document.getElementById('changePassConfirm'),
+  btnToggleCurrentPass: document.getElementById('btnToggleCurrentPass'),
+  toggleCurrentPassIcon: document.getElementById('toggleCurrentPassIcon'),
+  btnToggleNewPass: document.getElementById('btnToggleNewPass'),
+  toggleNewPassIcon: document.getElementById('toggleNewPassIcon'),
+  btnToggleConfirmPass: document.getElementById('btnToggleConfirmPass'),
+  toggleConfirmPassIcon: document.getElementById('toggleConfirmPassIcon'),
 
   // Pages
   pages: {
@@ -891,6 +1279,15 @@ function renderAppView() {
     UI.loginView.classList.remove('hidden');
     UI.dashboardView.classList.add('hidden');
     document.title = 'DRIVE | Masuk Sistem';
+
+    // Menu login TIDAK AKAN terpengaruh perubahan tema atau mode tampilan: selalu default merah & mode gelap
+    state.currentTheme = 'default';
+    state.currentDisplayMode = 'dark';
+    applyThemeTokens(THEME_PALETTES.default);
+    document.body.setAttribute('data-theme-color', 'default');
+    document.body.classList.remove('theme-light');
+    document.body.classList.add('theme-dark');
+    document.body.setAttribute('data-display-mode', 'dark');
     return;
   }
 
@@ -899,40 +1296,60 @@ function renderAppView() {
   UI.dashboardView.classList.remove('hidden');
   document.title = `DRIVE | ${state.isAdmin() ? 'Admin Portal' : 'User Portal'}`;
 
+  // Terapkan mode tampilan dan tema warna spesifik hanya untuk akun yang sedang login saat ini
+  const userMode = getUserDisplayMode(state.currentUser);
+  setDisplayMode(userMode, false);
+  const userTheme = getUserTheme(state.currentUser);
+  applyTheme(userTheme, false);
+
   // Update User Profile details across the UI
   const u = state.currentUser;
   const isAdmin = state.isAdmin();
 
-  // Sidebar profile
+  // Sidebar categories visibility (Admin vs User)
+  if (UI.sidebarAdminSection) {
+    UI.sidebarAdminSection.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.sidebarTestingSection) {
+    UI.sidebarTestingSection.classList.toggle('hidden', !isAdmin);
+  }
+
+  // Sidebar profile & mode notice
   UI.sidebarUserName.textContent = u.fullName;
   UI.sidebarUserAvatar.src = u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
   
   if (isAdmin) {
+    UI.sidebarUserRoleBadge.classList.remove('hidden');
     UI.sidebarUserRoleBadge.className = 'badge badge-admin';
     UI.sidebarUserRoleBadge.innerHTML = '<i class="fa-solid fa-crown"></i> Admin';
+    UI.sidebarModeNotice.classList.remove('hidden');
     UI.sidebarModeNotice.className = 'sidebar-mode-notice mode-admin';
     UI.sidebarModeNotice.innerHTML = '<i class="fa-solid fa-unlock-keyhole"></i> <span>Akses: <strong>Penuh (CRUD)</strong></span>';
     UI.navUserLockBadge.className = 'nav-badge-lock';
     UI.navUserLockBadge.innerHTML = '<i class="fa-solid fa-check"></i> Akses';
   } else {
     UI.sidebarUserRoleBadge.className = 'badge badge-user';
-    UI.sidebarUserRoleBadge.innerHTML = '<i class="fa-solid fa-eye"></i> User';
-    UI.sidebarModeNotice.className = 'sidebar-mode-notice mode-user';
-    UI.sidebarModeNotice.innerHTML = '<i class="fa-solid fa-lock"></i> <span>Akses: <strong>Hanya Lihat</strong></span>';
+    UI.sidebarUserRoleBadge.innerHTML = '<i class="fa-solid fa-user"></i> User';
+    UI.sidebarModeNotice.classList.add('hidden'); // Hidden on user
     UI.navUserLockBadge.className = 'nav-badge-lock';
     UI.navUserLockBadge.innerHTML = '<i class="fa-solid fa-lock"></i> Admin';
   }
 
-  // Topbar Profile & Pill
-  UI.topbarUserAvatar.src = u.avatar;
+  // Topbar Profile, Role Pill, Quick Switch, & Dropdown items
+  if (UI.topbarUserAvatar) UI.topbarUserAvatar.src = u.avatar;
   UI.topbarUserName.textContent = u.fullName.split(' ')[0];
   UI.dropdownFullName.textContent = u.fullName;
   UI.dropdownEmail.textContent = u.email;
-  UI.dropdownRoleTag.textContent = `Hak Akses: ${isAdmin ? 'Administrator (Akses Penuh)' : 'Pengguna Biasa (Read-Only)'}`;
+  if (UI.dropdownRoleTag) {
+    UI.dropdownRoleTag.textContent = `Hak Akses: ${isAdmin ? 'Administrator (Akses Penuh)' : 'Pengguna'}`;
+    UI.dropdownRoleTag.classList.toggle('hidden', !isAdmin);
+  }
 
+  // Topbar Role Pill & Banner
   if (isAdmin) {
     UI.topbarRolePill.className = 'current-role-pill pill-admin';
     UI.topbarRoleText.textContent = 'Admin (Akses Penuh)';
+    UI.topbarRolePill.classList.remove('hidden');
     UI.userRoleAlertBanner.classList.add('hidden');
     // Enable Add Data buttons
     UI.btnOpenAddDataModal.disabled = false;
@@ -940,9 +1357,10 @@ function renderAppView() {
     UI.addDataDisabledTooltip.classList.add('hidden');
     if (UI.btnOverviewQuickAdd) UI.btnOverviewQuickAdd.classList.remove('hidden');
   } else {
-    UI.topbarRolePill.className = 'current-role-pill pill-user';
-    UI.topbarRoleText.textContent = 'User (Hanya Lihat)';
-    UI.userRoleAlertBanner.classList.remove('hidden');
+    // Hidden on user: "User (Hanya Lihat)", "Mode Tinjauan (Read-Only) Aktif...", "Coba Akun Admin"
+    UI.topbarRolePill.classList.add('hidden');
+    UI.userRoleAlertBanner.classList.add('hidden');
+    if (UI.btnBannerSwitchAdmin) UI.btnBannerSwitchAdmin.classList.add('hidden');
     // Disable Add Data buttons for Read-Only user
     UI.btnOpenAddDataModal.disabled = true;
     UI.addDataDisabledTooltip.classList.remove('hidden');
@@ -950,24 +1368,25 @@ function renderAppView() {
   }
 
   // Update Data Permission Status Banner on Data page
+  const dataPermissionStatusBanner = document.getElementById('dataPermissionStatusBanner');
+  if (dataPermissionStatusBanner) {
+    dataPermissionStatusBanner.classList.toggle('hidden', !isAdmin);
+  }
   const bannerRoleLabel = document.getElementById('bannerRoleLabel');
   const bannerRoleDesc = document.getElementById('bannerRoleDesc');
   const bannerBadgePrivilege = document.getElementById('bannerBadgePrivilege');
-  if (bannerRoleLabel && bannerRoleDesc && bannerBadgePrivilege) {
-    if (isAdmin) {
-      bannerRoleLabel.textContent = 'Otoritas Akses: Administrator Penuh';
-      bannerRoleDesc.innerHTML = 'Anda memiliki izin untuk <strong>Menambah</strong>, <strong>Mengedit</strong>, dan <strong>Menghapus</strong> data pada katalog ini.';
-      bannerBadgePrivilege.className = 'badge badge-admin';
-      bannerBadgePrivilege.textContent = 'CRUD Diizinkan';
-    } else {
-      bannerRoleLabel.textContent = 'Otoritas Akses: Pengguna Biasa (Hanya Lihat)';
-      bannerRoleDesc.innerHTML = 'Anda berada dalam mode <strong>Tinjauan (Read-Only)</strong>. Tombol Tambah, Ubah, dan Hapus dinonaktifkan.';
-      bannerBadgePrivilege.className = 'badge badge-user';
-      bannerBadgePrivilege.textContent = 'Hanya Lihat';
-    }
+  if (bannerRoleLabel && bannerRoleDesc && bannerBadgePrivilege && isAdmin) {
+    bannerRoleLabel.textContent = 'Otoritas Akses: Administrator Penuh';
+    bannerRoleDesc.innerHTML = 'Anda memiliki izin untuk <strong>Menambah</strong>, <strong>Mengedit</strong>, dan <strong>Menghapus</strong> data pada katalog ini.';
+    bannerBadgePrivilege.className = 'badge badge-admin';
+    bannerBadgePrivilege.textContent = 'CRUD Diizinkan';
   }
 
   // Update Timer permissions and monitoring visibility
+  const timerPermissionBanner = document.getElementById('timerPermissionBanner');
+  if (timerPermissionBanner) {
+    timerPermissionBanner.classList.toggle('hidden', !isAdmin);
+  }
   if (isAdmin) {
     if (UI.adminTimerActionButtons) UI.adminTimerActionButtons.classList.remove('hidden');
     if (UI.userTimerNoticeTag) UI.userTimerNoticeTag.classList.add('hidden');
@@ -1005,14 +1424,7 @@ function renderAppView() {
     UI.settingsRoleBadge.textContent = isAdmin ? 'Admin' : 'User';
   }
   if (UI.settingsRolePill) {
-    UI.settingsRolePill.textContent = isAdmin ? 'Hak Akses: Administrator' : 'Hak Akses: Pengguna Biasa';
-  }
-  if (UI.settingsItemPerm) {
-    UI.settingsItemPerm.textContent = isAdmin ? 'Tambah, Edit, Hapus (Akses Penuh)' : 'Hanya Melihat Data (Terkunci)';
-    UI.settingsItemPerm.className = isAdmin ? 'detail-value text-red' : 'detail-value text-gray';
-  }
-  if (UI.settingsUserPerm) {
-    UI.settingsUserPerm.textContent = isAdmin ? 'Dapat Mendaftarkan User Baru' : 'Akses Ditolak (Khusus Admin)';
+    UI.settingsRolePill.textContent = isAdmin ? 'Hak Akses: Administrator' : 'Hak Akses: Pengguna';
   }
 
   // Render active section
@@ -1020,13 +1432,14 @@ function renderAppView() {
 }
 
 function navigateToPage(pageId) {
-  // Guard check: Team Management is strictly Admin only
-  if (pageId === 'user-management' && !state.isAdmin()) {
+  // Guard check: Team Management and Activity Log are strictly Admin only
+  if (['user-management', 'activity-log'].includes(pageId) && !state.isAdmin()) {
     showToast(
       'Akses Dibatasi',
-      'Hanya Administrator yang memiliki hak izin untuk mengakses menu <strong>Manajemen Team</strong>.',
+      'Hanya Administrator yang memiliki hak izin untuk mengakses menu ini.',
       'warning'
     );
+    navigateToPage('overview');
     return;
   }
 
@@ -1048,7 +1461,7 @@ function navigateToPage(pageId) {
     timer: 'Pusat Timer & Stopwatch',
     'user-management': 'Manajemen Team',
     'activity-log': 'Log Aktivitas & Jejak Audit',
-    settings: 'Pengaturan & Alat Demo'
+    settings: 'Profil Akun'
   };
   UI.breadcrumbTitle.textContent = pageTitles[pageId] || 'Dashboard';
 
@@ -1155,6 +1568,10 @@ function getLogIcon(type) {
 function renderCharts(items) {
   if (typeof Chart === 'undefined') return;
 
+  const curPalette = (typeof THEME_PALETTES !== 'undefined' && THEME_PALETTES[state.currentTheme]) 
+    ? THEME_PALETTES[state.currentTheme] 
+    : { primary: '#e62e44', hover: '#ff3851', dark: '#b81427', rgb: '230, 46, 68' };
+
   // Monthly Chart
   const monthlyCanvas = document.getElementById('monthlyChart');
   if (monthlyCanvas) {
@@ -1162,8 +1579,16 @@ function renderCharts(items) {
 
     const ctx = monthlyCanvas.getContext('2d');
     const gradient = ctx.createLinearGradient(0, 0, 0, 240);
-    gradient.addColorStop(0, 'rgba(230, 46, 68, 0.45)');
-    gradient.addColorStop(1, 'rgba(230, 46, 68, 0.0)');
+    gradient.addColorStop(0, `rgba(${curPalette.rgb}, 0.45)`);
+    gradient.addColorStop(1, `rgba(${curPalette.rgb}, 0.0)`);
+
+    const isLight = state.currentDisplayMode === 'light';
+    const gridColor = isLight ? 'rgba(0, 0, 0, 0.07)' : 'rgba(255, 255, 255, 0.05)';
+    const tickColor = isLight ? '#475569' : '#64748b';
+    const tooltipBg = isLight ? 'rgba(255, 255, 255, 0.98)' : 'rgba(18, 22, 31, 0.95)';
+    const tooltipBorder = isLight ? '#cbd5e1' : '#283042';
+    const tooltipTitle = isLight ? '#0f172a' : '#ffffff';
+    const tooltipBody = isLight ? '#334155' : '#cbd5e1';
 
     state.monthlyChartInstance = new Chart(ctx, {
       type: 'line',
@@ -1173,12 +1598,12 @@ function renderCharts(items) {
           {
             label: 'Total Nilai Aset (Juta Rp)',
             data: [120, 145, 178, 192, 215, 230, 260, 295, 340],
-            borderColor: '#e62e44',
+            borderColor: curPalette.primary,
             backgroundColor: gradient,
             fill: true,
             tension: 0.35,
             borderWidth: 3,
-            pointBackgroundColor: '#ff3851',
+            pointBackgroundColor: curPalette.hover,
             pointBorderColor: '#ffffff',
             pointRadius: 4,
             pointHoverRadius: 7
@@ -1186,7 +1611,7 @@ function renderCharts(items) {
           {
             label: 'Jumlah Stok Beredar',
             data: [45, 52, 60, 68, 75, 80, 88, 92, 105],
-            borderColor: '#64748b',
+            borderColor: isLight ? '#94a3b8' : '#64748b',
             borderDash: [5, 5],
             borderWidth: 2,
             tension: 0.35,
@@ -1201,26 +1626,26 @@ function renderCharts(items) {
         plugins: {
           legend: {
             labels: {
-              color: '#94a3b8',
+              color: isLight ? '#334155' : '#94a3b8',
               font: { family: 'Plus Jakarta Sans', size: 11 }
             }
           },
           tooltip: {
-            backgroundColor: 'rgba(18, 22, 31, 0.95)',
-            borderColor: '#283042',
+            backgroundColor: tooltipBg,
+            borderColor: tooltipBorder,
             borderWidth: 1,
-            titleColor: '#ffffff',
-            bodyColor: '#cbd5e1'
+            titleColor: tooltipTitle,
+            bodyColor: tooltipBody
           }
         },
         scales: {
           x: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#64748b' }
+            grid: { color: gridColor },
+            ticks: { color: tickColor }
           },
           y: {
-            grid: { color: 'rgba(255, 255, 255, 0.05)' },
-            ticks: { color: '#64748b' }
+            grid: { color: gridColor },
+            ticks: { color: tickColor }
           }
         }
       }
@@ -1240,7 +1665,8 @@ function renderCharts(items) {
 
     const categories = Object.keys(catMap);
     const counts = Object.values(catMap);
-    const colors = ['#e62e44', '#b81427', '#475569', '#94a3b8', '#f59e0b'];
+    const colors = [curPalette.primary, curPalette.dark, '#475569', '#94a3b8', '#f59e0b'];
+    const donutBorder = state.currentDisplayMode === 'light' ? '#ffffff' : '#141720';
 
     state.categoryDonutInstance = new Chart(donutCanvas.getContext('2d'), {
       type: 'doughnut',
@@ -1249,7 +1675,7 @@ function renderCharts(items) {
         datasets: [{
           data: counts,
           backgroundColor: colors.slice(0, categories.length),
-          borderColor: '#141720',
+          borderColor: donutBorder,
           borderWidth: 3
         }]
       },
@@ -2017,6 +2443,96 @@ window.promptDeleteUser = function(id, name) {
   UI.confirmDeleteMessage.innerHTML = `Akun <strong>${name}</strong> akan dihapus permanen dan tidak lagi dapat masuk ke dalam sistem.`;
   UI.modalConfirmDelete.classList.remove('hidden');
 };
+
+// ==========================================
+// CHANGE PASSWORD MODAL & LOGIC
+// ==========================================
+
+function openChangePasswordModal() {
+  if (UI.formChangePassword) UI.formChangePassword.reset();
+  if (UI.changePassCurrent) UI.changePassCurrent.type = 'password';
+  if (UI.changePassNew) UI.changePassNew.type = 'password';
+  if (UI.changePassConfirm) UI.changePassConfirm.type = 'password';
+  if (UI.toggleCurrentPassIcon) UI.toggleCurrentPassIcon.className = 'fa-regular fa-eye';
+  if (UI.toggleNewPassIcon) UI.toggleNewPassIcon.className = 'fa-regular fa-eye';
+  if (UI.toggleConfirmPassIcon) UI.toggleConfirmPassIcon.className = 'fa-regular fa-eye';
+
+  if (UI.modalChangePassword) UI.modalChangePassword.classList.remove('hidden');
+  if (UI.userDropdownMenu) UI.userDropdownMenu.classList.add('hidden');
+  if (UI.changePassCurrent) {
+    setTimeout(() => UI.changePassCurrent.focus(), 100);
+  }
+}
+
+function closeChangePasswordModal() {
+  if (UI.modalChangePassword) UI.modalChangePassword.classList.add('hidden');
+  if (UI.formChangePassword) UI.formChangePassword.reset();
+}
+
+function handlePasswordChangeSubmit(e) {
+  e.preventDefault();
+  if (!state.currentUser) return;
+
+  const currentPass = UI.changePassCurrent ? UI.changePassCurrent.value.trim() : '';
+  const newPass = UI.changePassNew ? UI.changePassNew.value.trim() : '';
+  const confirmPass = UI.changePassConfirm ? UI.changePassConfirm.value.trim() : '';
+
+  if (!currentPass) {
+    showToast('Validasi Gagal', 'Harap masukkan password saat ini.', 'warning');
+    if (UI.changePassCurrent) UI.changePassCurrent.focus();
+    return;
+  }
+
+  if (state.currentUser.password !== currentPass) {
+    showToast('Password Salah', 'Password saat ini yang Anda masukkan keliru.', 'danger');
+    if (UI.changePassCurrent) UI.changePassCurrent.focus();
+    return;
+  }
+
+  if (!newPass || newPass.length < 6) {
+    showToast('Validasi Gagal', 'Password baru harus terdiri dari minimal 6 karakter.', 'warning');
+    if (UI.changePassNew) UI.changePassNew.focus();
+    return;
+  }
+
+  if (newPass === currentPass) {
+    showToast('Validasi Gagal', 'Password baru tidak boleh sama dengan password saat ini.', 'warning');
+    if (UI.changePassNew) UI.changePassNew.focus();
+    return;
+  }
+
+  if (newPass !== confirmPass) {
+    showToast('Validasi Gagal', 'Konfirmasi password baru tidak cocok. Periksa kembali.', 'danger');
+    if (UI.changePassConfirm) UI.changePassConfirm.focus();
+    return;
+  }
+
+  // Update password in users list
+  const users = state.getUsers();
+  const idx = users.findIndex(u => u.id === state.currentUser.id);
+  if (idx !== -1) {
+    users[idx].password = newPass;
+    state.saveUsers(users);
+  }
+
+  // Update current session
+  state.currentUser.password = newPass;
+  state.setSession(state.currentUser);
+
+  // Add audit log
+  state.addLog(
+    'SECURITY',
+    'Ubah Password',
+    `Pengguna ${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) berhasil memperbarui kata sandi akun.`
+  );
+
+  closeChangePasswordModal();
+  showToast(
+    'Password Berhasil Diubah',
+    'Kata sandi akun Anda telah berhasil diperbarui dengan aman.',
+    'success'
+  );
+}
 
 // ==========================================
 // 11. AUDIT LOGS & EXPORTING
@@ -2966,51 +3482,141 @@ function initEvents() {
     e.stopPropagation();
     UI.userDropdownMenu.classList.toggle('hidden');
     UI.notificationDropdown.classList.add('hidden');
+    if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
   });
 
   UI.btnNotifications.addEventListener('click', (e) => {
     e.stopPropagation();
     UI.notificationDropdown.classList.toggle('hidden');
     UI.userDropdownMenu.classList.add('hidden');
+    if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
   });
+
+  // Navbar Dark / Light Mode Toggle Button
+  if (UI.btnThemeMode) {
+    UI.btnThemeMode.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleDisplayMode(true);
+    });
+  }
+
+  // Dropdown Mode Switch Buttons
+  if (UI.btnModeDark) {
+    UI.btnModeDark.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setDisplayMode('dark', true);
+    });
+  }
+
+  if (UI.btnModeLight) {
+    UI.btnModeLight.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setDisplayMode('light', true);
+    });
+  }
+
+  if (UI.btnThemeDropdown && UI.themeDropdownMenu) {
+    UI.btnThemeDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      UI.themeDropdownMenu.classList.toggle('hidden');
+      UI.userDropdownMenu.classList.add('hidden');
+      UI.notificationDropdown.classList.add('hidden');
+    });
+
+    UI.themeDropdownMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  if (UI.btnThemeReset) {
+    UI.btnThemeReset.addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyTheme('default', true);
+    });
+  }
 
   // Click outside to close dropdowns
   document.addEventListener('click', () => {
     UI.userDropdownMenu.classList.add('hidden');
     UI.notificationDropdown.classList.add('hidden');
+    if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
   });
 
-  // Quick switch role buttons
-  UI.btnQuickSwitch.addEventListener('click', () => {
-    const targetRole = state.isAdmin() ? 'user' : 'admin';
-    switchUserRole(targetRole);
-  });
-
-  UI.btnBannerSwitchAdmin.addEventListener('click', () => {
-    switchUserRole('admin');
-  });
-
-  UI.dropdownItemSwitchRole.addEventListener('click', () => {
-    const targetRole = state.isAdmin() ? 'user' : 'admin';
-    switchUserRole(targetRole);
-  });
+  if (UI.btnBannerSwitchAdmin) {
+    UI.btnBannerSwitchAdmin.addEventListener('click', () => {
+      switchUserRole('admin');
+    });
+  }
 
   UI.dropdownItemProfile.addEventListener('click', () => {
     navigateToPage('settings');
   });
 
-  // Settings role switchers
-  UI.btnSettingsSwitchAdmin.addEventListener('click', () => switchUserRole('admin'));
-  UI.btnSettingsSwitchUser.addEventListener('click', () => switchUserRole('user'));
+  // Change Password listeners
+  if (UI.dropdownItemChangePassword) {
+    UI.dropdownItemChangePassword.addEventListener('click', (e) => {
+      e.stopPropagation();
+      openChangePasswordModal();
+    });
+  }
+  if (UI.btnCloseChangePasswordModal) {
+    UI.btnCloseChangePasswordModal.addEventListener('click', closeChangePasswordModal);
+  }
+  if (UI.btnCancelChangePassword) {
+    UI.btnCancelChangePassword.addEventListener('click', closeChangePasswordModal);
+  }
+  if (UI.formChangePassword) {
+    UI.formChangePassword.addEventListener('submit', handlePasswordChangeSubmit);
+  }
+  if (UI.btnToggleCurrentPass) {
+    UI.btnToggleCurrentPass.addEventListener('click', () => {
+      const isPass = UI.changePassCurrent.type === 'password';
+      UI.changePassCurrent.type = isPass ? 'text' : 'password';
+      if (UI.toggleCurrentPassIcon) {
+        UI.toggleCurrentPassIcon.className = isPass ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      }
+    });
+  }
+  if (UI.btnToggleNewPass) {
+    UI.btnToggleNewPass.addEventListener('click', () => {
+      const isPass = UI.changePassNew.type === 'password';
+      UI.changePassNew.type = isPass ? 'text' : 'password';
+      if (UI.toggleNewPassIcon) {
+        UI.toggleNewPassIcon.className = isPass ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      }
+    });
+  }
+  if (UI.btnToggleConfirmPass) {
+    UI.btnToggleConfirmPass.addEventListener('click', () => {
+      const isPass = UI.changePassConfirm.type === 'password';
+      UI.changePassConfirm.type = isPass ? 'text' : 'password';
+      if (UI.toggleConfirmPassIcon) {
+        UI.toggleConfirmPassIcon.className = isPass ? 'fa-regular fa-eye-slash' : 'fa-regular fa-eye';
+      }
+    });
+  }
+  if (UI.modalChangePassword) {
+    UI.modalChangePassword.addEventListener('click', (e) => {
+      if (e.target === UI.modalChangePassword) {
+        closeChangePasswordModal();
+      }
+    });
+  }
 
-  // Reset sample data
-  UI.btnResetAllData.addEventListener('click', () => {
-    if (confirm('Apakah Anda yakin ingin mereset seluruh data kembali ke setelan sampel awal?')) {
-      state.resetAllData();
-      showToast('Data Dipulihkan', 'Seluruh data barang dan akun telah dikembalikan ke sampel awal.', 'info');
-      renderAppView();
-    }
-  });
+  // Settings role switchers (if present)
+  if (UI.btnSettingsSwitchAdmin) UI.btnSettingsSwitchAdmin.addEventListener('click', () => switchUserRole('admin'));
+  if (UI.btnSettingsSwitchUser) UI.btnSettingsSwitchUser.addEventListener('click', () => switchUserRole('user'));
+
+  // Reset sample data (if present)
+  if (UI.btnResetAllData) {
+    UI.btnResetAllData.addEventListener('click', () => {
+      if (confirm('Apakah Anda yakin ingin mereset seluruh data kembali ke setelan sampel awal?')) {
+        state.resetAllData();
+        showToast('Data Dipulihkan', 'Seluruh data barang dan akun telah dikembalikan ke sampel awal.', 'info');
+        renderAppView();
+      }
+    });
+  }
 
   // Modals event listeners
   UI.btnOpenAddDataModal.addEventListener('click', openAddItemModal);
@@ -3225,6 +3831,7 @@ function initEvents() {
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   startClock();
   populateNotifications();
   startTimerTicker();
