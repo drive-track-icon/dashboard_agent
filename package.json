@@ -1,0 +1,13 @@
+{
+  "name": "dashboard-admin-user",
+  "version": "1.0.0",
+  "description": "Dashboard Admin & User dengan Role Based Access Control, Menu Login, dan Manajemen User",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["dashboard", "admin", "rbac", "red-black-gray"],
+  "author": "Antigravity",
+  "license": "MIT"
+}

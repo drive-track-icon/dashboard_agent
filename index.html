@@ -1,0 +1,1230 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VORTEX | Admin & User Dashboard Portal</title>
+  <meta name="description" content="Dashboard Sistem Informasi dengan Hak Akses Admin dan User, Kombinasi Tema Merah, Hitam, dan Abu-abu">
+  
+  <!-- Google Fonts: Plus Jakarta Sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="theme-dark">
+
+  <!-- ==================== TOAST NOTIFICATION CONTAINER ==================== -->
+  <div id="toastContainer" class="toast-container" aria-live="polite"></div>
+
+  <!-- ==================== VIEW 1: LOGIN SECTION ==================== -->
+  <div id="loginView" class="login-view">
+    <!-- Ambient glowing backgrounds in Red & Dark Charcoal -->
+    <div class="ambient-glow glow-red-1"></div>
+    <div class="ambient-glow glow-red-2"></div>
+    <div class="ambient-glow glow-gray-1"></div>
+
+    <div class="login-card-wrapper">
+      <div class="login-card glass-panel">
+        
+        <!-- Brand Header -->
+        <div class="login-header text-center">
+          <div class="brand-logo-container">
+            <div class="brand-badge-icon">
+              <i class="fa-solid fa-shield-halved"></i>
+            </div>
+          </div>
+          <h1 class="brand-title">VORTEX<span class="accent-red">CORE</span></h1>
+          <p class="brand-subtitle">Portal Manajemen Sistem Berbasis Hak Akses</p>
+          <div class="color-palette-tag">
+            <span class="dot dot-black"></span>
+            <span class="dot dot-gray"></span>
+            <span class="dot dot-red"></span>
+            <span>Tema Merah • Hitam • Abu-abu</span>
+          </div>
+        </div>
+
+        <!-- Quick Demo Switcher Banner -->
+        <div class="quick-demo-box">
+          <p class="quick-demo-title"><i class="fa-solid fa-bolt text-red"></i> Akun Cepat Pengujian (1-Klik):</p>
+          <div class="demo-buttons-grid">
+            <button type="button" class="btn-demo btn-demo-admin" id="btnQuickAdmin" title="Klik untuk otomatis isi akun Admin">
+              <span class="demo-role-badge badge-admin"><i class="fa-solid fa-crown"></i> Admin</span>
+              <span class="demo-cred">admin / admin123</span>
+              <small class="demo-perm">Bisa Tambah, Edit, Hapus &amp; Buat User</small>
+            </button>
+            <button type="button" class="btn-demo btn-demo-user" id="btnQuickUser" title="Klik untuk otomatis isi akun User">
+              <span class="demo-role-badge badge-user"><i class="fa-solid fa-user"></i> User</span>
+              <span class="demo-cred">user / user123</span>
+              <small class="demo-perm">Hanya Dapat Melihat (Read-Only)</small>
+            </button>
+          </div>
+        </div>
+
+        <!-- Login Form -->
+        <form id="loginForm" class="login-form" novalidate>
+          <div class="form-group">
+            <label for="loginUsername" class="form-label">
+              <i class="fa-solid fa-user-tag text-red"></i> Username
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-regular fa-circle-user input-icon"></i>
+              <input type="text" id="loginUsername" class="form-control" placeholder="Masukkan username Anda" required autocomplete="username">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <div class="label-row">
+              <label for="loginPassword" class="form-label">
+                <i class="fa-solid fa-lock text-red"></i> Kata Sandi
+              </label>
+              <button type="button" class="btn-link-toggle" id="btnTogglePassword" aria-label="Lihat kata sandi">
+                <i class="fa-regular fa-eye" id="togglePasswordIcon"></i>
+              </button>
+            </div>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-key input-icon"></i>
+              <input type="password" id="loginPassword" class="form-control" placeholder="Masukkan kata sandi" required autocomplete="current-password">
+            </div>
+          </div>
+
+          <div class="form-options-row">
+            <label class="custom-checkbox">
+              <input type="checkbox" id="rememberMe" checked>
+              <span class="checkbox-indicator"></span>
+              <span class="checkbox-text">Ingat sesi saya</span>
+            </label>
+            <span class="badge-secure"><i class="fa-solid fa-lock"></i> SSL Terenkripsi</span>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block btn-lg glow-effect-red" id="btnLoginSubmit">
+            <span>Masuk ke Dashboard</span>
+            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+          </button>
+        </form>
+
+        <!-- Role Legend Info -->
+        <div class="login-footer-info">
+          <div class="permission-item">
+            <i class="fa-solid fa-check-double text-red"></i>
+            <span><strong>Admin:</strong> Akses penuh (Tambah, Ubah, Hapus, Registrasi Pengguna)</span>
+          </div>
+          <div class="permission-item">
+            <i class="fa-solid fa-eye text-gray"></i>
+            <span><strong>User:</strong> Mode tinjauan (Hanya melihat data)</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== VIEW 2: MAIN DASHBOARD SHELL ==================== -->
+  <div id="dashboardView" class="dashboard-shell hidden">
+    
+    <!-- SIDEBAR NAVIGATION -->
+    <aside class="sidebar" id="sidebar">
+      <!-- Sidebar Header -->
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <div class="brand-icon-wrapper">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <div class="brand-text-block">
+            <span class="sidebar-brand-name">VORTEX<span class="accent-red">CORE</span></span>
+            <span class="sidebar-brand-sub">Enterprise Portal</span>
+          </div>
+        </div>
+        <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup Menu">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- Current User Profile Card in Sidebar -->
+      <div class="sidebar-user-card glass-subpanel">
+        <div class="user-avatar-container">
+          <img id="sidebarUserAvatar" src="" alt="User Avatar" class="user-avatar-img">
+          <span class="online-indicator"></span>
+        </div>
+        <div class="user-info-meta">
+          <span class="user-fullname" id="sidebarUserName">-</span>
+          <span class="user-badge" id="sidebarUserRoleBadge">Role</span>
+        </div>
+      </div>
+
+      <!-- Role Mode Notice in Sidebar -->
+      <div class="sidebar-mode-notice" id="sidebarModeNotice">
+        <!-- Rendered dynamically -->
+      </div>
+
+      <!-- Navigation Menu -->
+      <nav class="sidebar-nav">
+        <div class="nav-category-title">MENU UTAMA</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <button class="nav-link active" data-page="overview" id="navOverview">
+              <i class="fa-solid fa-chart-pie nav-icon"></i>
+              <span class="nav-label">Ringkasan</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="data-management" id="navDataManagement">
+              <i class="fa-solid fa-boxes-stacked nav-icon"></i>
+              <span class="nav-label">Kelola Data Barang</span>
+              <span class="nav-tag" id="navDataTag">Semua</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="nav-category-title">ADMINISTRASI SISTEM</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <!-- This menu is admin-only. For user, it's either locked or guarded -->
+            <button class="nav-link" data-page="user-management" id="navUserManagement">
+              <i class="fa-solid fa-users-gear nav-icon"></i>
+              <span class="nav-label">Manajemen User</span>
+              <span class="nav-badge-lock" id="navUserLockBadge">
+                <i class="fa-solid fa-lock"></i> Admin
+              </span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="activity-log" id="navActivityLog">
+              <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
+              <span class="nav-label">Log Aktivitas</span>
+            </button>
+          </li>
+        </ul>
+
+        <div class="nav-category-title">SISTEM &amp; PENGUJIAN</div>
+        <ul class="nav-list">
+          <li class="nav-item">
+            <button class="nav-link" data-page="settings" id="navSettings">
+              <i class="fa-solid fa-sliders nav-icon"></i>
+              <span class="nav-label">Pengaturan &amp; Demo</span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Sidebar Footer -->
+      <div class="sidebar-footer">
+        <button class="btn btn-logout-sidebar" id="btnLogoutSidebar">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>
+          <span>Keluar Sesi</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Sidebar Overlay for mobile screen -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN CONTENT AREA WRAPPER -->
+    <div class="main-wrapper">
+      
+      <!-- TOP NAVIGATION BAR -->
+      <header class="topbar glass-panel">
+        <div class="topbar-left">
+          <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="Buka Menu">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="breadcrumb-container">
+            <span class="breadcrumb-root">Dashboard</span>
+            <i class="fa-solid fa-chevron-right breadcrumb-separator"></i>
+            <span class="breadcrumb-active" id="breadcrumbTitle">Ringkasan</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Role Active Status Pill -->
+          <div class="current-role-pill" id="topbarRolePill">
+            <span class="pill-dot"></span>
+            <span class="pill-text" id="topbarRoleText">Admin (Akses Penuh)</span>
+          </div>
+
+          <!-- Quick Role Switch Dropdown for Pair-Programming/Testing -->
+          <div class="dropdown-container">
+            <button class="btn btn-outline-gray btn-sm quick-switch-btn" id="btnQuickSwitch" title="Beralih peran secara instan untuk pengujian">
+              <i class="fa-solid fa-repeat text-red"></i>
+              <span class="hide-mobile">Ganti Peran</span>
+            </button>
+          </div>
+
+          <!-- Realtime Clock -->
+          <div class="realtime-clock hide-mobile" id="realtimeClock" title="Waktu Lokal">
+            00:00:00 WIB
+          </div>
+
+          <!-- Notifications Button -->
+          <div class="dropdown-container">
+            <button class="btn-icon-topbar" id="btnNotifications" aria-label="Notifikasi">
+              <i class="fa-regular fa-bell"></i>
+              <span class="notification-badge" id="notifBadge">3</span>
+            </button>
+            <div class="notification-dropdown glass-dropdown hidden" id="notificationDropdown">
+              <div class="dropdown-header">
+                <h6>Notifikasi Sistem</h6>
+                <span class="badge badge-red-subtle">Baru</span>
+              </div>
+              <ul class="notification-list" id="notificationList">
+                <!-- Injected via JS -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- User Menu Profile Dropdown -->
+          <div class="dropdown-container">
+            <button class="user-topbar-profile" id="userTopbarBtn">
+              <img id="topbarUserAvatar" src="" alt="Avatar" class="avatar-sm">
+              <span class="topbar-username hide-mobile" id="topbarUserName">Admin</span>
+              <i class="fa-solid fa-chevron-down caret-icon"></i>
+            </button>
+            <div class="user-dropdown-menu glass-dropdown hidden" id="userDropdownMenu">
+              <div class="user-dropdown-header">
+                <strong id="dropdownFullName">Administrator</strong>
+                <small id="dropdownEmail">admin@vortex.internal</small>
+                <div class="dropdown-role-tag" id="dropdownRoleTag">Hak Akses: Admin</div>
+              </div>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item" id="dropdownItemProfile">
+                <i class="fa-regular fa-id-badge"></i> Profil Akun
+              </button>
+              <button class="dropdown-item" id="dropdownItemSwitchRole">
+                <i class="fa-solid fa-people-arrows text-red"></i> Ganti ke Akun Lain
+              </button>
+              <div class="dropdown-divider"></div>
+              <button class="dropdown-item text-danger" id="dropdownItemLogout">
+                <i class="fa-solid fa-power-off"></i> Keluar
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- ROLE BANNER WARNING (VISIBLE WHEN USER IS LOGGED IN) -->
+      <div class="role-alert-banner hidden" id="userRoleAlertBanner">
+        <div class="role-alert-content">
+          <div class="role-alert-icon">
+            <i class="fa-solid fa-circle-info"></i>
+          </div>
+          <div class="role-alert-text">
+            <strong>Mode Tinjauan (Read-Only) Aktif:</strong> Anda sedang masuk sebagai <em>Pengguna Biasa (User)</em>. Sesuai hak akses, Anda <strong>hanya dapat melihat data</strong>. Fitur Tambah, Ubah, Hapus data dan Manajemen Pengguna terkunci.
+          </div>
+          <button class="btn btn-sm btn-outline-red" id="btnBannerSwitchAdmin">
+            <i class="fa-solid fa-crown"></i> Coba Akun Admin
+          </button>
+        </div>
+      </div>
+
+      <!-- MAIN PAGE CONTAINERS (TAB-BASED SPA) -->
+      <main class="page-content" id="mainContent">
+
+        <!-- ==================== PAGE 1: OVERVIEW (RINGKASAN) ==================== -->
+        <section class="page-section active" id="pageOverview">
+          
+          <!-- Page Header -->
+          <div class="page-title-bar">
+            <div>
+              <h2 class="page-title">Pusat Kendali &amp; Ringkasan</h2>
+              <p class="page-desc">Ikhtisar metrik sistem, status barang inventaris, dan aktivitas pengguna terkini.</p>
+            </div>
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnRefreshStats">
+                <i class="fa-solid fa-arrows-rotate"></i> Perbarui Metrik
+              </button>
+              <!-- Only visible / active if Admin -->
+              <button class="btn btn-primary glow-effect-red admin-only-btn" id="btnOverviewQuickAdd">
+                <i class="fa-solid fa-plus"></i> Tambah Data Baru
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid (Red, Black, Gray themed) -->
+          <div class="metrics-grid">
+            
+            <!-- Card 1: Total Nilai Aset -->
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-vault"></i>
+                </div>
+                <span class="metric-trend trend-up">
+                  <i class="fa-solid fa-arrow-trend-up"></i> +12.5%
+                </span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Nilai Aset/Barang</span>
+                <h3 class="metric-value text-red" id="metricTotalValue">Rp 0</h3>
+                <span class="metric-subtext">Dari keseluruhan inventaris aktif</span>
+              </div>
+            </div>
+
+            <!-- Card 2: Total Item / Data -->
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-cubes-stacked text-red"></i>
+                </div>
+                <span class="metric-tag" id="metricLowStockCount">0 Perlu Restock</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Jenis Barang</span>
+                <h3 class="metric-value" id="metricTotalItems">0</h3>
+                <span class="metric-subtext"><strong id="metricAvailableCount">0</strong> Stok Normal, <strong id="metricOutOfStockCount">0</strong> Habis</span>
+              </div>
+            </div>
+
+            <!-- Card 3: Total Pengguna -->
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-users text-silver"></i>
+                </div>
+                <span class="metric-tag tag-admin-count" id="metricAdminRatio">0 Admin</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Pengguna Terdaftar</span>
+                <h3 class="metric-value text-white" id="metricTotalUsers">0</h3>
+                <span class="metric-subtext">Termasuk Admin dan User Operasional</span>
+              </div>
+            </div>
+
+            <!-- Card 4: Status Akses & Izin -->
+            <div class="metric-card glass-panel card-hover border-red-subtle">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-user-shield text-red"></i>
+                </div>
+                <span class="metric-badge" id="metricUserRoleBadge">Admin</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Status Izin Sesi Anda</span>
+                <h3 class="metric-value text-silver" id="metricPermissionLabel">Akses Penuh</h3>
+                <span class="metric-subtext" id="metricPermissionDesc">Dapat Tambah, Ubah, Hapus &amp; User</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Charts Row -->
+          <div class="charts-row">
+            <!-- Line / Bar Chart -->
+            <div class="chart-card glass-panel flex-2">
+              <div class="card-header-flex">
+                <div>
+                  <h4 class="card-title">Tren Perputaran Nilai &amp; Stok (2026)</h4>
+                  <p class="card-subtitle">Kalkulasi nilai aset per bulan dalam jutaan Rupiah</p>
+                </div>
+                <div class="card-pills">
+                  <span class="badge badge-red-outline">Aktif</span>
+                </div>
+              </div>
+              <div class="chart-canvas-container">
+                <canvas id="monthlyChart"></canvas>
+              </div>
+            </div>
+
+            <!-- Donut Category Chart -->
+            <div class="chart-card glass-panel flex-1">
+              <div class="card-header-flex">
+                <div>
+                  <h4 class="card-title">Kategori Inventaris</h4>
+                  <p class="card-subtitle">Komposisi sebaran barang</p>
+                </div>
+              </div>
+              <div class="chart-canvas-container chart-donut-box">
+                <canvas id="categoryDonutChart"></canvas>
+              </div>
+              <div class="donut-legend-list" id="donutLegendList">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Preview Grid -->
+          <div class="overview-split-row">
+            <!-- Recent Items Widget -->
+            <div class="overview-widget glass-panel flex-2">
+              <div class="widget-header">
+                <div>
+                  <h4 class="card-title"><i class="fa-solid fa-boxes-stacked text-red"></i> Barang Terbaru Ditambahkan</h4>
+                  <p class="card-subtitle">5 data inventaris terakhir</p>
+                </div>
+                <button class="btn btn-sm btn-outline-gray" id="btnOverviewViewAll">Lihat Semua</button>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table" id="tableOverviewRecent">
+                  <thead>
+                    <tr>
+                      <th>Kode</th>
+                      <th>Nama Barang</th>
+                      <th>Kategori</th>
+                      <th>Harga</th>
+                      <th>Stok</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tbodyOverviewRecent">
+                    <!-- Populated via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Recent Activity Widget -->
+            <div class="overview-widget glass-panel flex-1">
+              <div class="widget-header">
+                <div>
+                  <h4 class="card-title"><i class="fa-solid fa-clock-rotate-left text-red"></i> Log Sesi Terbaru</h4>
+                  <p class="card-subtitle">Aktivitas operasi akun</p>
+                </div>
+                <button class="btn btn-sm btn-outline-gray" id="btnOverviewLogAll">Selengkapnya</button>
+              </div>
+              <div class="timeline-container" id="overviewActivityTimeline">
+                <!-- Populated via JS -->
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE 2: DATA MANAGEMENT (KELOLA DATA BARANG) ==================== -->
+        <section class="page-section" id="pageDataManagement">
+          
+          <div class="page-title-bar">
+            <div>
+              <h2 class="page-title">Manajemen Data Barang &amp; Inventaris</h2>
+              <p class="page-desc">Kelola katalog barang, inventaris operasional, ketersediaan stok, dan riwayat pembaruan.</p>
+            </div>
+            
+            <div class="page-title-actions">
+              <div class="role-action-wrapper">
+                <!-- If Admin: active button. If User: disabled button with tooltip -->
+                <button class="btn btn-primary glow-effect-red" id="btnOpenAddDataModal">
+                  <i class="fa-solid fa-plus"></i>
+                  <span>Tambah Data Baru</span>
+                </button>
+                <div class="user-disabled-tooltip hidden" id="addDataDisabledTooltip">
+                  <i class="fa-solid fa-lock text-red"></i> Hanya Admin yang dapat menambah data
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Card -->
+          <div class="permission-status-banner glass-subpanel" id="dataPermissionStatusBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-shield-halved text-red"></i>
+              <div>
+                <strong id="bannerRoleLabel">Otoritas Akses: Administrator Penuh</strong>
+                <p id="bannerRoleDesc">Anda memiliki izin untuk <strong>Menambah</strong>, <strong>Mengedit</strong>, dan <strong>Menghapus</strong> data pada katalog ini.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-glow" id="bannerBadgePrivilege">CRUD Diizinkan</span>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchInput" class="search-input" placeholder="Cari nama barang, kode SKU, atau kategori...">
+              <button class="btn-clear-search hidden" id="btnClearSearch" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+
+            <div class="toolbar-filters">
+              <div class="filter-group">
+                <label for="filterCategory"><i class="fa-solid fa-filter text-red"></i> Kategori:</label>
+                <select id="filterCategory" class="filter-select">
+                  <option value="ALL">Semua Kategori</option>
+                  <option value="Perangkat Keras">Perangkat Keras</option>
+                  <option value="Jaringan & Server">Jaringan &amp; Server</option>
+                  <option value="Peralatan Kantor">Peralatan Kantor</option>
+                  <option value="Aksesoris & Peripheral">Aksesoris &amp; Peripheral</option>
+                  <option value="Elektronik">Elektronik</option>
+                </select>
+              </div>
+
+              <div class="filter-group">
+                <label for="filterStatus"><i class="fa-solid fa-cubes text-gray"></i> Status Stok:</label>
+                <select id="filterStatus" class="filter-select">
+                  <option value="ALL">Semua Status</option>
+                  <option value="Tersedia">Tersedia</option>
+                  <option value="Menipis">Menipis (&lt; 10)</option>
+                  <option value="Habis">Habis (0)</option>
+                </select>
+              </div>
+
+              <div class="export-actions">
+                <button class="btn btn-outline-gray btn-sm" id="btnExportCSV" title="Ekspor data ke CSV">
+                  <i class="fa-solid fa-file-csv"></i> CSV
+                </button>
+                <button class="btn btn-outline-gray btn-sm" id="btnExportJSON" title="Ekspor data ke JSON">
+                  <i class="fa-solid fa-code"></i> JSON
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="mainDataTable">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th style="width: 120px;" class="sortable" data-sort="code">Kode SKU <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable" data-sort="name">Nama Barang <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable" data-sort="category">Kategori <i class="fa-solid fa-sort"></i></th>
+                    <th class="sortable" data-sort="price">Harga Satuan <i class="fa-solid fa-sort"></i></th>
+                    <th style="width: 90px;" class="sortable" data-sort="stock">Stok <i class="fa-solid fa-sort"></i></th>
+                    <th style="width: 130px;">Status</th>
+                    <th style="width: 150px;">Pembaruan</th>
+                    <th style="width: 150px; text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="dataTableBody">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State Display -->
+            <div class="empty-state hidden" id="tableEmptyState">
+              <div class="empty-state-icon">
+                <i class="fa-solid fa-box-open"></i>
+              </div>
+              <h4 class="empty-state-title">Tidak Ada Data Ditemukan</h4>
+              <p class="empty-state-desc">Coba sesuaikan kata kunci pencarian atau ubah filter kategori Anda.</p>
+              <button class="btn btn-outline-red btn-sm" id="btnResetFilters">Reset Filter</button>
+            </div>
+
+            <!-- Table Footer & Pagination -->
+            <div class="table-footer">
+              <div class="table-info" id="tableInfoText">
+                Menampilkan 1 - 10 dari 10 data
+              </div>
+              <div class="pagination-controls" id="paginationControls">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE 3: USER MANAGEMENT (ADMIN ONLY) ==================== -->
+        <section class="page-section" id="pageUserManagement">
+          
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Manajemen Akun &amp; Pengguna</h2>
+                <span class="badge badge-admin-exclusive"><i class="fa-solid fa-lock"></i> Khusus Admin</span>
+              </div>
+              <p class="page-desc">Kelola daftar seluruh pengguna sistem, atur hak akses peran (Admin / User), dan daftarkan pengguna baru.</p>
+            </div>
+            
+            <div class="page-title-actions">
+              <!-- Registration button for adding new users -->
+              <button class="btn btn-primary glow-effect-red" id="btnOpenRegisterUserModal">
+                <i class="fa-solid fa-user-plus"></i>
+                <span>Daftar User Baru</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- User Stats Cards -->
+          <div class="metrics-grid grid-compact">
+            <div class="metric-card glass-panel">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-crown"></i>
+                </div>
+                <span class="metric-tag tag-red">Hak Penuh</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Administrator</span>
+                <h3 class="metric-value text-red" id="countAdminUsers">0</h3>
+                <span class="metric-subtext">Akses CRUD &amp; Pendaftaran</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-users text-silver"></i>
+                </div>
+                <span class="metric-tag tag-gray">Hanya Lihat</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Pengguna Biasa</span>
+                <h3 class="metric-value text-white" id="countRegularUsers">0</h3>
+                <span class="metric-subtext">Akses Read-Only data</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-user-check text-green"></i>
+                </div>
+                <span class="metric-tag tag-green">Aktif</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Status Akun Aktif</span>
+                <h3 class="metric-value text-white" id="countActiveUsers">0</h3>
+                <span class="metric-subtext">Dapat masuk ke dalam sistem</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-user-xmark text-red"></i>
+                </div>
+                <span class="metric-tag tag-red">Ditangguhkan</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Akun Nonaktif</span>
+                <h3 class="metric-value text-gray" id="countInactiveUsers">0</h3>
+                <span class="metric-subtext">Akses diblokir sementara</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- User Table Container -->
+          <div class="table-container glass-panel mt-4">
+            <div class="table-toolbar">
+              <div class="toolbar-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchUserInput" class="search-input" placeholder="Cari nama pengguna, username, atau email...">
+              </div>
+              <div class="toolbar-filters">
+                <select id="filterUserRole" class="filter-select">
+                  <option value="ALL">Semua Peran</option>
+                  <option value="admin">Administrator</option>
+                  <option value="user">Pengguna Biasa (User)</option>
+                </select>
+                <select id="filterUserStatus" class="filter-select">
+                  <option value="ALL">Semua Status</option>
+                  <option value="active">Aktif</option>
+                  <option value="inactive">Nonaktif</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table" id="userManagementTable">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th>Pengguna</th>
+                    <th>Username</th>
+                    <th>Email</th>
+                    <th>Peran / Role</th>
+                    <th>Departemen</th>
+                    <th>Status</th>
+                    <th>Terakhir Masuk</th>
+                    <th style="width: 140px; text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="userTableBody">
+                  <!-- Injected via JavaScript -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE 4: ACTIVITY AUDIT LOG ==================== -->
+        <section class="page-section" id="pageActivityLog">
+          
+          <div class="page-title-bar">
+            <div>
+              <h2 class="page-title">Log Aktivitas &amp; Jejak Audit</h2>
+              <p class="page-desc">Rekam jejak setiap aksi yang terjadi di sistem (Login, Tambah Barang, Ubah Data, Hapus Data, &amp; Registrasi Pengguna).</p>
+            </div>
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnClearAuditLogs">
+                <i class="fa-solid fa-broom"></i> Bersihkan Log
+              </button>
+            </div>
+          </div>
+
+          <div class="table-container glass-panel">
+            <div class="table-toolbar">
+              <div class="toolbar-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchLogInput" class="search-input" placeholder="Cari deskripsi aktivitas atau pelaku...">
+              </div>
+              <div class="toolbar-filters">
+                <select id="filterLogType" class="filter-select">
+                  <option value="ALL">Semua Tipe Aktivitas</option>
+                  <option value="LOGIN">Sesi Masuk (Login)</option>
+                  <option value="CREATE_ITEM">Tambah Barang</option>
+                  <option value="UPDATE_ITEM">Ubah Barang</option>
+                  <option value="DELETE_ITEM">Hapus Barang</option>
+                  <option value="REGISTER_USER">Daftar User Baru</option>
+                  <option value="DELETE_USER">Hapus Pengguna</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table">
+                <thead>
+                  <tr>
+                    <th style="width: 170px;">Waktu &amp; Tanggal</th>
+                    <th style="width: 180px;">Pengguna (Pelaku)</th>
+                    <th style="width: 140px;">Tipe Aksi</th>
+                    <th>Deskripsi Detail</th>
+                    <th style="width: 110px;">Status</th>
+                  </tr>
+                </thead>
+                <tbody id="auditLogsTableBody">
+                  <!-- Injected via JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE 5: SETTINGS & DEMO TESTER ==================== -->
+        <section class="page-section" id="pageSettings">
+          
+          <div class="page-title-bar">
+            <div>
+              <h2 class="page-title">Pengaturan Sistem &amp; Alat Pengujian</h2>
+              <p class="page-desc">Konfigurasi sesi, pengujian peran antarmuka, dan reset data simulasi.</p>
+            </div>
+          </div>
+
+          <div class="settings-grid">
+            
+            <!-- Current Session Profile Card -->
+            <div class="glass-panel settings-card">
+              <div class="card-header-flex">
+                <h4 class="card-title"><i class="fa-solid fa-id-card text-red"></i> Profil Sesi Aktif</h4>
+                <span class="badge" id="settingsRoleBadge">Admin</span>
+              </div>
+              <div class="profile-details-list">
+                <div class="profile-avatar-row">
+                  <img id="settingsUserAvatar" src="" alt="Avatar" class="avatar-lg">
+                  <div>
+                    <h4 id="settingsFullname" class="m-0">Administrator</h4>
+                    <p id="settingsUsername" class="text-muted m-0">@admin</p>
+                    <span class="badge-role-pill" id="settingsRolePill">Hak Akses: Admin</span>
+                  </div>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Email Terdaftar:</span>
+                  <span class="detail-value" id="settingsEmail">admin@vortex.internal</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Departemen:</span>
+                  <span class="detail-value" id="settingsDept">IT Infrastructure</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Hak Izin Barang:</span>
+                  <span class="detail-value text-red" id="settingsItemPerm">Tambah, Edit, Hapus (Penuh)</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Hak Izin Manajemen User:</span>
+                  <span class="detail-value" id="settingsUserPerm">Dapat Mendaftarkan User Baru</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Instant Role Switcher for Pair-Programming/Testing -->
+            <div class="glass-panel settings-card">
+              <div class="card-header-flex">
+                <h4 class="card-title"><i class="fa-solid fa-shuffle text-red"></i> Penguji Hak Akses Cepat</h4>
+                <span class="badge badge-red-subtle">Interaktif</span>
+              </div>
+              <p class="text-muted">Gunakan tombol di bawah ini untuk langsung berpindah peran tanpa harus mengetik ulang kredensial di form login:</p>
+              
+              <div class="test-switcher-buttons">
+                <div class="switch-box box-admin">
+                  <h5><i class="fa-solid fa-crown text-red"></i> Akun Administrator</h5>
+                  <p>Mendapatkan tombol Tambah, Edit, Hapus, dan menu Daftar User Baru.</p>
+                  <button class="btn btn-primary btn-block btn-sm glow-effect-red" id="btnSettingsSwitchAdmin">
+                    Beralih ke Admin Sekarang
+                  </button>
+                </div>
+                
+                <div class="switch-box box-user">
+                  <h5><i class="fa-solid fa-user text-silver"></i> Akun Pengguna Biasa</h5>
+                  <p>Hanya melihat data (Read-Only). Semua aksi modifikasi dinonaktifkan.</p>
+                  <button class="btn btn-outline-gray btn-block btn-sm" id="btnSettingsSwitchUser">
+                    Beralih ke User Biasa Sekarang
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reset Data to Default -->
+            <div class="glass-panel settings-card border-red-subtle">
+              <div class="card-header-flex">
+                <h4 class="card-title"><i class="fa-solid fa-database text-red"></i> Pemulihan Data Sampel</h4>
+                <span class="badge badge-danger">Bahaya</span>
+              </div>
+              <p class="text-muted">Jika Anda telah memanipulasi, menambahkan, atau menghapus banyak data dan ingin mengembalikan ke sampel awal sistem (10 barang &amp; 4 user awal), klik tombol berikut:</p>
+              <button class="btn btn-outline-red" id="btnResetAllData">
+                <i class="fa-solid fa-rotate-left"></i> Reset ke Data Sampel Awal
+              </button>
+            </div>
+
+          </div>
+
+        </section>
+
+      </main>
+
+      <!-- FOOTER -->
+      <footer class="app-footer">
+        <div class="footer-left">
+          <span>&copy; 2026 <strong>VORTEX CORE</strong>. Sistem Terpadu Berbasis Hak Akses RBAC.</span>
+        </div>
+        <div class="footer-right">
+          <span class="theme-signature">
+            <span class="palette-indicator color-red"></span> Merah
+            <span class="palette-indicator color-black"></span> Hitam
+            <span class="palette-indicator color-gray"></span> Abu-abu
+          </span>
+        </div>
+      </footer>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 1: TAMBAH / EDIT DATA BARANG (ADMIN ONLY) ==================== -->
+  <div class="modal-backdrop hidden" id="modalDataForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-box" id="modalDataIcon"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalDataTitle">Tambah Data Barang Baru</h3>
+            <p class="modal-subtitle">Hanya Administrator yang memiliki akses mengubah katalog ini</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseDataModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="dataItemForm" novalidate>
+        <input type="hidden" id="formItemId" value="">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formItemCode" class="form-label">
+                Kode SKU / Barang <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-barcode input-icon"></i>
+                <input type="text" id="formItemCode" class="form-control" placeholder="Contoh: IT-SRV-001" required>
+              </div>
+            </div>
+            
+            <div class="form-group flex-1">
+              <label for="formItemCategory" class="form-label">
+                Kategori <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-folder-tree input-icon"></i>
+                <select id="formItemCategory" class="form-control" required>
+                  <option value="">Pilih Kategori...</option>
+                  <option value="Perangkat Keras">Perangkat Keras</option>
+                  <option value="Jaringan & Server">Jaringan &amp; Server</option>
+                  <option value="Peralatan Kantor">Peralatan Kantor</option>
+                  <option value="Aksesoris & Peripheral">Aksesoris &amp; Peripheral</option>
+                  <option value="Elektronik">Elektronik</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formItemName" class="form-label">
+              Nama Barang / Produk <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-tag input-icon"></i>
+              <input type="text" id="formItemName" class="form-control" placeholder="Contoh: Dell PowerEdge R750 Enterprise Server" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formItemPrice" class="form-label">
+                Harga Satuan (Rp) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <span class="input-prefix">Rp</span>
+                <input type="number" id="formItemPrice" class="form-control pl-custom" placeholder="Contoh: 45000000" min="0" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formItemStock" class="form-label">
+                Jumlah Stok <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-cubes input-icon"></i>
+                <input type="number" id="formItemStock" class="form-control" placeholder="Contoh: 15" min="0" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formItemDesc" class="form-label">Deskripsi / Spesifikasi Singkat</label>
+            <textarea id="formItemDesc" class="form-control" rows="3" placeholder="Tuliskan spesifikasi atau keterangan kondisi barang..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formItemLocation" class="form-label">Lokasi Penyimpanan / Rak</label>
+              <input type="text" id="formItemLocation" class="form-control" placeholder="Contoh: Ruang Server Lt. 2 - Rak A3">
+            </div>
+            
+            <div class="form-group flex-1">
+              <label for="formItemCondition" class="form-label">Kondisi Fisik</label>
+              <select id="formItemCondition" class="form-control">
+                <option value="Baru (Segel)">Baru (Segel)</option>
+                <option value="Sangat Baik">Sangat Baik</option>
+                <option value="Perlu Perawatan">Perlu Perawatan</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelDataModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitDataForm">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnSubmitDataText">Simpan Data</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 2: RINCIAN BARANG (READ-ONLY VIEW) ==================== -->
+  <div class="modal-backdrop hidden" id="modalViewDetail">
+    <div class="modal-dialog glass-panel modal-lg">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-gray-dark">
+            <i class="fa-solid fa-file-lines text-silver"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="viewDetailTitle">Rincian Barang</h3>
+            <p class="modal-subtitle">Informasi lengkap data inventaris</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseViewDetail" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-header-card glass-subpanel">
+          <div class="detail-sku-badge" id="viewDetailSku">SKU-000</div>
+          <h2 class="detail-item-name" id="viewDetailName">Nama Barang</h2>
+          <div class="detail-meta-tags">
+            <span class="badge badge-gray" id="viewDetailCategory">Kategori</span>
+            <span class="badge" id="viewDetailStockStatus">Status Stok</span>
+          </div>
+        </div>
+
+        <div class="detail-grid mt-3">
+          <div class="detail-item-box">
+            <span class="detail-box-label">Harga Satuan</span>
+            <span class="detail-box-val text-red" id="viewDetailPrice">Rp 0</span>
+          </div>
+          <div class="detail-item-box">
+            <span class="detail-box-label">Sisa Stok</span>
+            <span class="detail-box-val" id="viewDetailStock">0 Unit</span>
+          </div>
+          <div class="detail-item-box">
+            <span class="detail-box-label">Total Nilai Stok</span>
+            <span class="detail-box-val" id="viewDetailTotalVal">Rp 0</span>
+          </div>
+          <div class="detail-item-box">
+            <span class="detail-box-label">Kondisi</span>
+            <span class="detail-box-val" id="viewDetailCondition">Baru</span>
+          </div>
+        </div>
+
+        <div class="detail-text-block mt-3">
+          <h5 class="detail-section-title"><i class="fa-solid fa-location-dot text-red"></i> Lokasi Penyimpanan:</h5>
+          <p id="viewDetailLocation" class="detail-section-content">-</p>
+        </div>
+
+        <div class="detail-text-block mt-2">
+          <h5 class="detail-section-title"><i class="fa-solid fa-align-left text-red"></i> Deskripsi &amp; Spesifikasi:</h5>
+          <p id="viewDetailDesc" class="detail-section-content">-</p>
+        </div>
+
+        <div class="detail-text-block mt-2">
+          <h5 class="detail-section-title"><i class="fa-solid fa-clock-rotate-left text-red"></i> Pembaruan Terakhir:</h5>
+          <p id="viewDetailUpdated" class="detail-section-content text-muted">-</p>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-gray" id="btnCloseViewDetailBtn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 3: DAFTAR USER BARU (ADMIN ONLY) ==================== -->
+  <div class="modal-backdrop hidden" id="modalRegisterUser">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Daftar Pengguna Baru</h3>
+            <p class="modal-subtitle">Tambah akun baru dengan hak akses Admin atau Pengguna Biasa</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseRegisterModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="registerUserForm" novalidate>
+        <div class="modal-body">
+          
+          <div class="form-group">
+            <label for="regFullName" class="form-label">
+              Nama Lengkap <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-id-card input-icon"></i>
+              <input type="text" id="regFullName" class="form-control" placeholder="Contoh: Rian Pratama, S.Kom" required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="regUsername" class="form-label">
+                Username <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-at input-icon"></i>
+                <input type="text" id="regUsername" class="form-control" placeholder="Contoh: rian_pratama" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="regEmail" class="form-label">
+                Alamat Email <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-envelope input-icon"></i>
+                <input type="email" id="regEmail" class="form-control" placeholder="rian@perusahaan.com" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="regRole" class="form-label">
+                Peran / Hak Akses <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-shield-halved input-icon"></i>
+                <select id="regRole" class="form-control" required>
+                  <option value="user">User Biasa (Hanya Melihat)</option>
+                  <option value="admin">Administrator (Akses Penuh CRUD)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="regDept" class="form-label">Departemen / Divisi</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-building input-icon"></i>
+                <input type="text" id="regDept" class="form-control" placeholder="Contoh: Operasional / Logistik">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="regPassword" class="form-label">
+              Kata Sandi Akun <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-lock input-icon"></i>
+              <input type="password" id="regPassword" class="form-control" placeholder="Minimal 6 karakter" minlength="6" required>
+            </div>
+            <small class="form-hint">Pengguna dapat masuk menggunakan username dan kata sandi ini.</small>
+          </div>
+
+          <!-- Role Explanation Box in Form -->
+          <div class="role-explain-box glass-subpanel" id="roleExplainBox">
+            <div class="explain-item">
+              <i class="fa-solid fa-eye text-silver"></i>
+              <span><strong>User Biasa:</strong> Hanya dapat menjelajah data inventaris. Tidak bisa tambah, edit, atau hapus data.</span>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelRegisterModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitRegisterUser">
+            <i class="fa-solid fa-user-plus"></i>
+            <span>Daftarkan Pengguna</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 4: KONFIRMASI HAPUS (DANGER RED MODAL) ==================== -->
+  <div class="modal-backdrop hidden" id="modalConfirmDelete">
+    <div class="modal-dialog modal-sm glass-panel">
+      <div class="modal-header border-0 pb-0">
+        <div class="delete-icon-pulse">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+      </div>
+      <div class="modal-body text-center pt-2">
+        <h3 class="modal-title mb-1" id="confirmDeleteTitle">Hapus Data Permanen?</h3>
+        <p class="modal-subtitle text-muted" id="confirmDeleteMessage">Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin ingin menghapus data ini dari sistem?</p>
+      </div>
+      <div class="modal-footer justify-center pt-0 border-0">
+        <button type="button" class="btn btn-outline-gray" id="btnCancelDelete">Batal</button>
+        <button type="button" class="btn btn-danger glow-effect-red" id="btnExecuteDelete">
+          <i class="fa-solid fa-trash-can"></i> Ya, Hapus Data
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom JavaScript Logic -->
+  <script src="js/app.js"></script>
+</body>
+</html>
