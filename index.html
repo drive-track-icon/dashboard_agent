@@ -198,7 +198,7 @@
             <!-- This menu is admin-only. For user, it's either locked or guarded -->
             <button class="nav-link" data-page="user-management" id="navUserManagement">
               <i class="fa-solid fa-users-gear nav-icon"></i>
-              <span class="nav-label">Manajemen User</span>
+              <span class="nav-label">Manajemen Team</span>
               <span class="nav-badge-lock" id="navUserLockBadge">
                 <i class="fa-solid fa-lock"></i> Admin
               </span>
@@ -342,15 +342,11 @@
           <div class="page-title-bar">
             <div>
               <h2 class="page-title">Pusat Kendali &amp; Ringkasan</h2>
-              <p class="page-desc">Ikhtisar metrik sistem, status barang inventaris, dan aktivitas pengguna terkini.</p>
+              <p class="page-desc">Ikhtisar metrik sistem dan aktivitas pengguna terkini.</p>
             </div>
             <div class="page-title-actions">
               <button class="btn btn-outline-gray" id="btnRefreshStats">
                 <i class="fa-solid fa-arrows-rotate"></i> Perbarui Metrik
-              </button>
-              <!-- Only visible / active if Admin -->
-              <button class="btn btn-primary glow-effect-red admin-only-btn" id="btnOverviewQuickAdd">
-                <i class="fa-solid fa-plus"></i> Tambah Data Baru
               </button>
             </div>
           </div>
@@ -358,39 +354,7 @@
           <!-- Metric Cards Grid (Red, Black, Gray themed) -->
           <div class="metrics-grid">
             
-            <!-- Card 1: Total Nilai Aset -->
-            <div class="metric-card glass-panel card-hover">
-              <div class="metric-header">
-                <div class="metric-icon-box bg-red-gradient">
-                  <i class="fa-solid fa-vault"></i>
-                </div>
-                <span class="metric-trend trend-up">
-                  <i class="fa-solid fa-arrow-trend-up"></i> +12.5%
-                </span>
-              </div>
-              <div class="metric-body">
-                <span class="metric-label">Total Nilai Aset/Barang</span>
-                <h3 class="metric-value text-red" id="metricTotalValue">Rp 0</h3>
-                <span class="metric-subtext">Dari keseluruhan inventaris aktif</span>
-              </div>
-            </div>
-
-            <!-- Card 2: Total Item / Data -->
-            <div class="metric-card glass-panel card-hover">
-              <div class="metric-header">
-                <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-cubes-stacked text-red"></i>
-                </div>
-                <span class="metric-tag" id="metricLowStockCount">0 Perlu Restock</span>
-              </div>
-              <div class="metric-body">
-                <span class="metric-label">Total Jenis Barang</span>
-                <h3 class="metric-value" id="metricTotalItems">0</h3>
-                <span class="metric-subtext"><strong id="metricAvailableCount">0</strong> Stok Normal, <strong id="metricOutOfStockCount">0</strong> Habis</span>
-              </div>
-            </div>
-
-            <!-- Card 3: Total Pengguna -->
+            <!-- Card: Total Pengguna -->
             <div class="metric-card glass-panel card-hover">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
@@ -405,7 +369,7 @@
               </div>
             </div>
 
-            <!-- Card 4: Status Akses & Izin -->
+            <!-- Card: Status Akses & Izin -->
             <div class="metric-card glass-panel card-hover border-red-subtle">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-subtle">
@@ -422,77 +386,14 @@
 
           </div>
 
-          <!-- Charts Row -->
-          <div class="charts-row">
-            <!-- Line / Bar Chart -->
-            <div class="chart-card glass-panel flex-2">
-              <div class="card-header-flex">
-                <div>
-                  <h4 class="card-title">Tren Perputaran Nilai &amp; Stok (2026)</h4>
-                  <p class="card-subtitle">Kalkulasi nilai aset per bulan dalam jutaan Rupiah</p>
-                </div>
-                <div class="card-pills">
-                  <span class="badge badge-red-outline">Aktif</span>
-                </div>
-              </div>
-              <div class="chart-canvas-container">
-                <canvas id="monthlyChart"></canvas>
-              </div>
-            </div>
-
-            <!-- Donut Category Chart -->
-            <div class="chart-card glass-panel flex-1">
-              <div class="card-header-flex">
-                <div>
-                  <h4 class="card-title">Kategori Inventaris</h4>
-                  <p class="card-subtitle">Komposisi sebaran barang</p>
-                </div>
-              </div>
-              <div class="chart-canvas-container chart-donut-box">
-                <canvas id="categoryDonutChart"></canvas>
-              </div>
-              <div class="donut-legend-list" id="donutLegendList">
-                <!-- Populated via JS -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Quick Preview Grid -->
+          <!-- Quick Preview Row -->
           <div class="overview-split-row">
-            <!-- Recent Items Widget -->
-            <div class="overview-widget glass-panel flex-2">
-              <div class="widget-header">
-                <div>
-                  <h4 class="card-title"><i class="fa-solid fa-boxes-stacked text-red"></i> Barang Terbaru Ditambahkan</h4>
-                  <p class="card-subtitle">5 data inventaris terakhir</p>
-                </div>
-                <button class="btn btn-sm btn-outline-gray" id="btnOverviewViewAll">Lihat Semua</button>
-              </div>
-              <div class="table-responsive">
-                <table class="custom-table" id="tableOverviewRecent">
-                  <thead>
-                    <tr>
-                      <th>Kode</th>
-                      <th>Nama Barang</th>
-                      <th>Kategori</th>
-                      <th>Harga</th>
-                      <th>Stok</th>
-                      <th>Status</th>
-                    </tr>
-                  </thead>
-                  <tbody id="tbodyOverviewRecent">
-                    <!-- Populated via JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
             <!-- Recent Activity Widget -->
             <div class="overview-widget glass-panel flex-1">
               <div class="widget-header">
                 <div>
                   <h4 class="card-title"><i class="fa-solid fa-clock-rotate-left text-red"></i> Log Sesi Terbaru</h4>
-                  <p class="card-subtitle">Aktivitas operasi akun</p>
+                  <p class="card-subtitle">Aktivitas operasi akun dan jejak sistem terkini</p>
                 </div>
                 <button class="btn btn-sm btn-outline-gray" id="btnOverviewLogAll">Selengkapnya</button>
               </div>
@@ -791,23 +692,23 @@
 
         </section>
 
-        <!-- ==================== PAGE 3: USER MANAGEMENT (ADMIN ONLY) ==================== -->
+        <!-- ==================== PAGE 3: MANAJEMEN TEAM (ADMIN ONLY) ==================== -->
         <section class="page-section" id="pageUserManagement">
           
           <div class="page-title-bar">
             <div>
               <div class="badge-title-group">
-                <h2 class="page-title">Manajemen Akun &amp; Pengguna</h2>
+                <h2 class="page-title">Manajemen Team</h2>
                 <span class="badge badge-admin-exclusive"><i class="fa-solid fa-lock"></i> Khusus Admin</span>
               </div>
-              <p class="page-desc">Kelola daftar seluruh pengguna sistem, atur hak akses peran (Admin / User), dan daftarkan pengguna baru.</p>
+              <p class="page-desc">Kelola daftar seluruh anggota team, atur hak akses peran (Admin / User), dan kelola penugasan layanan CSO.</p>
             </div>
             
             <div class="page-title-actions">
               <!-- Registration button for adding new users -->
               <button class="btn btn-primary glow-effect-red" id="btnOpenRegisterUserModal">
                 <i class="fa-solid fa-user-plus"></i>
-                <span>Daftar User Baru</span>
+                <span>Manajemen Team Baru</span>
               </button>
             </div>
           </div>
@@ -879,6 +780,17 @@
                 <input type="text" id="searchUserInput" class="search-input" placeholder="Cari nama pengguna, username, atau email...">
               </div>
               <div class="toolbar-filters">
+                <select id="filterUserService" class="filter-select">
+                  <option value="ALL">Semua Layanan</option>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
                 <select id="filterUserRole" class="filter-select">
                   <option value="ALL">Semua Peran</option>
                   <option value="admin">Administrator</option>
@@ -901,7 +813,7 @@
                     <th>Username</th>
                     <th>Email</th>
                     <th>Peran / Role</th>
-                    <th>Departemen</th>
+                    <th>Layanan</th>
                     <th>Status</th>
                     <th>Terakhir Masuk</th>
                     <th style="width: 140px; text-align: center;">Aksi</th>
@@ -1263,17 +1175,17 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL 3: DAFTAR USER BARU (ADMIN ONLY) ==================== -->
+  <!-- ==================== MODAL 3: MANAJEMEN TEAM BARU & EDIT (ADMIN ONLY) ==================== -->
   <div class="modal-backdrop hidden" id="modalRegisterUser">
     <div class="modal-dialog glass-panel">
       <div class="modal-header">
         <div class="modal-title-group">
-          <div class="modal-icon-badge bg-red-gradient">
-            <i class="fa-solid fa-user-plus"></i>
+          <div class="modal-icon-badge bg-red-gradient" id="modalUserIconBadge">
+            <i class="fa-solid fa-user-plus" id="modalUserIcon"></i>
           </div>
           <div>
-            <h3 class="modal-title">Daftar Pengguna Baru</h3>
-            <p class="modal-subtitle">Tambah akun baru dengan hak akses Admin atau Pengguna Biasa</p>
+            <h3 class="modal-title" id="modalUserTitle">Manajemen Team Baru</h3>
+            <p class="modal-subtitle" id="modalUserSubtitle">Tambah anggota team baru dengan layanan CSO dan hak akses peran</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseRegisterModal" aria-label="Tutup Modal">
@@ -1282,8 +1194,40 @@
       </div>
 
       <form id="registerUserForm" novalidate>
+        <input type="hidden" id="regUserId" value="">
+        <input type="hidden" id="regAvatarData" value="">
+
         <div class="modal-body">
           
+          <!-- Foto Profil Section -->
+          <div class="form-group mb-3">
+            <label class="form-label"><i class="fa-solid fa-image-portrait text-red"></i> Foto Profil</label>
+            <div class="profile-upload-wrapper">
+              <div class="profile-avatar-preview-box">
+                <img id="regAvatarPreview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80" alt="Avatar Preview" class="profile-avatar-preview-img">
+                <label for="regAvatarFileInput" class="avatar-upload-badge" title="Pilih Berkas Foto">
+                  <i class="fa-solid fa-camera"></i>
+                </label>
+              </div>
+              <div class="profile-upload-inputs flex-1">
+                <input type="file" id="regAvatarFileInput" accept="image/*" class="profile-file-hidden">
+                <div class="upload-btn-group mb-2">
+                  <button type="button" class="btn btn-outline-gray btn-sm" id="btnChooseAvatarFile">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Upload Foto
+                  </button>
+                  <button type="button" class="btn btn-outline-gray btn-sm" id="btnRandomAvatar">
+                    <i class="fa-solid fa-dice"></i> Avatar Acak
+                  </button>
+                </div>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-link input-icon"></i>
+                  <input type="url" id="regAvatarUrl" class="form-control form-control-sm" placeholder="Atau masukkan URL foto (https://...)">
+                </div>
+                <small class="form-hint">Mendukung unggah gambar langsung atau tautan URL foto web.</small>
+              </div>
+            </div>
+          </div>
+
           <div class="form-group">
             <label for="regFullName" class="form-label">
               Nama Lengkap <span class="required">*</span>
@@ -1331,23 +1275,35 @@
             </div>
 
             <div class="form-group flex-1">
-              <label for="regDept" class="form-label">Departemen / Divisi</label>
+              <label for="regDept" class="form-label">
+                Layanan <span class="required">*</span>
+              </label>
               <div class="input-with-icon">
-                <i class="fa-solid fa-building input-icon"></i>
-                <input type="text" id="regDept" class="form-control" placeholder="Contoh: Operasional / Logistik">
+                <i class="fa-solid fa-headset input-icon"></i>
+                <select id="regDept" class="form-control" required>
+                  <option value="">Pilih Layanan...</option>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
               </div>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="regPassword" class="form-label">
-              Kata Sandi Akun <span class="required">*</span>
+            <label for="regPassword" class="form-label" id="regPasswordLabel">
+              Kata Sandi Akun <span class="required" id="regPasswordRequired">*</span>
             </label>
             <div class="input-with-icon">
               <i class="fa-solid fa-lock input-icon"></i>
               <input type="password" id="regPassword" class="form-control" placeholder="Minimal 6 karakter" minlength="6" required>
             </div>
-            <small class="form-hint">Pengguna dapat masuk menggunakan username dan kata sandi ini.</small>
+            <small class="form-hint" id="regPasswordHint">Pengguna dapat masuk menggunakan username dan kata sandi ini.</small>
           </div>
 
           <!-- Role Explanation Box in Form -->
@@ -1363,8 +1319,8 @@
         <div class="modal-footer">
           <button type="button" class="btn btn-outline-gray" id="btnCancelRegisterModal">Batal</button>
           <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitRegisterUser">
-            <i class="fa-solid fa-user-plus"></i>
-            <span>Daftarkan Pengguna</span>
+            <i class="fa-solid fa-user-plus" id="btnSubmitRegisterIcon"></i>
+            <span id="btnSubmitRegisterText">Daftarkan Anggota Team</span>
           </button>
         </div>
       </form>

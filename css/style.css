@@ -3078,4 +3078,86 @@ textarea.form-control {
   text-align: right;
 }
 
+/* ==========================================================================
+   PROFILE PHOTO UPLOAD & PREVIEW IN TEAM MANAGEMENT
+   ========================================================================== */
+.profile-upload-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  background: var(--bg-deep);
+  border: 1px dashed var(--border-mid);
+  padding: 1rem;
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.profile-upload-wrapper:hover {
+  border-color: var(--red-primary);
+  background: rgba(230, 46, 68, 0.03);
+}
+
+.profile-avatar-preview-box {
+  position: relative;
+  width: 76px;
+  height: 76px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 2px solid var(--red-primary);
+  box-shadow: 0 0 14px rgba(230, 46, 68, 0.35);
+  background: #11141c;
+}
+
+.profile-avatar-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  display: block;
+}
+
+.avatar-upload-badge {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  width: 26px;
+  height: 26px;
+  background: var(--red-primary);
+  color: #ffffff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.72rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+  transition: transform var(--transition-fast), background var(--transition-fast);
+}
+
+.avatar-upload-badge:hover {
+  transform: scale(1.15);
+  background: var(--red-bright);
+}
+
+.profile-file-hidden {
+  display: none !important;
+}
+
+.profile-upload-inputs {
+  min-width: 0;
+}
+
+.upload-btn-group {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.upload-btn-group .btn-sm {
+  padding: 0.28rem 0.65rem;
+  font-size: 0.75rem;
+}
+
+
 

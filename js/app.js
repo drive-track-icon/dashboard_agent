@@ -16,7 +16,7 @@ const DEFAULT_USERS = [
     fullName: 'Budi Santoso, S.Kom',
     email: 'admin@drive.internal',
     role: 'admin',
-    department: 'IT Infrastructure & Security',
+    department: 'CSO INBOUND',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-01-10 08:30'
@@ -28,7 +28,7 @@ const DEFAULT_USERS = [
     fullName: 'Siti Rahma',
     email: 'siti.rahma@drive.internal',
     role: 'user',
-    department: 'Logistik & Operasional Gudang',
+    department: 'CSO DIGILIVE CHAT - WA',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-01-15 09:15'
@@ -40,7 +40,7 @@ const DEFAULT_USERS = [
     fullName: 'Ahmad Fauzi',
     email: 'ahmad.fauzi@drive.internal',
     role: 'user',
-    department: 'Staf Audit Inventaris',
+    department: 'CSO BACK OFFICE',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-02-01 11:20'
@@ -52,7 +52,7 @@ const DEFAULT_USERS = [
     fullName: 'Dewi Lestari, M.T.',
     email: 'dewi.lestari@drive.internal',
     role: 'admin',
-    department: 'Kepala Divisi Operasional TI',
+    department: 'TEAM LEADER',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
     createdAt: '2026-01-05 14:00'
@@ -395,6 +395,38 @@ class AppState {
     if (existingSw.length === 0 || !existingSw[0].userId) {
       localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
     }
+
+    // Auto-migrate team department to CSO Layanan if necessary
+    const validCSO = [
+      'CSO INBOUND',
+      'CSO DIGILIVE CHAT - DM',
+      'CSO DIGILIVE CHAT - MY ICON+',
+      'CSO DIGILIVE CHAT - WA',
+      'CSO BACK OFFICE',
+      'CSO OUTBOUND',
+      'CSO EMAIL',
+      'TEAM LEADER'
+    ];
+    const storedUsers = JSON.parse(localStorage.getItem('vortex_users') || '[]');
+    if (storedUsers.length > 0) {
+      let changed = false;
+      storedUsers.forEach((u, i) => {
+        if (!validCSO.includes(u.department)) {
+          u.department = validCSO[i % validCSO.length];
+          changed = true;
+        }
+      });
+      if (changed) {
+        localStorage.setItem('vortex_users', JSON.stringify(storedUsers));
+        if (this.currentUser && !validCSO.includes(this.currentUser.department)) {
+          const match = storedUsers.find(u => u.id === this.currentUser.id);
+          if (match) {
+            this.currentUser.department = match.department;
+            localStorage.setItem('vortex_session', JSON.stringify(this.currentUser));
+          }
+        }
+      }
+    }
   }
 
   getUsers() {
@@ -590,18 +622,35 @@ const UI = {
   viewDetailDesc: document.getElementById('viewDetailDesc'),
   viewDetailUpdated: document.getElementById('viewDetailUpdated'),
 
-  // User Register Modal
+  // Team Management Modal (Baru & Edit)
   modalRegisterUser: document.getElementById('modalRegisterUser'),
   registerUserForm: document.getElementById('registerUserForm'),
   btnOpenRegisterUserModal: document.getElementById('btnOpenRegisterUserModal'),
   btnCloseRegisterModal: document.getElementById('btnCloseRegisterModal'),
   btnCancelRegisterModal: document.getElementById('btnCancelRegisterModal'),
+  modalUserTitle: document.getElementById('modalUserTitle'),
+  modalUserSubtitle: document.getElementById('modalUserSubtitle'),
+  modalUserIcon: document.getElementById('modalUserIcon'),
+  modalUserIconBadge: document.getElementById('modalUserIconBadge'),
+  regUserId: document.getElementById('regUserId'),
+  regAvatarData: document.getElementById('regAvatarData'),
+  regAvatarPreview: document.getElementById('regAvatarPreview'),
+  regAvatarFileInput: document.getElementById('regAvatarFileInput'),
+  btnChooseAvatarFile: document.getElementById('btnChooseAvatarFile'),
+  btnRandomAvatar: document.getElementById('btnRandomAvatar'),
+  regAvatarUrl: document.getElementById('regAvatarUrl'),
   regFullName: document.getElementById('regFullName'),
   regUsername: document.getElementById('regUsername'),
   regEmail: document.getElementById('regEmail'),
   regRole: document.getElementById('regRole'),
   regDept: document.getElementById('regDept'),
   regPassword: document.getElementById('regPassword'),
+  regPasswordLabel: document.getElementById('regPasswordLabel'),
+  regPasswordRequired: document.getElementById('regPasswordRequired'),
+  regPasswordHint: document.getElementById('regPasswordHint'),
+  btnSubmitRegisterUser: document.getElementById('btnSubmitRegisterUser'),
+  btnSubmitRegisterText: document.getElementById('btnSubmitRegisterText'),
+  btnSubmitRegisterIcon: document.getElementById('btnSubmitRegisterIcon'),
 
   // Confirm Delete Modal
   modalConfirmDelete: document.getElementById('modalConfirmDelete'),
@@ -677,6 +726,7 @@ const UI = {
   // User Management
   userTableBody: document.getElementById('userTableBody'),
   searchUserInput: document.getElementById('searchUserInput'),
+  filterUserService: document.getElementById('filterUserService'),
   filterUserRole: document.getElementById('filterUserRole'),
   filterUserStatus: document.getElementById('filterUserStatus'),
   countAdminUsers: document.getElementById('countAdminUsers'),
@@ -970,11 +1020,11 @@ function renderAppView() {
 }
 
 function navigateToPage(pageId) {
-  // Guard check: User Management is strictly Admin only
+  // Guard check: Team Management is strictly Admin only
   if (pageId === 'user-management' && !state.isAdmin()) {
     showToast(
       'Akses Dibatasi',
-      'Hanya Administrator yang memiliki hak izin untuk mengakses menu <strong>Manajemen & Pendaftaran User</strong>.',
+      'Hanya Administrator yang memiliki hak izin untuk mengakses menu <strong>Manajemen Team</strong>.',
       'warning'
     );
     return;
@@ -996,7 +1046,7 @@ function navigateToPage(pageId) {
     overview: 'Ringkasan & Pusat Kendali',
     'data-management': 'Kelola Data Barang',
     timer: 'Pusat Timer & Stopwatch',
-    'user-management': 'Manajemen Pengguna & Pendaftaran',
+    'user-management': 'Manajemen Team',
     'activity-log': 'Log Aktivitas & Jejak Audit',
     settings: 'Pengaturan & Alat Demo'
   };
@@ -1033,72 +1083,51 @@ function navigateToPage(pageId) {
 // ==========================================
 
 function renderOverviewPage() {
-  const items = state.getItems();
   const users = state.getUsers();
   const logs = state.getLogs();
 
-  // Metrics
-  const totalValue = items.reduce((sum, item) => sum + (item.price * item.stock), 0);
-  const totalStock = items.reduce((sum, item) => sum + item.stock, 0);
-  const lowStock = items.filter(i => i.stock > 0 && i.stock < 10).length;
-  const outOfStock = items.filter(i => i.stock === 0).length;
-  const normalStock = items.filter(i => i.stock >= 10).length;
+  // Metrics (Pengguna Terdaftar & Status Akses Sesi)
   const adminCount = users.filter(u => u.role === 'admin').length;
+  const elTotalUsers = document.getElementById('metricTotalUsers');
+  if (elTotalUsers) elTotalUsers.textContent = users.length;
 
-  document.getElementById('metricTotalValue').textContent = formatRupiah(totalValue);
-  document.getElementById('metricTotalItems').textContent = `${items.length} Jenis (${totalStock} Unit)`;
-  document.getElementById('metricLowStockCount').textContent = `${lowStock} Perlu Restock`;
-  document.getElementById('metricAvailableCount').textContent = normalStock;
-  document.getElementById('metricOutOfStockCount').textContent = outOfStock;
-  document.getElementById('metricTotalUsers').textContent = users.length;
-  document.getElementById('metricAdminRatio').textContent = `${adminCount} Admin`;
+  const elAdminRatio = document.getElementById('metricAdminRatio');
+  if (elAdminRatio) elAdminRatio.textContent = `${adminCount} Admin`;
 
   const permLabel = document.getElementById('metricPermissionLabel');
   const permDesc = document.getElementById('metricPermissionDesc');
   const permBadge = document.getElementById('metricUserRoleBadge');
-  if (state.isAdmin()) {
-    permLabel.textContent = 'Akses Penuh';
-    permDesc.textContent = 'Bisa Tambah, Ubah, Hapus & User';
-    permBadge.textContent = 'Admin';
-    permBadge.className = 'metric-badge badge-admin';
-  } else {
-    permLabel.textContent = 'Mode Lihat Saja';
-    permDesc.textContent = 'Aksi Edit & Hapus Dinonaktifkan';
-    permBadge.textContent = 'User Biasa';
-    permBadge.className = 'metric-badge badge-user';
+  if (permLabel && permDesc && permBadge) {
+    if (state.isAdmin()) {
+      permLabel.textContent = 'Akses Penuh';
+      permDesc.textContent = 'Bisa Tambah, Ubah, Hapus & User';
+      permBadge.textContent = 'Admin';
+      permBadge.className = 'metric-badge badge-admin';
+    } else {
+      permLabel.textContent = 'Mode Lihat Saja';
+      permDesc.textContent = 'Aksi Edit & Hapus Dinonaktifkan';
+      permBadge.textContent = 'User Biasa';
+      permBadge.className = 'metric-badge badge-user';
+    }
   }
 
-  // Recent 5 items table
-  const recentItems = [...items].slice(-5).reverse();
-  UI.tbodyOverviewRecent.innerHTML = recentItems.map(item => `
-    <tr>
-      <td><span class="sku-code">${item.code}</span></td>
-      <td><strong>${item.name}</strong></td>
-      <td><span class="badge badge-gray">${item.category}</span></td>
-      <td class="table-price">${formatRupiah(item.price)}</td>
-      <td><strong>${item.stock}</strong></td>
-      <td>${getStockBadge(item.stock)}</td>
-    </tr>
-  `).join('');
-
-  // Recent Activity Timeline
-  const recentLogs = logs.slice(0, 4);
-  UI.overviewActivityTimeline.innerHTML = recentLogs.map(log => `
-    <div class="timeline-item">
-      <div class="timeline-icon ${log.actionType.includes('DELETE') ? 'icon-red' : ''}">
-        <i class="${getLogIcon(log.actionType)}"></i>
-      </div>
-      <div class="timeline-content">
-        <div class="timeline-text">
-          <strong>${log.user}</strong>: ${log.details}
+  // Recent Activity Timeline (Log Sesi Terbaru)
+  if (UI.overviewActivityTimeline) {
+    const recentLogs = logs.slice(0, 8);
+    UI.overviewActivityTimeline.innerHTML = recentLogs.map(log => `
+      <div class="timeline-item">
+        <div class="timeline-icon ${log.actionType.includes('DELETE') ? 'icon-red' : ''}">
+          <i class="${getLogIcon(log.actionType)}"></i>
         </div>
-        <span class="timeline-time">${log.timestamp}</span>
+        <div class="timeline-content">
+          <div class="timeline-text">
+            <strong>${log.user}</strong>: ${log.details}
+          </div>
+          <span class="timeline-time">${log.timestamp}</span>
+        </div>
       </div>
-    </div>
-  `).join('');
-
-  // Render Charts
-  renderCharts(items);
+    `).join('');
+  }
 }
 
 function getStockBadge(stock) {
@@ -1612,6 +1641,17 @@ function executePendingDelete() {
 // 10. MANAJEMEN USER & PENDAFTARAN USER BARU (ADMIN ONLY)
 // ==========================================
 
+const RANDOM_AVATARS = [
+  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+  'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80'
+];
+
 function renderUserManagementPage() {
   if (!state.isAdmin()) {
     navigateToPage('overview');
@@ -1635,15 +1675,18 @@ function renderUserManagementPage() {
   const searchQ = (UI.searchUserInput ? UI.searchUserInput.value : '').toLowerCase().trim();
   const roleFilter = UI.filterUserRole ? UI.filterUserRole.value : 'ALL';
   const statusFilter = UI.filterUserStatus ? UI.filterUserStatus.value : 'ALL';
+  const serviceFilter = UI.filterUserService ? UI.filterUserService.value : 'ALL';
 
   let filteredUsers = users.filter(u => {
     const matchesSearch = !searchQ || 
       u.fullName.toLowerCase().includes(searchQ) ||
       u.username.toLowerCase().includes(searchQ) ||
-      u.email.toLowerCase().includes(searchQ);
+      u.email.toLowerCase().includes(searchQ) ||
+      (u.department && u.department.toLowerCase().includes(searchQ));
     const matchesRole = roleFilter === 'ALL' || u.role === roleFilter;
     const matchesStatus = statusFilter === 'ALL' || u.status === statusFilter;
-    return matchesSearch && matchesRole && matchesStatus;
+    const matchesService = serviceFilter === 'ALL' || u.department === serviceFilter;
+    return matchesSearch && matchesRole && matchesStatus && matchesService;
   });
 
   UI.userTableBody.innerHTML = filteredUsers.map((u, idx) => {
@@ -1656,16 +1699,28 @@ function renderUserManagementPage() {
       ? `<span class="badge badge-green badge-status-toggle" onclick="toggleUserStatus('${u.id}')" title="Klik untuk ubah status"><i class="fa-solid fa-circle-check"></i> Aktif</span>`
       : `<span class="badge badge-red badge-status-toggle" onclick="toggleUserStatus('${u.id}')" title="Klik untuk ubah status"><i class="fa-solid fa-ban"></i> Nonaktif</span>`;
 
+    const serviceBadge = u.department === 'TEAM LEADER'
+      ? '<span class="badge badge-red-outline" style="font-size:0.75rem;"><i class="fa-solid fa-user-shield text-red" style="margin-right: 4px;"></i>TEAM LEADER</span>'
+      : `<span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right: 4px;"></i>${u.department || 'CSO INBOUND'}</span>`;
+
     let actionButtons = '';
     if (isSelf) {
       actionButtons = `
-        <span class="badge badge-gray" style="font-size:0.7rem;">
-          <i class="fa-solid fa-user-check text-green"></i> Akun Anda
-        </span>
+        <div class="table-actions-cell">
+          <button class="btn-table-action btn-action-edit" onclick="openEditUserModal('${u.id}')" title="Edit Profil Team Anda">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
+          <span class="badge badge-gray" style="font-size:0.7rem;">
+            <i class="fa-solid fa-user-check text-green"></i> Akun Anda
+          </span>
+        </div>
       `;
     } else {
       actionButtons = `
         <div class="table-actions-cell">
+          <button class="btn-table-action btn-action-edit" onclick="openEditUserModal('${u.id}')" title="Edit Anggota Team">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </button>
           <button class="btn-table-action btn-action-delete" onclick="promptDeleteUser('${u.id}', '${u.fullName.replace(/'/g, "\\'")}')" title="Hapus Pengguna (Admin)">
             <i class="fa-solid fa-trash-can"></i>
           </button>
@@ -1685,7 +1740,7 @@ function renderUserManagementPage() {
         <td><code>@${u.username}</code></td>
         <td>${u.email}</td>
         <td>${roleBadge}</td>
-        <td>${u.department || '-'}</td>
+        <td>${serviceBadge}</td>
         <td>${statusBadge}</td>
         <td><small class="text-muted">${u.createdAt || '-'}</small></td>
         <td>${actionButtons}</td>
@@ -1701,9 +1756,74 @@ function openRegisterUserModal() {
   }
 
   UI.registerUserForm.reset();
+  if (UI.regUserId) UI.regUserId.value = '';
+  
+  const defaultAvatar = 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+  if (UI.regAvatarPreview) UI.regAvatarPreview.src = defaultAvatar;
+  if (UI.regAvatarData) UI.regAvatarData.value = defaultAvatar;
+  if (UI.regAvatarUrl) UI.regAvatarUrl.value = '';
+
+  if (UI.regPassword) {
+    UI.regPassword.required = true;
+    UI.regPassword.value = '';
+  }
+  if (UI.regPasswordRequired) UI.regPasswordRequired.style.display = 'inline';
+  if (UI.regPasswordLabel) UI.regPasswordLabel.innerHTML = 'Kata Sandi Akun <span class="required" id="regPasswordRequired">*</span>';
+  if (UI.regPasswordHint) UI.regPasswordHint.textContent = 'Pengguna dapat masuk menggunakan username dan kata sandi ini.';
+
+  if (UI.modalUserTitle) UI.modalUserTitle.textContent = 'Manajemen Team Baru';
+  if (UI.modalUserSubtitle) UI.modalUserSubtitle.textContent = 'Tambah anggota team baru dengan layanan CSO dan hak akses peran';
+  if (UI.modalUserIcon) UI.modalUserIcon.className = 'fa-solid fa-user-plus';
+  if (UI.btnSubmitRegisterText) UI.btnSubmitRegisterText.textContent = 'Daftarkan Anggota Team';
+  if (UI.btnSubmitRegisterIcon) UI.btnSubmitRegisterIcon.className = 'fa-solid fa-user-plus';
+
   updateRoleExplanation();
   UI.modalRegisterUser.classList.remove('hidden');
 }
+
+window.openEditUserModal = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat mengubah data anggota team.', 'danger');
+    return;
+  }
+
+  const users = state.getUsers();
+  const user = users.find(u => u.id === id);
+  if (!user) {
+    showToast('Data Tidak Ditemukan', 'Pengguna tidak ditemukan di sistem.', 'danger');
+    return;
+  }
+
+  UI.registerUserForm.reset();
+  if (UI.regUserId) UI.regUserId.value = user.id;
+  if (UI.regFullName) UI.regFullName.value = user.fullName;
+  if (UI.regUsername) UI.regUsername.value = user.username;
+  if (UI.regEmail) UI.regEmail.value = user.email;
+  if (UI.regRole) UI.regRole.value = user.role;
+  if (UI.regDept) UI.regDept.value = user.department || 'CSO INBOUND';
+
+  const avatarSrc = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+  if (UI.regAvatarPreview) UI.regAvatarPreview.src = avatarSrc;
+  if (UI.regAvatarData) UI.regAvatarData.value = avatarSrc;
+  if (UI.regAvatarUrl) UI.regAvatarUrl.value = (user.avatar && user.avatar.startsWith('http')) ? user.avatar : '';
+
+  if (UI.regPassword) {
+    UI.regPassword.required = false;
+    UI.regPassword.value = '';
+  }
+  if (UI.regPasswordRequired) UI.regPasswordRequired.style.display = 'none';
+  if (UI.regPasswordLabel) UI.regPasswordLabel.innerHTML = 'Kata Sandi Baru (Opsional)';
+  if (UI.regPasswordHint) UI.regPasswordHint.textContent = 'Kosongkan jika tidak ingin mengubah kata sandi lama.';
+
+  if (UI.modalUserTitle) UI.modalUserTitle.textContent = 'Edit Anggota Team';
+  if (UI.modalUserSubtitle) UI.modalUserSubtitle.textContent = 'Perbarui data profil, penugasan layanan CSO, dan peran anggota team';
+  if (UI.modalUserIcon) UI.modalUserIcon.className = 'fa-solid fa-user-pen';
+  if (UI.btnSubmitRegisterText) UI.btnSubmitRegisterText.textContent = 'Simpan Perubahan';
+  if (UI.btnSubmitRegisterIcon) UI.btnSubmitRegisterIcon.className = 'fa-solid fa-floppy-disk';
+
+  updateRoleExplanation();
+  UI.modalRegisterUser.classList.remove('hidden');
+};
 
 function closeRegisterUserModal() {
   UI.modalRegisterUser.classList.add('hidden');
@@ -1739,6 +1859,7 @@ function handleRegisterUserSubmit(e) {
     return;
   }
 
+  const editId = UI.regUserId ? UI.regUserId.value.trim() : '';
   const fullName = UI.regFullName.value.trim();
   const username = UI.regUsername.value.trim().toLowerCase();
   const email = UI.regEmail.value.trim();
@@ -1746,8 +1867,84 @@ function handleRegisterUserSubmit(e) {
   const department = UI.regDept.value.trim();
   const password = UI.regPassword.value;
 
-  if (!fullName || !username || !email || !password) {
-    showToast('Form Tidak Lengkap', 'Mohon isi seluruh data yang diwajibkan.', 'warning');
+  if (!fullName || !username || !email || !department) {
+    showToast('Form Tidak Lengkap', 'Mohon lengkapi Nama Lengkap, Username, Email, dan Layanan.', 'warning');
+    return;
+  }
+
+  const users = state.getUsers();
+
+  // Determine avatar
+  let avatar = (UI.regAvatarData && UI.regAvatarData.value.trim()) || 
+               (UI.regAvatarUrl && UI.regAvatarUrl.value.trim()) || 
+               (UI.regAvatarPreview ? UI.regAvatarPreview.src : '') || 
+               'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+
+  if (editId) {
+    // ==================== EDIT MODE ====================
+    const userIndex = users.findIndex(u => u.id === editId);
+    if (userIndex === -1) {
+      showToast('Error', 'Data pengguna tidak ditemukan.', 'danger');
+      return;
+    }
+
+    // Check if new username conflicts with other user
+    if (users.some(u => u.id !== editId && u.username.toLowerCase() === username)) {
+      showToast('Username Digunakan', `Username "${username}" sudah digunakan pengguna lain.`, 'danger');
+      return;
+    }
+
+    const targetUser = users[userIndex];
+    targetUser.fullName = fullName;
+    targetUser.username = username;
+    targetUser.email = email;
+    targetUser.role = role;
+    targetUser.department = department;
+    targetUser.avatar = avatar;
+
+    if (password && password.trim().length > 0) {
+      if (password.length < 6) {
+        showToast('Kata Sandi Lemah', 'Kata sandi minimal harus 6 karakter.', 'warning');
+        return;
+      }
+      targetUser.password = password;
+    }
+
+    state.saveUsers(users);
+
+    // If current logged in user is being updated, sync state & topbar
+    if (state.currentUser && state.currentUser.id === editId) {
+      state.currentUser.fullName = fullName;
+      state.currentUser.username = username;
+      state.currentUser.email = email;
+      state.currentUser.role = role;
+      state.currentUser.department = department;
+      state.currentUser.avatar = avatar;
+      state.saveSession(state.currentUser);
+
+      if (UI.sidebarUserName) UI.sidebarUserName.textContent = fullName;
+      if (UI.sidebarUserAvatar) UI.sidebarUserAvatar.src = avatar;
+      if (UI.topbarUserName) UI.topbarUserName.textContent = fullName;
+      if (UI.topbarUserAvatar) UI.topbarUserAvatar.src = avatar;
+    }
+
+    state.addLog(
+      'UPDATE_USER',
+      'Ubah Anggota Team',
+      `Admin ${state.currentUser.fullName} memperbarui data anggota team: ${fullName} (@${username}) pada layanan ${department}.`
+    );
+
+    showToast('Data Diperbarui', `Data anggota team <strong>${fullName}</strong> berhasil disimpan.`, 'success');
+    closeRegisterUserModal();
+    renderUserManagementPage();
+    if (state.currentPage === 'overview') renderOverviewPage();
+    if (state.currentPage === 'timer') renderTimerPage();
+    return;
+  }
+
+  // ==================== CREATE NEW MODE ====================
+  if (!password) {
+    showToast('Kata Sandi Wajib', 'Kata sandi wajib diisi untuk pendaftaran anggota baru.', 'warning');
     return;
   }
 
@@ -1756,17 +1953,11 @@ function handleRegisterUserSubmit(e) {
     return;
   }
 
-  const users = state.getUsers();
-  
   // Check if username already exists
   if (users.some(u => u.username.toLowerCase() === username)) {
     showToast('Username Digunakan', `Username "${username}" sudah terdaftar pada akun lain.`, 'danger');
     return;
   }
-
-  // Generate random avatar placeholder
-  const avatarIndex = Math.floor(Math.random() * 70) + 1;
-  const avatar = `https://i.pravatar.cc/150?img=${avatarIndex}`;
 
   const now = new Date();
   const formattedDate = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
@@ -1778,7 +1969,7 @@ function handleRegisterUserSubmit(e) {
     fullName,
     email,
     role,
-    department: department || 'Staf Umum',
+    department: department || 'CSO INBOUND',
     status: 'active',
     avatar,
     createdAt: formattedDate
@@ -1786,9 +1977,13 @@ function handleRegisterUserSubmit(e) {
 
   users.push(newUser);
   state.saveUsers(users);
-  state.addLog('REGISTER_USER', 'Daftar User', `Admin ${state.currentUser.fullName} mendaftarkan pengguna baru: ${fullName} (@${username}) dengan peran ${role.toUpperCase()}.`);
+  state.addLog(
+    'REGISTER_USER',
+    'Daftar Team Baru',
+    `Admin ${state.currentUser.fullName} mendaftarkan anggota team baru: ${fullName} (@${username}) untuk layanan ${department} (${role.toUpperCase()}).`
+  );
 
-  showToast('Pengguna Didaftarkan', `Akun <strong>${fullName}</strong> berhasil dibuat dengan hak akses <strong>${role.toUpperCase()}</strong>.`, 'success');
+  showToast('Anggota Team Terdaftar', `Akun <strong>${fullName}</strong> berhasil didaftarkan pada layanan <strong>${department}</strong>.`, 'success');
 
   closeRegisterUserModal();
   renderUserManagementPage();
@@ -2827,12 +3022,60 @@ function initEvents() {
   UI.btnCloseViewDetail.addEventListener('click', closeViewDetailModal);
   UI.btnCloseViewDetailBtn.addEventListener('click', closeViewDetailModal);
 
-  // User Register Modal
-  UI.btnOpenRegisterUserModal.addEventListener('click', openRegisterUserModal);
-  UI.btnCloseRegisterModal.addEventListener('click', closeRegisterUserModal);
-  UI.btnCancelRegisterModal.addEventListener('click', closeRegisterUserModal);
-  UI.registerUserForm.addEventListener('submit', handleRegisterUserSubmit);
-  UI.regRole.addEventListener('change', updateRoleExplanation);
+  // Team Management & Profile Photo Listeners
+  if (UI.btnOpenRegisterUserModal) UI.btnOpenRegisterUserModal.addEventListener('click', openRegisterUserModal);
+  if (UI.btnCloseRegisterModal) UI.btnCloseRegisterModal.addEventListener('click', closeRegisterUserModal);
+  if (UI.btnCancelRegisterModal) UI.btnCancelRegisterModal.addEventListener('click', closeRegisterUserModal);
+  if (UI.registerUserForm) UI.registerUserForm.addEventListener('submit', handleRegisterUserSubmit);
+  if (UI.regRole) UI.regRole.addEventListener('change', updateRoleExplanation);
+
+  // Avatar Photo Handlers
+  if (UI.btnChooseAvatarFile && UI.regAvatarFileInput) {
+    UI.btnChooseAvatarFile.addEventListener('click', () => {
+      UI.regAvatarFileInput.click();
+    });
+  }
+
+  if (UI.regAvatarFileInput) {
+    UI.regAvatarFileInput.addEventListener('change', (e) => {
+      const file = e.target.files && e.target.files[0];
+      if (file) {
+        if (file.size > 2 * 1024 * 1024) {
+          showToast('Ukuran Berkas Terlalu Besar', 'Maksimal ukuran foto adalah 2MB.', 'warning');
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = function(evt) {
+          const result = evt.target.result;
+          if (UI.regAvatarPreview) UI.regAvatarPreview.src = result;
+          if (UI.regAvatarData) UI.regAvatarData.value = result;
+          if (UI.regAvatarUrl) UI.regAvatarUrl.value = '';
+          showToast('Foto Berhasil Dipilih', 'Foto profil baru siap disimpan.', 'info');
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  if (UI.regAvatarUrl) {
+    UI.regAvatarUrl.addEventListener('input', (e) => {
+      const url = e.target.value.trim();
+      if (url) {
+        if (UI.regAvatarPreview) UI.regAvatarPreview.src = url;
+        if (UI.regAvatarData) UI.regAvatarData.value = url;
+      }
+    });
+  }
+
+  if (UI.btnRandomAvatar) {
+    UI.btnRandomAvatar.addEventListener('click', () => {
+      const randomPic = RANDOM_AVATARS[Math.floor(Math.random() * RANDOM_AVATARS.length)];
+      if (UI.regAvatarPreview) UI.regAvatarPreview.src = randomPic;
+      if (UI.regAvatarData) UI.regAvatarData.value = randomPic;
+      if (UI.regAvatarUrl) UI.regAvatarUrl.value = randomPic;
+      showToast('Avatar Acak', 'Avatar profil acak berhasil dipasang.', 'info');
+    });
+  }
 
   // Confirm Delete Modal
   UI.btnCancelDelete.addEventListener('click', () => {
@@ -2901,6 +3144,7 @@ function initEvents() {
 
   // User Management Search & Filters
   if (UI.searchUserInput) UI.searchUserInput.addEventListener('input', renderUserManagementPage);
+  if (UI.filterUserService) UI.filterUserService.addEventListener('change', renderUserManagementPage);
   if (UI.filterUserRole) UI.filterUserRole.addEventListener('change', renderUserManagementPage);
   if (UI.filterUserStatus) UI.filterUserStatus.addEventListener('change', renderUserManagementPage);
 
