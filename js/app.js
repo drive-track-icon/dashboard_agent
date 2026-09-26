@@ -231,6 +231,58 @@ const DEFAULT_LOGS = [
   }
 ];
 
+const DEFAULT_TIMERS = [
+  {
+    id: 'tmr_1',
+    name: 'Batas Waktu Backup Server Cloud',
+    category: 'TI & Server',
+    desc: 'Sinkronisasi mirror database ke data center cadangan secara terenkripsi.',
+    totalSeconds: 9000,
+    remainingSeconds: 6840,
+    isRunning: true,
+    lastTick: Date.now()
+  },
+  {
+    id: 'tmr_2',
+    name: 'Tenggat Waktu Respons SLA Tiket',
+    category: 'Darurat & SLA',
+    desc: 'Batas eskalasi penyelesaian kendala infrastruktur level kritis.',
+    totalSeconds: 3600,
+    remainingSeconds: 2415,
+    isRunning: true,
+    lastTick: Date.now()
+  },
+  {
+    id: 'tmr_3',
+    name: 'Jadwal Pengecekan Suhu Ruang Server',
+    category: 'Audit & Keamanan',
+    desc: 'Monitoring berkala sensor termal pendingin HVAC rak 01-04.',
+    totalSeconds: 1800,
+    remainingSeconds: 1800,
+    isRunning: false,
+    lastTick: null
+  }
+];
+
+const DEFAULT_STOPWATCHES = [
+  {
+    id: 'sw_1',
+    name: 'Stopwatch Uji Ketahanan Bandwidth 10G',
+    dept: 'Jaringan & Server',
+    elapsedSeconds: 874,
+    isRunning: true,
+    lastTick: Date.now()
+  },
+  {
+    id: 'sw_2',
+    name: 'Pencatatan Waktu Audit Fisik Gudang B1',
+    dept: 'Operasional Gudang',
+    elapsedSeconds: 2150,
+    isRunning: false,
+    lastTick: null
+  }
+];
+
 // ==========================================
 // 2. STATE MANAGER
 // ==========================================
@@ -249,7 +301,7 @@ class AppState {
     this.sortOrder = 'asc';
 
     // Pending delete action
-    this.pendingDelete = null; // { type: 'item'|'user', id: string, name: string }
+    this.pendingDelete = null; // { type: 'item'|'user'|'timer'|'stopwatch', id: string, name: string }
 
     // Chart instances
     this.monthlyChartInstance = null;
@@ -265,6 +317,12 @@ class AppState {
     }
     if (!localStorage.getItem('vortex_logs')) {
       localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
+    }
+    if (!localStorage.getItem('vortex_timers')) {
+      localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
+    }
+    if (!localStorage.getItem('vortex_stopwatches')) {
+      localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
     }
   }
 
@@ -290,6 +348,22 @@ class AppState {
 
   saveLogs(logs) {
     localStorage.setItem('vortex_logs', JSON.stringify(logs));
+  }
+
+  getTimers() {
+    return JSON.parse(localStorage.getItem('vortex_timers') || '[]');
+  }
+
+  saveTimers(timers) {
+    localStorage.setItem('vortex_timers', JSON.stringify(timers));
+  }
+
+  getStopwatches() {
+    return JSON.parse(localStorage.getItem('vortex_stopwatches') || '[]');
+  }
+
+  saveStopwatches(stopwatches) {
+    localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
   }
 
   addLog(actionType, actionBadge, details, status = 'Sukses') {
@@ -335,6 +409,8 @@ class AppState {
     localStorage.setItem('vortex_users', JSON.stringify(DEFAULT_USERS));
     localStorage.setItem('vortex_items', JSON.stringify(DEFAULT_ITEMS));
     localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
+    localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
+    localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
     if (this.currentUser) {
       // keep current user object updated from default
       const found = DEFAULT_USERS.find(u => u.username === this.currentUser.username);
@@ -400,6 +476,7 @@ const UI = {
   pages: {
     overview: document.getElementById('pageOverview'),
     'data-management': document.getElementById('pageDataManagement'),
+    timer: document.getElementById('pageTimer'),
     'user-management': document.getElementById('pageUserManagement'),
     'activity-log': document.getElementById('pageActivityLog'),
     settings: document.getElementById('pageSettings')
@@ -461,6 +538,45 @@ const UI = {
   confirmDeleteMessage: document.getElementById('confirmDeleteMessage'),
   btnCancelDelete: document.getElementById('btnCancelDelete'),
   btnExecuteDelete: document.getElementById('btnExecuteDelete'),
+
+  // Timer & Stopwatch Elements
+  countdownTimersContainer: document.getElementById('countdownTimersContainer'),
+  stopwatchesContainer: document.getElementById('stopwatchesContainer'),
+  adminTimerActionButtons: document.getElementById('adminTimerActionButtons'),
+  userTimerNoticeTag: document.getElementById('userTimerNoticeTag'),
+  timerBannerRoleLabel: document.getElementById('timerBannerRoleLabel'),
+  timerBannerRoleDesc: document.getElementById('timerBannerRoleDesc'),
+  timerBannerBadge: document.getElementById('timerBannerBadge'),
+  activeCountdownCountBadge: document.getElementById('activeCountdownCountBadge'),
+  activeStopwatchCountBadge: document.getElementById('activeStopwatchCountBadge'),
+  btnOpenAddTimerModal: document.getElementById('btnOpenAddTimerModal'),
+  btnOpenAddStopwatchModal: document.getElementById('btnOpenAddStopwatchModal'),
+
+  // Modal Timer
+  modalTimerForm: document.getElementById('modalTimerForm'),
+  timerForm: document.getElementById('timerForm'),
+  modalTimerTitle: document.getElementById('modalTimerTitle'),
+  modalTimerIcon: document.getElementById('modalTimerIcon'),
+  formTimerId: document.getElementById('formTimerId'),
+  formTimerName: document.getElementById('formTimerName'),
+  formTimerCategory: document.getElementById('formTimerCategory'),
+  formTimerAutoStart: document.getElementById('formTimerAutoStart'),
+  formTimerHours: document.getElementById('formTimerHours'),
+  formTimerMinutes: document.getElementById('formTimerMinutes'),
+  formTimerSeconds: document.getElementById('formTimerSeconds'),
+  formTimerDesc: document.getElementById('formTimerDesc'),
+  btnSubmitTimerText: document.getElementById('btnSubmitTimerText'),
+  btnCloseTimerModal: document.getElementById('btnCloseTimerModal'),
+  btnCancelTimerModal: document.getElementById('btnCancelTimerModal'),
+
+  // Modal Stopwatch
+  modalStopwatchForm: document.getElementById('modalStopwatchForm'),
+  stopwatchForm: document.getElementById('stopwatchForm'),
+  formStopwatchName: document.getElementById('formStopwatchName'),
+  formStopwatchDept: document.getElementById('formStopwatchDept'),
+  formStopwatchAutoStart: document.getElementById('formStopwatchAutoStart'),
+  btnCloseStopwatchModal: document.getElementById('btnCloseStopwatchModal'),
+  btnCancelStopwatchModal: document.getElementById('btnCancelStopwatchModal'),
 
   // Tables & Content
   dataTableBody: document.getElementById('dataTableBody'),
@@ -718,6 +834,27 @@ function renderAppView() {
     }
   }
 
+  // Update Timer permissions
+  if (isAdmin) {
+    if (UI.adminTimerActionButtons) UI.adminTimerActionButtons.classList.remove('hidden');
+    if (UI.userTimerNoticeTag) UI.userTimerNoticeTag.classList.add('hidden');
+    if (UI.timerBannerRoleLabel) {
+      UI.timerBannerRoleLabel.textContent = 'Otoritas Akses Timer: Administrator Penuh';
+      UI.timerBannerRoleDesc.textContent = 'Admin dapat mengedit nama timer dan jumlah durasi waktu, menambah stopwatch baru, serta mengontrol start/pause/reset.';
+      UI.timerBannerBadge.className = 'badge badge-admin';
+      UI.timerBannerBadge.textContent = 'Kontrol Penuh';
+    }
+  } else {
+    if (UI.adminTimerActionButtons) UI.adminTimerActionButtons.classList.add('hidden');
+    if (UI.userTimerNoticeTag) UI.userTimerNoticeTag.classList.remove('hidden');
+    if (UI.timerBannerRoleLabel) {
+      UI.timerBannerRoleLabel.textContent = 'Otoritas Akses Timer: Pengguna Biasa (Hanya Lihat)';
+      UI.timerBannerRoleDesc.textContent = 'Anda berada dalam mode Tinjauan (Read-Only). Anda hanya dapat melihat live timer dan stopwatch. Tombol tambah, edit, dan kontrol dinonaktifkan.';
+      UI.timerBannerBadge.className = 'badge badge-user';
+      UI.timerBannerBadge.textContent = 'Hanya Lihat';
+    }
+  }
+
   // Settings page info
   if (UI.settingsUserAvatar) UI.settingsUserAvatar.src = u.avatar;
   if (UI.settingsFullname) UI.settingsFullname.textContent = u.fullName;
@@ -769,6 +906,7 @@ function navigateToPage(pageId) {
   const pageTitles = {
     overview: 'Ringkasan & Pusat Kendali',
     'data-management': 'Kelola Data Barang',
+    timer: 'Pusat Timer & Stopwatch',
     'user-management': 'Manajemen Pengguna & Pendaftaran',
     'activity-log': 'Log Aktivitas & Jejak Audit',
     settings: 'Pengaturan & Alat Demo'
@@ -792,6 +930,8 @@ function navigateToPage(pageId) {
     renderOverviewPage();
   } else if (pageId === 'data-management') {
     renderDataTable();
+  } else if (pageId === 'timer') {
+    renderTimerPage();
   } else if (pageId === 'user-management') {
     renderUserManagementPage();
   } else if (pageId === 'activity-log') {
@@ -1361,6 +1501,18 @@ function executePendingDelete() {
     state.addLog('DELETE_USER', 'Hapus Pengguna', `Admin ${state.currentUser.fullName} menghapus akun pengguna ${name}.`);
     showToast('Pengguna Dihapus', `Akun <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderUserManagementPage();
+  } else if (type === 'timer') {
+    const timers = state.getTimers().filter(t => t.id !== id);
+    state.saveTimers(timers);
+    state.addLog('DELETE_TIMER', 'Hapus Timer', `Admin ${state.currentUser.fullName} menghapus timer: ${name}.`);
+    showToast('Timer Dihapus', `Timer <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderTimerPage();
+  } else if (type === 'stopwatch') {
+    const stopwatches = state.getStopwatches().filter(s => s.id !== id);
+    state.saveStopwatches(stopwatches);
+    state.addLog('DELETE_STOPWATCH', 'Hapus Stopwatch', `Admin ${state.currentUser.fullName} menghapus stopwatch: ${name}.`);
+    showToast('Stopwatch Dihapus', `Stopwatch <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderTimerPage();
   }
 
   state.pendingDelete = null;
@@ -1690,6 +1842,502 @@ function populateNotifications() {
 }
 
 // ==========================================
+// 12.5 PUSAT TIMER & STOPWATCH (ADMIN & USER)
+// ==========================================
+
+function formatSecondsToHMS(totalSec) {
+  if (totalSec < 0 || isNaN(totalSec)) totalSec = 0;
+  const hrs = Math.floor(totalSec / 3600);
+  const mins = Math.floor((totalSec % 3600) / 60);
+  const secs = totalSec % 60;
+  return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+}
+
+function renderTimerPage() {
+  const timers = state.getTimers();
+  const stopwatches = state.getStopwatches();
+  const isAdmin = state.isAdmin();
+
+  // Active counts badges
+  const activeTimersCount = timers.filter(t => t.isRunning && t.remainingSeconds > 0).length;
+  const activeSwCount = stopwatches.filter(s => s.isRunning).length;
+
+  if (UI.activeCountdownCountBadge) {
+    UI.activeCountdownCountBadge.textContent = `${activeTimersCount} Berjalan dari ${timers.length} Timer`;
+  }
+  if (UI.activeStopwatchCountBadge) {
+    UI.activeStopwatchCountBadge.textContent = `${activeSwCount} Berjalan dari ${stopwatches.length} Stopwatch`;
+  }
+
+  // 1. Render Countdown Timers
+  if (UI.countdownTimersContainer) {
+    if (timers.length === 0) {
+      UI.countdownTimersContainer.innerHTML = `
+        <div class="empty-state py-4 text-center">
+          <i class="fa-solid fa-hourglass-empty text-muted" style="font-size: 2.2rem;"></i>
+          <h4 class="mt-2 text-white">Belum Ada Timer Waktu Mundur</h4>
+          <p class="text-muted">Klik tombol "+ Tambah Timer Mundur" untuk membuat baru.</p>
+        </div>
+      `;
+    } else {
+      UI.countdownTimersContainer.innerHTML = timers.map(timer => {
+        const isCompleted = timer.remainingSeconds === 0;
+        const percent = timer.totalSeconds > 0 
+          ? Math.max(0, Math.min(100, Math.round((timer.remainingSeconds / timer.totalSeconds) * 100))) 
+          : 0;
+
+        let statusBadge = '';
+        if (isCompleted) {
+          statusBadge = '<span class="badge badge-red"><i class="fa-solid fa-flag-checkered"></i> Waktu Habis</span>';
+        } else if (timer.isRunning) {
+          statusBadge = '<span class="badge badge-green"><i class="fa-solid fa-circle-dot pulse-dot"></i> Berjalan</span>';
+        } else {
+          statusBadge = '<span class="badge badge-yellow"><i class="fa-solid fa-pause"></i> Dijeda</span>';
+        }
+
+        // Actions: Admin gets full controls (Play/Pause, Reset, Edit, Delete); User gets Read-Only badge
+        let actionControls = '';
+        if (isAdmin) {
+          let playPauseBtn = '';
+          if (isCompleted) {
+            playPauseBtn = `<button type="button" class="btn-timer-ctrl btn-ctrl-start" onclick="resetTimer('${timer.id}')" title="Mulai Ulang"><i class="fa-solid fa-rotate-left"></i> Mulai Ulang</button>`;
+          } else if (timer.isRunning) {
+            playPauseBtn = `<button type="button" class="btn-timer-ctrl btn-ctrl-pause" onclick="toggleTimerRunning('${timer.id}')" title="Jeda Timer"><i class="fa-solid fa-pause"></i> Jeda</button>`;
+          } else {
+            playPauseBtn = `<button type="button" class="btn-timer-ctrl btn-ctrl-start" onclick="toggleTimerRunning('${timer.id}')" title="Mulai Hitung Mundur"><i class="fa-solid fa-play"></i> Mulai</button>`;
+          }
+
+          actionControls = `
+            <div class="timer-actions-row">
+              ${playPauseBtn}
+              <button type="button" class="btn-timer-ctrl btn-ctrl-reset" onclick="resetTimer('${timer.id}')" title="Kembalikan ke Waktu Semula">
+                <i class="fa-solid fa-arrows-rotate"></i> Reset
+              </button>
+              <button type="button" class="btn-timer-ctrl btn-ctrl-edit" onclick="openEditTimerModal('${timer.id}')" title="Edit Nama & Waktu Timer (Khusus Admin)">
+                <i class="fa-solid fa-pen-to-square"></i> Edit
+              </button>
+              <button type="button" class="btn-timer-ctrl btn-ctrl-delete" onclick="promptDeleteTimer('${timer.id}', '${timer.name.replace(/'/g, "\\'")}')" title="Hapus Timer">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          `;
+        } else {
+          actionControls = `
+            <div class="timer-actions-row">
+              <span class="readonly-timer-badge">
+                <i class="fa-solid fa-eye text-silver"></i> Mode Lihat Saja
+              </span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="timer-card ${timer.isRunning ? 'timer-running' : ''} ${isCompleted ? 'timer-completed' : ''}" id="timerCard_${timer.id}">
+            <!-- SISI KIRI: NAMA TIMER & INFO -->
+            <div class="timer-info-left">
+              <div class="timer-title-row">
+                <h4 class="timer-title" id="timerNameText_${timer.id}">${timer.name}</h4>
+                <span class="timer-badge-cat">${timer.category || 'Umum'}</span>
+                ${statusBadge}
+              </div>
+              <p class="timer-desc-text">${timer.desc || 'Tidak ada instruksi khusus.'}</p>
+              <div class="timer-meta-info">
+                <span><i class="fa-regular fa-clock text-red"></i> Durasi: <strong>${formatSecondsToHMS(timer.totalSeconds)}</strong></span>
+                <span><i class="fa-solid fa-chart-pie text-gray"></i> Sisa: <strong id="timerPercent_${timer.id}">${percent}%</strong></span>
+              </div>
+            </div>
+
+            <!-- SISI KANAN: DISPLAY WAKTU DIGITAL & AKSI -->
+            <div class="timer-clock-right">
+              <div class="timer-digital-display ${isCompleted ? 'text-danger-pulse' : ''}" id="timerDisplay_${timer.id}">
+                ${formatSecondsToHMS(timer.remainingSeconds)}
+              </div>
+              
+              <div class="timer-progress-track">
+                <div class="timer-progress-fill" id="timerProgress_${timer.id}" style="width: ${percent}%;"></div>
+              </div>
+
+              ${actionControls}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+
+  // 2. Render Stopwatches
+  if (UI.stopwatchesContainer) {
+    if (stopwatches.length === 0) {
+      UI.stopwatchesContainer.innerHTML = `
+        <div class="empty-state py-4 text-center">
+          <i class="fa-solid fa-stopwatch text-muted" style="font-size: 2.2rem;"></i>
+          <h4 class="mt-2 text-white">Belum Ada Stopwatch</h4>
+          <p class="text-muted">Klik tombol "+ Tambah Stopwatch" untuk menambahkan pencatatan waktu.</p>
+        </div>
+      `;
+    } else {
+      UI.stopwatchesContainer.innerHTML = stopwatches.map(sw => {
+        let statusBadge = sw.isRunning
+          ? '<span class="badge badge-green"><i class="fa-solid fa-play pulse-dot"></i> Berjalan</span>'
+          : '<span class="badge badge-gray"><i class="fa-solid fa-stop"></i> Berhenti</span>';
+
+        let actionControls = '';
+        if (isAdmin) {
+          let playPauseBtn = sw.isRunning
+            ? `<button type="button" class="btn-timer-ctrl btn-ctrl-pause" onclick="toggleStopwatchRunning('${sw.id}')" title="Jeda"><i class="fa-solid fa-pause"></i> Jeda</button>`
+            : `<button type="button" class="btn-timer-ctrl btn-ctrl-start" onclick="toggleStopwatchRunning('${sw.id}')" title="Mulai"><i class="fa-solid fa-play"></i> Mulai</button>`;
+
+          actionControls = `
+            <div class="timer-actions-row">
+              ${playPauseBtn}
+              <button type="button" class="btn-timer-ctrl btn-ctrl-reset" onclick="resetStopwatch('${sw.id}')" title="Reset ke Nol">
+                <i class="fa-solid fa-arrows-rotate"></i> Reset
+              </button>
+              <button type="button" class="btn-timer-ctrl btn-ctrl-delete" onclick="promptDeleteStopwatch('${sw.id}', '${sw.name.replace(/'/g, "\\'")}')" title="Hapus Stopwatch">
+                <i class="fa-solid fa-trash-can"></i>
+              </button>
+            </div>
+          `;
+        } else {
+          actionControls = `
+            <div class="timer-actions-row">
+              <span class="readonly-timer-badge">
+                <i class="fa-solid fa-eye text-silver"></i> Mode Lihat Saja
+              </span>
+            </div>
+          `;
+        }
+
+        return `
+          <div class="timer-card ${sw.isRunning ? 'timer-running' : ''}" id="stopwatchCard_${sw.id}">
+            <!-- SISI KIRI: NAMA STOPWATCH & DEPARTEMEN -->
+            <div class="timer-info-left">
+              <div class="timer-title-row">
+                <h4 class="timer-title">${sw.name}</h4>
+                <span class="timer-badge-cat">${sw.dept || 'Operasional'}</span>
+                ${statusBadge}
+              </div>
+              <p class="timer-desc-text">Stopwatch pencatatan durasi tugas operasional.</p>
+              <div class="timer-meta-info">
+                <span><i class="fa-solid fa-stopwatch text-red"></i> Waktu Berjalan Real-time</span>
+              </div>
+            </div>
+
+            <!-- SISI KANAN: DISPLAY WAKTU BERJALAN & KONTROL -->
+            <div class="timer-clock-right">
+              <div class="timer-digital-display" id="stopwatchDisplay_${sw.id}">
+                ${formatSecondsToHMS(sw.elapsedSeconds)}
+              </div>
+              ${actionControls}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
+}
+
+// Timer Modal Operations
+function openAddTimerModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat menambahkan timer waktu mundur.', 'danger');
+    return;
+  }
+  UI.modalTimerTitle.textContent = 'Tambah Timer Waktu Mundur';
+  UI.btnSubmitTimerText.textContent = 'Simpan Timer';
+  UI.modalTimerIcon.className = 'fa-solid fa-hourglass-start';
+  UI.timerForm.reset();
+  UI.formTimerId.value = '';
+  UI.formTimerHours.value = 1;
+  UI.formTimerMinutes.value = 30;
+  UI.formTimerSeconds.value = 0;
+  UI.modalTimerForm.classList.remove('hidden');
+}
+
+window.openEditTimerModal = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat mengedit timer.', 'danger');
+    return;
+  }
+  const timers = state.getTimers();
+  const timer = timers.find(t => t.id === id);
+  if (!timer) return;
+
+  UI.modalTimerTitle.textContent = 'Edit Timer & Durasi Waktu';
+  UI.btnSubmitTimerText.textContent = 'Perbarui Timer';
+  UI.modalTimerIcon.className = 'fa-solid fa-pen-to-square';
+
+  UI.formTimerId.value = timer.id;
+  UI.formTimerName.value = timer.name;
+  UI.formTimerCategory.value = timer.category || 'TI & Server';
+  UI.formTimerAutoStart.value = timer.isRunning ? 'running' : 'paused';
+  UI.formTimerDesc.value = timer.desc || '';
+
+  // Extract hours, minutes, seconds from totalSeconds
+  const total = timer.totalSeconds || 3600;
+  UI.formTimerHours.value = Math.floor(total / 3600);
+  UI.formTimerMinutes.value = Math.floor((total % 3600) / 60);
+  UI.formTimerSeconds.value = total % 60;
+
+  UI.modalTimerForm.classList.remove('hidden');
+};
+
+function closeTimerModal() {
+  UI.modalTimerForm.classList.add('hidden');
+}
+
+function handleSaveTimer(e) {
+  e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Anda tidak memiliki hak izin.', 'danger');
+    return;
+  }
+
+  const id = UI.formTimerId.value;
+  const name = UI.formTimerName.value.trim();
+  const category = UI.formTimerCategory.value;
+  const autoStart = UI.formTimerAutoStart.value === 'running';
+  const desc = UI.formTimerDesc.value.trim();
+
+  const hrs = parseInt(UI.formTimerHours.value) || 0;
+  const mins = parseInt(UI.formTimerMinutes.value) || 0;
+  const secs = parseInt(UI.formTimerSeconds.value) || 0;
+  const totalSeconds = (hrs * 3600) + (mins * 60) + secs;
+
+  if (!name) {
+    showToast('Form Belum Lengkap', 'Nama timer wajib diisi.', 'warning');
+    return;
+  }
+
+  if (totalSeconds <= 0) {
+    showToast('Durasi Tidak Valid', 'Jumlah waktu mundur minimal harus 1 detik.', 'warning');
+    return;
+  }
+
+  const timers = state.getTimers();
+
+  if (id) {
+    // EDIT TIMER (Name & Time duration)
+    const index = timers.findIndex(t => t.id === id);
+    if (index !== -1) {
+      timers[index].name = name;
+      timers[index].category = category;
+      timers[index].desc = desc;
+      timers[index].totalSeconds = totalSeconds;
+      timers[index].remainingSeconds = totalSeconds;
+      timers[index].isRunning = autoStart;
+      timers[index].lastTick = Date.now();
+
+      state.saveTimers(timers);
+      state.addLog('EDIT_TIMER', 'Ubah Timer', `Admin ${state.currentUser.fullName} mengubah nama dan durasi timer: ${name} (${formatSecondsToHMS(totalSeconds)}).`);
+      showToast('Timer Diperbarui', `Nama dan durasi timer <strong>${name}</strong> berhasil diperbarui.`, 'success');
+    }
+  } else {
+    // ADD NEW TIMER
+    const newTimer = {
+      id: 'tmr_' + Date.now(),
+      name,
+      category,
+      desc,
+      totalSeconds,
+      remainingSeconds: totalSeconds,
+      isRunning: autoStart,
+      lastTick: Date.now()
+    };
+
+    timers.push(newTimer);
+    state.saveTimers(timers);
+    state.addLog('CREATE_TIMER', 'Tambah Timer', `Admin ${state.currentUser.fullName} menambahkan timer waktu mundur: ${name} (${formatSecondsToHMS(totalSeconds)}).`);
+    showToast('Timer Ditambahkan', `Timer <strong>${name}</strong> berhasil didaftarkan.`, 'success');
+  }
+
+  closeTimerModal();
+  renderTimerPage();
+}
+
+window.toggleTimerRunning = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat mengontrol timer.', 'warning');
+    return;
+  }
+  const timers = state.getTimers();
+  const timer = timers.find(t => t.id === id);
+  if (!timer) return;
+
+  timer.isRunning = !timer.isRunning;
+  timer.lastTick = Date.now();
+  state.saveTimers(timers);
+  renderTimerPage();
+};
+
+window.resetTimer = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat mereset timer.', 'warning');
+    return;
+  }
+  const timers = state.getTimers();
+  const timer = timers.find(t => t.id === id);
+  if (!timer) return;
+
+  timer.remainingSeconds = timer.totalSeconds;
+  timer.isRunning = false;
+  state.saveTimers(timers);
+  showToast('Timer Direset', `Timer <strong>${timer.name}</strong> dikembalikan ke waktu awal (${formatSecondsToHMS(timer.totalSeconds)}).`, 'info');
+  renderTimerPage();
+};
+
+window.promptDeleteTimer = function(id, name) {
+  if (!state.isAdmin()) return;
+  state.pendingDelete = { type: 'timer', id, name };
+  UI.confirmDeleteTitle.textContent = 'Hapus Timer?';
+  UI.confirmDeleteMessage.innerHTML = `Timer waktu mundur <strong>${name}</strong> akan dihapus dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// Stopwatch Modal Operations
+function openAddStopwatchModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat menambahkan stopwatch.', 'danger');
+    return;
+  }
+  UI.stopwatchForm.reset();
+  UI.modalStopwatchForm.classList.remove('hidden');
+}
+
+function closeStopwatchModal() {
+  UI.modalStopwatchForm.classList.add('hidden');
+}
+
+function handleSaveStopwatch(e) {
+  e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Anda tidak memiliki hak izin.', 'danger');
+    return;
+  }
+
+  const name = UI.formStopwatchName.value.trim();
+  const dept = UI.formStopwatchDept.value.trim();
+  const autoStart = UI.formStopwatchAutoStart.value === 'running';
+
+  if (!name) {
+    showToast('Form Belum Lengkap', 'Nama stopwatch wajib diisi.', 'warning');
+    return;
+  }
+
+  const stopwatches = state.getStopwatches();
+  const newSw = {
+    id: 'sw_' + Date.now(),
+    name,
+    dept: dept || 'Operasional',
+    elapsedSeconds: 0,
+    isRunning: autoStart,
+    lastTick: Date.now()
+  };
+
+  stopwatches.push(newSw);
+  state.saveStopwatches(stopwatches);
+  state.addLog('CREATE_STOPWATCH', 'Tambah Stopwatch', `Admin ${state.currentUser.fullName} menambahkan stopwatch baru: ${name}.`);
+  showToast('Stopwatch Ditambahkan', `Stopwatch <strong>${name}</strong> berhasil dibuat.`, 'success');
+
+  closeStopwatchModal();
+  renderTimerPage();
+}
+
+window.toggleStopwatchRunning = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat mengontrol stopwatch.', 'warning');
+    return;
+  }
+  const stopwatches = state.getStopwatches();
+  const sw = stopwatches.find(s => s.id === id);
+  if (!sw) return;
+
+  sw.isRunning = !sw.isRunning;
+  sw.lastTick = Date.now();
+  state.saveStopwatches(stopwatches);
+  renderTimerPage();
+};
+
+window.resetStopwatch = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat mereset stopwatch.', 'warning');
+    return;
+  }
+  const stopwatches = state.getStopwatches();
+  const sw = stopwatches.find(s => s.id === id);
+  if (!sw) return;
+
+  sw.elapsedSeconds = 0;
+  sw.isRunning = false;
+  state.saveStopwatches(stopwatches);
+  showToast('Stopwatch Direset', `Stopwatch <strong>${sw.name}</strong> dikembalikan ke 00:00:00.`, 'info');
+  renderTimerPage();
+};
+
+window.promptDeleteStopwatch = function(id, name) {
+  if (!state.isAdmin()) return;
+  state.pendingDelete = { type: 'stopwatch', id, name };
+  UI.confirmDeleteTitle.textContent = 'Hapus Stopwatch?';
+  UI.confirmDeleteMessage.innerHTML = `Stopwatch <strong>${name}</strong> akan dihapus dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// Live Ticker for Timers & Stopwatches
+function startTimerTicker() {
+  setInterval(() => {
+    let hasChanges = false;
+    const timers = state.getTimers();
+    const stopwatches = state.getStopwatches();
+
+    // Tick timers
+    timers.forEach(t => {
+      if (t.isRunning && t.remainingSeconds > 0) {
+        t.remainingSeconds -= 1;
+        hasChanges = true;
+
+        if (t.remainingSeconds === 0) {
+          t.isRunning = false;
+          showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
+        }
+
+        // Live DOM update if on timer page
+        const dispEl = document.getElementById(`timerDisplay_${t.id}`);
+        if (dispEl) {
+          dispEl.textContent = formatSecondsToHMS(t.remainingSeconds);
+          if (t.remainingSeconds === 0) dispEl.classList.add('text-danger-pulse');
+        }
+
+        const progEl = document.getElementById(`timerProgress_${t.id}`);
+        if (progEl && t.totalSeconds > 0) {
+          const p = Math.max(0, Math.min(100, Math.round((t.remainingSeconds / t.totalSeconds) * 100)));
+          progEl.style.width = `${p}%`;
+          const pText = document.getElementById(`timerPercent_${t.id}`);
+          if (pText) pText.textContent = `${p}%`;
+        }
+      }
+    });
+
+    // Tick stopwatches
+    stopwatches.forEach(sw => {
+      if (sw.isRunning) {
+        sw.elapsedSeconds += 1;
+        hasChanges = true;
+
+        const dispEl = document.getElementById(`stopwatchDisplay_${sw.id}`);
+        if (dispEl) {
+          dispEl.textContent = formatSecondsToHMS(sw.elapsedSeconds);
+        }
+      }
+    });
+
+    if (hasChanges) {
+      state.saveTimers(timers);
+      state.saveStopwatches(stopwatches);
+    }
+  }, 1000);
+}
+
+// ==========================================
 // 13. SIDEBAR & MOBILE CONTROLS
 // ==========================================
 
@@ -1917,6 +2565,33 @@ function initEvents() {
   if (UI.btnOverviewLogAll) {
     UI.btnOverviewLogAll.addEventListener('click', () => navigateToPage('activity-log'));
   }
+
+  // Timer & Stopwatch Modals and Forms
+  if (UI.btnOpenAddTimerModal) {
+    UI.btnOpenAddTimerModal.addEventListener('click', openAddTimerModal);
+  }
+  if (UI.btnCloseTimerModal) {
+    UI.btnCloseTimerModal.addEventListener('click', closeTimerModal);
+  }
+  if (UI.btnCancelTimerModal) {
+    UI.btnCancelTimerModal.addEventListener('click', closeTimerModal);
+  }
+  if (UI.timerForm) {
+    UI.timerForm.addEventListener('submit', handleSaveTimer);
+  }
+
+  if (UI.btnOpenAddStopwatchModal) {
+    UI.btnOpenAddStopwatchModal.addEventListener('click', openAddStopwatchModal);
+  }
+  if (UI.btnCloseStopwatchModal) {
+    UI.btnCloseStopwatchModal.addEventListener('click', closeStopwatchModal);
+  }
+  if (UI.btnCancelStopwatchModal) {
+    UI.btnCancelStopwatchModal.addEventListener('click', closeStopwatchModal);
+  }
+  if (UI.stopwatchForm) {
+    UI.stopwatchForm.addEventListener('submit', handleSaveStopwatch);
+  }
 }
 
 // ==========================================
@@ -1926,6 +2601,7 @@ function initEvents() {
 document.addEventListener('DOMContentLoaded', () => {
   startClock();
   populateNotifications();
+  startTimerTicker();
   initEvents();
   renderAppView();
 });

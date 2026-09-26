@@ -182,6 +182,13 @@
               <span class="nav-tag" id="navDataTag">Semua</span>
             </button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="timer" id="navTimer">
+              <i class="fa-solid fa-stopwatch-20 nav-icon"></i>
+              <span class="nav-label">Timer</span>
+              <span class="nav-tag" id="navTimerTag">Live</span>
+            </button>
+          </li>
         </ul>
 
         <div class="nav-category-title">ADMINISTRASI SISTEM</div>
@@ -618,6 +625,98 @@
               <div class="pagination-controls" id="paginationControls">
                 <!-- Rendered dynamically -->
               </div>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE TIMER: TIMER & STOPWATCH OPERASIONAL ==================== -->
+        <section class="page-section" id="pageTimer">
+          
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Pusat Timer &amp; Stopwatch</h2>
+                <span class="badge badge-red-outline" id="timerLiveBadge"><i class="fa-solid fa-circle-dot text-red pulse-dot"></i> Live Real-time</span>
+              </div>
+              <p class="page-desc">Pantau batas waktu tugas operasional (waktu mundur) dan pencatatan durasi (stopwatch) secara langsung.</p>
+            </div>
+            
+            <div class="page-title-actions">
+              <!-- Admin Only Actions (Hidden or Locked for User) -->
+              <div class="admin-timer-actions" id="adminTimerActionButtons">
+                <button class="btn btn-primary glow-effect-red" id="btnOpenAddTimerModal">
+                  <i class="fa-solid fa-hourglass-start"></i>
+                  <span>+ Tambah Timer Mundur</span>
+                </button>
+                <button class="btn btn-outline-gray" id="btnOpenAddStopwatchModal">
+                  <i class="fa-solid fa-stopwatch text-red"></i>
+                  <span>+ Tambah Stopwatch</span>
+                </button>
+              </div>
+              <div class="user-timer-readonly-tag hidden" id="userTimerNoticeTag">
+                <span class="badge badge-user"><i class="fa-solid fa-eye"></i> Mode Tinjauan (Read-Only)</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Banner for Timer -->
+          <div class="permission-status-banner glass-subpanel" id="timerPermissionBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-stopwatch-20 text-red"></i>
+              <div>
+                <strong id="timerBannerRoleLabel">Otoritas Akses Timer: Administrator Penuh</strong>
+                <p id="timerBannerRoleDesc">Admin dapat mengedit nama timer dan jumlah durasi waktu, menambah stopwatch baru, serta mengontrol start/pause/reset.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-admin" id="timerBannerBadge">Kontrol Penuh</span>
+            </div>
+          </div>
+
+          <!-- SUBSECTION 1: TIMER WAKTU MUNDUR (COUNTDOWN) -->
+          <div class="timer-section-block">
+            <div class="timer-section-header">
+              <div class="section-title-wrapper">
+                <div class="icon-bubble bg-red-gradient">
+                  <i class="fa-solid fa-hourglass-half"></i>
+                </div>
+                <div>
+                  <h3 class="section-title">Timer Waktu Mundur (Countdown)</h3>
+                  <p class="section-subtitle">Nama timer di sebelah kiri dapat diedit bersama dengan jumlah durasi waktunya oleh Administrator</p>
+                </div>
+              </div>
+              <div class="section-stat-pill" id="activeCountdownCountBadge">
+                0 Timer Aktif
+              </div>
+            </div>
+
+            <!-- List/Grid of Countdown Timers -->
+            <div class="countdown-timers-list" id="countdownTimersContainer">
+              <!-- Rendered dynamically via JS -->
+            </div>
+          </div>
+
+          <!-- SUBSECTION 2: STOPWATCH OPERASIONAL -->
+          <div class="timer-section-block mt-4">
+            <div class="timer-section-header">
+              <div class="section-title-wrapper">
+                <div class="icon-bubble bg-gray-dark">
+                  <i class="fa-solid fa-stopwatch text-red"></i>
+                </div>
+                <div>
+                  <h3 class="section-title">Stopwatch Operasional</h3>
+                  <p class="section-subtitle">Pencatatan waktu bertambah progresif (Admin dapat menambahkan stopwatch baru, User hanya dapat melihat)</p>
+                </div>
+              </div>
+              <div class="section-stat-pill" id="activeStopwatchCountBadge">
+                0 Stopwatch Aktif
+              </div>
+            </div>
+
+            <!-- List/Grid of Stopwatches -->
+            <div class="stopwatches-list" id="stopwatchesContainer">
+              <!-- Rendered dynamically via JS -->
             </div>
           </div>
 
@@ -1221,6 +1320,165 @@
           <i class="fa-solid fa-trash-can"></i> Ya, Hapus Data
         </button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 5: TAMBAH / EDIT TIMER WAKTU MUNDUR ==================== -->
+  <div class="modal-backdrop hidden" id="modalTimerForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-hourglass-half" id="modalTimerIcon"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalTimerTitle">Tambah Timer Waktu Mundur</h3>
+            <p class="modal-subtitle">Admin dapat mengatur nama timer di sisi kiri dan jumlah durasi waktu</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseTimerModal" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="timerForm" novalidate>
+        <input type="hidden" id="formTimerId" value="">
+
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="formTimerName" class="form-label">
+              Nama Timer (Ditampilkan di sebelah kiri) <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-tag input-icon"></i>
+              <input type="text" id="formTimerName" class="form-control" placeholder="Contoh: Batas Waktu Backup Database Mirror" required>
+            </div>
+            <small class="form-hint">Nama timer akan tertera jelas di sisi kiri kartu timer.</small>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formTimerCategory" class="form-label">Kategori / Divisi</label>
+              <select id="formTimerCategory" class="form-control">
+                <option value="TI & Server">TI &amp; Server</option>
+                <option value="Operasional Gudang">Operasional Gudang</option>
+                <option value="Audit & Keamanan">Audit &amp; Keamanan</option>
+                <option value="Tugas Rutin">Tugas Rutin</option>
+                <option value="Darurat & SLA">Darurat &amp; SLA</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formTimerAutoStart" class="form-label">Status Awal</label>
+              <select id="formTimerAutoStart" class="form-control">
+                <option value="running">Langsung Berjalan (Start)</option>
+                <option value="paused">Jeda Terlebih Dahulu (Pause)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Input Durasi Waktu (Jam, Menit, Detik) -->
+          <div class="form-group">
+            <label class="form-label">
+              Jumlah Waktu Mundur (Durasi) <span class="required">*</span>
+            </label>
+            <div class="time-inputs-grid">
+              <div class="time-input-col">
+                <label for="formTimerHours"><small class="text-muted">Jam (0 - 99)</small></label>
+                <div class="input-with-icon">
+                  <i class="fa-regular fa-clock input-icon"></i>
+                  <input type="number" id="formTimerHours" class="form-control pl-custom" min="0" max="99" value="1" placeholder="00">
+                </div>
+              </div>
+
+              <div class="time-input-col">
+                <label for="formTimerMinutes"><small class="text-muted">Menit (0 - 59)</small></label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-stopwatch input-icon"></i>
+                  <input type="number" id="formTimerMinutes" class="form-control pl-custom" min="0" max="59" value="30" placeholder="00">
+                </div>
+              </div>
+
+              <div class="time-input-col">
+                <label for="formTimerSeconds"><small class="text-muted">Detik (0 - 59)</small></label>
+                <div class="input-with-icon">
+                  <i class="fa-solid fa-bolt input-icon"></i>
+                  <input type="number" id="formTimerSeconds" class="form-control pl-custom" min="0" max="59" value="0" placeholder="00">
+                </div>
+              </div>
+            </div>
+            <small class="form-hint text-red"><i class="fa-solid fa-circle-info"></i> Admin dapat bebas mengedit jumlah jam, menit, dan detik ini kapan saja.</small>
+          </div>
+
+          <div class="form-group">
+            <label for="formTimerDesc" class="form-label">Deskripsi / Catatan Tugas</label>
+            <textarea id="formTimerDesc" class="form-control" rows="2" placeholder="Catatan instruksi atau target penyelesaian..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelTimerModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitTimer">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnSubmitTimerText">Simpan Timer</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 6: TAMBAH STOPWATCH (ADMIN ONLY) ==================== -->
+  <div class="modal-backdrop hidden" id="modalStopwatchForm">
+    <div class="modal-dialog modal-sm glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-gray-dark">
+            <i class="fa-solid fa-stopwatch text-red"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Tambah Stopwatch Baru</h3>
+            <p class="modal-subtitle">Pencatatan waktu bertambah progresif</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseStopwatchModal" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="stopwatchForm" novalidate>
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="formStopwatchName" class="form-label">
+              Nama Stopwatch <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-stopwatch input-icon"></i>
+              <input type="text" id="formStopwatchName" class="form-control" placeholder="Contoh: Stopwatch Audit Stok Gudang A" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formStopwatchDept" class="form-label">Departemen / Keterangan</label>
+            <input type="text" id="formStopwatchDept" class="form-control" placeholder="Contoh: Divisi Logistik & Pengiriman">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status Awal</label>
+            <select id="formStopwatchAutoStart" class="form-control">
+              <option value="running">Langsung Mulai (Start)</option>
+              <option value="paused">Mulai Dari Nol (00:00:00)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelStopwatchModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red">
+            <i class="fa-solid fa-plus"></i>
+            <span>Tambahkan Stopwatch</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
