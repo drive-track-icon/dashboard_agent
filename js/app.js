@@ -357,6 +357,595 @@ const DEFAULT_STOPWATCHES = [
   }
 ];
 
+const DEFAULT_PA_LOGS = [
+  {
+    id: 'pa_1',
+    userId: 'usr_user_1',
+    username: 'user',
+    userFullName: 'Siti Rahma',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    department: 'CSO DIGILIVE CHAT - WA',
+    date: '2026-09-28',
+    shift: 'Shift Pagi (07:00 - 15:00)',
+    activityCategory: 'READY / HANDLING CHAT',
+    interactionCount: 38,
+    targetCount: 40,
+    durationMinutes: 240,
+    notes: 'Penanganan chat interaksi pelanggan WhatsApp terkait informasi tagihan dan kendala jaringan Iconnet.',
+    status: 'Terverifikasi',
+    createdAt: '2026-09-28 11:30'
+  },
+  {
+    id: 'pa_2',
+    userId: 'usr_user_1',
+    username: 'user',
+    userFullName: 'Siti Rahma',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    department: 'CSO DIGILIVE CHAT - WA',
+    date: '2026-09-28',
+    shift: 'Shift Pagi (07:00 - 15:00)',
+    activityCategory: 'AUX 1: ISTIRAHAT / MAKAN',
+    interactionCount: 0,
+    targetCount: 0,
+    durationMinutes: 60,
+    notes: 'Istirahat makan siang dan ibadah shift 1.',
+    status: 'Terverifikasi',
+    createdAt: '2026-09-28 12:45'
+  },
+  {
+    id: 'pa_3',
+    userId: 'usr_user_1',
+    username: 'user',
+    userFullName: 'Siti Rahma',
+    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    department: 'CSO DIGILIVE CHAT - WA',
+    date: '2026-09-28',
+    shift: 'Shift Pagi (07:00 - 15:00)',
+    activityCategory: 'AUX 5: FOLLOW UP TIKET',
+    interactionCount: 14,
+    targetCount: 15,
+    durationMinutes: 90,
+    notes: 'Follow up konfirmasi open tiket pelanggan eskalasi PLN Icon Plus.',
+    status: 'Selesai',
+    createdAt: '2026-09-28 14:20'
+  },
+  {
+    id: 'pa_4',
+    userId: 'usr_user_2',
+    username: 'ahmad_fauzi',
+    userFullName: 'Ahmad Fauzi',
+    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    department: 'CSO BACK OFFICE',
+    date: '2026-09-28',
+    shift: 'Normal Office (08:00 - 17:00)',
+    activityCategory: 'READY / VERIFIKASI DOKUMEN',
+    interactionCount: 42,
+    targetCount: 40,
+    durationMinutes: 210,
+    notes: 'Validasi berkas pendaftaran pelanggan baru dan sinkronisasi sistem billing.',
+    status: 'Terverifikasi',
+    createdAt: '2026-09-28 13:00'
+  },
+  {
+    id: 'pa_5',
+    userId: 'usr_admin_1',
+    username: 'admin',
+    userFullName: 'Budi Santoso, S.Kom',
+    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    department: 'CSO INBOUND',
+    date: '2026-09-28',
+    shift: 'Shift Pagi (07:00 - 15:00)',
+    activityCategory: 'AUX 4: BRIEFING & COACHING',
+    interactionCount: 0,
+    targetCount: 0,
+    durationMinutes: 45,
+    notes: 'Coaching peningkatan FCR (First Contact Resolution) dan evaluasi SLA mingguan.',
+    status: 'Terverifikasi',
+    createdAt: '2026-09-28 08:30'
+  }
+];
+
+const DEFAULT_CA_LOGS = [
+  // Siti Rahma (CSO DIGILIVE CHAT - WA)
+  {
+    id: 'ca_sr_1',
+    date: '2026-09-28',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    channel: 'Live Chat WA',
+    score: 97.25,
+    grade: 'Sangat Baik',
+    focusParam: 'Greeting SOP, Identifikasi Kebutuhan, Validasi Akun',
+    status: 'Terverifikasi',
+    notes: 'Respon cepat, greeting ramah sesuai standar Iconnet, penyampaian solusi tagihan jelas.',
+    createdAt: '2026-09-28 10:15'
+  },
+  {
+    id: 'ca_sr_2',
+    date: '2026-09-26',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    channel: 'Live Chat WA',
+    score: 95.50,
+    grade: 'Sangat Baik',
+    focusParam: 'Closing SOP, Konfirmasi Kepuasan Pelanggan',
+    status: 'Terverifikasi',
+    notes: 'Format closing SOP lengkap dengan penawaran bantuan tambahan dan salam penutup.',
+    createdAt: '2026-09-26 09:30'
+  },
+  {
+    id: 'ca_sr_3',
+    date: '2026-09-23',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    channel: 'Live Chat WA',
+    score: 96.00,
+    grade: 'Sangat Baik',
+    focusParam: 'Akurasi Penjelasan Paket Promo Iconnet',
+    status: 'Terverifikasi',
+    notes: 'Penjelasan skema add-on channel TV dan kecepatan bandwidth sangat presisi.',
+    createdAt: '2026-09-23 11:20'
+  },
+  {
+    id: 'ca_sr_4',
+    date: '2026-09-18',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    channel: 'Live Chat WA',
+    score: 92.40,
+    grade: 'Baik',
+    focusParam: 'Handling Objection & Respon Waktu Tunggu',
+    status: 'Terverifikasi',
+    notes: 'Penanganan keluhan pelanggan agak tegang, namun solusi teknis tersampaikan dengan baik.',
+    createdAt: '2026-09-18 14:10'
+  },
+  {
+    id: 'ca_sr_5',
+    date: '2026-09-12',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    channel: 'Live Chat WA',
+    score: 98.15,
+    grade: 'Sangat Baik',
+    focusParam: 'FCR (First Contact Resolution) & Empati',
+    status: 'Terverifikasi',
+    notes: 'Penyelesaian kendala tanpa eskalasi tambahan, apresiasi positif dari pelanggan.',
+    createdAt: '2026-09-12 15:45'
+  },
+  {
+    id: 'ca_sr_6',
+    date: '2026-09-05',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    channel: 'Live Chat WA',
+    score: 94.50,
+    grade: 'Baik',
+    focusParam: 'Verifikasi Identitas & Kode OTP',
+    status: 'Terverifikasi',
+    notes: 'Protokol verifikasi akun pelanggan dipatuhi secara tepat sesuai standar keamanan.',
+    createdAt: '2026-09-05 10:00'
+  },
+
+  // Ahmad Fauzi (CSO BACK OFFICE)
+  {
+    id: 'ca_af_1',
+    date: '2026-09-28',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    channel: 'Back Office',
+    score: 94.00,
+    grade: 'Baik',
+    focusParam: 'Akurasi Verifikasi Dokumen & SLA Closing',
+    status: 'Terverifikasi',
+    notes: 'Verifikasi berkas pendaftaran pelanggan baru akurat. Update status tiket tepat waktu.',
+    createdAt: '2026-09-28 11:30'
+  },
+  {
+    id: 'ca_af_2',
+    date: '2026-09-25',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    channel: 'Back Office',
+    score: 96.50,
+    grade: 'Sangat Baik',
+    focusParam: 'Kelengkapan Lampiran Formulir Pasang Baru',
+    status: 'Terverifikasi',
+    notes: 'Checklist berkas KTP dan koordinat lokasi pelanggan diinput tanpa kesalahan.',
+    createdAt: '2026-09-25 13:40'
+  },
+  {
+    id: 'ca_af_3',
+    date: '2026-09-21',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    channel: 'Back Office',
+    score: 91.25,
+    grade: 'Baik',
+    focusParam: 'Kecepatan Rekonsiliasi Billing Bank',
+    status: 'Terverifikasi',
+    notes: 'Terdapat jeda saat konfirmasi slip transfer, namun hasil rekonsiliasi akurat.',
+    createdAt: '2026-09-21 16:15'
+  },
+  {
+    id: 'ca_af_4',
+    date: '2026-09-15',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    channel: 'Back Office',
+    score: 95.00,
+    grade: 'Sangat Baik',
+    focusParam: 'Validasi Data Teknis Modem ONT',
+    status: 'Terverifikasi',
+    notes: 'Pencocokan serial number router ONT dengan sistem inventaris berjalan lancar.',
+    createdAt: '2026-09-15 09:50'
+  },
+  {
+    id: 'ca_af_5',
+    date: '2026-09-08',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    channel: 'Back Office',
+    score: 93.75,
+    grade: 'Baik',
+    focusParam: 'Kesesuaian Format Notulen Tindak Lanjut',
+    status: 'Terverifikasi',
+    notes: 'Pencatatan resume tiket eskalasi rapi dan mudah dipahami oleh tim dispatch lapangan.',
+    createdAt: '2026-09-08 14:00'
+  },
+
+  // Budi Santoso, S.Kom (CSO INBOUND)
+  {
+    id: 'ca_bs_1',
+    date: '2026-09-27',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    channel: 'Inbound Call',
+    score: 98.50,
+    grade: 'Sangat Baik',
+    focusParam: 'Active Listening, Empathy, Solusi Teknis',
+    status: 'Terverifikasi',
+    notes: 'Penanganan komplain internet putus ditangani dengan tenang, empati tinggi, panduan modem akurat.',
+    createdAt: '2026-09-27 14:20'
+  },
+  {
+    id: 'ca_bs_2',
+    date: '2026-09-22',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    channel: 'Inbound Call',
+    score: 97.00,
+    grade: 'Sangat Baik',
+    focusParam: 'Artikulasi Nada Bicara & Solusi FCR',
+    status: 'Terverifikasi',
+    notes: 'Intonasi sopan, penanganan kendala lambat koneksi tuntas dalam 4 menit.',
+    createdAt: '2026-09-22 10:30'
+  },
+  {
+    id: 'ca_bs_3',
+    date: '2026-09-16',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    channel: 'Inbound Call',
+    score: 99.00,
+    grade: 'Sangat Baik',
+    focusParam: 'Handling Pelanggan Prioritas / Korporat',
+    status: 'Terverifikasi',
+    notes: 'Sangat menguasai topologi jaringan korporat dan SLA eskalasi teknis tingkat tinggi.',
+    createdAt: '2026-09-16 11:15'
+  },
+  {
+    id: 'ca_bs_4',
+    date: '2026-09-09',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    channel: 'Inbound Call',
+    score: 96.25,
+    grade: 'Sangat Baik',
+    focusParam: 'Standar Greeting Pembuka & Penutup',
+    status: 'Terverifikasi',
+    notes: 'Penyampaian salam baku PLN Icon Plus konsisten dan ramah.',
+    createdAt: '2026-09-09 08:45'
+  },
+  {
+    id: 'ca_bs_5',
+    date: '2026-09-02',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    channel: 'Inbound Call',
+    score: 98.00,
+    grade: 'Sangat Baik',
+    focusParam: 'Eskalasi Gangguan Massal OSP',
+    status: 'Terverifikasi',
+    notes: 'Tiket dispatch darurat terkirim ke tim lapangan dalam kurun waktu 8 menit.',
+    createdAt: '2026-09-02 16:00'
+  },
+
+  // Dewi Lestari, M.T. (TEAM LEADER)
+  {
+    id: 'ca_dl_1',
+    date: '2026-09-27',
+    userFullName: 'Dewi Lestari, M.T.',
+    department: 'TEAM LEADER',
+    channel: 'Direct Message IG',
+    score: 96.75,
+    grade: 'Sangat Baik',
+    focusParam: 'Ketepatan Eskalasi & Etika Komunikasi',
+    status: 'Terverifikasi',
+    notes: 'Respon tanggap pada DM Instagram, eskalasi ke dispatch teknisi lapangan berjalan mulus.',
+    createdAt: '2026-09-27 16:45'
+  },
+  {
+    id: 'ca_dl_2',
+    date: '2026-09-20',
+    userFullName: 'Dewi Lestari, M.T.',
+    department: 'TEAM LEADER',
+    channel: 'My Icon+ App',
+    score: 97.50,
+    grade: 'Sangat Baik',
+    focusParam: 'Supervisi Penanganan Kendala Kritis',
+    status: 'Terverifikasi',
+    notes: 'Bantuan asistensi tiket eskalasi tier-2 berjalan efektif.',
+    createdAt: '2026-09-20 13:10'
+  },
+  {
+    id: 'ca_dl_3',
+    date: '2026-09-14',
+    userFullName: 'Dewi Lestari, M.T.',
+    department: 'TEAM LEADER',
+    channel: 'Email Support',
+    score: 95.25,
+    grade: 'Sangat Baik',
+    focusParam: 'Format Formal Tanggapan Surat Pelanggan',
+    status: 'Terverifikasi',
+    notes: 'Surat balasan resmi komplain tagihan disusun dengan bahasa profesional dan persuasif.',
+    createdAt: '2026-09-14 15:20'
+  },
+  {
+    id: 'ca_dl_4',
+    date: '2026-09-04',
+    userFullName: 'Dewi Lestari, M.T.',
+    department: 'TEAM LEADER',
+    channel: 'Direct Message IG',
+    score: 96.00,
+    grade: 'Sangat Baik',
+    focusParam: 'Sosialisasi Promo Upgrade & FCR',
+    status: 'Terverifikasi',
+    notes: 'Interaksi di media sosial berhasil mengubah komplain menjadi apresiasi kepuasan pelanggan.',
+    createdAt: '2026-09-04 11:30'
+  }
+];
+
+const DEFAULT_TIKETS = [
+  {
+    id: 'tkt_1',
+    ticketNumber: 'INC-20260928-001',
+    reportTime: '2026-09-28 08:15',
+    customerName: 'PT Nusantara Citra Mandiri (ID: 108420)',
+    department: 'CSO INBOUND',
+    category: 'Gangguan Koneksi Internet',
+    priority: 'Darurat / High',
+    status: 'In Progress',
+    handler: 'Budi Santoso',
+    desc: 'Indikator LOS merah pada modem ONT, koneksi fiber optik kantor pusat terputus. Teknisi dispatch OSP sedang menuju lokasi.',
+    createdAt: '2026-09-28 08:20'
+  },
+  {
+    id: 'tkt_2',
+    ticketNumber: 'INC-20260928-002',
+    reportTime: '2026-09-28 09:05',
+    customerName: 'Dra. Endang Sulistyowati (ID: 104712)',
+    department: 'CSO DIGILIVE CHAT - WA',
+    category: 'Kendala Tagihan / Billing',
+    priority: 'Medium',
+    status: 'Closed',
+    handler: 'Siti Rahma',
+    desc: 'Konfirmasi pembayaran paket Iconnet 50 Mbps via Virtual Account Bank Mandiri belum ter-update. Telah direkonsiliasi dan status aktif kembali.',
+    createdAt: '2026-09-28 09:35'
+  },
+  {
+    id: 'tkt_3',
+    ticketNumber: 'INC-20260928-003',
+    reportTime: '2026-09-28 10:20',
+    customerName: 'CV Mitra Abadi Semesta (ID: 109923)',
+    department: 'CSO BACK OFFICE',
+    category: 'Permohonan Upgrade Paket',
+    priority: 'Medium',
+    status: 'Open',
+    handler: 'Ahmad Fauzi',
+    desc: 'Permohonan peningkatan bandwidth dari 100 Mbps ke 300 Mbps Dedicated Internet. Berkas formulir upgrade sedang diverifikasi.',
+    createdAt: '2026-09-28 10:25'
+  },
+  {
+    id: 'tkt_4',
+    ticketNumber: 'INC-20260928-004',
+    reportTime: '2026-09-28 11:40',
+    customerName: 'Rian Pratama (ID: 102381)',
+    department: 'CSO DIGILIVE CHAT - MY ICON+',
+    category: 'Penurunan Bandwidth / Lambat',
+    priority: 'Low',
+    status: 'In Progress',
+    handler: 'Siti Rahma',
+    desc: 'Keluhan speedtest menunjukkan 15 Mbps dari langganan 35 Mbps. Dilakukan remote restart port OLT dan pengujian ulang.',
+    createdAt: '2026-09-28 11:45'
+  },
+  {
+    id: 'tkt_5',
+    ticketNumber: 'INC-20260928-005',
+    reportTime: '2026-09-28 13:10',
+    customerName: 'Gedung Graha Mandiri Lt. 5 (ID: 105504)',
+    department: 'CSO INBOUND',
+    category: 'Gangguan Router / Perangkat',
+    priority: 'Darurat / High',
+    status: 'Pending Vendor',
+    handler: 'Dewi Lestari',
+    desc: 'Adaptor router mikrotik terbakar setelah petir. Menunggu penggantian unit cadangan dari tim hardware vendor.',
+    createdAt: '2026-09-28 13:20'
+  }
+];
+
+const DEFAULT_AHT_LOGS = [
+  {
+    sessionTime: '2026-09-28 08:35',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    interactionId: 'CHAT-WA-8921',
+    actualSeconds: 195,
+    targetSeconds: 300,
+    deviationText: '-105 dtk (Cepat)',
+    status: 'Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 09:12',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    interactionId: 'CALL-IN-4412',
+    actualSeconds: 245,
+    targetSeconds: 300,
+    deviationText: '-55 dtk (Cepat)',
+    status: 'Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 10:04',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    interactionId: 'TKT-BO-1029',
+    actualSeconds: 280,
+    targetSeconds: 300,
+    deviationText: '-20 dtk (Optimal)',
+    status: 'Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 11:15',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    interactionId: 'CHAT-WA-8964',
+    actualSeconds: 340,
+    targetSeconds: 300,
+    deviationText: '+40 dtk (Over SLA)',
+    status: 'Over SLA'
+  },
+  {
+    sessionTime: '2026-09-28 12:40',
+    userFullName: 'Dewi Lestari, M.T.',
+    department: 'TEAM LEADER',
+    interactionId: 'CHAT-DM-3105',
+    actualSeconds: 180,
+    targetSeconds: 300,
+    deviationText: '-120 dtk (Cepat)',
+    status: 'Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 13:25',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    interactionId: 'TKT-BO-1045',
+    actualSeconds: 215,
+    targetSeconds: 300,
+    deviationText: '-85 dtk (Cepat)',
+    status: 'Sesuai SLA'
+  }
+];
+
+const DEFAULT_ART_LOGS = [
+  {
+    sessionTime: '2026-09-28 08:30',
+    userFullName: 'Siti Rahma',
+    channel: 'CSO DIGILIVE CHAT - WA',
+    queueSeconds: 4,
+    frtSeconds: 6,
+    avgResponseSeconds: 12.4,
+    targetSeconds: 30,
+    status: 'Optimal / Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 09:15',
+    userFullName: 'Siti Rahma',
+    channel: 'CSO DIGILIVE CHAT - WA',
+    queueSeconds: 8,
+    frtSeconds: 9,
+    avgResponseSeconds: 15.2,
+    targetSeconds: 30,
+    status: 'Optimal / Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 10:10',
+    userFullName: 'Dewi Lestari, M.T.',
+    channel: 'CSO DIGILIVE CHAT - DM',
+    queueSeconds: 5,
+    frtSeconds: 7,
+    avgResponseSeconds: 11.0,
+    targetSeconds: 30,
+    status: 'Optimal / Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 11:22',
+    userFullName: 'Siti Rahma',
+    channel: 'CSO DIGILIVE CHAT - MY ICON+',
+    queueSeconds: 12,
+    frtSeconds: 14,
+    avgResponseSeconds: 19.8,
+    targetSeconds: 30,
+    status: 'Optimal / Sesuai SLA'
+  },
+  {
+    sessionTime: '2026-09-28 13:05',
+    userFullName: 'Budi Santoso, S.Kom',
+    channel: 'CSO EMAIL',
+    queueSeconds: 18,
+    frtSeconds: 22,
+    avgResponseSeconds: 25.5,
+    targetSeconds: 30,
+    status: 'Optimal / Sesuai SLA'
+  }
+];
+
+const DEFAULT_FINDINGS = [
+  {
+    id: 'FND-2026-001',
+    date: '2026-09-27',
+    userFullName: 'Ahmad Fauzi',
+    department: 'CSO BACK OFFICE',
+    category: 'Input Data Billing & Tiket',
+    deviationLevel: 'Minor',
+    desc: 'Kelalaian penulisan format nomor serial router ONT pada kolom catatan tiket eskalasi.',
+    actionPlan: 'Briefing format baku pengisian formulir tiket dan penegasan checklist data teknis.',
+    status: 'Closed'
+  },
+  {
+    id: 'FND-2026-002',
+    date: '2026-09-28',
+    userFullName: 'Siti Rahma',
+    department: 'CSO DIGILIVE CHAT - WA',
+    category: 'Greeting & Closing SOP',
+    deviationLevel: 'Minor',
+    desc: 'Lupa menyertakan kalimat penawaran informasi survei kepuasan pelanggan pada pesan closing.',
+    actionPlan: 'Pengingat makro template respon cepat pada sistem live chat agar penutup otomatis terpasang.',
+    status: 'Dalam Coaching'
+  },
+  {
+    id: 'FND-2026-003',
+    date: '2026-09-26',
+    userFullName: 'Budi Santoso, S.Kom',
+    department: 'CSO INBOUND',
+    category: 'Kepatuhan SLA Eskalasi',
+    deviationLevel: 'Mayor',
+    desc: 'Tiket gangguan massal fiber optik terlambat dieskalasi ke grup dispatcher selama 35 menit melewati batas SLA 15 menit.',
+    actionPlan: 'Coaching 1-on-1 mengenai alur darurat gangguan massal (critical incident) dan aktivasi alarm reminder tiket.',
+    status: 'Open'
+  },
+  {
+    id: 'FND-2026-004',
+    date: '2026-09-25',
+    userFullName: 'Dewi Lestari, M.T.',
+    department: 'TEAM LEADER',
+    category: 'Verifikasi Data Pelanggan',
+    deviationLevel: 'Minor',
+    desc: 'Validasi 3 elemen data identitas penelepon kurang lengkap pada saat permohonan reset password portal pelanggan.',
+    actionPlan: 'Penyegaran checklist keamanan akun dan perlindungan data pribadi (PDP).',
+    status: 'Closed'
+  }
+];
+
 // ==========================================
 // 2. STATE MANAGER
 // ==========================================
@@ -375,7 +964,10 @@ class AppState {
     this.sortOrder = 'asc';
 
     // Pending delete action
-    this.pendingDelete = null; // { type: 'item'|'user'|'timer'|'stopwatch', id: string, name: string }
+    this.pendingDelete = null; // { type: 'item'|'user'|'timer'|'stopwatch'|'pa'|'ca'|'tiket'|'finding', id: string, name: string }
+
+    // Selected CA IDs for marking / batch actions
+    this.selectedCaIds = new Set();
 
     // Chart instances
     this.monthlyChartInstance = null;
@@ -396,6 +988,24 @@ class AppState {
     if (!localStorage.getItem('vortex_logs')) {
       localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
     }
+    if (!localStorage.getItem('vortex_pa_logs')) {
+      localStorage.setItem('vortex_pa_logs', JSON.stringify(DEFAULT_PA_LOGS));
+    }
+    if (!localStorage.getItem('vortex_ca_logs')) {
+      localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
+    }
+    if (!localStorage.getItem('vortex_tikets')) {
+      localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
+    }
+    if (!localStorage.getItem('vortex_aht_logs')) {
+      localStorage.setItem('vortex_aht_logs', JSON.stringify(DEFAULT_AHT_LOGS));
+    }
+    if (!localStorage.getItem('vortex_art_logs')) {
+      localStorage.setItem('vortex_art_logs', JSON.stringify(DEFAULT_ART_LOGS));
+    }
+    if (!localStorage.getItem('vortex_findings')) {
+      localStorage.setItem('vortex_findings', JSON.stringify(DEFAULT_FINDINGS));
+    }
 
     // Auto-migrate or initialize timers with user metadata
     const existingTimers = JSON.parse(localStorage.getItem('vortex_timers') || '[]');
@@ -406,6 +1016,12 @@ class AppState {
     const existingSw = JSON.parse(localStorage.getItem('vortex_stopwatches') || '[]');
     if (existingSw.length === 0 || !existingSw[0].userId) {
       localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
+    }
+
+    // Auto-migrate or initialize CA logs with decimal precision if needed
+    const existingCa = JSON.parse(localStorage.getItem('vortex_ca_logs') || '[]');
+    if (existingCa.length < 10 || !existingCa.some(l => typeof l.score === 'number' && !Number.isInteger(l.score))) {
+      localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
     }
 
     // Auto-migrate team department to CSO Layanan if necessary
@@ -481,6 +1097,54 @@ class AppState {
     localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
   }
 
+  getPaLogs() {
+    return JSON.parse(localStorage.getItem('vortex_pa_logs') || '[]');
+  }
+
+  savePaLogs(logs) {
+    localStorage.setItem('vortex_pa_logs', JSON.stringify(logs));
+  }
+
+  getCaLogs() {
+    return JSON.parse(localStorage.getItem('vortex_ca_logs') || '[]');
+  }
+
+  saveCaLogs(logs) {
+    localStorage.setItem('vortex_ca_logs', JSON.stringify(logs));
+  }
+
+  getTikets() {
+    return JSON.parse(localStorage.getItem('vortex_tikets') || '[]');
+  }
+
+  saveTikets(tikets) {
+    localStorage.setItem('vortex_tikets', JSON.stringify(tikets));
+  }
+
+  getAhtLogs() {
+    return JSON.parse(localStorage.getItem('vortex_aht_logs') || '[]');
+  }
+
+  saveAhtLogs(logs) {
+    localStorage.setItem('vortex_aht_logs', JSON.stringify(logs));
+  }
+
+  getArtLogs() {
+    return JSON.parse(localStorage.getItem('vortex_art_logs') || '[]');
+  }
+
+  saveArtLogs(logs) {
+    localStorage.setItem('vortex_art_logs', JSON.stringify(logs));
+  }
+
+  getFindings() {
+    return JSON.parse(localStorage.getItem('vortex_findings') || '[]');
+  }
+
+  saveFindings(findings) {
+    localStorage.setItem('vortex_findings', JSON.stringify(findings));
+  }
+
   addLog(actionType, actionBadge, details, status = 'Sukses') {
     const logs = this.getLogs();
     const now = new Date();
@@ -526,6 +1190,12 @@ class AppState {
     localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
     localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
     localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
+    localStorage.setItem('vortex_pa_logs', JSON.stringify(DEFAULT_PA_LOGS));
+    localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
+    localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
+    localStorage.setItem('vortex_aht_logs', JSON.stringify(DEFAULT_AHT_LOGS));
+    localStorage.setItem('vortex_art_logs', JSON.stringify(DEFAULT_ART_LOGS));
+    localStorage.setItem('vortex_findings', JSON.stringify(DEFAULT_FINDINGS));
     if (this.currentUser) {
       // keep current user object updated from default
       const found = DEFAULT_USERS.find(u => u.username === this.currentUser.username);
@@ -966,12 +1636,219 @@ const UI = {
   // Pages
   pages: {
     overview: document.getElementById('pageOverview'),
+    'update-pa': document.getElementById('pageUpdatePa'),
+    ca: document.getElementById('pageCa'),
+    tiket: document.getElementById('pageTiket'),
+    aht: document.getElementById('pageAht'),
+    art: document.getElementById('pageArt'),
+    finding: document.getElementById('pageFinding'),
     'data-management': document.getElementById('pageDataManagement'),
     timer: document.getElementById('pageTimer'),
     'user-management': document.getElementById('pageUserManagement'),
     'activity-log': document.getElementById('pageActivityLog'),
     settings: document.getElementById('pageSettings')
   },
+
+  // Update PA Elements
+  navUpdatePa: document.getElementById('navUpdatePa'),
+  pageUpdatePa: document.getElementById('pageUpdatePa'),
+  btnOpenAddPaModal: document.getElementById('btnOpenAddPaModal'),
+  btnRefreshPa: document.getElementById('btnRefreshPa'),
+  btnEmptyAddPa: document.getElementById('btnEmptyAddPa'),
+  paBannerRoleLabel: document.getElementById('paBannerRoleLabel'),
+  paBannerRoleDesc: document.getElementById('paBannerRoleDesc'),
+  paBannerBadgePrivilege: document.getElementById('paBannerBadgePrivilege'),
+  paStatTotalInteractions: document.getElementById('paStatTotalInteractions'),
+  paStatProductiveHours: document.getElementById('paStatProductiveHours'),
+  paStatAuxMinutes: document.getElementById('paStatAuxMinutes'),
+  paStatScore: document.getElementById('paStatScore'),
+  searchPaInput: document.getElementById('searchPaInput'),
+  btnClearSearchPa: document.getElementById('btnClearSearchPa'),
+  filterPaService: document.getElementById('filterPaService'),
+  filterPaShift: document.getElementById('filterPaShift'),
+  filterPaCategory: document.getElementById('filterPaCategory'),
+  filterPaStatus: document.getElementById('filterPaStatus'),
+  btnResetPaFilters: document.getElementById('btnResetPaFilters'),
+  btnExportPaCSV: document.getElementById('btnExportPaCSV'),
+  tablePaLogs: document.getElementById('tablePaLogs'),
+  paTableBody: document.getElementById('paTableBody'),
+  paTableEmpty: document.getElementById('paTableEmpty'),
+  modalPaForm: document.getElementById('modalPaForm'),
+  formPa: document.getElementById('formPa'),
+  formPaId: document.getElementById('formPaId'),
+  formPaDate: document.getElementById('formPaDate'),
+  formPaShift: document.getElementById('formPaShift'),
+  formPaUser: document.getElementById('formPaUser'),
+  formPaDept: document.getElementById('formPaDept'),
+  formPaCategory: document.getElementById('formPaCategory'),
+  formPaInteractions: document.getElementById('formPaInteractions'),
+  formPaTarget: document.getElementById('formPaTarget'),
+  formPaDuration: document.getElementById('formPaDuration'),
+  formPaStatusVal: document.getElementById('formPaStatusVal'),
+  formPaNotes: document.getElementById('formPaNotes'),
+  btnClosePaModal: document.getElementById('btnClosePaModal'),
+  btnCancelPaModal: document.getElementById('btnCancelPaModal'),
+  btnSubmitPa: document.getElementById('btnSubmitPa'),
+  modalPaTitle: document.getElementById('modalPaTitle'),
+  modalPaSubtitle: document.getElementById('modalPaSubtitle'),
+  btnSubmitPaText: document.getElementById('btnSubmitPaText'),
+  modalPaDetail: document.getElementById('modalPaDetail'),
+  btnClosePaDetailModal: document.getElementById('btnClosePaDetailModal'),
+  btnClosePaDetailBtn: document.getElementById('btnClosePaDetailBtn'),
+  paDetailAvatar: document.getElementById('paDetailAvatar'),
+  paDetailUserName: document.getElementById('paDetailUserName'),
+  paDetailDept: document.getElementById('paDetailDept'),
+  paDetailStatusBadge: document.getElementById('paDetailStatusBadge'),
+  paDetailDate: document.getElementById('paDetailDate'),
+  paDetailShift: document.getElementById('paDetailShift'),
+  paDetailInteractions: document.getElementById('paDetailInteractions'),
+  paDetailDuration: document.getElementById('paDetailDuration'),
+  paDetailCategory: document.getElementById('paDetailCategory'),
+  paDetailNotes: document.getElementById('paDetailNotes'),
+  paDetailCreatedAt: document.getElementById('paDetailCreatedAt'),
+
+  // CA Elements
+  navCa: document.getElementById('navCa'),
+  pageCa: document.getElementById('pageCa'),
+  filterCaMonth: document.getElementById('filterCaMonth'),
+  caMonthHeaderLabel: document.getElementById('caMonthHeaderLabel'),
+  caUserCountBadge: document.getElementById('caUserCountBadge'),
+  caUserSummarySection: document.getElementById('caUserSummarySection'),
+  filterCaSummarySort: document.getElementById('filterCaSummarySort'),
+  tableCaUserSummary: document.getElementById('tableCaUserSummary'),
+  caUserSummaryBody: document.getElementById('caUserSummaryBody'),
+  btnRefreshCa: document.getElementById('btnRefreshCa'),
+  btnDeleteAllCaMonth: document.getElementById('btnDeleteAllCaMonth'),
+  btnOpenAddCaModal: document.getElementById('btnOpenAddCaModal'),
+  caCardAvgScore: document.getElementById('caCardAvgScore'),
+  caStatAvgScoreLabel: document.getElementById('caStatAvgScoreLabel'),
+  caStatAvgScore: document.getElementById('caStatAvgScore'),
+  caStatAvgScoreSubtext: document.getElementById('caStatAvgScoreSubtext'),
+  caCardTotalSamples: document.getElementById('caCardTotalSamples'),
+  caStatTotalSamples: document.getElementById('caStatTotalSamples'),
+  caCardTopUser: document.getElementById('caCardTopUser'),
+  caStatTopUserSub: document.getElementById('caStatTopUserSub'),
+  caCardCompliance: document.getElementById('caCardCompliance'),
+  caStatCompliance: document.getElementById('caStatCompliance'),
+  caPermissionBanner: document.getElementById('caPermissionBanner'),
+  caBannerRoleLabel: document.getElementById('caBannerRoleLabel'),
+  caBannerRoleDesc: document.getElementById('caBannerRoleDesc'),
+  caBannerBadgePrivilege: document.getElementById('caBannerBadgePrivilege'),
+  caDailySubtitle: document.getElementById('caDailySubtitle'),
+  searchCaInput: document.getElementById('searchCaInput'),
+  btnClearSearchCa: document.getElementById('btnClearSearchCa'),
+  filterCaUserSelect: document.getElementById('filterCaUserSelect'),
+  filterCaService: document.getElementById('filterCaService'),
+  filterCaGrade: document.getElementById('filterCaGrade'),
+  filterCaScoreSort: document.getElementById('filterCaScoreSort'),
+  btnResetCaFilters: document.getElementById('btnResetCaFilters'),
+  caBatchBar: document.getElementById('caBatchBar'),
+  caSelectedCount: document.getElementById('caSelectedCount'),
+  btnCaDeselectAll: document.getElementById('btnCaDeselectAll'),
+  btnCaSelectAll: document.getElementById('btnCaSelectAll'),
+  btnCaDeleteSelected: document.getElementById('btnCaDeleteSelected'),
+  caThSelectAll: document.getElementById('caThSelectAll'),
+  caSelectAllCheckbox: document.getElementById('caSelectAllCheckbox'),
+  tableCaLogs: document.getElementById('tableCaLogs'),
+  caTableBody: document.getElementById('caTableBody'),
+  modalCaForm: document.getElementById('modalCaForm'),
+  modalCaTitle: document.getElementById('modalCaTitle'),
+  modalCaSubtitle: document.getElementById('modalCaSubtitle'),
+  formCa: document.getElementById('formCa'),
+  formCaId: document.getElementById('formCaId'),
+  formCaDate: document.getElementById('formCaDate'),
+  formCaUserSelect: document.getElementById('formCaUserSelect'),
+  formCaDept: document.getElementById('formCaDept'),
+  formCaChannel: document.getElementById('formCaChannel'),
+  formCaScore: document.getElementById('formCaScore'),
+  formCaParam: document.getElementById('formCaParam'),
+  formCaGradeVal: document.getElementById('formCaGradeVal'),
+  formCaNotes: document.getElementById('formCaNotes'),
+  btnCloseCaModal: document.getElementById('btnCloseCaModal'),
+  btnCancelCaModal: document.getElementById('btnCancelCaModal'),
+  btnSubmitCa: document.getElementById('btnSubmitCa'),
+  btnSubmitCaText: document.getElementById('btnSubmitCaText'),
+
+  // Tiket Elements
+  navTiket: document.getElementById('navTiket'),
+  pageTiket: document.getElementById('pageTiket'),
+  btnRefreshTiket: document.getElementById('btnRefreshTiket'),
+  btnOpenAddTiketModal: document.getElementById('btnOpenAddTiketModal'),
+  tiketStatTotal: document.getElementById('tiketStatTotal'),
+  tiketStatOpen: document.getElementById('tiketStatOpen'),
+  tiketStatClosed: document.getElementById('tiketStatClosed'),
+  tiketStatSla: document.getElementById('tiketStatSla'),
+  searchTiketInput: document.getElementById('searchTiketInput'),
+  btnClearSearchTiket: document.getElementById('btnClearSearchTiket'),
+  filterTiketService: document.getElementById('filterTiketService'),
+  filterTiketStatus: document.getElementById('filterTiketStatus'),
+  filterTiketPriority: document.getElementById('filterTiketPriority'),
+  btnResetTiketFilters: document.getElementById('btnResetTiketFilters'),
+  tableTiketLogs: document.getElementById('tableTiketLogs'),
+  tiketTableBody: document.getElementById('tiketTableBody'),
+  modalTiketForm: document.getElementById('modalTiketForm'),
+  formTiket: document.getElementById('formTiket'),
+  formTiketId: document.getElementById('formTiketId'),
+  formTiketNumber: document.getElementById('formTiketNumber'),
+  formTiketCustomer: document.getElementById('formTiketCustomer'),
+  formTiketDept: document.getElementById('formTiketDept'),
+  formTiketCategory: document.getElementById('formTiketCategory'),
+  formTiketPriorityVal: document.getElementById('formTiketPriorityVal'),
+  formTiketStatusVal: document.getElementById('formTiketStatusVal'),
+  formTiketHandler: document.getElementById('formTiketHandler'),
+  formTiketDesc: document.getElementById('formTiketDesc'),
+  btnCloseTiketModal: document.getElementById('btnCloseTiketModal'),
+  btnCancelTiketModal: document.getElementById('btnCancelTiketModal'),
+  btnSubmitTiket: document.getElementById('btnSubmitTiket'),
+
+  // AHT Elements
+  navAht: document.getElementById('navAht'),
+  pageAht: document.getElementById('pageAht'),
+  btnRefreshAht: document.getElementById('btnRefreshAht'),
+  ahtStatAvg: document.getElementById('ahtStatAvg'),
+  ahtStatCompliance: document.getElementById('ahtStatCompliance'),
+  ahtStatOver: document.getElementById('ahtStatOver'),
+  tableAhtLogs: document.getElementById('tableAhtLogs'),
+  ahtTableBody: document.getElementById('ahtTableBody'),
+
+  // ART Elements
+  navArt: document.getElementById('navArt'),
+  pageArt: document.getElementById('pageArt'),
+  btnRefreshArt: document.getElementById('btnRefreshArt'),
+  artStatAvg: document.getElementById('artStatAvg'),
+  artStatFrt: document.getElementById('artStatFrt'),
+  artStatCompliance: document.getElementById('artStatCompliance'),
+  tableArtLogs: document.getElementById('tableArtLogs'),
+  artTableBody: document.getElementById('artTableBody'),
+
+  // Finding Elements
+  navFinding: document.getElementById('navFinding'),
+  pageFinding: document.getElementById('pageFinding'),
+  btnRefreshFinding: document.getElementById('btnRefreshFinding'),
+  btnOpenAddFindingModal: document.getElementById('btnOpenAddFindingModal'),
+  findingStatTotal: document.getElementById('findingStatTotal'),
+  findingStatMinor: document.getElementById('findingStatMinor'),
+  findingStatMayor: document.getElementById('findingStatMayor'),
+  findingStatFatal: document.getElementById('findingStatFatal'),
+  searchFindingInput: document.getElementById('searchFindingInput'),
+  btnClearSearchFinding: document.getElementById('btnClearSearchFinding'),
+  filterFindingService: document.getElementById('filterFindingService'),
+  filterFindingLevel: document.getElementById('filterFindingLevel'),
+  filterFindingStatus: document.getElementById('filterFindingStatus'),
+  btnResetFindingFilters: document.getElementById('btnResetFindingFilters'),
+  tableFindingLogs: document.getElementById('tableFindingLogs'),
+  findingTableBody: document.getElementById('findingTableBody'),
+  modalFindingForm: document.getElementById('modalFindingForm'),
+  formFinding: document.getElementById('formFinding'),
+  formFindingUser: document.getElementById('formFindingUser'),
+  formFindingDept: document.getElementById('formFindingDept'),
+  formFindingCategoryVal: document.getElementById('formFindingCategoryVal'),
+  formFindingLevelVal: document.getElementById('formFindingLevelVal'),
+  formFindingDesc: document.getElementById('formFindingDesc'),
+  formFindingActionPlan: document.getElementById('formFindingActionPlan'),
+  btnCloseFindingModal: document.getElementById('btnCloseFindingModal'),
+  btnCancelFindingModal: document.getElementById('btnCancelFindingModal'),
+  btnSubmitFinding: document.getElementById('btnSubmitFinding'),
 
   // Modals
   modalDataForm: document.getElementById('modalDataForm'),
@@ -1413,6 +2290,74 @@ function renderAppView() {
     }
   }
 
+  // Update PA permission and banner info
+  const paBannerRoleLabel = document.getElementById('paBannerRoleLabel');
+  const paBannerRoleDesc = document.getElementById('paBannerRoleDesc');
+  const paBannerBadgePrivilege = document.getElementById('paBannerBadgePrivilege');
+  if (paBannerRoleLabel && paBannerRoleDesc && paBannerBadgePrivilege) {
+    if (isAdmin) {
+      paBannerRoleLabel.textContent = 'Otoritas Akses: Supervisor & Verifikasi Tim';
+      paBannerRoleDesc.innerHTML = 'Admin & Team Leader dapat memantau seluruh catatan Update PA dari seluruh agen CSO, serta melakukan verifikasi status.';
+      paBannerBadgePrivilege.className = 'badge badge-admin';
+      paBannerBadgePrivilege.textContent = 'Supervisor & Verifikasi';
+    } else {
+      paBannerRoleLabel.textContent = 'Otoritas Akses: Agen CSO (Pelaporan Mandiri)';
+      paBannerRoleDesc.innerHTML = 'Catat dan perbarui durasi shift, status AUX, jumlah penanganan tiket/chat, serta kendala operasional Anda secara akurat.';
+      paBannerBadgePrivilege.className = 'badge badge-user';
+      paBannerBadgePrivilege.textContent = 'Pelaporan Mandiri';
+    }
+  }
+
+  // CA (Customer Assessment) permission and banner info
+  const caBannerRoleLabel = document.getElementById('caBannerRoleLabel');
+  const caBannerRoleDesc = document.getElementById('caBannerRoleDesc');
+  const caBannerBadgePrivilege = document.getElementById('caBannerBadgePrivilege');
+  if (caBannerRoleLabel && caBannerRoleDesc && caBannerBadgePrivilege) {
+    if (isAdmin) {
+      caBannerRoleLabel.textContent = 'Otoritas Akses CA: Administrator Penuh';
+      caBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> nilai CA harian seluruh pengguna. Pengguna biasa hanya dapat melihat.';
+      caBannerBadgePrivilege.className = 'badge badge-admin';
+      caBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
+    } else {
+      caBannerRoleLabel.textContent = 'Otoritas Akses CA: Pengguna (Hanya Lihat)';
+      caBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi penilaian mutu 1 bulan seluruh user dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Penambahan, pengubahan, atau penghapusan nilai dilakukan oleh Admin.';
+      caBannerBadgePrivilege.className = 'badge badge-user';
+      caBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+  }
+  if (UI.btnOpenAddCaModal) {
+    UI.btnOpenAddCaModal.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnDeleteAllCaMonth) {
+    UI.btnDeleteAllCaMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnCaDeleteSelected) {
+    UI.btnCaDeleteSelected.classList.toggle('hidden', !isAdmin);
+  }
+
+  // CA Role-based View Restrictions (User vs Admin)
+  if (UI.caUserSummarySection) {
+    UI.caUserSummarySection.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.caCardTotalSamples) {
+    UI.caCardTotalSamples.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.caCardTopUser) {
+    UI.caCardTopUser.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.caCardCompliance) {
+    UI.caCardCompliance.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.filterCaUserSelect) {
+    UI.filterCaUserSelect.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.caThSelectAll) {
+    UI.caThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.caBatchBar && !isAdmin) {
+    UI.caBatchBar.classList.add('hidden');
+  }
+
   // Settings page info
   if (UI.settingsUserAvatar) UI.settingsUserAvatar.src = u.avatar;
   if (UI.settingsFullname) UI.settingsFullname.textContent = u.fullName;
@@ -1457,6 +2402,12 @@ function navigateToPage(pageId) {
   // Update breadcrumb
   const pageTitles = {
     overview: 'Ringkasan & Pusat Kendali',
+    'update-pa': 'Update PA (Productivity & Activity)',
+    ca: 'Evaluasi Penilaian Mutu (CA)',
+    tiket: 'Manajemen & Pelacakan Tiket',
+    aht: 'Average Handling Time (AHT)',
+    art: 'Average Response Time (ART)',
+    finding: 'Rekapitulasi Temuan Audit QA (Finding)',
     'data-management': 'Kelola Data Barang',
     timer: 'Pusat Timer & Stopwatch',
     'user-management': 'Manajemen Team',
@@ -1468,9 +2419,9 @@ function navigateToPage(pageId) {
   // Toggle page visibility
   Object.keys(UI.pages).forEach(key => {
     if (key === pageId) {
-      UI.pages[key].classList.add('active');
+      if (UI.pages[key]) UI.pages[key].classList.add('active');
     } else {
-      UI.pages[key].classList.remove('active');
+      if (UI.pages[key]) UI.pages[key].classList.remove('active');
     }
   });
 
@@ -1480,6 +2431,18 @@ function navigateToPage(pageId) {
   // Trigger page-specific renders
   if (pageId === 'overview') {
     renderOverviewPage();
+  } else if (pageId === 'update-pa') {
+    renderUpdatePaPage();
+  } else if (pageId === 'ca') {
+    renderCaPage();
+  } else if (pageId === 'tiket') {
+    renderTiketPage();
+  } else if (pageId === 'aht') {
+    renderAhtPage();
+  } else if (pageId === 'art') {
+    renderArtPage();
+  } else if (pageId === 'finding') {
+    renderFindingPage();
   } else if (pageId === 'data-management') {
     renderDataTable();
   } else if (pageId === 'timer') {
@@ -2057,6 +3020,50 @@ function executePendingDelete() {
     state.addLog('DELETE_STOPWATCH', 'Hapus Stopwatch', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus stopwatch: ${name}.`);
     showToast('Stopwatch Dihapus', `Stopwatch <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderTimerPage();
+  } else if (type === 'pa') {
+    const logs = state.getPaLogs().filter(p => p.id !== id);
+    state.savePaLogs(logs);
+    state.addLog('DELETE_PA', 'Hapus Update PA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus entri Update PA: ${name}.`);
+    showToast('Log PA Dihapus', `Catatan Update PA berhasil dihapus.`, 'danger');
+    renderUpdatePaPage();
+  } else if (type === 'ca') {
+    const logs = state.getCaLogs().filter(p => p.id !== id);
+    state.saveCaLogs(logs);
+    if (state.selectedCaIds) state.selectedCaIds.delete(id);
+    state.addLog('DELETE_CA', 'Hapus Nilai CA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus evaluasi CA: ${name}.`);
+    showToast('Evaluasi CA Dihapus', `Data penilaian mutu CA berhasil dihapus.`, 'danger');
+    renderCaPage();
+  } else if (type === 'ca_month') {
+    const month = id;
+    const oldLogs = state.getCaLogs();
+    const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
+    const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
+    state.saveCaLogs(remainingLogs);
+    if (state.selectedCaIds) state.selectedCaIds.clear();
+    state.addLog('DELETE_CA_MONTH', 'Hapus Data CA Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data CA periode ${name} (${countBefore} catatan).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data evaluasi CA</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderCaPage();
+  } else if (type === 'ca_batch') {
+    const idsToDelete = state.pendingDelete.ids || [];
+    const oldLogs = state.getCaLogs();
+    const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
+    state.saveCaLogs(remainingLogs);
+    if (state.selectedCaIds) state.selectedCaIds.clear();
+    state.addLog('DELETE_CA_BATCH', 'Hapus Data CA Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data evaluasi CA yang ditandai.`);
+    showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data evaluasi</strong> berhasil dihapus.`, 'danger');
+    renderCaPage();
+  } else if (type === 'tiket') {
+    const tikets = state.getTikets().filter(t => t.id !== id);
+    state.saveTikets(tikets);
+    state.addLog('DELETE_TIKET', 'Hapus Tiket', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus tiket: ${name}.`);
+    showToast('Tiket Dihapus', `Data tiket berhasil dihapus.`, 'danger');
+    renderTiketPage();
+  } else if (type === 'finding') {
+    const findings = state.getFindings().filter(f => f.id !== id);
+    state.saveFindings(findings);
+    state.addLog('DELETE_FINDING', 'Hapus Temuan QA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus temuan audit QA: ${name}.`);
+    showToast('Temuan Dihapus', `Data temuan audit QA berhasil dihapus.`, 'danger');
+    renderFindingPage();
   }
 
   state.pendingDelete = null;
@@ -3414,6 +4421,1632 @@ function startTimerTicker() {
 }
 
 // ==========================================
+// 12.5 UPDATE PA (PRODUCTIVITY & ACTIVITY)
+// ==========================================
+
+function renderUpdatePaPage() {
+  const logs = state.getPaLogs();
+  const u = state.currentUser;
+  const isAdmin = state.isAdmin();
+
+  // Search & Filters
+  const query = (UI.searchPaInput ? UI.searchPaInput.value : '').toLowerCase().trim();
+  const filterService = UI.filterPaService ? UI.filterPaService.value : 'ALL';
+  const filterShift = UI.filterPaShift ? UI.filterPaShift.value : 'ALL';
+  const filterCategory = UI.filterPaCategory ? UI.filterPaCategory.value : 'ALL';
+  const filterStatus = UI.filterPaStatus ? UI.filterPaStatus.value : 'ALL';
+
+  if (UI.btnClearSearchPa) {
+    UI.btnClearSearchPa.classList.toggle('hidden', !query);
+  }
+
+  const filteredLogs = logs.filter(item => {
+    // Search query match
+    if (query) {
+      const matchName = (item.userFullName || '').toLowerCase().includes(query);
+      const matchDept = (item.department || '').toLowerCase().includes(query);
+      const matchCat = (item.activityCategory || '').toLowerCase().includes(query);
+      const matchShift = (item.shift || '').toLowerCase().includes(query);
+      const matchNotes = (item.notes || '').toLowerCase().includes(query);
+      if (!matchName && !matchDept && !matchCat && !matchShift && !matchNotes) {
+        return false;
+      }
+    }
+
+    // Service match
+    if (filterService !== 'ALL' && item.department !== filterService) {
+      return false;
+    }
+
+    // Shift match
+    if (filterShift !== 'ALL' && !item.shift.includes(filterShift)) {
+      return false;
+    }
+
+    // Category match
+    if (filterCategory !== 'ALL' && !item.activityCategory.includes(filterCategory)) {
+      return false;
+    }
+
+    // Status match
+    if (filterStatus !== 'ALL' && item.status !== filterStatus) {
+      return false;
+    }
+
+    return true;
+  });
+
+  // Calculate Metrics based on relevant logs (for user: their own logs; for admin: all logs)
+  const metricBaseLogs = isAdmin ? filteredLogs : filteredLogs.filter(l => l.userId === u?.id);
+  const effectiveLogs = metricBaseLogs.length > 0 ? metricBaseLogs : filteredLogs;
+
+  let totalInteractions = 0;
+  let targetTotal = 0;
+  let productiveMins = 0;
+  let auxMins = 0;
+
+  effectiveLogs.forEach(l => {
+    const inter = Number(l.interactionCount) || 0;
+    const targ = Number(l.targetCount) || 0;
+    const dur = Number(l.durationMinutes) || 0;
+
+    totalInteractions += inter;
+    targetTotal += targ;
+
+    if ((l.activityCategory || '').startsWith('READY') || !(l.activityCategory || '').startsWith('AUX')) {
+      productiveMins += dur;
+    } else {
+      auxMins += dur;
+    }
+  });
+
+  if (UI.paStatTotalInteractions) {
+    UI.paStatTotalInteractions.textContent = totalInteractions.toLocaleString('id-ID');
+  }
+  if (UI.paStatProductiveHours) {
+    UI.paStatProductiveHours.textContent = `${(productiveMins / 60).toFixed(1)} Jam`;
+  }
+  if (UI.paStatAuxMinutes) {
+    UI.paStatAuxMinutes.textContent = `${auxMins} Menit`;
+  }
+  if (UI.paStatScore) {
+    if (targetTotal > 0) {
+      const pct = Math.min(100, Math.round((totalInteractions / targetTotal) * 100));
+      UI.paStatScore.textContent = `${pct}%`;
+    } else if (totalInteractions > 0) {
+      UI.paStatScore.textContent = '100%';
+    } else {
+      UI.paStatScore.textContent = '96.5%';
+    }
+  }
+
+  // Render Table
+  if (!UI.paTableBody) return;
+  UI.paTableBody.innerHTML = '';
+
+  if (filteredLogs.length === 0) {
+    if (UI.paTableEmpty) UI.paTableEmpty.classList.remove('hidden');
+    return;
+  }
+  if (UI.paTableEmpty) UI.paTableEmpty.classList.add('hidden');
+
+  filteredLogs.forEach(item => {
+    const tr = document.createElement('tr');
+
+    // Category Badge
+    let catBadgeClass = 'badge-gray';
+    let catIcon = 'fa-solid fa-list-check';
+    const cat = item.activityCategory || '';
+    if (cat.startsWith('READY')) {
+      catBadgeClass = 'badge-green';
+      catIcon = 'fa-solid fa-headset';
+    } else if (cat.startsWith('AUX 1')) {
+      catBadgeClass = 'badge-yellow';
+      catIcon = 'fa-solid fa-utensils';
+    } else if (cat.startsWith('AUX 2')) {
+      catBadgeClass = 'badge-gray';
+      catIcon = 'fa-solid fa-restroom';
+    } else if (cat.startsWith('AUX 3')) {
+      catBadgeClass = 'badge-blue';
+      catIcon = 'fa-solid fa-mosque';
+    } else if (cat.startsWith('AUX 4')) {
+      catBadgeClass = 'badge-purple';
+      catIcon = 'fa-solid fa-chalkboard-user';
+    } else if (cat.startsWith('AUX 5')) {
+      catBadgeClass = 'badge-red';
+      catIcon = 'fa-solid fa-ticket';
+    } else if (cat.startsWith('AUX 6')) {
+      catBadgeClass = 'badge-blue';
+      catIcon = 'fa-solid fa-graduation-cap';
+    }
+
+    // Status Badge
+    let statusBadgeClass = 'badge-gray';
+    let statusIcon = 'fa-regular fa-clock';
+    if (item.status === 'Terverifikasi') {
+      statusBadgeClass = 'badge-green';
+      statusIcon = 'fa-solid fa-circle-check';
+    } else if (item.status === 'Selesai') {
+      statusBadgeClass = 'badge-blue';
+      statusIcon = 'fa-solid fa-check';
+    } else if (item.status === 'Menunggu Review') {
+      statusBadgeClass = 'badge-yellow';
+      statusIcon = 'fa-solid fa-hourglass-half';
+    }
+
+    const isOwnEntry = u && (item.userId === u.id || item.username === u.username);
+    const canModify = isAdmin || isOwnEntry;
+
+    let actionsHtml = `
+      <div class="table-actions-cell" style="display:flex; justify-content:center; gap: 4px;">
+        <button type="button" class="btn-table-action btn-action-view" onclick="openPaDetail('${item.id}')" title="Lihat Rincian PA">
+          <i class="fa-regular fa-eye"></i>
+        </button>
+    `;
+
+    if (canModify) {
+      actionsHtml += `
+        <button type="button" class="btn-table-action btn-action-edit" onclick="promptEditPa('${item.id}')" title="Edit Update PA">
+          <i class="fa-solid fa-pen-to-square"></i>
+        </button>
+        <button type="button" class="btn-table-action btn-action-delete" onclick="promptDeletePa('${item.id}', '${(item.activityCategory || '').replace(/'/g, "\\'")}')" title="Hapus Catatan PA">
+          <i class="fa-solid fa-trash-can"></i>
+        </button>
+      `;
+    }
+
+    if (isAdmin && item.status !== 'Terverifikasi') {
+      actionsHtml += `
+        <button type="button" class="btn-table-action" style="color: var(--green-status); border-color: rgba(16,185,129,0.3);" onclick="approvePa('${item.id}')" title="Verifikasi / Setujui PA">
+          <i class="fa-solid fa-check-double"></i>
+        </button>
+      `;
+    }
+
+    actionsHtml += `</div>`;
+
+    tr.innerHTML = `
+      <td>
+        <div style="font-weight: 600; color: #ffffff;">${item.date}</div>
+        <small class="text-muted">${item.createdAt ? item.createdAt.split(' ')[1] || '' : ''} WIB</small>
+      </td>
+      <td>
+        <div class="user-cell-flex">
+          <img src="${item.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="${item.userFullName}" class="table-user-avatar">
+          <div>
+            <div style="font-weight: 600; color: #ffffff;">${item.userFullName}</div>
+            <small class="text-muted">@${item.username || 'cso'}</small>
+          </div>
+        </div>
+      </td>
+      <td>
+        <span class="badge badge-gray" style="font-size:0.75rem;">
+          <i class="fa-solid fa-headset text-red" style="margin-right: 4px;"></i>${item.department || 'CSO INBOUND'}
+        </span>
+      </td>
+      <td>
+        <span style="font-size: 0.8rem; color: var(--gray-300);">${item.shift || 'Shift Pagi'}</span>
+      </td>
+      <td>
+        <span class="badge ${catBadgeClass}" style="font-size:0.75rem;">
+          <i class="${catIcon}" style="margin-right: 4px;"></i>${item.activityCategory}
+        </span>
+        ${item.notes ? `<div style="font-size: 0.72rem; color: var(--gray-400); margin-top: 3px; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${item.notes.replace(/"/g, '&quot;')}">${item.notes}</div>` : ''}
+      </td>
+      <td style="text-align: right; font-weight: 700; color: #ffffff;">
+        ${Number(item.interactionCount) > 0 ? `<span class="text-red font-mono">${item.interactionCount}</span>` : '<span class="text-muted">-</span>'}
+      </td>
+      <td style="text-align: right; font-weight: 600; color: var(--gray-300);">
+        ${item.durationMinutes || 0} m
+      </td>
+      <td>
+        <span class="badge ${statusBadgeClass}" style="font-size:0.72rem;">
+          <i class="${statusIcon}" style="margin-right: 3px;"></i>${item.status}
+        </span>
+      </td>
+      <td>${actionsHtml}</td>
+    `;
+
+    UI.paTableBody.appendChild(tr);
+  });
+}
+
+function openAddPaModal() {
+  const u = state.currentUser;
+  if (!u) return;
+
+  UI.formPa.reset();
+  UI.formPaId.value = '';
+  UI.modalPaTitle.textContent = 'Catat Update PA Baru';
+  UI.modalPaSubtitle.textContent = 'Input rincian aktivitas shift, layanan CSO, dan produktivitas harian';
+  UI.btnSubmitPaText.textContent = 'Simpan Update PA';
+
+  const todayStr = new Date().toISOString().slice(0, 10);
+  UI.formPaDate.value = todayStr;
+  UI.formPaUser.value = u.fullName;
+  UI.formPaDept.value = u.department || 'CSO INBOUND';
+  UI.formPaShift.value = 'Shift Pagi (07:00 - 15:00)';
+  UI.formPaCategory.value = 'READY / HANDLING CHAT';
+  UI.formPaInteractions.value = '0';
+  UI.formPaTarget.value = '40';
+  UI.formPaDuration.value = '60';
+  UI.formPaStatusVal.value = 'Selesai';
+  UI.formPaNotes.value = '';
+
+  UI.modalPaForm.classList.remove('hidden');
+}
+
+function openEditPaModal(entry) {
+  UI.formPaId.value = entry.id;
+  UI.modalPaTitle.textContent = 'Edit Catatan Update PA';
+  UI.modalPaSubtitle.textContent = 'Perbarui data durasi, status aktivitas, dan capaian interaksi';
+  UI.btnSubmitPaText.textContent = 'Simpan Perubahan';
+
+  UI.formPaDate.value = entry.date;
+  UI.formPaUser.value = entry.userFullName;
+  UI.formPaDept.value = entry.department || 'CSO INBOUND';
+  UI.formPaShift.value = entry.shift;
+  UI.formPaCategory.value = entry.activityCategory;
+  UI.formPaInteractions.value = entry.interactionCount || 0;
+  UI.formPaTarget.value = entry.targetCount || 0;
+  UI.formPaDuration.value = entry.durationMinutes || 60;
+  UI.formPaStatusVal.value = entry.status;
+  UI.formPaNotes.value = entry.notes || '';
+
+  UI.modalPaForm.classList.remove('hidden');
+}
+
+function closePaModal() {
+  if (UI.modalPaForm) UI.modalPaForm.classList.add('hidden');
+}
+
+function closePaDetailModal() {
+  if (UI.modalPaDetail) UI.modalPaDetail.classList.add('hidden');
+}
+
+function handleSavePa(e) {
+  e.preventDefault();
+  const u = state.currentUser;
+  if (!u) return;
+
+  const id = UI.formPaId.value;
+  const date = UI.formPaDate.value;
+  const shift = UI.formPaShift.value;
+  const department = UI.formPaDept.value;
+  const activityCategory = UI.formPaCategory.value;
+  const interactionCount = parseInt(UI.formPaInteractions.value, 10) || 0;
+  const targetCount = parseInt(UI.formPaTarget.value, 10) || 0;
+  const durationMinutes = parseInt(UI.formPaDuration.value, 10) || 1;
+  const status = UI.formPaStatusVal.value;
+  const notes = UI.formPaNotes.value.trim();
+
+  if (!date) {
+    showToast('Form Belum Lengkap', 'Tanggal aktivitas wajib diisi.', 'warning');
+    return;
+  }
+
+  const logs = state.getPaLogs();
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const nowStr = `${date} ${timeStr}`;
+
+  if (id) {
+    // EDIT
+    const existingIndex = logs.findIndex(p => p.id === id);
+    if (existingIndex !== -1) {
+      logs[existingIndex] = {
+        ...logs[existingIndex],
+        date,
+        shift,
+        department,
+        activityCategory,
+        interactionCount,
+        targetCount,
+        durationMinutes,
+        status,
+        notes
+      };
+      state.savePaLogs(logs);
+      state.addLog('UPDATE_PA', 'Edit Update PA', `${u.fullName} memperbarui catatan PA: ${activityCategory} (${date}).`);
+      showToast('PA Diperbarui', 'Data catatan Update PA berhasil diperbarui.', 'success');
+    }
+  } else {
+    // ADD NEW
+    const newEntry = {
+      id: 'pa_' + Date.now(),
+      userId: u.id,
+      username: u.username,
+      userFullName: u.fullName,
+      userAvatar: u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      department,
+      date,
+      shift,
+      activityCategory,
+      interactionCount,
+      targetCount,
+      durationMinutes,
+      notes,
+      status,
+      createdAt: nowStr
+    };
+    logs.unshift(newEntry);
+    state.savePaLogs(logs);
+    state.addLog('CREATE_PA', 'Tambah Update PA', `${u.fullName} menambahkan catatan Update PA baru: ${activityCategory} (${date}).`);
+    showToast('Update PA Berhasil Disimpan', `Aktivitas <strong>${activityCategory}</strong> berhasil dicatat.`, 'success');
+  }
+
+  closePaModal();
+  renderUpdatePaPage();
+}
+
+window.openPaDetail = function(id) {
+  const logs = state.getPaLogs();
+  const entry = logs.find(p => p.id === id);
+  if (!entry) return;
+  
+  if (UI.paDetailAvatar) UI.paDetailAvatar.src = entry.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+  if (UI.paDetailUserName) UI.paDetailUserName.textContent = entry.userFullName;
+  if (UI.paDetailDept) UI.paDetailDept.textContent = entry.department;
+  if (UI.paDetailStatusBadge) {
+    UI.paDetailStatusBadge.className = entry.status === 'Terverifikasi' ? 'badge badge-green' : (entry.status === 'Selesai' ? 'badge badge-blue' : 'badge badge-yellow');
+    UI.paDetailStatusBadge.textContent = entry.status;
+  }
+  if (UI.paDetailDate) UI.paDetailDate.textContent = entry.date;
+  if (UI.paDetailShift) UI.paDetailShift.textContent = entry.shift;
+  if (UI.paDetailInteractions) UI.paDetailInteractions.textContent = `${entry.interactionCount || 0} Tiket / Chat (Target: ${entry.targetCount || 0})`;
+  if (UI.paDetailDuration) UI.paDetailDuration.textContent = `${entry.durationMinutes || 0} Menit (${(entry.durationMinutes / 60).toFixed(1)} Jam)`;
+  if (UI.paDetailCategory) UI.paDetailCategory.textContent = entry.activityCategory;
+  if (UI.paDetailNotes) UI.paDetailNotes.textContent = entry.notes || '-';
+  if (UI.paDetailCreatedAt) UI.paDetailCreatedAt.textContent = entry.createdAt || '-';
+
+  if (UI.modalPaDetail) UI.modalPaDetail.classList.remove('hidden');
+};
+
+window.promptEditPa = function(id) {
+  const logs = state.getPaLogs();
+  const entry = logs.find(p => p.id === id);
+  if (!entry) return;
+  if (!state.isAdmin() && entry.userId !== state.currentUser?.id) {
+    showToast('Akses Ditolak', 'Anda hanya dapat mengedit catatan Update PA milik Anda sendiri.', 'warning');
+    return;
+  }
+  openEditPaModal(entry);
+};
+
+window.promptDeletePa = function(id, title) {
+  const logs = state.getPaLogs();
+  const entry = logs.find(p => p.id === id);
+  if (!entry) return;
+  if (!state.isAdmin() && entry.userId !== state.currentUser?.id) {
+    showToast('Akses Ditolak', 'Anda hanya dapat menghapus catatan Update PA milik Anda sendiri.', 'warning');
+    return;
+  }
+  state.pendingDelete = { type: 'pa', id, name: `${entry.activityCategory} (${entry.date})` };
+  UI.confirmDeleteTitle.textContent = 'Hapus Catatan PA?';
+  UI.confirmDeleteMessage.innerHTML = `Catatan Update PA <strong>${entry.activityCategory}</strong> pada tanggal <strong>${entry.date}</strong> akan dihapus permanen.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.approvePa = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator / Team Leader yang dapat memverifikasi status PA.', 'warning');
+    return;
+  }
+  const logs = state.getPaLogs();
+  const entry = logs.find(p => p.id === id);
+  if (!entry) return;
+  entry.status = 'Terverifikasi';
+  state.savePaLogs(logs);
+  state.addLog('VERIFY_PA', 'Verifikasi PA', `Admin ${state.currentUser.fullName} memverifikasi catatan PA milik ${entry.userFullName}.`);
+  showToast('PA Terverifikasi', `Catatan PA milik <strong>${entry.userFullName}</strong> telah disetujui & terverifikasi.`, 'success');
+  renderUpdatePaPage();
+};
+
+function exportPaCSV() {
+  const logs = state.getPaLogs();
+  if (logs.length === 0) {
+    showToast('Data Kosong', 'Tidak ada riwayat Update PA untuk diekspor.', 'warning');
+    return;
+  }
+  const headers = ['ID', 'Tanggal', 'Nama Petugas', 'Layanan CSO', 'Shift', 'Kategori Aktivitas', 'Interaksi Selesai', 'Target', 'Durasi (Menit)', 'Status', 'Catatan'];
+  const rows = logs.map(l => [
+    `"${l.id}"`,
+    `"${l.date}"`,
+    `"${l.userFullName.replace(/"/g, '""')}"`,
+    `"${l.department}"`,
+    `"${l.shift}"`,
+    `"${l.activityCategory}"`,
+    l.interactionCount || 0,
+    l.targetCount || 0,
+    l.durationMinutes || 0,
+    `"${l.status}"`,
+    `"${(l.notes || '').replace(/"/g, '""')}"`
+  ]);
+
+  const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement('a');
+  link.setAttribute('href', encodedUri);
+  link.setAttribute('download', `DRIVE_Update_PA_${new Date().toISOString().slice(0, 10)}.csv`);
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+
+  showToast('Ekspor Berhasil', 'File log Update PA format CSV berhasil diunduh.', 'success');
+}
+
+// ==========================================
+// 12.5 CA (CUSTOMER ASSESSMENT)
+// ==========================================
+
+function formatCaScore(val) {
+  if (val === null || val === undefined || val === '') return '-';
+  const num = parseFloat(val);
+  if (isNaN(num)) return '-';
+  return num.toFixed(2).replace('.', ',');
+}
+
+function renderCaPage() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+
+  const monthLabels = {
+    '2026-09': 'September 2026',
+    '2026-08': 'Agustus 2026',
+    '2026-07': 'Juli 2026'
+  };
+  const selMonth = (UI.filterCaMonth ? UI.filterCaMonth.value : '2026-09') || '2026-09';
+  const monthLabel = monthLabels[selMonth] || selMonth;
+  if (UI.caMonthHeaderLabel) {
+    UI.caMonthHeaderLabel.textContent = monthLabel;
+  }
+
+  const users = state.getUsers();
+  const logs = state.getCaLogs();
+
+  if (UI.caUserCountBadge) {
+    UI.caUserCountBadge.textContent = `${users.length} User Terdaftar`;
+  }
+
+  // Toggle Section 1 visibility based on role
+  if (UI.caUserSummarySection) {
+    UI.caUserSummarySection.classList.toggle('hidden', !isAdmin);
+  }
+
+  // Toggle 3 metric cards based on role
+  if (UI.caCardTotalSamples) UI.caCardTotalSamples.classList.toggle('hidden', !isAdmin);
+  if (UI.caCardTopUser) UI.caCardTopUser.classList.toggle('hidden', !isAdmin);
+  if (UI.caCardCompliance) UI.caCardCompliance.classList.toggle('hidden', !isAdmin);
+
+  // Populate or preserve user filter in logs table (Admin only)
+  if (UI.filterCaUserSelect) {
+    UI.filterCaUserSelect.classList.toggle('hidden', !isAdmin);
+    if (isAdmin) {
+      const curUserVal = UI.filterCaUserSelect.value || 'ALL';
+      let userOpts = '<option value="ALL">Semua User</option>';
+      users.forEach(u => {
+        const isSel = (curUserVal === u.fullName);
+        userOpts += `<option value="${u.fullName}" ${isSel ? 'selected' : ''}>${u.fullName} (${u.role.toUpperCase()})</option>`;
+      });
+      UI.filterCaUserSelect.innerHTML = userOpts;
+    }
+  }
+
+  // Toggle header checkbox for table (Admin only)
+  if (UI.caThSelectAll) {
+    UI.caThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+
+  // Subtitle for Section 2
+  if (UI.caDailySubtitle) {
+    UI.caDailySubtitle.textContent = isAdmin
+      ? 'Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.'
+      : 'Daftar riwayat evaluasi mutu harian Anda dalam bulan terpilih.';
+  }
+
+  // Filter logs for the selected 1-month period
+  const monthLogs = logs.filter(l => (l.date || '').startsWith(selMonth));
+
+  // ========================================================
+  // Section 1: Rekapitulasi Nilai Seluruh User dalam 1 Bulan (ADMIN ONLY)
+  // ========================================================
+  let userSummaries = [];
+  if (isAdmin) {
+    userSummaries = users.map(u => {
+      const userLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+      const daysEvaluated = userLogs.length;
+      let avgScore = 0;
+      let minScore = 0;
+      let maxScore = 0;
+      let grade = 'Belum Ada Nilai';
+      let gradeBadge = 'badge-gray';
+      let passStatus = 'Belum Dinilai';
+      let passBadge = 'badge-gray';
+      let passIcon = 'fa-regular fa-clock';
+
+      if (daysEvaluated > 0) {
+        const scores = userLogs.map(l => Number(l.score) || 0);
+        const sum = scores.reduce((acc, val) => acc + val, 0);
+        avgScore = (sum / scores.length).toFixed(2);
+        minScore = Math.min(...scores).toFixed(2);
+        maxScore = Math.max(...scores).toFixed(2);
+        const numAvg = parseFloat(avgScore);
+
+        if (numAvg >= 95.00) {
+          grade = 'Sangat Baik';
+          gradeBadge = 'badge-green';
+          passStatus = 'Lulus SOP';
+          passBadge = 'badge-green';
+          passIcon = 'fa-solid fa-check';
+        } else if (numAvg >= 85.00) {
+          grade = 'Baik';
+          gradeBadge = 'badge-blue';
+          passStatus = 'Lulus SOP';
+          passBadge = 'badge-green';
+          passIcon = 'fa-solid fa-check';
+        } else {
+          grade = 'Perlu Coaching';
+          gradeBadge = 'badge-yellow';
+          passStatus = 'Remedial SOP';
+          passBadge = 'badge-yellow';
+          passIcon = 'fa-solid fa-triangle-exclamation';
+        }
+      }
+
+      return {
+        user: u,
+        daysEvaluated,
+        avgScore,
+        minScore,
+        maxScore,
+        grade,
+        gradeBadge,
+        passStatus,
+        passBadge,
+        passIcon
+      };
+    });
+
+    // Sort summary by highest / lowest average score based on filterCaSummarySort
+    const summarySort = (UI.filterCaSummarySort ? UI.filterCaSummarySort.value : 'DESC');
+    if (summarySort === 'ASC') {
+      userSummaries.sort((a, b) => {
+        if (a.daysEvaluated === 0 && b.daysEvaluated > 0) return 1;
+        if (b.daysEvaluated === 0 && a.daysEvaluated > 0) return -1;
+        return (parseFloat(a.avgScore) || 0) - (parseFloat(b.avgScore) || 0);
+      });
+    } else {
+      userSummaries.sort((a, b) => (parseFloat(b.avgScore) || 0) - (parseFloat(a.avgScore) || 0));
+    }
+
+    // Render Section 1 table
+    if (UI.caUserSummaryBody) {
+      UI.caUserSummaryBody.innerHTML = '';
+      if (userSummaries.length === 0) {
+        UI.caUserSummaryBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--gray-400);">Tidak ada data pengguna terdaftar.</td></tr>';
+      } else {
+        userSummaries.forEach(summary => {
+          const u = summary.user;
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td>
+              <div style="display:flex; align-items:center; gap: 10px;">
+                <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="${u.fullName}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; border:2px solid var(--border-color);">
+                <div>
+                  <strong style="color:#fff; font-size:0.875rem;">${u.fullName}</strong>
+                  <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                    <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}" style="font-size:0.65rem;">${u.role.toUpperCase()}</span>
+                    <span style="font-size:0.75rem; color:var(--gray-400);">${u.email}</span>
+                  </div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${u.department || 'CSO Layanan'}</span></td>
+            <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200);">${summary.daysEvaluated} Hari</span></td>
+            <td style="text-align: right;"><strong class="text-red font-mono" style="font-size:1.05rem;">${summary.daysEvaluated > 0 ? formatCaScore(summary.avgScore) : '-'}</strong></td>
+            <td><span class="badge ${summary.gradeBadge}" style="font-size:0.75rem;">${summary.grade}</span></td>
+            <td style="text-align: center;"><span class="font-mono" style="font-size:0.8rem; color:var(--gray-300);">${summary.daysEvaluated > 0 ? formatCaScore(summary.minScore) + ' / ' + formatCaScore(summary.maxScore) : '-'}</span></td>
+            <td style="text-align: center;"><span class="badge ${summary.passBadge}" style="font-size:0.75rem;"><i class="${summary.passIcon}" style="margin-right:4px;"></i>${summary.passStatus}</span></td>
+            <td style="text-align: center;">
+              <button class="btn btn-outline-gray btn-sm" onclick="filterCaByUser('${u.fullName.replace(/'/g, "\\'")}')" title="Filter Rincian Harian User Ini">
+                <i class="fa-solid fa-filter text-red"></i>
+                <span>Rincian</span>
+              </button>
+            </td>
+          `;
+          UI.caUserSummaryBody.appendChild(tr);
+        });
+      }
+    }
+  }
+
+  // ========================================================
+  // Monthly Overview Top Metric Cards (Decimal display without %)
+  // ========================================================
+  if (isAdmin) {
+    let monthOverallAvg = '0.00';
+    if (monthLogs.length > 0) {
+      const totalScore = monthLogs.reduce((acc, l) => acc + (Number(l.score) || 0), 0);
+      monthOverallAvg = (totalScore / monthLogs.length).toFixed(2);
+    }
+    if (UI.caStatAvgScore) UI.caStatAvgScore.textContent = formatCaScore(monthOverallAvg);
+    if (UI.caStatAvgScoreLabel) UI.caStatAvgScoreLabel.textContent = 'Rata-rata Skor Bulan Ini';
+    if (UI.caStatAvgScoreSubtext) UI.caStatAvgScoreSubtext.textContent = 'Rata-rata seluruh user di periode terpilih';
+
+    if (UI.caStatTotalSamples) UI.caStatTotalSamples.textContent = `${monthLogs.length} Entri`;
+
+    // User Skor Tertinggi: Top Performer strictly determined by HIGHEST average score in the month
+    const evaluatedAll = users.map(u => {
+      const uLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+      if (uLogs.length === 0) return null;
+      const scores = uLogs.map(l => Number(l.score) || 0);
+      const avg = scores.reduce((acc, val) => acc + val, 0) / scores.length;
+      return { user: u, avgScore: avg, daysEvaluated: uLogs.length };
+    }).filter(Boolean);
+
+    evaluatedAll.sort((a, b) => b.avgScore - a.avgScore);
+
+    if (evaluatedAll.length > 0) {
+      const topUser = evaluatedAll[0];
+      if (UI.caStatTopUser) UI.caStatTopUser.textContent = topUser.user.fullName;
+      if (UI.caStatTopUserSub) {
+        UI.caStatTopUserSub.textContent = `Rata-rata: ${formatCaScore(topUser.avgScore.toFixed(2))} (${topUser.daysEvaluated} hari dinilai)`;
+      }
+    } else {
+      if (UI.caStatTopUser) UI.caStatTopUser.textContent = '-';
+      if (UI.caStatTopUserSub) UI.caStatTopUserSub.textContent = 'Belum ada penilaian bulan ini';
+    }
+
+    if (UI.caStatCompliance) {
+      const numAvg = parseFloat(monthOverallAvg);
+      UI.caStatCompliance.textContent = numAvg >= 95.00 ? 'Optimal' : (numAvg >= 85.00 ? 'Baik' : 'Perlu Evaluasi');
+    }
+  } else {
+    // User Mode: Strictly calculate score average for this one logged-in user
+    const userMonthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    let userAvg = '0.00';
+    if (userMonthLogs.length > 0) {
+      const totalScore = userMonthLogs.reduce((acc, l) => acc + (Number(l.score) || 0), 0);
+      userAvg = (totalScore / userMonthLogs.length).toFixed(2);
+    }
+    if (UI.caStatAvgScore) UI.caStatAvgScore.textContent = userMonthLogs.length > 0 ? formatCaScore(userAvg) : '-';
+    if (UI.caStatAvgScoreLabel) UI.caStatAvgScoreLabel.textContent = 'Rata-rata Skor Bulan Ini';
+    if (UI.caStatAvgScoreSubtext) {
+      UI.caStatAvgScoreSubtext.textContent = userMonthLogs.length > 0
+        ? `Rata-rata penilaian mutu Anda (${userMonthLogs.length} hari dinilai)`
+        : 'Belum ada penilaian untuk Anda bulan ini';
+    }
+  }
+
+  // ========================================================
+  // Section 2: Log Penilaian Harian (Interval Input Per Hari)
+  // ========================================================
+  const searchQ = (UI.searchCaInput ? UI.searchCaInput.value.trim().toLowerCase() : '');
+  const filterUser = isAdmin ? (UI.filterCaUserSelect ? UI.filterCaUserSelect.value : 'ALL') : currentFullName;
+  const filterService = (UI.filterCaService ? UI.filterCaService.value : 'ALL');
+  const filterGrade = (UI.filterCaGrade ? UI.filterCaGrade.value : 'ALL');
+
+  if (UI.btnClearSearchCa) {
+    UI.btnClearSearchCa.classList.toggle('hidden', !searchQ);
+  }
+
+  const filteredLogs = monthLogs.filter(item => {
+    // Non-admin can strictly ONLY see their own logs
+    if (!isAdmin && item.userFullName !== currentFullName) return false;
+
+    if (searchQ) {
+      const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.date || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.channel || '').toLowerCase().includes(searchQ) ||
+                    (item.focusParam || '').toLowerCase().includes(searchQ) ||
+                    (item.notes || '').toLowerCase().includes(searchQ);
+      if (!match) return false;
+    }
+    if (isAdmin && filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterGrade !== 'ALL' && item.grade !== filterGrade) return false;
+    return true;
+  });
+
+  // Sort daily logs based on filterCaScoreSort (Nilai Tertinggi / Nilai Terendah / Tanggal Terbaru)
+  const sortScoreOrder = (UI.filterCaScoreSort ? UI.filterCaScoreSort.value : 'DATE_DESC');
+  if (sortScoreOrder === 'SCORE_DESC') {
+    filteredLogs.sort((a, b) => (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0));
+  } else if (sortScoreOrder === 'SCORE_ASC') {
+    filteredLogs.sort((a, b) => (parseFloat(a.score) || 0) - (parseFloat(b.score) || 0));
+  } else {
+    filteredLogs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+
+  // Sync Header Checkbox and Batch Actions Bar (Admin only)
+  if (isAdmin) {
+    const visibleIds = filteredLogs.map(l => l.id);
+    const selectedVisibleCount = visibleIds.filter(id => state.selectedCaIds.has(id)).length;
+
+    if (UI.caSelectAllCheckbox) {
+      UI.caSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+      UI.caSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+    }
+
+    if (UI.caBatchBar) {
+      const hasSelected = state.selectedCaIds.size > 0;
+      UI.caBatchBar.classList.toggle('hidden', !hasSelected);
+      if (UI.caSelectedCount) {
+        UI.caSelectedCount.textContent = state.selectedCaIds.size;
+      }
+    }
+  } else {
+    state.selectedCaIds.clear();
+    if (UI.caBatchBar) {
+      UI.caBatchBar.classList.add('hidden');
+    }
+  }
+
+  // Render Table
+  if (!UI.caTableBody) return;
+  UI.caTableBody.innerHTML = '';
+
+  if (filteredLogs.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="${isAdmin ? 10 : 9}" style="text-align: center; padding: 36px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>${isAdmin ? 'Tidak ada log penilaian harian yang sesuai dengan filter atau bulan terpilih.' : 'Belum ada log penilaian harian untuk Anda pada bulan terpilih.'}</td>`;
+    UI.caTableBody.appendChild(tr);
+    return;
+  }
+
+  filteredLogs.forEach(item => {
+    const tr = document.createElement('tr');
+    const isChecked = state.selectedCaIds.has(item.id);
+    let gradeBadge = 'badge-green';
+    if (item.grade === 'Baik') gradeBadge = 'badge-blue';
+    else if (item.grade === 'Perlu Coaching') gradeBadge = 'badge-yellow';
+
+    // Action buttons: Admin can edit & delete, User is read-only
+    let actionCell = '';
+    if (isAdmin) {
+      actionCell = `
+        <div style="display:inline-flex; gap:6px; justify-content:center;">
+          <button class="btn btn-icon btn-sm" onclick="promptEditCa('${item.id}')" title="Edit Nilai CA">
+            <i class="fa-solid fa-pen-to-square text-silver"></i>
+          </button>
+          <button class="btn btn-icon btn-sm" onclick="promptDeleteCa('${item.id}', '${(item.userFullName || '').replace(/'/g, "\\'")}')" title="Hapus Nilai CA">
+            <i class="fa-solid fa-trash-can text-red"></i>
+          </button>
+        </div>
+      `;
+    } else {
+      actionCell = `
+        <span class="badge badge-gray" style="font-size:0.72rem; padding:4px 8px;" title="Mode Tinjauan (Read-Only)">
+          <i class="fa-solid fa-eye text-silver" style="margin-right:4px;"></i>Hanya Lihat
+        </span>
+      `;
+    }
+
+    const checkboxCell = isAdmin ? `
+      <td style="text-align: center;">
+        <input type="checkbox" class="ca-row-checkbox ca-table-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''} aria-label="Tandai evaluasi ${item.userFullName}">
+      </td>
+    ` : '';
+
+    tr.innerHTML = `
+      ${checkboxCell}
+      <td>
+        <span style="font-size: 0.8rem; color: var(--gray-200); font-weight: 600; display:inline-flex; align-items:center; gap:5px;">
+          <i class="fa-regular fa-calendar text-red" style="font-size:0.75rem;"></i>
+          <span>${item.date}</span>
+        </span>
+      </td>
+      <td>
+        <div style="display:flex; align-items:center; gap: 8px;">
+          <div class="user-avatar-circle" style="width:26px; height:26px; border-radius:50%; background:var(--primary); color:#fff; display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700;">
+            ${(item.userFullName || 'U').charAt(0)}
+          </div>
+          <span style="font-weight:600; color:#fff;">${item.userFullName}</span>
+        </div>
+      </td>
+      <td><span class="badge badge-gray" style="font-size:0.72rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
+      <td><span class="badge badge-gray" style="font-size:0.72rem;">${item.channel}</span></td>
+      <td style="text-align: right;"><strong class="text-red font-mono" style="font-size:1.05rem;">${formatCaScore(item.score)}</strong></td>
+      <td><span class="badge ${gradeBadge}" style="font-size:0.72rem;">${item.grade}</span></td>
+      <td><span style="font-size:0.76rem; color:var(--gray-300);" title="${(item.focusParam || '').replace(/"/g, '&quot;')}">${item.focusParam || '-'}</span></td>
+      <td><span style="font-size:0.76rem; color:var(--gray-400); max-width:200px; display:inline-block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="${(item.notes || '').replace(/"/g, '&quot;')}">${item.notes || '-'}</span></td>
+      <td style="text-align:center;">${actionCell}</td>
+    `;
+    UI.caTableBody.appendChild(tr);
+  });
+}
+
+function openAddCaModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menambah nilai CA.', 'warning');
+    return;
+  }
+  if (UI.formCa) UI.formCa.reset();
+  if (UI.formCaId) UI.formCaId.value = '';
+  if (UI.modalCaTitle) UI.modalCaTitle.textContent = 'Input Penilaian CA Harian';
+  if (UI.modalCaSubtitle) UI.modalCaSubtitle.textContent = 'Pencatatan evaluasi mutu interaksi agen CSO per hari dalam 1 bulan (Format Desimal)';
+  if (UI.btnSubmitCaText) UI.btnSubmitCaText.textContent = 'Simpan Nilai CA';
+
+  // Set default date to today or selected month
+  const todayStr = new Date().toISOString().slice(0, 10);
+  if (UI.formCaDate) UI.formCaDate.value = todayStr;
+
+  // Populate users dropdown
+  const users = state.getUsers();
+  if (UI.formCaUserSelect) {
+    UI.formCaUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    if (users.length > 0 && UI.formCaDept) {
+      UI.formCaDept.value = users[0].department || 'CSO INBOUND';
+    }
+  }
+
+  if (UI.formCaChannel) UI.formCaChannel.value = 'Live Chat WA';
+  if (UI.formCaScore) UI.formCaScore.value = '95.00';
+  if (UI.formCaGradeVal) UI.formCaGradeVal.value = 'Sangat Baik';
+  if (UI.formCaParam) UI.formCaParam.value = 'Greeting SOP, Identifikasi Kebutuhan, Solusi, Closing';
+  if (UI.formCaNotes) UI.formCaNotes.value = '';
+
+  if (UI.modalCaForm) UI.modalCaForm.classList.remove('hidden');
+}
+
+window.promptEditCa = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang dapat mengedit nilai CA.', 'warning');
+    return;
+  }
+  const logs = state.getCaLogs();
+  const item = logs.find(l => l.id === id);
+  if (!item) {
+    showToast('Data Tidak Ditemukan', 'Data evaluasi CA tidak ditemukan.', 'danger');
+    return;
+  }
+
+  if (UI.formCa) UI.formCa.reset();
+  if (UI.formCaId) UI.formCaId.value = item.id;
+  if (UI.modalCaTitle) UI.modalCaTitle.textContent = 'Edit Penilaian CA Harian';
+  if (UI.modalCaSubtitle) UI.modalCaSubtitle.textContent = `Mengubah evaluasi harian untuk ${item.userFullName} (${item.date})`;
+  if (UI.btnSubmitCaText) UI.btnSubmitCaText.textContent = 'Perbarui Nilai CA';
+
+  if (UI.formCaDate) UI.formCaDate.value = item.date;
+
+  // Populate users dropdown & select current user
+  const users = state.getUsers();
+  if (UI.formCaUserSelect) {
+    UI.formCaUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}" ${u.fullName === item.userFullName ? 'selected' : ''}>${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+  }
+
+  if (UI.formCaDept) UI.formCaDept.value = item.department || 'CSO INBOUND';
+  if (UI.formCaChannel) UI.formCaChannel.value = item.channel || 'Live Chat WA';
+  if (UI.formCaScore) UI.formCaScore.value = parseFloat(item.score).toFixed(2);
+  if (UI.formCaGradeVal) UI.formCaGradeVal.value = item.grade || 'Sangat Baik';
+  if (UI.formCaParam) UI.formCaParam.value = item.focusParam || '';
+  if (UI.formCaNotes) UI.formCaNotes.value = item.notes || '';
+
+  if (UI.modalCaForm) UI.modalCaForm.classList.remove('hidden');
+};
+
+function closeCaModal() {
+  if (UI.modalCaForm) UI.modalCaForm.classList.add('hidden');
+}
+
+function handleSaveCa(e) {
+  e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang memiliki izin untuk menyimpan atau mengubah nilai CA.', 'danger');
+    return;
+  }
+  const u = state.currentUser;
+  if (!u) return;
+
+  const editId = UI.formCaId ? UI.formCaId.value.trim() : '';
+  const date = (UI.formCaDate ? UI.formCaDate.value : '') || new Date().toISOString().slice(0, 10);
+  const userFullName = (UI.formCaUserSelect ? UI.formCaUserSelect.value : '') || u.fullName;
+  const department = (UI.formCaDept ? UI.formCaDept.value : 'CSO INBOUND');
+  const channel = (UI.formCaChannel ? UI.formCaChannel.value : 'Live Chat WA');
+  const rawScore = parseFloat(UI.formCaScore ? UI.formCaScore.value : '95.00') || 95.00;
+  const score = parseFloat(rawScore.toFixed(2));
+  const grade = (UI.formCaGradeVal ? UI.formCaGradeVal.value : (score >= 95.00 ? 'Sangat Baik' : (score >= 85.00 ? 'Baik' : 'Perlu Coaching')));
+  const focusParam = (UI.formCaParam ? UI.formCaParam.value.trim() : 'Greeting SOP, Solusi');
+  const notes = (UI.formCaNotes ? UI.formCaNotes.value.trim() : '');
+
+  const logs = state.getCaLogs();
+  const now = new Date();
+  const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+  if (editId) {
+    // Update existing entry
+    const idx = logs.findIndex(l => l.id === editId);
+    if (idx !== -1) {
+      logs[idx].date = date;
+      logs[idx].userFullName = userFullName;
+      logs[idx].department = department;
+      logs[idx].channel = channel;
+      logs[idx].score = score;
+      logs[idx].grade = grade;
+      logs[idx].focusParam = focusParam;
+      logs[idx].notes = notes;
+      logs[idx].updatedAt = `${date} ${timeStr}`;
+      logs[idx].updatedBy = u.fullName;
+    }
+    state.saveCaLogs(logs);
+    state.addLog('UPDATE_CA', 'Ubah Nilai CA', `Admin ${u.fullName} memperbarui nilai CA harian ${userFullName} (${date}): ${formatCaScore(score)} (${grade}).`);
+    showToast('Nilai CA Diperbarui', `Penilaian harian <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${formatCaScore(score)}</strong>.`, 'success');
+  } else {
+    // Create new entry
+    const newEntry = {
+      id: 'ca_' + Date.now(),
+      date,
+      userFullName,
+      department,
+      channel,
+      score,
+      grade,
+      focusParam,
+      status: 'Terverifikasi',
+      notes,
+      createdAt: `${date} ${timeStr}`,
+      createdBy: u.fullName
+    };
+    logs.unshift(newEntry);
+    state.saveCaLogs(logs);
+    state.addLog('CREATE_CA', 'Input Nilai CA', `Admin ${u.fullName} mencatat penilaian mutu CA harian untuk ${userFullName}: ${formatCaScore(score)} (${grade}).`);
+    showToast('Nilai CA Disimpan', `Skor evaluasi harian <strong>${formatCaScore(score)}</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
+  }
+
+  // Automatically align month filter if the new entry date is in a different month
+  const entryMonth = date.slice(0, 7);
+  if (UI.filterCaMonth && Array.from(UI.filterCaMonth.options).some(o => o.value === entryMonth)) {
+    UI.filterCaMonth.value = entryMonth;
+  }
+
+  closeCaModal();
+  renderCaPage();
+}
+
+window.promptDeleteCa = function(id, name) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki hak izin untuk menghapus nilai CA.', 'danger');
+    return;
+  }
+  state.pendingDelete = { type: 'ca', id, name };
+  UI.confirmDeleteTitle.textContent = 'Hapus Penilaian CA?';
+  UI.confirmDeleteMessage.innerHTML = `Data evaluasi mutu CA harian milik <strong>${name}</strong> akan dihapus secara permanen.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// Hapus Semua Data CA dalam 1 Bulan
+window.promptDeleteCaMonth = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus seluruh data bulan ini.', 'danger');
+    return;
+  }
+  const monthLabels = {
+    '2026-09': 'September 2026',
+    '2026-08': 'Agustus 2026',
+    '2026-07': 'Juli 2026'
+  };
+  const selMonth = (UI.filterCaMonth ? UI.filterCaMonth.value : '2026-09') || '2026-09';
+  const monthLabel = monthLabels[selMonth] || selMonth;
+  const logs = state.getCaLogs();
+  const countInMonth = logs.filter(l => (l.date || '').startsWith(selMonth)).length;
+
+  if (countInMonth === 0) {
+    showToast('Tidak Ada Data', `Tidak ada catatan evaluasi CA pada periode ${monthLabel} untuk dihapus.`, 'info');
+    return;
+  }
+
+  state.pendingDelete = { type: 'ca_month', id: selMonth, name: monthLabel };
+  UI.confirmDeleteTitle.textContent = `Hapus Semua Data CA Bulan ${monthLabel}?`;
+  UI.confirmDeleteMessage.innerHTML = `Peringatan: Seluruh <strong>${countInMonth} data evaluasi harian</strong> pada periode <strong>${monthLabel}</strong> akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// Hapus Data CA yang Ditandai (Batch Delete)
+window.promptDeleteSelectedCa = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus data evaluasi.', 'danger');
+    return;
+  }
+  const selectedList = Array.from(state.selectedCaIds || []);
+  if (selectedList.length === 0) {
+    showToast('Belum Ada Data Ditandai', 'Silakan tandai minimal satu data penilaian yang ingin dihapus.', 'warning');
+    return;
+  }
+
+  state.pendingDelete = { type: 'ca_batch', id: 'batch', name: `${selectedList.length} data ditandai`, ids: selectedList };
+  UI.confirmDeleteTitle.textContent = `Hapus ${selectedList.length} Data Ditandai?`;
+  UI.confirmDeleteMessage.innerHTML = `Sebanyak <strong>${selectedList.length} data evaluasi harian</strong> yang telah Anda tandai akan dihapus secara permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// Tandai / Batal Tandai Semua Data yang Sedang Tampil
+window.toggleSelectAllCa = function(selectAll) {
+  if (!state.isAdmin()) return;
+  const selMonth = (UI.filterCaMonth ? UI.filterCaMonth.value : '2026-09') || '2026-09';
+  const searchQ = (UI.searchCaInput ? UI.searchCaInput.value.trim().toLowerCase() : '');
+  const filterUser = (UI.filterCaUserSelect ? UI.filterCaUserSelect.value : 'ALL');
+  const filterService = (UI.filterCaService ? UI.filterCaService.value : 'ALL');
+  const filterGrade = (UI.filterCaGrade ? UI.filterCaGrade.value : 'ALL');
+
+  const logs = state.getCaLogs();
+  const filtered = logs.filter(item => {
+    if (!(item.date || '').startsWith(selMonth)) return false;
+    if (searchQ) {
+      const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.date || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.channel || '').toLowerCase().includes(searchQ) ||
+                    (item.focusParam || '').toLowerCase().includes(searchQ) ||
+                    (item.notes || '').toLowerCase().includes(searchQ);
+      if (!match) return false;
+    }
+    if (filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterGrade !== 'ALL' && item.grade !== filterGrade) return false;
+    return true;
+  });
+
+  const shouldSelect = (selectAll !== undefined) ? selectAll : (state.selectedCaIds.size < filtered.length);
+
+  if (shouldSelect) {
+    filtered.forEach(item => state.selectedCaIds.add(item.id));
+    showToast('Data Ditandai', `${filtered.length} data evaluasi pada filter ini telah ditandai.`, 'info');
+  } else {
+    filtered.forEach(item => state.selectedCaIds.delete(item.id));
+    showToast('Tanda Dibatalkan', 'Semua tanda centang telah dibatalkan.', 'info');
+  }
+
+  renderCaPage();
+};
+
+window.deselectAllCa = function() {
+  if (!state.isAdmin()) return;
+  state.selectedCaIds.clear();
+  renderCaPage();
+  showToast('Tanda Dibatalkan', 'Semua tanda telah dibatalkan.', 'info');
+};
+
+window.filterCaByUser = function(userName) {
+  if (UI.filterCaUserSelect) {
+    if (UI.filterCaUserSelect.value === userName) {
+      UI.filterCaUserSelect.value = 'ALL';
+    } else {
+      UI.filterCaUserSelect.value = userName;
+    }
+    renderCaPage();
+    if (UI.tableCaLogs) {
+      UI.tableCaLogs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+};
+
+// ==========================================
+// 12.6 TIKET (SERVICE DESK MANAGEMENT)
+// ==========================================
+
+function renderTiketPage() {
+  const tikets = state.getTikets();
+  const searchQ = (UI.searchTiketInput ? UI.searchTiketInput.value.trim().toLowerCase() : '');
+  const filterService = (UI.filterTiketService ? UI.filterTiketService.value : 'ALL');
+  const filterStatus = (UI.filterTiketStatus ? UI.filterTiketStatus.value : 'ALL');
+  const filterPriority = (UI.filterTiketPriority ? UI.filterTiketPriority.value : 'ALL');
+
+  if (UI.btnClearSearchTiket) {
+    UI.btnClearSearchTiket.classList.toggle('hidden', !searchQ);
+  }
+
+  const filtered = tikets.filter(item => {
+    if (searchQ) {
+      const match = (item.ticketNumber || '').toLowerCase().includes(searchQ) ||
+                    (item.customerName || '').toLowerCase().includes(searchQ) ||
+                    (item.category || '').toLowerCase().includes(searchQ) ||
+                    (item.handler || '').toLowerCase().includes(searchQ) ||
+                    (item.desc || '').toLowerCase().includes(searchQ);
+      if (!match) return false;
+    }
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
+    if (filterPriority !== 'ALL' && item.priority !== filterPriority) return false;
+    return true;
+  });
+
+  // Calculate metrics
+  const totalCount = tikets.length;
+  const openCount = tikets.filter(t => t.status !== 'Closed').length;
+  const closedCount = tikets.filter(t => t.status === 'Closed').length;
+  const slaPct = totalCount > 0 ? ((closedCount / totalCount) * 100).toFixed(1) : '96.2';
+
+  if (UI.tiketStatTotal) UI.tiketStatTotal.textContent = totalCount;
+  if (UI.tiketStatOpen) UI.tiketStatOpen.textContent = openCount;
+  if (UI.tiketStatClosed) UI.tiketStatClosed.textContent = closedCount;
+  if (UI.tiketStatSla) UI.tiketStatSla.textContent = `${slaPct}%`;
+
+  // Render Table
+  if (!UI.tiketTableBody) return;
+  UI.tiketTableBody.innerHTML = '';
+
+  if (filtered.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="9" style="text-align: center; padding: 32px; color: var(--gray-400);">Tidak ada tiket yang sesuai dengan filter pencarian.</td>`;
+    UI.tiketTableBody.appendChild(tr);
+    return;
+  }
+
+  filtered.forEach(item => {
+    const tr = document.createElement('tr');
+
+    let prioBadge = 'badge-gray';
+    if (item.priority.includes('Darurat') || item.priority.includes('High')) prioBadge = 'badge-red';
+    else if (item.priority.includes('Medium')) prioBadge = 'badge-yellow';
+
+    let statusBadge = 'badge-gray';
+    let statusIcon = 'fa-solid fa-circle';
+    if (item.status === 'Open') {
+      statusBadge = 'badge-yellow';
+      statusIcon = 'fa-solid fa-circle-dot';
+    } else if (item.status === 'In Progress') {
+      statusBadge = 'badge-blue';
+      statusIcon = 'fa-solid fa-spinner fa-spin';
+    } else if (item.status === 'Pending Vendor') {
+      statusBadge = 'badge-purple';
+      statusIcon = 'fa-solid fa-clock';
+    } else if (item.status === 'Closed') {
+      statusBadge = 'badge-green';
+      statusIcon = 'fa-solid fa-circle-check';
+    }
+
+    tr.innerHTML = `
+      <td><span class="text-red font-mono" style="font-weight:700;">${item.ticketNumber}</span></td>
+      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.reportTime}</span></td>
+      <td>
+        <span style="font-weight:600; color:#fff;">${item.customerName}</span>
+        ${item.desc ? `<div style="font-size:0.72rem; color:var(--gray-400); max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.desc.replace(/"/g, '&quot;')}">${item.desc}</div>` : ''}
+      </td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
+      <td><span style="font-size:0.8rem; color:var(--gray-200);">${item.category}</span></td>
+      <td><span class="badge ${prioBadge}" style="font-size:0.75rem;">${item.priority}</span></td>
+      <td>
+        <button class="badge ${statusBadge}" style="font-size:0.75rem; cursor:pointer; border:none;" onclick="quickCycleTiketStatus('${item.id}')" title="Klik untuk ubah status secara cepat">
+          <i class="${statusIcon}" style="margin-right:3px;"></i>${item.status}
+        </button>
+      </td>
+      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.handler || '-'}</span></td>
+      <td style="text-align:center;">
+        <div style="display:inline-flex; gap:4px;">
+          <button class="btn btn-icon btn-sm" onclick="promptEditTiket('${item.id}')" title="Edit Tiket">
+            <i class="fa-solid fa-pen-to-square text-silver"></i>
+          </button>
+          <button class="btn btn-icon btn-sm" onclick="promptDeleteTiket('${item.id}', '${item.ticketNumber}')" title="Hapus Tiket">
+            <i class="fa-solid fa-trash-can text-red"></i>
+          </button>
+        </div>
+      </td>
+    `;
+    UI.tiketTableBody.appendChild(tr);
+  });
+}
+
+function openAddTiketModal() {
+  const u = state.currentUser;
+  if (!u) return;
+
+  if (UI.formTiket) UI.formTiket.reset();
+  if (UI.formTiketId) UI.formTiketId.value = '';
+
+  const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+  const randNum = String(Math.floor(Math.random() * 900) + 100);
+  if (UI.formTiketNumber) UI.formTiketNumber.value = `INC-${todayStr}-${randNum}`;
+
+  if (UI.formTiketDept) UI.formTiketDept.value = u.department || 'CSO INBOUND';
+  if (UI.formTiketPriorityVal) UI.formTiketPriorityVal.value = 'Medium';
+  if (UI.formTiketStatusVal) UI.formTiketStatusVal.value = 'Open';
+  if (UI.formTiketHandler) UI.formTiketHandler.value = u.fullName;
+  if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Buat Tiket Layanan Baru';
+
+  if (UI.modalTiketForm) UI.modalTiketForm.classList.remove('hidden');
+}
+
+function openEditTiketModal(item) {
+  if (UI.formTiketId) UI.formTiketId.value = item.id;
+  if (UI.formTiketNumber) UI.formTiketNumber.value = item.ticketNumber;
+  if (UI.formTiketCustomer) UI.formTiketCustomer.value = item.customerName;
+  if (UI.formTiketDept) UI.formTiketDept.value = item.department;
+  if (UI.formTiketCategory) UI.formTiketCategory.value = item.category;
+  if (UI.formTiketPriorityVal) UI.formTiketPriorityVal.value = item.priority;
+  if (UI.formTiketStatusVal) UI.formTiketStatusVal.value = item.status;
+  if (UI.formTiketHandler) UI.formTiketHandler.value = item.handler;
+  if (UI.formTiketDesc) UI.formTiketDesc.value = item.desc || '';
+  if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Edit Tiket Layanan';
+
+  if (UI.modalTiketForm) UI.modalTiketForm.classList.remove('hidden');
+}
+
+function closeTiketModal() {
+  if (UI.modalTiketForm) UI.modalTiketForm.classList.add('hidden');
+}
+
+function handleSaveTiket(e) {
+  e.preventDefault();
+  const u = state.currentUser;
+  if (!u) return;
+
+  const id = UI.formTiketId ? UI.formTiketId.value : '';
+  const ticketNumber = UI.formTiketNumber ? UI.formTiketNumber.value : `INC-${Date.now()}`;
+  const customerName = (UI.formTiketCustomer ? UI.formTiketCustomer.value.trim() : '');
+  const department = (UI.formTiketDept ? UI.formTiketDept.value : 'CSO INBOUND');
+  const category = (UI.formTiketCategory ? UI.formTiketCategory.value : 'Gangguan Koneksi Internet');
+  const priority = (UI.formTiketPriorityVal ? UI.formTiketPriorityVal.value : 'Medium');
+  const status = (UI.formTiketStatusVal ? UI.formTiketStatusVal.value : 'Open');
+  const handler = (UI.formTiketHandler ? UI.formTiketHandler.value.trim() : '') || u.fullName;
+  const desc = (UI.formTiketDesc ? UI.formTiketDesc.value.trim() : '');
+
+  if (!customerName) {
+    showToast('Form Belum Lengkap', 'Nama Pelanggan & ID wajib diisi.', 'warning');
+    return;
+  }
+
+  const tikets = state.getTikets();
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  if (id) {
+    // EDIT
+    const idx = tikets.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      tikets[idx] = {
+        ...tikets[idx],
+        customerName,
+        department,
+        category,
+        priority,
+        status,
+        handler,
+        desc
+      };
+      state.saveTikets(tikets);
+      state.addLog('UPDATE_TIKET', 'Ubah Tiket', `${u.fullName} memperbarui tiket ${ticketNumber} (${customerName}).`);
+      showToast('Tiket Diperbarui', `Tiket <strong>${ticketNumber}</strong> berhasil diperbarui.`, 'success');
+    }
+  } else {
+    // NEW
+    const newEntry = {
+      id: 'tkt_' + Date.now(),
+      ticketNumber,
+      reportTime: timeStr,
+      customerName,
+      department,
+      category,
+      priority,
+      status,
+      handler,
+      desc,
+      createdAt: timeStr
+    };
+    tikets.unshift(newEntry);
+    state.saveTikets(tikets);
+    state.addLog('CREATE_TIKET', 'Buat Tiket', `${u.fullName} membuat tiket baru: ${ticketNumber} (${category}).`);
+    showToast('Tiket Dibuat', `Tiket <strong>${ticketNumber}</strong> berhasil didaftarkan.`, 'success');
+  }
+
+  closeTiketModal();
+  renderTiketPage();
+}
+
+window.quickCycleTiketStatus = function(id) {
+  const tikets = state.getTikets();
+  const item = tikets.find(t => t.id === id);
+  if (!item) return;
+
+  const cycle = ['Open', 'In Progress', 'Pending Vendor', 'Closed'];
+  const curIdx = cycle.indexOf(item.status);
+  const nextIdx = (curIdx + 1) % cycle.length;
+  item.status = cycle[nextIdx];
+
+  state.saveTikets(tikets);
+  showToast('Status Tiket Berubah', `Status tiket <strong>${item.ticketNumber}</strong> kini: <strong>${item.status}</strong>.`, 'info');
+  renderTiketPage();
+};
+
+window.promptEditTiket = function(id) {
+  const tikets = state.getTikets();
+  const item = tikets.find(t => t.id === id);
+  if (!item) return;
+  openEditTiketModal(item);
+};
+
+window.promptDeleteTiket = function(id, ticketNumber) {
+  state.pendingDelete = { type: 'tiket', id, name: ticketNumber };
+  UI.confirmDeleteTitle.textContent = 'Hapus Tiket?';
+  UI.confirmDeleteMessage.innerHTML = `Tiket nomor <strong>${ticketNumber}</strong> akan dihapus permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// ==========================================
+// 12.7 AHT (AVERAGE HANDLING TIME)
+// ==========================================
+
+function renderAhtPage() {
+  const logs = state.getAhtLogs();
+
+  let totalActual = 0;
+  let complianceCount = 0;
+  logs.forEach(l => {
+    totalActual += (Number(l.actualSeconds) || 0);
+    if ((Number(l.actualSeconds) || 0) <= (Number(l.targetSeconds) || 300)) {
+      complianceCount++;
+    }
+  });
+
+  const avgSec = logs.length > 0 ? Math.round(totalActual / logs.length) : 222;
+  const avgMins = Math.floor(avgSec / 60);
+  const avgRemainSec = avgSec % 60;
+  const avgFormatted = `${String(avgMins).padStart(2,'0')}:${String(avgRemainSec).padStart(2,'0')}`;
+  const compPct = logs.length > 0 ? ((complianceCount / logs.length) * 100).toFixed(1) : '94.2';
+  const overPct = logs.length > 0 ? (100 - parseFloat(compPct)).toFixed(1) : '5.8';
+
+  if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${avgFormatted} <small style="font-size:0.9rem; color:var(--gray-400);">Menit</small>`;
+  if (UI.ahtStatCompliance) UI.ahtStatCompliance.textContent = `${compPct}%`;
+  if (UI.ahtStatOver) UI.ahtStatOver.textContent = `${overPct}%`;
+
+  if (!UI.ahtTableBody) return;
+  UI.ahtTableBody.innerHTML = '';
+
+  logs.forEach(item => {
+    const isSlaMet = (item.actualSeconds <= item.targetSeconds);
+    const m = Math.floor(item.actualSeconds / 60);
+    const s = item.actualSeconds % 60;
+    const durFormatted = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.sessionTime}</span></td>
+      <td>
+        <span style="font-weight:600; color:#fff;">${item.userFullName}</span>
+      </td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
+      <td><span class="font-mono text-silver" style="font-size:0.8rem;">${item.interactionId}</span></td>
+      <td style="text-align:right;"><strong class="${isSlaMet ? 'text-green' : 'text-yellow'} font-mono">${durFormatted}</strong></td>
+      <td style="text-align:right;"><span class="font-mono text-silver">05:00</span></td>
+      <td>
+        <span class="${isSlaMet ? 'text-green' : 'text-yellow'}" style="font-size:0.78rem;">
+          <i class="${isSlaMet ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${item.deviationText}
+        </span>
+      </td>
+      <td>
+        <span class="badge ${isSlaMet ? 'badge-green' : 'badge-yellow'}" style="font-size:0.72rem;">
+          <i class="${isSlaMet ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation'}" style="margin-right:3px;"></i>${item.status}
+        </span>
+      </td>
+    `;
+    UI.ahtTableBody.appendChild(tr);
+  });
+}
+
+// ==========================================
+// 12.8 ART (AVERAGE RESPONSE TIME)
+// ==========================================
+
+function renderArtPage() {
+  const logs = state.getArtLogs();
+
+  let totalArt = 0;
+  let totalFrt = 0;
+  let compCount = 0;
+  logs.forEach(l => {
+    totalArt += (Number(l.avgResponseSeconds) || 0);
+    totalFrt += (Number(l.frtSeconds) || 0);
+    if ((Number(l.avgResponseSeconds) || 0) <= (Number(l.targetSeconds) || 30)) {
+      compCount++;
+    }
+  });
+
+  const avgArt = logs.length > 0 ? (totalArt / logs.length).toFixed(1) : '14.8';
+  const avgFrt = logs.length > 0 ? (totalFrt / logs.length).toFixed(1) : '8.5';
+  const compPct = logs.length > 0 ? ((compCount / logs.length) * 100).toFixed(1) : '98.6';
+
+  if (UI.artStatAvg) UI.artStatAvg.innerHTML = `${avgArt} <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small>`;
+  if (UI.artStatFrt) UI.artStatFrt.innerHTML = `${avgFrt} <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small>`;
+  if (UI.artStatCompliance) UI.artStatCompliance.textContent = `${compPct}%`;
+
+  if (!UI.artTableBody) return;
+  UI.artTableBody.innerHTML = '';
+
+  logs.forEach(item => {
+    const isMet = (item.avgResponseSeconds <= item.targetSeconds);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.sessionTime}</span></td>
+      <td><span style="font-weight:600; color:#fff;">${item.userFullName}</span></td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;">${item.channel}</span></td>
+      <td style="text-align:right;"><span class="font-mono text-silver">${item.queueSeconds}s</span></td>
+      <td style="text-align:right;"><span class="font-mono text-green font-weight-bold">${item.frtSeconds}s</span></td>
+      <td style="text-align:right;"><strong class="text-red font-mono">${item.avgResponseSeconds}s</strong></td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;">&lt; ${item.targetSeconds}s</span></td>
+      <td>
+        <span class="badge ${isMet ? 'badge-green' : 'badge-yellow'}" style="font-size:0.72rem;">
+          <i class="fa-solid fa-bolt" style="margin-right:3px;"></i>${item.status}
+        </span>
+      </td>
+    `;
+    UI.artTableBody.appendChild(tr);
+  });
+}
+
+// ==========================================
+// 12.9 FINDING (QA AUDIT FINDINGS)
+// ==========================================
+
+function renderFindingPage() {
+  const findings = state.getFindings();
+  const searchQ = (UI.searchFindingInput ? UI.searchFindingInput.value.trim().toLowerCase() : '');
+  const filterService = (UI.filterFindingService ? UI.filterFindingService.value : 'ALL');
+  const filterLevel = (UI.filterFindingLevel ? UI.filterFindingLevel.value : 'ALL');
+  const filterStatus = (UI.filterFindingStatus ? UI.filterFindingStatus.value : 'ALL');
+
+  if (UI.btnClearSearchFinding) {
+    UI.btnClearSearchFinding.classList.toggle('hidden', !searchQ);
+  }
+
+  const filtered = findings.filter(item => {
+    if (searchQ) {
+      const match = (item.id || '').toLowerCase().includes(searchQ) ||
+                    (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.category || '').toLowerCase().includes(searchQ) ||
+                    (item.desc || '').toLowerCase().includes(searchQ) ||
+                    (item.actionPlan || '').toLowerCase().includes(searchQ);
+      if (!match) return false;
+    }
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterLevel !== 'ALL' && item.deviationLevel !== filterLevel) return false;
+    if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
+    return true;
+  });
+
+  // Calculate metrics
+  const totalCount = findings.length;
+  const minorCount = findings.filter(f => f.deviationLevel === 'Minor').length;
+  const mayorCount = findings.filter(f => f.deviationLevel === 'Mayor').length;
+  const fatalCount = findings.filter(f => f.deviationLevel === 'Fatal').length;
+
+  if (UI.findingStatTotal) UI.findingStatTotal.textContent = totalCount;
+  if (UI.findingStatMinor) UI.findingStatMinor.textContent = minorCount;
+  if (UI.findingStatMayor) UI.findingStatMayor.textContent = mayorCount;
+  if (UI.findingStatFatal) UI.findingStatFatal.textContent = fatalCount;
+
+  if (!UI.findingTableBody) return;
+  UI.findingTableBody.innerHTML = '';
+
+  if (filtered.length === 0) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td colspan="9" style="text-align: center; padding: 32px; color: var(--gray-400);">Tidak ada catatan temuan audit QA yang sesuai.</td>`;
+    UI.findingTableBody.appendChild(tr);
+    return;
+  }
+
+  filtered.forEach(item => {
+    const tr = document.createElement('tr');
+
+    let devBadge = 'badge-yellow';
+    if (item.deviationLevel === 'Mayor') devBadge = 'badge-red';
+    else if (item.deviationLevel === 'Fatal') devBadge = 'badge-red glow-effect-red';
+
+    let statBadge = 'badge-yellow';
+    if (item.status === 'Dalam Coaching') statBadge = 'badge-blue';
+    else if (item.status === 'Closed') statBadge = 'badge-green';
+
+    tr.innerHTML = `
+      <td><span class="text-red font-mono" style="font-weight:700;">${item.id}</span></td>
+      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.date}</span></td>
+      <td><span style="font-weight:600; color:#fff;">${item.userFullName}</span></td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
+      <td><span style="font-size:0.8rem; color:var(--gray-200);">${item.category}</span></td>
+      <td><span class="badge ${devBadge}" style="font-size:0.75rem;">${item.deviationLevel}</span></td>
+      <td>
+        <span style="font-size:0.8rem; color:#fff;">${item.desc}</span>
+        ${item.actionPlan ? `<div style="font-size:0.72rem; color:var(--gray-400); margin-top:3px;"><i class="fa-solid fa-lightbulb text-yellow" style="margin-right:3px;"></i><strong>Action:</strong> ${item.actionPlan}</div>` : ''}
+      </td>
+      <td>
+        <button class="badge ${statBadge}" style="font-size:0.75rem; cursor:pointer; border:none;" onclick="quickCycleFindingStatus('${item.id}')" title="Klik untuk ubah status tindak lanjut">
+          ${item.status}
+        </button>
+      </td>
+      <td style="text-align:center;">
+        <button class="btn btn-icon btn-sm" onclick="promptDeleteFinding('${item.id}', '${item.id}')" title="Hapus Temuan">
+          <i class="fa-solid fa-trash-can text-red"></i>
+        </button>
+      </td>
+    `;
+    UI.findingTableBody.appendChild(tr);
+  });
+}
+
+function openAddFindingModal() {
+  const u = state.currentUser;
+  if (!u) return;
+
+  if (UI.formFinding) UI.formFinding.reset();
+  if (UI.formFindingUser) UI.formFindingUser.value = u.fullName;
+  if (UI.formFindingDept) UI.formFindingDept.value = u.department || 'CSO INBOUND';
+  if (UI.formFindingCategoryVal) UI.formFindingCategoryVal.value = 'Greeting & Closing SOP';
+  if (UI.formFindingLevelVal) UI.formFindingLevelVal.value = 'Minor';
+  if (UI.formFindingDesc) UI.formFindingDesc.value = '';
+  if (UI.formFindingActionPlan) UI.formFindingActionPlan.value = '';
+
+  if (UI.modalFindingForm) UI.modalFindingForm.classList.remove('hidden');
+}
+
+function closeFindingModal() {
+  if (UI.modalFindingForm) UI.modalFindingForm.classList.add('hidden');
+}
+
+function handleSaveFinding(e) {
+  e.preventDefault();
+  const u = state.currentUser;
+  if (!u) return;
+
+  const userFullName = (UI.formFindingUser ? UI.formFindingUser.value.trim() : '') || u.fullName;
+  const department = (UI.formFindingDept ? UI.formFindingDept.value : 'CSO INBOUND');
+  const category = (UI.formFindingCategoryVal ? UI.formFindingCategoryVal.value : 'Greeting & Closing SOP');
+  const deviationLevel = (UI.formFindingLevelVal ? UI.formFindingLevelVal.value : 'Minor');
+  const desc = (UI.formFindingDesc ? UI.formFindingDesc.value.trim() : '');
+  const actionPlan = (UI.formFindingActionPlan ? UI.formFindingActionPlan.value.trim() : '');
+
+  if (!desc) {
+    showToast('Form Belum Lengkap', 'Rincian ketidaksesuaian/kasus wajib diisi.', 'warning');
+    return;
+  }
+
+  const findings = state.getFindings();
+  const todayStr = new Date().toISOString().slice(0, 10);
+  const randNum = String(Math.floor(Math.random() * 900) + 100);
+  const newId = `FND-${todayStr.slice(0,4)}-${randNum}`;
+
+  const newEntry = {
+    id: newId,
+    date: todayStr,
+    userFullName,
+    department,
+    category,
+    deviationLevel,
+    desc,
+    actionPlan,
+    status: 'Open'
+  };
+
+  findings.unshift(newEntry);
+  state.saveFindings(findings);
+  state.addLog('CREATE_FINDING', 'Temuan QA Baru', `${u.fullName} mencatat temuan audit QA [${newId}] untuk ${userFullName} (${deviationLevel}).`);
+  showToast('Temuan QA Dicatat', `Temuan <strong>${newId}</strong> berhasil didaftarkan.`, 'success');
+
+  closeFindingModal();
+  renderFindingPage();
+}
+
+window.quickCycleFindingStatus = function(id) {
+  const findings = state.getFindings();
+  const item = findings.find(f => f.id === id);
+  if (!item) return;
+
+  const cycle = ['Open', 'Dalam Coaching', 'Closed'];
+  const curIdx = cycle.indexOf(item.status);
+  const nextIdx = (curIdx + 1) % cycle.length;
+  item.status = cycle[nextIdx];
+
+  state.saveFindings(findings);
+  showToast('Status Temuan Berubah', `Status temuan <strong>${item.id}</strong> kini: <strong>${item.status}</strong>.`, 'info');
+  renderFindingPage();
+};
+
+window.promptDeleteFinding = function(id, name) {
+  state.pendingDelete = { type: 'finding', id, name };
+  UI.confirmDeleteTitle.textContent = 'Hapus Temuan QA?';
+  UI.confirmDeleteMessage.innerHTML = `Temuan audit QA nomor <strong>${name}</strong> akan dihapus permanen.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+// ==========================================
 // 13. SIDEBAR & MOBILE CONTROLS
 // ==========================================
 
@@ -3822,6 +6455,237 @@ function initEvents() {
   if (UI.filterMonitorStatus) {
     UI.filterMonitorStatus.addEventListener('change', () => {
       if (state.currentPage === 'timer') renderTimerPage();
+    });
+  }
+
+  // Update PA Event Listeners
+  if (UI.btnOpenAddPaModal) UI.btnOpenAddPaModal.addEventListener('click', openAddPaModal);
+  if (UI.btnEmptyAddPa) UI.btnEmptyAddPa.addEventListener('click', openAddPaModal);
+  if (UI.btnRefreshPa) {
+    UI.btnRefreshPa.addEventListener('click', () => {
+      renderUpdatePaPage();
+      showToast('Data Diperbarui', 'Riwayat Update PA disinkronkan.', 'info');
+    });
+  }
+  if (UI.btnClosePaModal) UI.btnClosePaModal.addEventListener('click', closePaModal);
+  if (UI.btnCancelPaModal) UI.btnCancelPaModal.addEventListener('click', closePaModal);
+  if (UI.formPa) UI.formPa.addEventListener('submit', handleSavePa);
+  if (UI.btnClosePaDetailModal) UI.btnClosePaDetailModal.addEventListener('click', closePaDetailModal);
+  if (UI.btnClosePaDetailBtn) UI.btnClosePaDetailBtn.addEventListener('click', closePaDetailModal);
+  if (UI.searchPaInput) UI.searchPaInput.addEventListener('input', renderUpdatePaPage);
+  if (UI.btnClearSearchPa) {
+    UI.btnClearSearchPa.addEventListener('click', () => {
+      if (UI.searchPaInput) UI.searchPaInput.value = '';
+      renderUpdatePaPage();
+    });
+  }
+  if (UI.filterPaService) UI.filterPaService.addEventListener('change', renderUpdatePaPage);
+  if (UI.filterPaShift) UI.filterPaShift.addEventListener('change', renderUpdatePaPage);
+  if (UI.filterPaCategory) UI.filterPaCategory.addEventListener('change', renderUpdatePaPage);
+  if (UI.filterPaStatus) UI.filterPaStatus.addEventListener('change', renderUpdatePaPage);
+  if (UI.btnResetPaFilters) {
+    UI.btnResetPaFilters.addEventListener('click', () => {
+      if (UI.searchPaInput) UI.searchPaInput.value = '';
+      if (UI.filterPaService) UI.filterPaService.value = 'ALL';
+      if (UI.filterPaShift) UI.filterPaShift.value = 'ALL';
+      if (UI.filterPaCategory) UI.filterPaCategory.value = 'ALL';
+      if (UI.filterPaStatus) UI.filterPaStatus.value = 'ALL';
+      renderUpdatePaPage();
+      showToast('Filter Direset', 'Semua filter Update PA telah dikembalikan.', 'info');
+    });
+  }
+  if (UI.btnExportPaCSV) UI.btnExportPaCSV.addEventListener('click', exportPaCSV);
+
+  // CA Event Listeners
+  if (UI.btnOpenAddCaModal) UI.btnOpenAddCaModal.addEventListener('click', openAddCaModal);
+  if (UI.btnDeleteAllCaMonth) UI.btnDeleteAllCaMonth.addEventListener('click', promptDeleteCaMonth);
+  if (UI.btnRefreshCa) {
+    UI.btnRefreshCa.addEventListener('click', () => {
+      renderCaPage();
+      showToast('Data Diperbarui', 'Data evaluasi mutu CA disinkronkan.', 'info');
+    });
+  }
+  if (UI.btnCloseCaModal) UI.btnCloseCaModal.addEventListener('click', closeCaModal);
+  if (UI.btnCancelCaModal) UI.btnCancelCaModal.addEventListener('click', closeCaModal);
+  if (UI.formCa) UI.formCa.addEventListener('submit', handleSaveCa);
+  if (UI.filterCaMonth) UI.filterCaMonth.addEventListener('change', () => {
+    state.selectedCaIds.clear();
+    renderCaPage();
+  });
+  if (UI.filterCaUserSelect) UI.filterCaUserSelect.addEventListener('change', renderCaPage);
+  if (UI.searchCaInput) UI.searchCaInput.addEventListener('input', renderCaPage);
+  if (UI.btnClearSearchCa) {
+    UI.btnClearSearchCa.addEventListener('click', () => {
+      if (UI.searchCaInput) UI.searchCaInput.value = '';
+      renderCaPage();
+    });
+  }
+  if (UI.filterCaService) UI.filterCaService.addEventListener('change', renderCaPage);
+  if (UI.filterCaGrade) UI.filterCaGrade.addEventListener('change', renderCaPage);
+  if (UI.filterCaSummarySort) UI.filterCaSummarySort.addEventListener('change', renderCaPage);
+  if (UI.filterCaScoreSort) UI.filterCaScoreSort.addEventListener('change', renderCaPage);
+  if (UI.btnResetCaFilters) {
+    UI.btnResetCaFilters.addEventListener('click', () => {
+      if (UI.filterCaMonth) UI.filterCaMonth.value = '2026-09';
+      if (UI.filterCaUserSelect) UI.filterCaUserSelect.value = 'ALL';
+      if (UI.searchCaInput) UI.searchCaInput.value = '';
+      if (UI.filterCaService) UI.filterCaService.value = 'ALL';
+      if (UI.filterCaGrade) UI.filterCaGrade.value = 'ALL';
+      if (UI.filterCaSummarySort) UI.filterCaSummarySort.value = 'DESC';
+      if (UI.filterCaScoreSort) UI.filterCaScoreSort.value = 'DATE_DESC';
+      state.selectedCaIds.clear();
+      renderCaPage();
+      showToast('Filter Direset', 'Semua filter CA telah dikembalikan.', 'info');
+    });
+  }
+
+  // CA Selection & Batch Listeners
+  if (UI.caSelectAllCheckbox) {
+    UI.caSelectAllCheckbox.addEventListener('change', (e) => {
+      toggleSelectAllCa(e.target.checked);
+    });
+  }
+  if (UI.btnCaSelectAll) {
+    UI.btnCaSelectAll.addEventListener('click', () => toggleSelectAllCa(true));
+  }
+  if (UI.btnCaDeselectAll) {
+    UI.btnCaDeselectAll.addEventListener('click', deselectAllCa);
+  }
+  if (UI.btnCaDeleteSelected) {
+    UI.btnCaDeleteSelected.addEventListener('click', promptDeleteSelectedCa);
+  }
+
+  // Row Checkbox change delegation
+  if (UI.caTableBody) {
+    UI.caTableBody.addEventListener('change', (e) => {
+      if (!state.isAdmin()) return;
+      if (e.target && e.target.classList.contains('ca-row-checkbox')) {
+        const id = e.target.getAttribute('data-id');
+        if (e.target.checked) {
+          state.selectedCaIds.add(id);
+        } else {
+          state.selectedCaIds.delete(id);
+        }
+        // Sync header checkbox
+        const allCheckboxes = UI.caTableBody.querySelectorAll('.ca-row-checkbox');
+        const checkedCount = UI.caTableBody.querySelectorAll('.ca-row-checkbox:checked').length;
+        if (UI.caSelectAllCheckbox) {
+          UI.caSelectAllCheckbox.checked = allCheckboxes.length > 0 && checkedCount === allCheckboxes.length;
+          UI.caSelectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
+        }
+        // Sync batch bar
+        if (UI.caBatchBar) {
+          const hasSelected = state.selectedCaIds.size > 0;
+          UI.caBatchBar.classList.toggle('hidden', !hasSelected);
+          if (UI.caSelectedCount) {
+            UI.caSelectedCount.textContent = state.selectedCaIds.size;
+          }
+        }
+      }
+    });
+  }
+
+  if (UI.formCaUserSelect) {
+    UI.formCaUserSelect.addEventListener('change', (e) => {
+      const selectedOpt = e.target.options[e.target.selectedIndex];
+      const dept = selectedOpt ? selectedOpt.getAttribute('data-dept') : '';
+      if (dept && UI.formCaDept) {
+        UI.formCaDept.value = dept;
+      }
+    });
+  }
+  if (UI.formCaScore) {
+    UI.formCaScore.addEventListener('input', () => {
+      const val = parseFloat(UI.formCaScore.value);
+      if (!isNaN(val) && UI.formCaGradeVal) {
+        if (val >= 95.00) {
+          UI.formCaGradeVal.value = 'Sangat Baik';
+        } else if (val >= 85.00) {
+          UI.formCaGradeVal.value = 'Baik';
+        } else {
+          UI.formCaGradeVal.value = 'Perlu Coaching';
+        }
+      }
+    });
+  }
+
+  // Tiket Event Listeners
+  if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.addEventListener('click', openAddTiketModal);
+  if (UI.btnRefreshTiket) {
+    UI.btnRefreshTiket.addEventListener('click', () => {
+      renderTiketPage();
+      showToast('Data Diperbarui', 'Daftar tiket layanan disinkronkan.', 'info');
+    });
+  }
+  if (UI.btnCloseTiketModal) UI.btnCloseTiketModal.addEventListener('click', closeTiketModal);
+  if (UI.btnCancelTiketModal) UI.btnCancelTiketModal.addEventListener('click', closeTiketModal);
+  if (UI.formTiket) UI.formTiket.addEventListener('submit', handleSaveTiket);
+  if (UI.searchTiketInput) UI.searchTiketInput.addEventListener('input', renderTiketPage);
+  if (UI.btnClearSearchTiket) {
+    UI.btnClearSearchTiket.addEventListener('click', () => {
+      if (UI.searchTiketInput) UI.searchTiketInput.value = '';
+      renderTiketPage();
+    });
+  }
+  if (UI.filterTiketService) UI.filterTiketService.addEventListener('change', renderTiketPage);
+  if (UI.filterTiketStatus) UI.filterTiketStatus.addEventListener('change', renderTiketPage);
+  if (UI.filterTiketPriority) UI.filterTiketPriority.addEventListener('change', renderTiketPage);
+  if (UI.btnResetTiketFilters) {
+    UI.btnResetTiketFilters.addEventListener('click', () => {
+      if (UI.searchTiketInput) UI.searchTiketInput.value = '';
+      if (UI.filterTiketService) UI.filterTiketService.value = 'ALL';
+      if (UI.filterTiketStatus) UI.filterTiketStatus.value = 'ALL';
+      if (UI.filterTiketPriority) UI.filterTiketPriority.value = 'ALL';
+      renderTiketPage();
+      showToast('Filter Direset', 'Semua filter tiket telah dikembalikan.', 'info');
+    });
+  }
+
+  // AHT Event Listeners
+  if (UI.btnRefreshAht) {
+    UI.btnRefreshAht.addEventListener('click', () => {
+      renderAhtPage();
+      showToast('Data Diperbarui', 'Metrik Average Handling Time diperbarui.', 'info');
+    });
+  }
+
+  // ART Event Listeners
+  if (UI.btnRefreshArt) {
+    UI.btnRefreshArt.addEventListener('click', () => {
+      renderArtPage();
+      showToast('Data Diperbarui', 'Metrik Average Response Time diperbarui.', 'info');
+    });
+  }
+
+  // Finding Event Listeners
+  if (UI.btnOpenAddFindingModal) UI.btnOpenAddFindingModal.addEventListener('click', openAddFindingModal);
+  if (UI.btnRefreshFinding) {
+    UI.btnRefreshFinding.addEventListener('click', () => {
+      renderFindingPage();
+      showToast('Data Diperbarui', 'Daftar temuan audit QA diperbarui.', 'info');
+    });
+  }
+  if (UI.btnCloseFindingModal) UI.btnCloseFindingModal.addEventListener('click', closeFindingModal);
+  if (UI.btnCancelFindingModal) UI.btnCancelFindingModal.addEventListener('click', closeFindingModal);
+  if (UI.formFinding) UI.formFinding.addEventListener('submit', handleSaveFinding);
+  if (UI.searchFindingInput) UI.searchFindingInput.addEventListener('input', renderFindingPage);
+  if (UI.btnClearSearchFinding) {
+    UI.btnClearSearchFinding.addEventListener('click', () => {
+      if (UI.searchFindingInput) UI.searchFindingInput.value = '';
+      renderFindingPage();
+    });
+  }
+  if (UI.filterFindingService) UI.filterFindingService.addEventListener('change', renderFindingPage);
+  if (UI.filterFindingLevel) UI.filterFindingLevel.addEventListener('change', renderFindingPage);
+  if (UI.filterFindingStatus) UI.filterFindingStatus.addEventListener('change', renderFindingPage);
+  if (UI.btnResetFindingFilters) {
+    UI.btnResetFindingFilters.addEventListener('click', () => {
+      if (UI.searchFindingInput) UI.searchFindingInput.value = '';
+      if (UI.filterFindingService) UI.filterFindingService.value = 'ALL';
+      if (UI.filterFindingLevel) UI.filterFindingLevel.value = 'ALL';
+      if (UI.filterFindingStatus) UI.filterFindingStatus.value = 'ALL';
+      renderFindingPage();
+      showToast('Filter Direset', 'Semua filter temuan audit QA dikembalikan.', 'info');
     });
   }
 }

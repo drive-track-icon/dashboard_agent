@@ -300,6 +300,22 @@ a:hover {
   border: 1px solid var(--gray-600);
 }
 
+.badge-blue {
+  background: rgba(59, 130, 246, 0.18);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.35);
+}
+
+.badge-purple {
+  background: rgba(168, 85, 247, 0.18);
+  color: #c084fc;
+  border: 1px solid rgba(168, 85, 247, 0.35);
+}
+
+.text-yellow {
+  color: #f59e0b !important;
+}
+
 /* ==========================================================================
    VIEW 1: LOGIN SECTION
    ========================================================================== */
@@ -4232,6 +4248,20 @@ body.theme-light .setting-title {
 body.theme-light .setting-desc {
   color: #64748b;
 }
+
+/* CA Table Checkbox & Batch Toolbar */
+.ca-table-checkbox {
+  width: 17px;
+  height: 17px;
+  accent-color: var(--primary, #e62e44);
+  cursor: pointer;
+  margin: 0;
+  vertical-align: middle;
+}
+.ca-batch-bar {
+  transition: all var(--transition-normal);
+}
+
 
 
 

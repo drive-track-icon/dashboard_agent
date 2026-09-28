@@ -163,6 +163,42 @@
             </button>
           </li>
           <li class="nav-item">
+            <button class="nav-link" data-page="update-pa" id="navUpdatePa">
+              <i class="fa-solid fa-clipboard-check nav-icon"></i>
+              <span class="nav-label">Update PA</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="ca" id="navCa">
+              <i class="fa-solid fa-user-check nav-icon"></i>
+              <span class="nav-label">CA</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="tiket" id="navTiket">
+              <i class="fa-solid fa-ticket nav-icon"></i>
+              <span class="nav-label">Tiket</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="aht" id="navAht">
+              <i class="fa-solid fa-hourglass-half nav-icon"></i>
+              <span class="nav-label">AHT</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="art" id="navArt">
+              <i class="fa-solid fa-bolt-lightning nav-icon"></i>
+              <span class="nav-label">ART</span>
+            </button>
+          </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="finding" id="navFinding">
+              <i class="fa-solid fa-magnifying-glass-chart nav-icon"></i>
+              <span class="nav-label">Finding</span>
+            </button>
+          </li>
+          <li class="nav-item">
             <button class="nav-link" data-page="timer" id="navTimer">
               <i class="fa-solid fa-stopwatch-20 nav-icon"></i>
               <span class="nav-label">Timer</span>
@@ -539,6 +575,948 @@
             </div>
           </div>
 
+        </section>
+
+        <!-- ==================== PAGE UPDATE PA: PRODUCTIVITY & ACTIVITY ==================== -->
+        <section class="page-section" id="pageUpdatePa">
+          
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Update PA</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-bolt"></i> Productivity &amp; Activity</span>
+              </div>
+              <p class="page-desc">Pencatatan riwayat aktivitas shift, penanganan interaksi pelanggan, auxiliary time (AUX), dan pemantauan produktivitas CSO.</p>
+            </div>
+            
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnRefreshPa">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Segarkan</span>
+              </button>
+              <button class="btn btn-primary glow-effect-red" id="btnOpenAddPaModal">
+                <i class="fa-solid fa-plus"></i>
+                <span>Catat Update PA</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Permission / Status Banner -->
+          <div class="permission-status-banner glass-subpanel" id="paPermissionStatusBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-clipboard-user text-red"></i>
+              <div>
+                <strong id="paBannerRoleLabel">Status PA Hari Ini: Aktif &amp; Terpantau</strong>
+                <p id="paBannerRoleDesc">Pastikan seluruh durasi shift, penanganan tiket, dan waktu AUX tercatat dengan benar untuk akurasi data produktivitas harian.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-glow" id="paBannerBadgePrivilege">Log Mandiri &amp; Tim</span>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid for PA -->
+          <div class="metrics-grid">
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-headset text-white"></i>
+                </div>
+                <span class="metric-tag tag-red" id="paMetricShiftTag">Shift Aktif</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Interaksi Ditangani</span>
+                <h3 class="metric-value text-red" id="paStatTotalInteractions">0</h3>
+                <span class="metric-subtext" id="paStatInteractionsSub">Dari log PA tercatat</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-clock text-silver"></i>
+                </div>
+                <span class="metric-tag tag-gray">Productive Hours</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Jam Efektif</span>
+                <h3 class="metric-value text-white" id="paStatProductiveHours">0.0 Jam</h3>
+                <span class="metric-subtext">Ready &amp; Penanganan Chat/Call</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-mug-hot text-yellow"></i>
+                </div>
+                <span class="metric-tag tag-yellow">AUX Duration</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Waktu AUX</span>
+                <h3 class="metric-value text-yellow" id="paStatAuxMinutes">0 Menit</h3>
+                <span class="metric-subtext">Istirahat, Sholat, Toilet, Coaching</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover border-red-subtle">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-chart-line text-red"></i>
+                </div>
+                <span class="metric-tag tag-green" id="paStatTargetBadge">Target 95%</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Skor Capaian PA</span>
+                <h3 class="metric-value text-silver" id="paStatScore">0%</h3>
+                <span class="metric-subtext" id="paStatScoreSub">Rasio terhadap target interaksi</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Filter & Search Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchPaInput" class="search-input" placeholder="Cari nama anggota CSO, layanan, catatan, atau aktivitas...">
+              <button class="btn-clear-search hidden" id="btnClearSearchPa" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            
+            <div class="toolbar-filters">
+              <select id="filterPaService" class="filter-select">
+                <option value="ALL">Semua Layanan CSO</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+
+              <select id="filterPaShift" class="filter-select">
+                <option value="ALL">Semua Shift</option>
+                <option value="Shift Pagi">Shift Pagi</option>
+                <option value="Shift Siang">Shift Siang</option>
+                <option value="Shift Malam">Shift Malam</option>
+                <option value="Normal Office">Normal Office</option>
+              </select>
+
+              <select id="filterPaCategory" class="filter-select">
+                <option value="ALL">Semua Aktivitas / AUX</option>
+                <option value="READY">Ready / Handling</option>
+                <option value="AUX 1">AUX 1: Istirahat / Makan</option>
+                <option value="AUX 2">AUX 2: Toilet / Personal</option>
+                <option value="AUX 3">AUX 3: Sholat / Ibadah</option>
+                <option value="AUX 4">AUX 4: Briefing &amp; Coaching</option>
+                <option value="AUX 5">AUX 5: Follow Up Tiket</option>
+                <option value="AUX 6">AUX 6: Training / QA</option>
+              </select>
+
+              <select id="filterPaStatus" class="filter-select">
+                <option value="ALL">Semua Status</option>
+                <option value="Terverifikasi">Terverifikasi</option>
+                <option value="Selesai">Selesai</option>
+                <option value="Menunggu Review">Menunggu Review</option>
+              </select>
+
+              <button class="btn btn-outline-gray btn-sm" id="btnResetPaFilters" title="Reset Semua Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+
+              <button class="btn btn-outline-gray btn-sm" id="btnExportPaCSV" title="Ekspor Log PA ke CSV">
+                <i class="fa-solid fa-file-csv text-red"></i>
+                <span class="hide-mobile">Ekspor CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- PA Log Table -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="tablePaLogs">
+                <thead>
+                  <tr>
+                    <th>Waktu &amp; Tanggal</th>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th>Shift</th>
+                    <th>Aktivitas &amp; AUX</th>
+                    <th style="text-align: right;">Interaksi</th>
+                    <th style="text-align: right;">Durasi</th>
+                    <th>Status</th>
+                    <th style="width: 140px; text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="paTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Empty State for PA -->
+            <div class="table-empty-state hidden" id="paTableEmpty">
+              <div class="empty-icon-wrap">
+                <i class="fa-solid fa-clipboard-question text-muted"></i>
+              </div>
+              <h4>Tidak Ada Catatan PA</h4>
+              <p class="text-muted">Belum ada riwayat update PA yang sesuai dengan kriteria filter pencarian.</p>
+              <button class="btn btn-outline-red btn-sm mt-3" id="btnEmptyAddPa">
+                <i class="fa-solid fa-plus"></i> Buat Entri PA Pertama
+              </button>
+            </div>
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE CA: CUSTOMER ASSESSMENT ==================== -->
+        <section class="page-section" id="pageCa">
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Customer Assessment (CA)</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-star"></i> Rekapitulasi Nilai 1 Bulan</span>
+                <span class="badge badge-gray" id="caIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
+              </div>
+              <p class="page-desc">Informasi rekapitulasi penilaian mutu layanan seluruh pengguna dalam 1 bulan dengan pencatatan interval harian. Admin dapat menambah, mengubah, dan menghapus nilai.</p>
+            </div>
+            <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterCaMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterCaMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
+              <button class="btn btn-outline-gray" id="btnRefreshCa">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Segarkan</span>
+              </button>
+              <button class="btn btn-outline-red" id="btnDeleteAllCaMonth" title="Hapus seluruh data penilaian CA di bulan terpilih">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <span>Hapus Data Bulan Ini</span>
+              </button>
+              <button class="btn btn-primary glow-effect-red" id="btnOpenAddCaModal">
+                <i class="fa-solid fa-plus"></i>
+                <span>Input Nilai CA</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Banner for CA -->
+          <div class="permission-status-banner glass-subpanel" id="caPermissionBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-shield-halved text-red"></i>
+              <div>
+                <strong id="caBannerRoleLabel">Otoritas Akses CA: Administrator Penuh</strong>
+                <p id="caBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus nilai CA harian seluruh user. Pengguna biasa hanya dapat melihat rekapitulasi nilai 1 bulan.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-admin" id="caBannerBadgePrivilege">Akses Penuh (CRUD)</span>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid for CA -->
+          <div class="metrics-grid">
+            <div class="metric-card glass-panel card-hover" id="caCardAvgScore">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-award text-white"></i>
+                </div>
+                <span class="metric-tag tag-green">Target: &ge; 85,00</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label" id="caStatAvgScoreLabel">Rata-rata Skor Bulan Ini</span>
+                <h3 class="metric-value text-red" id="caStatAvgScore">96,25</h3>
+                <span class="metric-subtext" id="caStatAvgScoreSubtext">Rata-rata seluruh user di periode terpilih</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover" id="caCardTotalSamples">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-calendar-days text-silver"></i>
+                </div>
+                <span class="metric-tag tag-gray">Interval Harian</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Entri Harian</span>
+                <h3 class="metric-value text-white" id="caStatTotalSamples">0 Entri</h3>
+                <span class="metric-subtext">Akumulasi input nilai per hari</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover" id="caCardTopUser">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-trophy text-yellow"></i>
+                </div>
+                <span class="metric-tag tag-yellow">Top Performer</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">User Skor Tertinggi</span>
+                <h3 class="metric-value text-yellow" id="caStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <span class="metric-subtext" id="caStatTopUserSub">Capaian skor terbaik bulan ini</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover border-red-subtle" id="caCardCompliance">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-check-double text-green"></i>
+                </div>
+                <span class="metric-tag tag-green" id="caStatCoachingTag">Lulus SOP</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Kepatuhan Standar SOP</span>
+                <h3 class="metric-value text-green" id="caStatCompliance">Optimal</h3>
+                <span class="metric-subtext">Tingkat kelulusan mutu tim</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section 1: Rekapitulasi Nilai Seluruh Agent dalam 1 Bulan -->
+          <div class="table-container glass-panel" id="caUserSummarySection" style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:10px;">
+              <div>
+                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-users-viewfinder text-red"></i>
+                  <span>Rekapitulasi Nilai Seluruh Agent Periode <span id="caMonthHeaderLabel" class="text-red">September 2026</span></span>
+                </h3>
+                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Perbandingan performa, akumulasi hari dinilai, dan rata-rata skor bulanan per anggota CSO.</p>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterCaSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Filter Rata-rata:
+                  </label>
+                  <select id="filterCaSummarySort" class="filter-select" style="min-width: 175px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="DESC" selected>Rata-rata Tertinggi</option>
+                    <option value="ASC">Rata-rata Terendah</option>
+                  </select>
+                </div>
+                <span class="badge badge-gray" id="caUserCountBadge">4 User Terdaftar</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="tableCaUserSummary">
+                <thead>
+                  <tr>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th style="text-align: center;">Hari Dinilai</th>
+                    <th style="text-align: right;">Rata-rata Skor</th>
+                    <th>Predikat Mutu</th>
+                    <th style="text-align: center;">Skor Min / Max</th>
+                    <th style="text-align: center;">Status Kelulusan</th>
+                    <th style="text-align: center; width: 120px;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="caUserSummaryBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 2: Rincian Log Evaluasi Harian (Daily Evaluation Breakdown) -->
+          <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+                <i class="fa-solid fa-calendar-check text-red"></i>
+                <span>Log Penilaian Harian (Interval Per Hari)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--gray-400);" id="caDailySubtitle">Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.</p>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchCaInput" class="search-input" placeholder="Cari nama agen, tanggal (YYYY-MM-DD), parameter, atau catatan...">
+              <button class="btn-clear-search hidden" id="btnClearSearchCa" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="toolbar-filters">
+              <select id="filterCaUserSelect" class="filter-select">
+                <option value="ALL">Semua User</option>
+                <!-- Populated dynamically -->
+              </select>
+              <select id="filterCaService" class="filter-select">
+                <option value="ALL">Semua Layanan CSO</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+              <select id="filterCaGrade" class="filter-select">
+                <option value="ALL">Semua Kategori Mutu</option>
+                <option value="Sangat Baik">Sangat Baik (&ge; 95,00)</option>
+                <option value="Baik">Baik (85,00 - 94,99)</option>
+                <option value="Perlu Coaching">Perlu Coaching (&lt; 85,00)</option>
+              </select>
+              <select id="filterCaScoreSort" class="filter-select">
+                <option value="DATE_DESC" selected>Urutan: Tanggal Terbaru</option>
+                <option value="SCORE_DESC">Nilai Tertinggi</option>
+                <option value="SCORE_ASC">Nilai Terendah</option>
+              </select>
+              <button class="btn btn-outline-gray btn-sm" id="btnResetCaFilters" title="Reset Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Batch Actions Toolbar for CA (Tandai & Hapus Ditandai) -->
+          <div class="ca-batch-bar glass-panel hidden" id="caBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+                <i class="fa-solid fa-check-double text-red"></i> <span id="caSelectedCount">0</span> Data Ditandai
+              </span>
+              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data evaluasi harian untuk dikelola atau dihapus massal.</span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnCaDeselectAll">
+                <i class="fa-solid fa-xmark"></i> <span>Batal Tandai</span>
+              </button>
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnCaSelectAll">
+                <i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm glow-effect-red" id="btnCaDeleteSelected">
+                <i class="fa-solid fa-trash-can"></i> <span>Hapus Data Ditandai</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="tableCaLogs">
+                <thead>
+                  <tr>
+                    <th style="width: 44px; text-align: center;" id="caThSelectAll">
+                      <input type="checkbox" id="caSelectAllCheckbox" class="ca-table-checkbox" title="Tandai Semua Data">
+                    </th>
+                    <th>Tanggal Evaluasi</th>
+                    <th>Petugas CSO</th>
+                    <th>Layanan</th>
+                    <th>Channel</th>
+                    <th style="text-align: right;">Nilai CA</th>
+                    <th>Kategori Mutu</th>
+                    <th>Parameter Utama</th>
+                    <th>Catatan Harian</th>
+                    <th style="width: 120px; text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="caTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE TIKET: MANAJEMEN TIKET LAYANAN ==================== -->
+        <section class="page-section" id="pageTiket">
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Manajemen &amp; Pelacakan Tiket</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-ticket"></i> Service Desk</span>
+              </div>
+              <p class="page-desc">Monitoring antrian tiket gangguan jaringan Iconnet, eskalasi permohonan layanan, dan SLA penanganan pelanggan.</p>
+            </div>
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnRefreshTiket">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Segarkan</span>
+              </button>
+              <button class="btn btn-primary glow-effect-red" id="btnOpenAddTiketModal">
+                <i class="fa-solid fa-plus"></i>
+                <span>Buat Tiket Baru</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid for Tiket -->
+          <div class="metrics-grid">
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-layer-group text-white"></i>
+                </div>
+                <span class="metric-tag tag-red">Hari Ini</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Tiket Masuk</span>
+                <h3 class="metric-value text-red" id="tiketStatTotal">142</h3>
+                <span class="metric-subtext">Dari seluruh channel CSO</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-spinner text-yellow"></i>
+                </div>
+                <span class="metric-tag tag-yellow">Dalam Proses</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Tiket Open &amp; In Progress</span>
+                <h3 class="metric-value text-yellow" id="tiketStatOpen">24</h3>
+                <span class="metric-subtext">Menunggu tindak lanjut teknis</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-circle-check text-green"></i>
+                </div>
+                <span class="metric-tag tag-green">Closed</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Tiket Selesai (Closed)</span>
+                <h3 class="metric-value text-green" id="tiketStatClosed">118</h3>
+                <span class="metric-subtext">Tuntas terselesaikan hari ini</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover border-red-subtle">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-shield-halved text-red"></i>
+                </div>
+                <span class="metric-tag tag-green">Target 95%</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Pencapaian SLA Penyelesaian</span>
+                <h3 class="metric-value text-silver" id="tiketStatSla">96.2%</h3>
+                <span class="metric-subtext">Penyelesaian tepat waktu</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchTiketInput" class="search-input" placeholder="Cari nomor tiket, ID pelanggan, keluhan, atau nama...">
+              <button class="btn-clear-search hidden" id="btnClearSearchTiket" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="toolbar-filters">
+              <select id="filterTiketService" class="filter-select">
+                <option value="ALL">Semua Layanan CSO</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+              <select id="filterTiketStatus" class="filter-select">
+                <option value="ALL">Semua Status Tiket</option>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending Vendor">Pending Vendor</option>
+                <option value="Closed">Closed</option>
+              </select>
+              <select id="filterTiketPriority" class="filter-select">
+                <option value="ALL">Semua Prioritas</option>
+                <option value="Darurat / High">Darurat / High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+              </select>
+              <button class="btn btn-outline-gray btn-sm" id="btnResetTiketFilters" title="Reset Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="tableTiketLogs">
+                <thead>
+                  <tr>
+                    <th>No. Tiket</th>
+                    <th>Waktu Lapor</th>
+                    <th>Pelanggan</th>
+                    <th>Layanan CSO</th>
+                    <th>Kategori Kendala</th>
+                    <th>Prioritas SLA</th>
+                    <th>Status</th>
+                    <th>Petugas Handler</th>
+                    <th style="width: 120px; text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tiketTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE AHT: AVERAGE HANDLING TIME ==================== -->
+        <section class="page-section" id="pageAht">
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Average Handling Time (AHT)</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-stopwatch"></i> SLA Target: &lt; 300 Detik</span>
+              </div>
+              <p class="page-desc">Pemantauan efisiensi durasi rata-rata penanganan interaksi (Call / Chat / Tiket) terhadap ambang batas standar SLA.</p>
+            </div>
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnRefreshAht">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Segarkan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid for AHT -->
+          <div class="metrics-grid">
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-stopwatch-20 text-white"></i>
+                </div>
+                <span class="metric-tag tag-green">Target: &lt; 05:00</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Rata-rata AHT Tim</span>
+                <h3 class="metric-value text-red" id="ahtStatAvg">03:42 <small style="font-size:0.9rem; color:var(--gray-400);">Menit</small></h3>
+                <span class="metric-subtext">222 detik per sesi interaksi</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-circle-check text-green"></i>
+                </div>
+                <span class="metric-tag tag-green">SLA Compliance</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Kepatuhan Batas Waktu</span>
+                <h3 class="metric-value text-green" id="ahtStatCompliance">94.2%</h3>
+                <span class="metric-subtext">Interaksi diselesaikan di bawah 5 menit</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-triangle-exclamation text-yellow"></i>
+                </div>
+                <span class="metric-tag tag-yellow">Over AHT</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Interaksi Over SLA</span>
+                <h3 class="metric-value text-yellow" id="ahtStatOver">5.8%</h3>
+                <span class="metric-subtext">Kasus kendala kompleks &amp; eskalasi</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover border-red-subtle">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-gauge-high text-red"></i>
+                </div>
+                <span class="metric-tag tag-green">Status Efisien</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Indeks Kecepatan Penanganan</span>
+                <h3 class="metric-value text-silver">Optimal</h3>
+                <span class="metric-subtext">Memenuhi standar SLA PLN Icon Plus</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="tableAhtLogs">
+                <thead>
+                  <tr>
+                    <th>Waktu Sesi</th>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th>ID Interaksi</th>
+                    <th style="text-align: right;">Durasi Aktual</th>
+                    <th style="text-align: right;">Target SLA</th>
+                    <th>Deviasi Waktu</th>
+                    <th>Status SLA</th>
+                  </tr>
+                </thead>
+                <tbody id="ahtTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE ART: AVERAGE RESPONSE TIME ==================== -->
+        <section class="page-section" id="pageArt">
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Average Response Time (ART)</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-bolt-lightning"></i> SLA Target: &lt; 30 Detik</span>
+              </div>
+              <p class="page-desc">Pengukuran kecepatan waktu respon pertama (First Response Time) dan kecepatan balasan chat kepada pelanggan.</p>
+            </div>
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnRefreshArt">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Segarkan</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid for ART -->
+          <div class="metrics-grid">
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-bolt text-white"></i>
+                </div>
+                <span class="metric-tag tag-green">Target: &lt; 30s</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Rata-rata ART Tim</span>
+                <h3 class="metric-value text-red" id="artStatAvg">14.8 <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small></h3>
+                <span class="metric-subtext">Kecepatan respon chat aktif</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-reply text-silver"></i>
+                </div>
+                <span class="metric-tag tag-green">FRT Speed</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Respon Pertama (FRT)</span>
+                <h3 class="metric-value text-white" id="artStatFrt">8.5 <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small></h3>
+                <span class="metric-subtext">Waktu pertama agen menyapa pelanggan</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-comments text-green"></i>
+                </div>
+                <span class="metric-tag tag-green">SLA Met</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Tingkat Kepatuhan SLA ART</span>
+                <h3 class="metric-value text-green" id="artStatCompliance">98.6%</h3>
+                <span class="metric-subtext">Chat dibalas dalam &lt; 30 detik</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover border-red-subtle">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-chart-simple text-red"></i>
+                </div>
+                <span class="metric-tag tag-blue">210 Sesi</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Sesi Terlayani</span>
+                <h3 class="metric-value text-silver">210 Chat</h3>
+                <span class="metric-subtext">Digilive WhatsApp, DM, &amp; My Icon+</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="tableArtLogs">
+                <thead>
+                  <tr>
+                    <th>Waktu Sesi</th>
+                    <th>Petugas CSO</th>
+                    <th>Channel Layanan</th>
+                    <th style="text-align: right;">Antrian / Waiting</th>
+                    <th style="text-align: right;">Respon Pertama (FRT)</th>
+                    <th style="text-align: right;">Rata-rata Respon (ART)</th>
+                    <th>Target SLA</th>
+                    <th>Status Kepatuhan</th>
+                  </tr>
+                </thead>
+                <tbody id="artTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <!-- ==================== PAGE FINDING: TEMUAN AUDIT QA ==================== -->
+        <section class="page-section" id="pageFinding">
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title">Finding &amp; Rekapitulasi Audit QA</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-triangle-exclamation"></i> QA Findings</span>
+              </div>
+              <p class="page-desc">Rekapitulasi catatan temuan deviasi SOP, ketidaksesuaian data operasional, dan action plan perbaikan mutu pelayanan.</p>
+            </div>
+            <div class="page-title-actions">
+              <button class="btn btn-outline-gray" id="btnRefreshFinding">
+                <i class="fa-solid fa-arrows-rotate"></i>
+                <span>Segarkan</span>
+              </button>
+              <button class="btn btn-primary glow-effect-red" id="btnOpenAddFindingModal">
+                <i class="fa-solid fa-plus"></i>
+                <span>Catat Temuan Baru</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Metric Cards Grid for Finding -->
+          <div class="metrics-grid">
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-gradient">
+                  <i class="fa-solid fa-flag text-white"></i>
+                </div>
+                <span class="metric-tag tag-red">Periode Ini</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Total Temuan Audit</span>
+                <h3 class="metric-value text-red" id="findingStatTotal">7</h3>
+                <span class="metric-subtext">Catatan deviasi &amp; evaluasi QA</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-triangle-exclamation text-yellow"></i>
+                </div>
+                <span class="metric-tag tag-yellow">Temuan Minor</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Deviasi Minor</span>
+                <h3 class="metric-value text-yellow" id="findingStatMinor">5</h3>
+                <span class="metric-subtext">Perlu perbaikan format &amp; greeting</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-gray-dark">
+                  <i class="fa-solid fa-circle-exclamation text-red"></i>
+                </div>
+                <span class="metric-tag tag-red">Temuan Mayor</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Deviasi Mayor</span>
+                <h3 class="metric-value text-white" id="findingStatMayor">2</h3>
+                <span class="metric-subtext">Keterlambatan eskalasi tiket darurat</span>
+              </div>
+            </div>
+
+            <div class="metric-card glass-panel card-hover border-red-subtle">
+              <div class="metric-header">
+                <div class="metric-icon-box bg-red-subtle">
+                  <i class="fa-solid fa-shield-virus text-green"></i>
+                </div>
+                <span class="metric-tag tag-green">Zero Fatal</span>
+              </div>
+              <div class="metric-body">
+                <span class="metric-label">Temuan Fatal</span>
+                <h3 class="metric-value text-green" id="findingStatFatal">0</h3>
+                <span class="metric-subtext">Bebas pelanggaran etika dan keamanan data</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchFindingInput" class="search-input" placeholder="Cari ID temuan, nama agen, layanan, atau deskripsi...">
+              <button class="btn-clear-search hidden" id="btnClearSearchFinding" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="toolbar-filters">
+              <select id="filterFindingService" class="filter-select">
+                <option value="ALL">Semua Layanan CSO</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+              <select id="filterFindingLevel" class="filter-select">
+                <option value="ALL">Semua Tingkat Deviasi</option>
+                <option value="Minor">Minor</option>
+                <option value="Mayor">Mayor</option>
+                <option value="Fatal">Fatal</option>
+              </select>
+              <select id="filterFindingStatus" class="filter-select">
+                <option value="ALL">Semua Status</option>
+                <option value="Open">Open</option>
+                <option value="Dalam Coaching">Dalam Coaching</option>
+                <option value="Closed">Closed</option>
+              </select>
+              <button class="btn btn-outline-gray btn-sm" id="btnResetFindingFilters" title="Reset Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="table-container glass-panel">
+            <div class="table-responsive">
+              <table class="custom-table" id="tableFindingLogs">
+                <thead>
+                  <tr>
+                    <th>ID Temuan</th>
+                    <th>Tanggal</th>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th>Kategori Temuan</th>
+                    <th>Tingkat Deviasi</th>
+                    <th>Deskripsi Kendala</th>
+                    <th>Status Tindak Lanjut</th>
+                    <th style="width: 100px; text-align: center;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="findingTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
         </section>
 
         <!-- ==================== PAGE TIMER: TIMER & STOPWATCH OPERASIONAL ==================== -->
@@ -1541,6 +2519,554 @@
           <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitChangePassword">
             <i class="fa-solid fa-check"></i>
             <span>Simpan Password</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 8: FORM UPDATE PA (TAMBAH / EDIT) ==================== -->
+  <div class="modal-backdrop hidden" id="modalPaForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient" id="modalPaIconBadge">
+            <i class="fa-solid fa-clipboard-check" id="modalPaIcon"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalPaTitle">Catat Update PA Baru</h3>
+            <p class="modal-subtitle" id="modalPaSubtitle">Input rincian aktivitas shift, layanan CSO, dan produktivitas harian</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnClosePaModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formPa" novalidate>
+        <input type="hidden" id="formPaId" value="">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formPaDate" class="form-label">
+                Tanggal Aktivitas <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-regular fa-calendar input-icon"></i>
+                <input type="date" id="formPaDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formPaShift" class="form-label">
+                Shift Kerja <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-business-time input-icon"></i>
+                <select id="formPaShift" class="form-control" required>
+                  <option value="Shift Pagi (07:00 - 15:00)">Shift Pagi (07:00 - 15:00)</option>
+                  <option value="Shift Siang (15:00 - 23:00)">Shift Siang (15:00 - 23:00)</option>
+                  <option value="Shift Malam (23:00 - 07:00)">Shift Malam (23:00 - 07:00)</option>
+                  <option value="Normal Office (08:00 - 17:00)">Normal Office (08:00 - 17:00)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formPaUser" class="form-label">
+                Nama Anggota CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <input type="text" id="formPaUser" class="form-control" readonly>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formPaDept" class="form-label">
+                Layanan CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-headset input-icon"></i>
+                <select id="formPaDept" class="form-control" required>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formPaCategory" class="form-label">
+              Kategori Aktivitas / AUX <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-list-check input-icon"></i>
+              <select id="formPaCategory" class="form-control" required>
+                <option value="READY / HANDLING CHAT">READY / HANDLING CHAT (Melayani Pelanggan)</option>
+                <option value="READY / HANDLING CALL">READY / HANDLING CALL (Inbound / Outbound)</option>
+                <option value="READY / VERIFIKASI DOKUMEN">READY / VERIFIKASI DOKUMEN (Back Office)</option>
+                <option value="AUX 1: ISTIRAHAT / MAKAN">AUX 1: ISTIRAHAT / MAKAN</option>
+                <option value="AUX 2: TOILET / PERSONAL">AUX 2: TOILET / PERSONAL</option>
+                <option value="AUX 3: SHOLAT / IBADAH">AUX 3: SHOLAT / IBADAH</option>
+                <option value="AUX 4: BRIEFING & COACHING">AUX 4: BRIEFING & COACHING</option>
+                <option value="AUX 5: FOLLOW UP TIKET">AUX 5: FOLLOW UP TIKET / ESKALASI</option>
+                <option value="AUX 6: TRAINING / QA">AUX 6: TRAINING / EVALUASI MUTU (QA)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formPaInteractions" class="form-label">
+                Jumlah Interaksi / Tiket Selesai
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-hashtag input-icon"></i>
+                <input type="number" id="formPaInteractions" class="form-control" min="0" value="0" placeholder="0">
+              </div>
+              <small class="form-hint">Isi 0 jika sedang dalam status AUX non-handling.</small>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formPaTarget" class="form-label">
+                Target Interaksi
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-bullseye input-icon"></i>
+                <input type="number" id="formPaTarget" class="form-control" min="0" value="0" placeholder="Contoh: 40">
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formPaDuration" class="form-label">
+                Durasi (Menit) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-stopwatch input-icon"></i>
+                <input type="number" id="formPaDuration" class="form-control" min="1" max="720" value="60" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formPaStatusVal" class="form-label">Status Verifikasi Log</label>
+              <select id="formPaStatusVal" class="form-control">
+                <option value="Selesai">Selesai</option>
+                <option value="Terverifikasi">Terverifikasi</option>
+                <option value="Menunggu Review">Menunggu Review</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formPaNotes" class="form-label">Catatan Aktivitas / Rincian Pekerjaan</label>
+            <textarea id="formPaNotes" class="form-control" rows="3" placeholder="Tuliskan nomor tiket kendala, rincian keluhan pelanggan, atau agenda briefing/AUX..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelPaModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitPa">
+            <i class="fa-solid fa-floppy-disk" id="btnSubmitPaIcon"></i>
+            <span id="btnSubmitPaText">Simpan Update PA</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 9: DETAIL UPDATE PA ==================== -->
+  <div class="modal-backdrop hidden" id="modalPaDetail">
+    <div class="modal-dialog modal-sm glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-clipboard-list"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Rincian Update PA</h3>
+            <p class="modal-subtitle">Informasi lengkap catatan aktivitas dan produktivitas</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnClosePaDetailModal" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="detail-header-card glass-subpanel text-center">
+          <div class="user-avatar-container mb-2" style="width: 56px; height: 56px; margin: 0 auto;">
+            <img id="paDetailAvatar" src="" alt="Avatar" class="user-avatar-img">
+          </div>
+          <h3 class="detail-item-name" id="paDetailUserName">-</h3>
+          <div class="detail-meta-tags mt-1">
+            <span class="badge badge-gray" id="paDetailDept">-</span>
+            <span class="badge" id="paDetailStatusBadge">-</span>
+          </div>
+        </div>
+
+        <div class="detail-grid mt-3">
+          <div class="detail-item-box">
+            <span class="detail-box-label">Tanggal</span>
+            <span class="detail-box-val" id="paDetailDate">-</span>
+          </div>
+          <div class="detail-item-box">
+            <span class="detail-box-label">Shift</span>
+            <span class="detail-box-val text-red" id="paDetailShift">-</span>
+          </div>
+          <div class="detail-item-box">
+            <span class="detail-box-label">Interaksi Ditangani</span>
+            <span class="detail-box-val text-white" id="paDetailInteractions">0</span>
+          </div>
+          <div class="detail-item-box">
+            <span class="detail-box-label">Durasi Waktu</span>
+            <span class="detail-box-val" id="paDetailDuration">0 Menit</span>
+          </div>
+        </div>
+
+        <div class="detail-text-block mt-3">
+          <h5 class="detail-section-title"><i class="fa-solid fa-list-check text-red"></i> Kategori Aktivitas:</h5>
+          <p id="paDetailCategory" class="detail-section-content font-weight-bold">-</p>
+        </div>
+
+        <div class="detail-text-block mt-2">
+          <h5 class="detail-section-title"><i class="fa-solid fa-note-sticky text-red"></i> Catatan &amp; Rincian:</h5>
+          <p id="paDetailNotes" class="detail-section-content">-</p>
+        </div>
+
+        <div class="detail-text-block mt-2">
+          <h5 class="detail-section-title"><i class="fa-solid fa-clock-rotate-left text-red"></i> Waktu Input:</h5>
+          <p id="paDetailCreatedAt" class="detail-section-content text-muted">-</p>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-gray" id="btnClosePaDetailBtn">Tutup</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 10: FORM INPUT / EDIT NILAI CA ==================== -->
+  <div class="modal-backdrop hidden" id="modalCaForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-award"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalCaTitle">Input Penilaian CA Harian</h3>
+            <p class="modal-subtitle" id="modalCaSubtitle">Pencatatan evaluasi mutu interaksi agen CSO per hari dalam 1 bulan</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseCaModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formCa" novalidate>
+        <input type="hidden" id="formCaId" value="">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formCaDate" class="form-label">
+                Tanggal Evaluasi (Harian) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-regular fa-calendar input-icon"></i>
+                <input type="date" id="formCaDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formCaUserSelect" class="form-label">
+                Petugas CSO yang Dinilai <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <select id="formCaUserSelect" class="form-control" required>
+                  <!-- Populated dynamically with all registered users -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formCaDept" class="form-label">
+                Layanan CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-headset input-icon"></i>
+                <select id="formCaDept" class="form-control" required>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formCaChannel" class="form-label">Channel Interaksi <span class="required">*</span></label>
+              <select id="formCaChannel" class="form-control" required>
+                <option value="Live Chat WA">Live Chat WA</option>
+                <option value="Inbound Call">Inbound Call</option>
+                <option value="Direct Message IG">Direct Message IG</option>
+                <option value="My Icon+ App">My Icon+ App</option>
+                <option value="Email Support">Email Support</option>
+                <option value="Back Office">Back Office</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formCaScore" class="form-label">Skor Nilai CA (Desimal) <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-arrow-trend-up input-icon"></i>
+                <input type="number" id="formCaScore" class="form-control" min="0" max="100" step="0.01" value="95.00" required>
+              </div>
+              <small class="form-hint">&ge;95,00 Sangat Baik, 85,00 - 94,99 Baik, &lt;85,00 Perlu Coaching</small>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formCaGradeVal" class="form-label">Kategori Mutu</label>
+              <select id="formCaGradeVal" class="form-control">
+                <option value="Sangat Baik">Sangat Baik (&ge; 95,00)</option>
+                <option value="Baik">Baik (85,00 - 94,99)</option>
+                <option value="Perlu Coaching">Perlu Coaching (&lt; 85,00)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formCaParam" class="form-label">Parameter Utama Fokus Evaluasi</label>
+            <input type="text" id="formCaParam" class="form-control" value="Greeting SOP, Identifikasi Kebutuhan, Solusi, Closing" placeholder="Contoh: Greeting &amp; Verifikasi">
+          </div>
+
+          <div class="form-group">
+            <label for="formCaNotes" class="form-label">Catatan &amp; Umpan Balik QA Harian</label>
+            <textarea id="formCaNotes" class="form-control" rows="3" placeholder="Catatan kelebihan, kepatuhan SOP, atau poin evaluasi perbaikan untuk agen..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelCaModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitCa">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnSubmitCaText">Simpan Nilai CA</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 11: FORM BUAT / EDIT TIKET ==================== -->
+  <div class="modal-backdrop hidden" id="modalTiketForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-ticket"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalTiketTitle">Buat Tiket Layanan Baru</h3>
+            <p class="modal-subtitle">Pencatatan gangguan, permohonan layanan, dan eskalasi teknis pelanggan</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseTiketModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formTiket" novalidate>
+        <input type="hidden" id="formTiketId" value="">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formTiketNumber" class="form-label">Nomor Tiket</label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-barcode input-icon"></i>
+                <input type="text" id="formTiketNumber" class="form-control" readonly>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formTiketCustomer" class="form-label">Nama Pelanggan &amp; ID <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user input-icon"></i>
+                <input type="text" id="formTiketCustomer" class="form-control" placeholder="Contoh: PT Surya Kencana / ID: 108849" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formTiketDept" class="form-label">Layanan CSO <span class="required">*</span></label>
+              <select id="formTiketDept" class="form-control" required>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formTiketCategory" class="form-label">Kategori Kendala <span class="required">*</span></label>
+              <select id="formTiketCategory" class="form-control" required>
+                <option value="Gangguan Koneksi Internet">Gangguan Koneksi Internet</option>
+                <option value="Penurunan Bandwidth / Lambat">Penurunan Bandwidth / Lambat</option>
+                <option value="Permohonan Upgrade Paket">Permohonan Upgrade Paket</option>
+                <option value="Kendala Tagihan / Billing">Kendala Tagihan / Billing</option>
+                <option value="Aktivasi Pelanggan Baru">Aktivasi Pelanggan Baru</option>
+                <option value="Gangguan Router / Perangkat">Gangguan Router / Perangkat</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formTiketPriorityVal" class="form-label">Prioritas SLA <span class="required">*</span></label>
+              <select id="formTiketPriorityVal" class="form-control" required>
+                <option value="Darurat / High">Darurat / High (SLA 2 Jam)</option>
+                <option value="Medium" selected>Medium (SLA 4 Jam)</option>
+                <option value="Low">Low (SLA 24 Jam)</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formTiketStatusVal" class="form-label">Status Tiket <span class="required">*</span></label>
+              <select id="formTiketStatusVal" class="form-control" required>
+                <option value="Open">Open</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Pending Vendor">Pending Vendor</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formTiketHandler" class="form-label">Petugas Penanggung Jawab (Handler)</label>
+            <input type="text" id="formTiketHandler" class="form-control" placeholder="Nama agen atau tim teknis">
+          </div>
+
+          <div class="form-group">
+            <label for="formTiketDesc" class="form-label">Rincian Keluhan &amp; Catatan Tindak Lanjut</label>
+            <textarea id="formTiketDesc" class="form-control" rows="3" placeholder="Tuliskan detail kronologi keluhan pelanggan atau tindakan yang telah diambil..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelTiketModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitTiket">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Simpan Tiket</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL 12: FORM CATAT TEMUAN QA (FINDING) ==================== -->
+  <div class="modal-backdrop hidden" id="modalFindingForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-triangle-exclamation"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Catat Temuan Audit QA (Finding)</h3>
+            <p class="modal-subtitle">Pencatatan deviasi SOP pelayanan dan rekomendasi perbaikan kualitas</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseFindingModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formFinding" novalidate>
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formFindingUser" class="form-label">Petugas CSO <span class="required">*</span></label>
+              <input type="text" id="formFindingUser" class="form-control" placeholder="Nama agen CSO" required>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formFindingDept" class="form-label">Layanan CSO <span class="required">*</span></label>
+              <select id="formFindingDept" class="form-control" required>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formFindingCategoryVal" class="form-label">Kategori Temuan <span class="required">*</span></label>
+              <select id="formFindingCategoryVal" class="form-control" required>
+                <option value="Verifikasi Data Pelanggan">Verifikasi Data Pelanggan</option>
+                <option value="Greeting &amp; Closing SOP">Greeting &amp; Closing SOP</option>
+                <option value="Kepatuhan SLA Eskalasi">Kepatuhan SLA Eskalasi</option>
+                <option value="Akurasi Jawaban Solusi">Akurasi Jawaban Solusi</option>
+                <option value="Input Data Billing &amp; Tiket">Input Data Billing &amp; Tiket</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formFindingLevelVal" class="form-label">Tingkat Deviasi <span class="required">*</span></label>
+              <select id="formFindingLevelVal" class="form-control" required>
+                <option value="Minor">Minor (Pengingat SOP)</option>
+                <option value="Mayor">Mayor (Perlu Coaching Khusus)</option>
+                <option value="Fatal">Fatal (Pelanggaran Kritis)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formFindingDesc" class="form-label">Rincian Ketidaksesuaian / Kasus <span class="required">*</span></label>
+            <textarea id="formFindingDesc" class="form-control" rows="2" placeholder="Uraikan detail temuan saat audit interaksi..." required></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="formFindingActionPlan" class="form-label">Rekomendasi Tindak Lanjut (Action Plan)</label>
+            <textarea id="formFindingActionPlan" class="form-control" rows="2" placeholder="Langkah perbaikan, jadwal briefing, atau materi coaching..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelFindingModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitFinding">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span>Simpan Temuan</span>
           </button>
         </div>
       </form>
