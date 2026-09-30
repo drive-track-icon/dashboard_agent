@@ -1180,6 +1180,163 @@ const DEFAULT_FINDINGS = [
 ];
 
 // ==========================================
+// 1.10 DEFAULT QUIZ QUESTIONS (ULTRAMAN VS MONSTER)
+// ==========================================
+
+const DEFAULT_QUIZ_QUESTIONS = [
+  {
+    id: 'QZ-001',
+    category: 'Informasi',
+    isMarked: false,
+    prompt: 'Berapakah perbandingan rasio kecepatan Upload dan Download (rasio simetris) pada layanan internet fixed broadband ICONNET?',
+    options: {
+      A: '1 : 4 (Asimetris)',
+      B: '1 : 1 (Simetris Penuh)',
+      C: '1 : 2 (Asimetris)',
+      D: '1 : 8 (Best Effort)',
+      E: '1 : 10 (Dynamic Up-to)'
+    },
+    correctAnswer: 'B',
+    explanation: 'ICONNET menggunakan 100% serat optik (full fiber optic) dengan rasio simetris 1:1, di mana kecepatan unggah (upload) dan unduh (download) sama cepat dan stabil.'
+  },
+  {
+    id: 'QZ-002',
+    category: 'Informasi',
+    isMarked: true,
+    prompt: 'Berapakah batas standar SLA Response Time (ART) bagi agen Contact Center CSO dalam merespons antrean pertama pelanggan?',
+    options: {
+      A: '< 30 Detik',
+      B: '< 60 Detik',
+      C: '< 90 Detik',
+      D: '< 120 Detik',
+      E: '< 180 Detik'
+    },
+    correctAnswer: 'A',
+    explanation: 'Berdasarkan Service Level Agreement (SLA) operasional Contact Center ICONNET, ART maksimal adalah di bawah 30 detik untuk memberikan layanan prima.'
+  },
+  {
+    id: 'QZ-003',
+    category: 'Gangguan',
+    isMarked: true,
+    prompt: 'Jika lampu indikator LOS (Loss of Signal) pada modem/ONT pelanggan menyala merah berkedip, apa arti indikasi kendala tersebut?',
+    options: {
+      A: 'Perangkat modem kelebihan panas (overheat)',
+      B: 'Kabel LAN terlepas dari port ethernet',
+      C: 'Tidak ada sinyal optik / redaman kabel dropcore putus',
+      D: 'Password WiFi salah dimasukkan pelanggan',
+      E: 'Fitur DHCP Server modem dinonaktifkan'
+    },
+    correctAnswer: 'C',
+    explanation: 'Indikator LOS merah berkedip menandakan perangkat optik modem tidak menerima sinyal cahaya (sinyal rx optik terputus atau redaman di luar batas operasional -28 dBm).'
+  },
+  {
+    id: 'QZ-004',
+    category: 'Keluhan',
+    isMarked: false,
+    prompt: 'Berapa jumlah titik elemen verifikasi data identitas pelanggan yang wajib divalidasi oleh agen CSO sebelum memproses perubahan akun atau informasi sensitif?',
+    options: {
+      A: '1 Elemen data',
+      B: '2 Elemen data',
+      C: '3 Elemen data (ID Pelanggan, Nama, Nomor HP/Alamat)',
+      D: '4 Elemen data',
+      E: '5 Elemen data'
+    },
+    correctAnswer: 'C',
+    explanation: 'SOP perlindungan data privasi pelanggan (PDP) mewajibkan validasi minimal 3 elemen data: ID Pelanggan, Nama Lengkap pemilik, dan Nomor HP aktif atau alamat instalasi.'
+  },
+  {
+    id: 'QZ-005',
+    category: 'Informasi',
+    isMarked: false,
+    prompt: 'Berapakah batas standar target Average Handling Time (AHT) per interaksi panggilan/chat pada layanan Contact Center ICONNET?',
+    options: {
+      A: '180 detik (03:00 menit)',
+      B: '300 detik (05:00 menit)',
+      C: '420 detik (07:00 menit)',
+      D: '600 detik (10:00 menit)',
+      E: '900 detik (15:00 menit)'
+    },
+    correctAnswer: 'B',
+    explanation: 'Standar target AHT Contact Center ICONNET adalah 300 detik (5 menit 00 detik) untuk menjaga efisiensi penanganan serta kepuasan pelanggan.'
+  },
+  {
+    id: 'QZ-006',
+    category: 'Informasi',
+    isMarked: false,
+    prompt: 'Aplikasi mobile resmi terintegrasi manakah yang digunakan pelanggan untuk melakukan pendaftaran baru, pembayaran tagihan bulanan, serta pengaduan gangguan ICONNET?',
+    options: {
+      A: 'PLN Mobile',
+      B: 'ICONNET Care App',
+      C: 'MyTelkom',
+      D: 'Speedtest Ookla',
+      E: 'LinkAja Portal'
+    },
+    correctAnswer: 'A',
+    explanation: 'Layanan ICONNET terintegrasi penuh di dalam Super App PLN Mobile pada menu ICONNET untuk pendaftaran, tracking gangguan, dan pembayaran tagihan.'
+  },
+  {
+    id: 'QZ-007',
+    category: 'Gangguan',
+    isMarked: false,
+    prompt: 'Apa perbedaan mendasar antara frekuensi WiFi 2.4 GHz dan 5.0 GHz pada router dual-band ICONNET?',
+    options: {
+      A: '2.4 GHz lebih cepat tetapi jangkauan sempit',
+      B: '2.4 GHz jangkauan lebih luas & tembus dinding, 5.0 GHz kecepatan lebih tinggi untuk jarak dekat',
+      C: '5.0 GHz hanya bisa digunakan untuk laptop kabel',
+      D: '2.4 GHz tidak mendukung standar enkripsi WPA2/WPA3',
+      E: 'Tidak ada perbedaan performa antara kedua frekuensi'
+    },
+    correctAnswer: 'B',
+    explanation: 'Frekuensi 2.4 GHz memiliki daya tembus dinding dan jangkauan lebih luas, sedangkan 5.0 GHz menyediakan kecepatan bandwidth lebih tinggi dan latency rendah untuk jarak dekat.'
+  },
+  {
+    id: 'QZ-008',
+    category: 'Keluhan',
+    isMarked: true,
+    prompt: 'Berapakah batas nilai minimum kelulusan (passing grade standard) pada evaluasi penilaian mutu Customer Assessment (CA)?',
+    options: {
+      A: '70.0',
+      B: '75.0',
+      C: '80.0',
+      D: '85.0',
+      E: '90.0'
+    },
+    correctAnswer: 'D',
+    explanation: 'Standar mutu operasional pelayanan CA menetapkan nilai passing grade kelulusan sebesar 85.0.'
+  },
+  {
+    id: 'QZ-009',
+    category: 'Gangguan',
+    isMarked: false,
+    prompt: 'Jika terjadi gangguan massal akibat fiber optic backbone putus di suatu area klaster, tim manakah yang menjadi eskalasi penanganan teknis tingkat 2 (Tier 2)?',
+    options: {
+      A: 'Divisi Finance & Billing',
+      B: 'NOC (Network Operation Center) & Tim Pemeliharaan Jaringan',
+      C: 'Satpam Gedung',
+      D: 'Customer Service Toko',
+      E: 'Divisi Sales & Marketing'
+    },
+    correctAnswer: 'B',
+    explanation: 'Eskalasi kendala infrastruktur massal atau link optik backbone dialihkan langsung ke unit NOC (Network Operation Center) dan tim pemeliharaan jaringan fiber optik.'
+  },
+  {
+    id: 'QZ-010',
+    category: 'Gangguan',
+    isMarked: false,
+    prompt: 'Apakah fungsi utama perangkat ODP (Optical Distribution Point) yang terpasang di tiang fiber optik ICONNET?',
+    options: {
+      A: 'Mengatur tegangan arus listrik tiang',
+      B: 'Titik terminasi dan pembagi kabel serat optik distribusi ke kabel drop wire menuju rumah pelanggan',
+      C: 'Memancarkan sinyal radio WiFi publik',
+      D: 'Menyimpan baterai cadangan saat pemadaman',
+      E: 'Mengukur suhu udara tiang listrik'
+    },
+    correctAnswer: 'B',
+    explanation: 'ODP (Optical Distribution Point) adalah kotak terminasi pasif di tiang yang membagi kabel serat optik distribusi utama menjadi kabel dropcore pelanggan menggunakan splitter pasif.'
+  }
+];
+
+// ==========================================
 // 2. STATE MANAGER
 // ==========================================
 
@@ -1249,6 +1406,77 @@ class AppState {
     }
     if (!localStorage.getItem('vortex_findings')) {
       localStorage.setItem('vortex_findings', JSON.stringify(DEFAULT_FINDINGS));
+    }
+    const validQuizCats = ['Informasi', 'Keluhan', 'Gangguan'];
+    const storedQuizQ = JSON.parse(localStorage.getItem('vortex_quiz_questions') || '[]');
+    if (!storedQuizQ.length || !storedQuizQ[0].options || !storedQuizQ[0].options.E || !storedQuizQ.some(q => validQuizCats.includes(q.category))) {
+      localStorage.setItem('vortex_quiz_questions', JSON.stringify(DEFAULT_QUIZ_QUESTIONS));
+    } else {
+      let needsSave = false;
+      storedQuizQ.forEach(q => {
+        if (!validQuizCats.includes(q.category)) {
+          if (q.category && (q.category.includes('Produk') || q.category.includes('SLA'))) {
+            q.category = 'Informasi';
+          } else if (q.category && (q.category.includes('Teknis') || q.category.includes('Trouble'))) {
+            q.category = 'Gangguan';
+          } else {
+            q.category = 'Keluhan';
+          }
+          needsSave = true;
+        }
+        if (q.isMarked === undefined) {
+          q.isMarked = false;
+          needsSave = true;
+        }
+      });
+      if (needsSave) {
+        localStorage.setItem('vortex_quiz_questions', JSON.stringify(storedQuizQ));
+      }
+    }
+
+    if (!localStorage.getItem('vortex_quiz_history')) {
+      const initialHistory = [
+        {
+          id: 'QZH-1001',
+          userId: 'usr_user_1',
+          userName: 'siti_rahma',
+          userFullName: 'Siti Rahma',
+          department: 'CSO DIGILIVE CHAT - WA',
+          score: 90,
+          correctCount: 9,
+          totalQuestions: 10,
+          outcome: 'menang',
+          duration: '01:24',
+          timestamp: '2026-09-30 19:40'
+        },
+        {
+          id: 'QZH-1002',
+          userId: 'usr_user_2',
+          userName: 'ahmad_fauzi',
+          userFullName: 'Ahmad Fauzi',
+          department: 'CSO BACK OFFICE',
+          score: 70,
+          correctCount: 7,
+          totalQuestions: 10,
+          outcome: 'kalah',
+          duration: '02:05',
+          timestamp: '2026-09-30 20:15'
+        },
+        {
+          id: 'QZH-1003',
+          userId: 'usr_admin_1',
+          userName: 'admin',
+          userFullName: 'Budi Santoso, S.Kom',
+          department: 'CSO INBOUND',
+          score: 100,
+          correctCount: 10,
+          totalQuestions: 10,
+          outcome: 'sempurna',
+          duration: '01:10',
+          timestamp: '2026-09-30 21:00'
+        }
+      ];
+      localStorage.setItem('vortex_quiz_history', JSON.stringify(initialHistory));
     }
 
     // Auto-migrate or initialize timers with user metadata
@@ -1393,6 +1621,22 @@ class AppState {
 
   saveFindings(findings) {
     localStorage.setItem('vortex_findings', JSON.stringify(findings));
+  }
+
+  getQuizQuestions() {
+    return JSON.parse(localStorage.getItem('vortex_quiz_questions') || '[]');
+  }
+
+  saveQuizQuestions(questions) {
+    localStorage.setItem('vortex_quiz_questions', JSON.stringify(questions));
+  }
+
+  getQuizHistory() {
+    return JSON.parse(localStorage.getItem('vortex_quiz_history') || '[]');
+  }
+
+  saveQuizHistory(history) {
+    localStorage.setItem('vortex_quiz_history', JSON.stringify(history));
   }
 
   addLog(actionType, actionBadge, details, status = 'Sukses') {
@@ -1895,6 +2139,7 @@ const UI = {
     'data-management': document.getElementById('pageDataManagement'),
     timer: document.getElementById('pageTimer'),
     'typing-test': document.getElementById('pageTypingTest'),
+    quiz: document.getElementById('pageQuiz'),
     'user-management': document.getElementById('pageUserManagement'),
     'activity-log': document.getElementById('pageActivityLog'),
     settings: document.getElementById('pageSettings')
@@ -2877,6 +3122,39 @@ function renderAppView() {
     renderAdminTypingLeaderboard();
   }
 
+  // Quiz permission and user visibility controls
+  const quizPermissionBanner = document.getElementById('quizPermissionBanner');
+  const quizBannerRoleLabel = document.getElementById('quizBannerRoleLabel');
+  const quizBannerRoleDesc = document.getElementById('quizBannerRoleDesc');
+  const quizBannerBadgePrivilege = document.getElementById('quizBannerBadgePrivilege');
+  const btnTabQuizAdminBank = document.getElementById('btnTabQuizAdminBank');
+  const btnOpenAddQuestionModal = document.getElementById('btnOpenAddQuestionModal');
+  const quizTitleThemeSuffix = document.getElementById('quizTitleThemeSuffix');
+  const quizPageDesc = document.getElementById('quizPageDesc');
+
+  // Suffix ": Ultraman Iconnet vs Monster" hidden pada user & admin
+  if (quizTitleThemeSuffix) {
+    quizTitleThemeSuffix.classList.add('hidden');
+  }
+
+  // Deskripsi kuis bertema hidden pada user & admin
+  if (quizPageDesc) {
+    quizPageDesc.classList.add('hidden');
+  }
+
+  // Tab "Kelola Bank Soal" hidden pada user
+  if (btnTabQuizAdminBank) {
+    btnTabQuizAdminBank.classList.toggle('hidden', !isAdmin);
+  }
+  if (btnOpenAddQuestionModal) {
+    btnOpenAddQuestionModal.classList.toggle('hidden', !isAdmin);
+  }
+
+  // Banner status "Otoritas Akses Kuis..." hidden pada user & admin
+  if (quizPermissionBanner) {
+    quizPermissionBanner.classList.add('hidden');
+  }
+
   // Render active section
   navigateToPage(state.currentPage);
 }
@@ -2916,6 +3194,7 @@ function navigateToPage(pageId) {
     'data-management': 'Kelola Data Barang',
     timer: 'Pusat Timer & Stopwatch',
     'typing-test': 'Typing Test (Speed Racer 60s)',
+    quiz: 'Quiz',
     'user-management': 'Manajemen Team',
     'activity-log': 'Log Aktivitas & Jejak Audit',
     settings: 'Profil Akun'
@@ -2955,6 +3234,8 @@ function navigateToPage(pageId) {
     renderTimerPage();
   } else if (pageId === 'typing-test') {
     renderTypingTestPage();
+  } else if (pageId === 'quiz') {
+    renderQuizPage();
   } else if (pageId === 'user-management') {
     renderUserManagementPage();
   } else if (pageId === 'activity-log') {
@@ -3644,6 +3925,32 @@ function executePendingDelete() {
     state.addLog('DELETE_FINDING', 'Hapus Temuan QA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus temuan audit QA: ${name}.`);
     showToast('Temuan Dihapus', `Data temuan audit QA berhasil dihapus.`, 'danger');
     renderFindingPage();
+  } else if (type === 'quiz_question') {
+    const questions = state.getQuizQuestions().filter(q => q.id !== id);
+    state.saveQuizQuestions(questions);
+    if (typeof quizState !== 'undefined' && quizState.selectedQuestionIds) {
+      quizState.selectedQuestionIds.delete(id);
+    }
+    state.addLog('DELETE_QUIZ_QUESTION', 'Hapus Soal Kuis', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus soal kuis: ${name}.`);
+    showToast('Soal Kuis Dihapus', `Soal kuis <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    if (typeof renderQuizAdminQuestions === 'function') renderQuizAdminQuestions();
+    if (typeof quizState !== 'undefined' && quizState.activeTab === 'battle' && typeof startQuizBattle === 'function') {
+      startQuizBattle();
+    }
+  } else if (type === 'quiz_batch') {
+    const idsToDelete = state.pendingDelete.ids || [];
+    const questions = state.getQuizQuestions();
+    const remaining = questions.filter(q => !idsToDelete.includes(q.id));
+    state.saveQuizQuestions(remaining);
+    if (typeof quizState !== 'undefined' && quizState.selectedQuestionIds) {
+      idsToDelete.forEach(qId => quizState.selectedQuestionIds.delete(qId));
+    }
+    state.addLog('DELETE_QUIZ_BATCH', 'Hapus Soal Kuis Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} soal kuis yang ditandai.`);
+    showToast('Soal Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} soal kuis yang ditandai</strong> berhasil dihapus secara permanen.`, 'danger');
+    if (typeof renderQuizAdminQuestions === 'function') renderQuizAdminQuestions();
+    if (typeof quizState !== 'undefined' && quizState.activeTab === 'battle' && typeof startQuizBattle === 'function') {
+      startQuizBattle();
+    }
   }
 
   state.pendingDelete = null;
@@ -12215,7 +12522,1946 @@ function initTypingTest() {
 }
 
 // ==========================================
-// 15. INITIALIZATION
+// 15. QUIZ BATTLE: ULTRAMAN ICONNET VS MONSTER
+// ==========================================
+
+function escapeQuizHtml(str) {
+  if (str === null || str === undefined) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
+}
+
+function playBattleAudio(type) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const now = ctx.currentTime;
+
+    if (type === 'laser') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(880, now);
+      osc.frequency.exponentialRampToValueAtTime(110, now + 0.35);
+      gain.gain.setValueAtTime(0.18, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.35);
+    } else if (type === 'monster') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'square';
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(45, now + 0.4);
+      gain.gain.setValueAtTime(0.2, now);
+      gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(now);
+      osc.stop(now + 0.4);
+    } else if (type === 'ultimate') {
+      [523.25, 659.25, 783.99, 1046.50, 1318.51].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(freq, now + i * 0.08);
+        gain.gain.setValueAtTime(0.15, now + i * 0.08);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.08);
+        osc.stop(now + 1.2);
+      });
+    } else if (type === 'victory') {
+      [440, 554.37, 659.25, 880].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.1);
+        gain.gain.setValueAtTime(0.15, now + i * 0.1);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.9);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.1);
+        osc.stop(now + 0.9);
+      });
+    } else if (type === 'defeat') {
+      [330, 293.66, 261.63, 220].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.14);
+        gain.gain.setValueAtTime(0.16, now + i * 0.14);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 1.0);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(now + i * 0.14);
+        osc.stop(now + 1.0);
+      });
+    }
+  } catch (e) {
+    // Audio context may be restricted before user gesture - safely catch
+  }
+}
+
+const ULTRAMAN_ROSTER = [
+  {
+    id: 'iconnet',
+    name: 'ULTRAMAN ICONNET',
+    shortName: 'Iconnet',
+    tag: 'Hero 1:1',
+    title: 'Pelindung Kecepatan Sinar Fiber Optic',
+    image: 'assets/ultraman_iconnet.jpg',
+    beamName: 'Spacium Fiber Beam'
+  },
+  {
+    id: 'zero',
+    name: 'ULTRAMAN ZERO',
+    shortName: 'Zero',
+    tag: 'Cosmic Hero',
+    title: 'Pejuang Dimensi & Plasma Spark',
+    image: 'assets/ultraman_zero.jpg',
+    beamName: 'Wide Zero Shot'
+  },
+  {
+    id: 'tiga',
+    name: 'ULTRAMAN TIGA',
+    shortName: 'Tiga',
+    tag: 'Multi-Type',
+    title: 'Kekuatan Kuno Cahaya Keemasan',
+    image: 'assets/ultraman_tiga.jpg',
+    beamName: 'Zeperion Ray'
+  },
+  {
+    id: 'geed',
+    name: 'ULTRAMAN GEED',
+    shortName: 'Geed',
+    tag: 'Primitive',
+    title: 'Pengendali Energi Wrecking Burst',
+    image: 'assets/ultraman_geed.jpg',
+    beamName: 'Wrecking Burst'
+  },
+  {
+    id: 'orb',
+    name: 'ULTRAMAN ORB',
+    shortName: 'Orb',
+    tag: 'Orb Origin',
+    title: 'Pendekar Pedang Cahaya Kosmik',
+    image: 'assets/ultraman_orb.jpg',
+    beamName: 'Orb Supreme Calibur'
+  },
+  {
+    id: 'blazar',
+    name: 'ULTRAMAN BLAZAR',
+    shortName: 'Blazar',
+    tag: 'Spiral Hunter',
+    title: 'Pemburu Primal Spiral Star',
+    image: 'assets/ultraman_blazar.jpg',
+    beamName: 'Spiral Burred'
+  }
+];
+
+const MONSTER_ROSTER = [
+  {
+    id: 'giga_lag',
+    name: 'MONSTER GIGA LAG',
+    shortName: 'Giga Lag',
+    tag: 'Kaiju',
+    title: 'Perusak Latency & Pemutus Sinyal',
+    image: 'assets/monster_giga_lag.jpg',
+    attackName: 'Glitch Spike'
+  },
+  {
+    id: 'packet_loss',
+    name: 'MONSTER PACKET LOSS',
+    shortName: 'Packet Loss',
+    tag: 'Glitch Kaiju',
+    title: 'Penyerap Fragmentasi Paket Jaringan',
+    image: 'assets/monster_packet_loss.jpg',
+    attackName: 'Void Disruption'
+  },
+  {
+    id: 'ping_inferno',
+    name: 'MONSTER PING INFERNO',
+    shortName: 'Ping Inferno',
+    tag: 'Fire Kaiju',
+    title: 'Pemicu Overheat & Latensi Ekstrem',
+    image: 'assets/monster_ping_inferno.jpg',
+    attackName: 'Thermal Flare'
+  },
+  {
+    id: 'bandwidth_devourer',
+    name: 'BANDWIDTH DEVOURER',
+    shortName: 'Devourer',
+    tag: 'Abyssal Kaiju',
+    title: 'Pemangsa Kapasitas Bandwidth Fiber',
+    image: 'assets/monster_bandwidth_devourer.jpg',
+    attackName: 'Choke Stream'
+  },
+  {
+    id: 'cyber_glitch',
+    name: 'CYBER GLITCH MANTIS',
+    shortName: 'Cyber Mantis',
+    tag: 'Insectoid Kaiju',
+    title: 'Peretas Kode & Pemotong Sinyal Optik',
+    image: 'assets/monster_cyber_glitch.jpg',
+    attackName: 'Glitch Scythe'
+  },
+  {
+    id: 'latency_titan',
+    name: 'LATENCY TITAN',
+    shortName: 'Latency Titan',
+    tag: 'Golem Kaiju',
+    title: 'Raksasa Beban Jaringan & Buffer Bloat',
+    image: 'assets/monster_latency_titan.jpg',
+    attackName: 'Buffer Quake'
+  }
+];
+
+const quizState = {
+  activeTab: 'battle', // 'battle' | 'leaderboard' | 'adminBank'
+  selectedHeroId: 'iconnet',
+  selectedHero: null,
+  currentMonster: null,
+  questions: [],
+  currentIndex: 0,
+  score: 0,
+  correctCount: 0,
+  wrongCount: 0,
+  streak: 0,
+  maxStreak: 0,
+  ultramanHp: 100,
+  monsterHp: 100,
+  answered: false,
+  userAnswers: [],
+  startTime: null,
+  endTime: null,
+  adminSearch: '',
+  adminCategory: 'ALL',
+  selectedQuestionIds: new Set(),
+  editingQuestionId: null,
+  historyFilterUser: 'ALL',
+  historyFilterOutcome: 'ALL',
+  historySearch: '',
+  specialAnimTimer: null,
+  specialAnimCallback: null
+};
+
+function getSelectedQuizHero() {
+  const savedId = (function() {
+    try {
+      return localStorage.getItem('quiz_selected_hero');
+    } catch(e) {
+      return null;
+    }
+  })() || quizState.selectedHeroId || 'iconnet';
+  const found = ULTRAMAN_ROSTER.find(h => h.id === savedId);
+  return found || ULTRAMAN_ROSTER[0];
+}
+
+function selectQuizHero(heroId, isSilent = false) {
+  const hero = ULTRAMAN_ROSTER.find(h => h.id === heroId) || ULTRAMAN_ROSTER[0];
+  quizState.selectedHeroId = hero.id;
+  quizState.selectedHero = hero;
+  try {
+    localStorage.setItem('quiz_selected_hero', hero.id);
+  } catch (e) {}
+
+  // Update Dropdown Element
+  const dropdown = document.getElementById('selectQuizHero');
+  if (dropdown && dropdown.value !== hero.id) {
+    dropdown.value = hero.id;
+  }
+
+  const heroImg = document.getElementById('avatarUltraman');
+  if (heroImg) {
+    heroImg.src = hero.image;
+    heroImg.alt = hero.name;
+  }
+
+  const heroNameEl = document.querySelector('#cardUltramanHero .fighter-name');
+  if (heroNameEl) heroNameEl.textContent = hero.name;
+
+  const heroTitleEl = document.querySelector('#cardUltramanHero .fighter-title');
+  if (heroTitleEl) heroTitleEl.textContent = hero.title;
+
+  const heroTagEl = document.querySelector('#cardUltramanHero .fighter-type-tag');
+  if (heroTagEl) heroTagEl.textContent = hero.tag;
+
+  // Outcome cutscene hero actor
+  const animHeroImg = document.getElementById('animHeroImg');
+  if (animHeroImg) {
+    animHeroImg.src = hero.image;
+    animHeroImg.alt = hero.name;
+  }
+
+  if (!isSilent) {
+    showToast('Karakter Ultraman Dipilih', `${hero.name} siap bertarung!`, 'info');
+  }
+}
+
+function renderHeroSelector() {
+  const dropdown = document.getElementById('selectQuizHero');
+  if (!dropdown) return;
+
+  const currentHero = quizState.selectedHero || getSelectedQuizHero();
+
+  dropdown.innerHTML = ULTRAMAN_ROSTER.map(hero => `
+    <option value="${hero.id}">${hero.name} (${hero.tag})</option>
+  `).join('');
+
+  dropdown.value = currentHero.id;
+
+  if (!dropdown.dataset.bound) {
+    dropdown.addEventListener('change', (e) => {
+      selectQuizHero(e.target.value);
+    });
+    dropdown.dataset.bound = 'true';
+  }
+}
+
+function switchQuizTab(tabName) {
+  if (tabName === 'adminBank' && !state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang dapat mengelola bank soal kuis.', 'warning');
+    tabName = 'battle';
+  }
+
+  quizState.activeTab = tabName;
+
+  const btnBattle = document.getElementById('btnTabQuizBattle');
+  const btnLeaderboard = document.getElementById('btnTabQuizLeaderboard');
+  const btnAdminBank = document.getElementById('btnTabQuizAdminBank');
+
+  const secBattle = document.getElementById('quizTabBattleSection');
+  const secLeaderboard = document.getElementById('quizTabLeaderboardSection');
+  const secAdminBank = document.getElementById('quizTabAdminBankSection');
+
+  if (btnBattle) {
+    btnBattle.className = tabName === 'battle' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-gray';
+  }
+  if (btnLeaderboard) {
+    btnLeaderboard.className = tabName === 'leaderboard' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-gray';
+  }
+  if (btnAdminBank) {
+    btnAdminBank.className = tabName === 'adminBank' ? 'btn btn-sm btn-primary' : 'btn btn-sm btn-outline-gray';
+  }
+
+  if (secBattle) secBattle.classList.toggle('hidden', tabName !== 'battle');
+  if (secLeaderboard) secLeaderboard.classList.toggle('hidden', tabName !== 'leaderboard');
+  if (secAdminBank) secAdminBank.classList.toggle('hidden', tabName !== 'adminBank');
+
+  if (tabName === 'leaderboard') {
+    renderQuizLeaderboard();
+  } else if (tabName === 'adminBank') {
+    renderQuizAdminQuestions();
+  }
+}
+
+function renderQuizPage() {
+  const isAdmin = state.isAdmin();
+  const quizPermissionBanner = document.getElementById('quizPermissionBanner');
+  const quizBannerRoleLabel = document.getElementById('quizBannerRoleLabel');
+  const quizBannerRoleDesc = document.getElementById('quizBannerRoleDesc');
+  const quizBannerBadgePrivilege = document.getElementById('quizBannerBadgePrivilege');
+  const btnTabQuizAdminBank = document.getElementById('btnTabQuizAdminBank');
+  const btnOpenAdd = document.getElementById('btnOpenAddQuestionModal');
+  const quizTitleThemeSuffix = document.getElementById('quizTitleThemeSuffix');
+  const quizPageDesc = document.getElementById('quizPageDesc');
+
+  // 1. Suffix ": Ultraman Iconnet vs Monster" hidden pada user & admin
+  if (quizTitleThemeSuffix) {
+    quizTitleThemeSuffix.classList.add('hidden');
+  }
+
+  // 2. Deskripsi kuis bertema hidden pada user & admin
+  if (quizPageDesc) {
+    quizPageDesc.classList.add('hidden');
+  }
+
+  // 3. Tab "Kelola Bank Soal" hidden pada user
+  if (btnTabQuizAdminBank) {
+    btnTabQuizAdminBank.classList.toggle('hidden', !isAdmin);
+  }
+  if (btnOpenAdd) {
+    btnOpenAdd.classList.toggle('hidden', !isAdmin);
+  }
+
+  // 4. Banner "Otoritas Akses Kuis..." hidden pada user & admin
+  if (quizPermissionBanner) {
+    quizPermissionBanner.classList.add('hidden');
+  }
+
+  if (quizState.activeTab === 'adminBank' && !isAdmin) {
+    quizState.activeTab = 'battle';
+  }
+
+  switchQuizTab(quizState.activeTab);
+
+  renderHeroSelector();
+
+  if (quizState.activeTab === 'battle' && (!quizState.questions || quizState.questions.length === 0)) {
+    startQuizBattle();
+  }
+}
+
+function startQuizBattle() {
+  const bank = state.getQuizQuestions();
+  if (!bank || bank.length === 0) {
+    state.saveQuizQuestions(DEFAULT_QUIZ_QUESTIONS);
+    quizState.questions = [...DEFAULT_QUIZ_QUESTIONS];
+  } else {
+    quizState.questions = [...bank];
+  }
+
+  // Randomize Monster Kaiju from roster
+  const randomMonster = MONSTER_ROSTER[Math.floor(Math.random() * MONSTER_ROSTER.length)];
+  quizState.currentMonster = randomMonster;
+
+  // Apply selected Ultraman Hero
+  const hero = getSelectedQuizHero();
+  selectQuizHero(hero.id, true);
+
+  // Update monster in arena
+  const monsterImg = document.getElementById('avatarMonster');
+  if (monsterImg) {
+    monsterImg.src = randomMonster.image;
+    monsterImg.alt = randomMonster.name;
+  }
+  const monsterNameEl = document.querySelector('#cardMonsterEnemy .fighter-name');
+  if (monsterNameEl) monsterNameEl.textContent = randomMonster.name;
+  const monsterTitleEl = document.querySelector('#cardMonsterEnemy .fighter-title');
+  if (monsterTitleEl) monsterTitleEl.textContent = randomMonster.title;
+  const monsterTagEl = document.querySelector('#cardMonsterEnemy .fighter-type-tag');
+  if (monsterTagEl) monsterTagEl.textContent = randomMonster.tag;
+
+  // Outcome cutscene monster actor
+  const animMonsterImg = document.getElementById('animMonsterImg');
+  if (animMonsterImg) {
+    animMonsterImg.src = randomMonster.image;
+    animMonsterImg.alt = randomMonster.name;
+  }
+
+  quizState.currentIndex = 0;
+  quizState.score = 0;
+  quizState.correctCount = 0;
+  quizState.wrongCount = 0;
+  quizState.streak = 0;
+  quizState.maxStreak = 0;
+  quizState.ultramanHp = 100;
+  quizState.monsterHp = 100;
+  quizState.answered = false;
+  quizState.userAnswers = [];
+  quizState.startTime = Date.now();
+  quizState.endTime = null;
+
+  updateBattleHpDisplay();
+
+  // Hidden initially per user request: "Monster Giga Lag terdeteksi mengganggu kestabilan jaringan! Pilih jawaban tepat (A-E) untuk menyerang!"
+  const bubble = document.getElementById('battleAnnouncer');
+  const txt = document.getElementById('battleAnnouncerText');
+  if (txt) txt.textContent = '';
+  if (bubble) bubble.className = 'battle-announcer-bubble hidden';
+
+  renderHeroSelector();
+  renderCurrentQuizQuestion();
+}
+
+function updateBattleHpDisplay() {
+  const heroBar = document.getElementById('ultramanHpBar');
+  const heroLabel = document.getElementById('ultramanHpLabel');
+  const heroTimer = document.getElementById('ultramanColorTimer');
+  const monsterBar = document.getElementById('monsterHpBar');
+  const monsterLabel = document.getElementById('monsterHpLabel');
+
+  const uHp = Math.max(0, Math.min(100, Math.round(quizState.ultramanHp)));
+  const mHp = Math.max(0, Math.min(100, Math.round(quizState.monsterHp)));
+
+  if (heroBar) heroBar.style.width = uHp + '%';
+  if (heroLabel) heroLabel.textContent = `${uHp} / 100 HP`;
+
+  if (monsterBar) monsterBar.style.width = mHp + '%';
+  if (monsterLabel) monsterLabel.textContent = `${mHp} / 100 HP`;
+
+  if (heroTimer) {
+    if (uHp <= 35) {
+      heroTimer.classList.add('blinking-red');
+    } else {
+      heroTimer.classList.remove('blinking-red');
+    }
+  }
+}
+
+function setBattleAnnouncer(text, type = 'neutral') {
+  const bubble = document.getElementById('battleAnnouncer');
+  const txt = document.getElementById('battleAnnouncerText');
+  if (txt) txt.textContent = text;
+  if (bubble) {
+    bubble.className = 'battle-announcer-bubble ' + (type === 'hero' ? 'announcer-hero' : type === 'monster' ? 'announcer-monster' : '');
+  }
+}
+
+function triggerHeroAttackFx(damage) {
+  playBattleAudio('laser');
+  const beam = document.getElementById('spaciumBeamFx');
+  const monsterCard = document.getElementById('cardMonsterEnemy');
+  const monsterDamageFloat = document.getElementById('monsterDamageFloat');
+
+  if (beam) {
+    beam.classList.remove('hidden');
+    beam.classList.remove('firing');
+    void beam.offsetWidth;
+    beam.classList.add('firing');
+    setTimeout(() => beam.classList.add('hidden'), 700);
+  }
+
+  if (monsterDamageFloat) {
+    monsterDamageFloat.textContent = '';
+    monsterDamageFloat.className = 'floating-damage-box hidden';
+  }
+
+  if (monsterCard) {
+    setTimeout(() => {
+      monsterCard.classList.add('card-hit-shake');
+      setTimeout(() => monsterCard.classList.remove('card-hit-shake'), 400);
+    }, 250);
+  }
+}
+
+function triggerMonsterAttackFx(damage) {
+  playBattleAudio('monster');
+  const strike = document.getElementById('monsterStrikeFx');
+  const heroCard = document.getElementById('cardUltramanHero');
+  const heroDamageFloat = document.getElementById('ultramanDamageFloat');
+
+  if (strike) {
+    strike.classList.remove('hidden');
+    strike.classList.remove('firing');
+    void strike.offsetWidth;
+    strike.classList.add('firing');
+    setTimeout(() => strike.classList.add('hidden'), 700);
+  }
+
+  if (heroDamageFloat) {
+    heroDamageFloat.textContent = '';
+    heroDamageFloat.className = 'floating-damage-box hidden';
+  }
+
+  if (heroCard) {
+    setTimeout(() => {
+      heroCard.classList.add('card-hit-shake');
+      setTimeout(() => heroCard.classList.remove('card-hit-shake'), 400);
+    }, 250);
+  }
+}
+
+function renderCurrentQuizQuestion() {
+  const total = quizState.questions.length;
+  const curr = quizState.currentIndex;
+  quizState.answered = false;
+
+  const q = quizState.questions[curr];
+  if (!q) {
+    triggerQuizFinishWithSpecialAnim();
+    return;
+  }
+
+  const progressText = document.getElementById('quizProgressText');
+  const liveScoreText = document.getElementById('quizLiveScoreText');
+  const streakText = document.getElementById('quizStreakText');
+  const categoryBadge = document.getElementById('quizQuestionCategory');
+  const pointBadge = document.getElementById('quizQuestionPointBadge');
+  const progressFill = document.getElementById('quizQuestionProgressFill');
+  const promptEl = document.getElementById('quizQuestionPrompt');
+  const feedbackBox = document.getElementById('quizFeedbackBox');
+
+  if (progressText) progressText.textContent = `${curr + 1} / ${total}`;
+  if (liveScoreText) liveScoreText.textContent = `${quizState.score} Poin`;
+  if (streakText) streakText.textContent = `${quizState.streak}x`;
+  let catIcon = 'fa-circle-info';
+  let catColor = 'text-cyan';
+  if (q.category === 'Keluhan') {
+    catIcon = 'fa-comments';
+    catColor = 'text-yellow';
+  } else if (q.category === 'Gangguan') {
+    catIcon = 'fa-triangle-exclamation';
+    catColor = 'text-red';
+  }
+  if (categoryBadge) categoryBadge.innerHTML = `<i class="fa-solid ${catIcon} ${catColor}"></i> ${escapeQuizHtml(q.category || 'Informasi')}`;
+  
+  const pointsPerQuestion = Math.round(100 / total);
+  if (pointBadge) pointBadge.innerHTML = `<i class="fa-solid fa-star text-yellow"></i> +${pointsPerQuestion} Poin`;
+
+  if (progressFill) {
+    const pct = Math.round(((curr) / total) * 100);
+    progressFill.style.width = pct + '%';
+  }
+
+  if (promptEl) promptEl.textContent = q.prompt;
+
+  // 5 Choices A, B, C, D, E
+  const choices = ['A', 'B', 'C', 'D', 'E'];
+  choices.forEach(ch => {
+    const btn = document.getElementById('btnOption' + ch);
+    const txt = document.getElementById('textOption' + ch);
+    if (btn && txt) {
+      btn.className = 'quiz-option-btn';
+      btn.disabled = false;
+      txt.textContent = (q.options && q.options[ch]) ? q.options[ch] : '-';
+      const icon = btn.querySelector('.option-feedback-icon');
+      if (icon) icon.className = 'option-feedback-icon fa-solid';
+    }
+  });
+
+  if (feedbackBox) feedbackBox.classList.add('hidden');
+}
+
+function handleSelectQuizOption(choice) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+
+  const total = quizState.questions.length;
+  const curr = quizState.currentIndex;
+  const q = quizState.questions[curr];
+  const isCorrect = (choice === q.correctAnswer);
+
+  const pointsPerQuestion = Math.round(100 / total);
+  const damagePerQuestion = 100 / total;
+
+  // 5 Choices A, B, C, D, E feedback
+  const choices = ['A', 'B', 'C', 'D', 'E'];
+  choices.forEach(ch => {
+    const btn = document.getElementById('btnOption' + ch);
+    if (btn) {
+      btn.disabled = true;
+      const icon = btn.querySelector('.option-feedback-icon');
+      if (ch === q.correctAnswer) {
+        btn.classList.add('selected-correct');
+        if (icon) icon.className = 'option-feedback-icon fa-solid fa-circle-check text-green';
+      } else if (ch === choice && !isCorrect) {
+        btn.classList.add('selected-wrong');
+        if (icon) icon.className = 'option-feedback-icon fa-solid fa-circle-xmark text-red';
+      }
+    }
+  });
+
+  const currentHero = quizState.selectedHero || getSelectedQuizHero();
+  const currentMonster = quizState.currentMonster || MONSTER_ROSTER[0];
+  const heroBeam = currentHero.beamName || 'Spacium Beam';
+  const monsterAttack = currentMonster.attackName || 'Serangan Monster';
+
+  if (isCorrect) {
+    quizState.correctCount++;
+    quizState.score += pointsPerQuestion;
+    quizState.streak++;
+    if (quizState.streak > quizState.maxStreak) quizState.maxStreak = quizState.streak;
+    quizState.monsterHp = Math.max(0, quizState.monsterHp - damagePerQuestion);
+
+    triggerHeroAttackFx(damagePerQuestion);
+    setBattleAnnouncer(`SERANGAN TELAK! ${heroBeam} ${currentHero.name} melumpuhkan ${currentMonster.name}!`, 'hero');
+  } else {
+    quizState.wrongCount++;
+    quizState.streak = 0;
+    quizState.ultramanHp = Math.max(0, quizState.ultramanHp - damagePerQuestion);
+
+    triggerMonsterAttackFx(damagePerQuestion);
+    setBattleAnnouncer(`WASPADA! ${currentMonster.name} melancarkan ${monsterAttack} ke ${currentHero.name}!`, 'monster');
+  }
+
+  updateBattleHpDisplay();
+
+  quizState.userAnswers.push({
+    question: q,
+    userChoice: choice,
+    isCorrect,
+    pointsEarned: isCorrect ? pointsPerQuestion : 0
+  });
+
+  const feedbackBox = document.getElementById('quizFeedbackBox');
+  const feedbackBadge = document.getElementById('quizFeedbackBadge');
+  const feedbackDamage = document.getElementById('quizFeedbackDamage');
+  const feedbackExplanation = document.getElementById('quizFeedbackExplanation');
+  const btnNext = document.getElementById('btnNextQuestion');
+
+  if (feedbackBadge) {
+    feedbackBadge.className = isCorrect ? 'feedback-badge feedback-badge-success' : 'feedback-badge feedback-badge-danger';
+    feedbackBadge.innerHTML = isCorrect ? '<i class="fa-solid fa-circle-check"></i> Jawaban Tepat!' : '<i class="fa-solid fa-circle-xmark"></i> Jawaban Kurang Tepat';
+  }
+  if (feedbackDamage) {
+    feedbackDamage.className = isCorrect ? 'feedback-damage-text text-green' : 'feedback-damage-text text-red';
+    feedbackDamage.textContent = isCorrect ? `+${pointsPerQuestion} Poin Serangan • Combo ${quizState.streak}x` : `Kunci Jawaban: Pilihan ${q.correctAnswer}`;
+  }
+  if (feedbackExplanation) {
+    feedbackExplanation.textContent = q.explanation || 'Materi ini merupakan bagian dari standar mutu pelayanan ICONNET.';
+  }
+  if (btnNext) {
+    const isLast = (curr + 1 >= total);
+    btnNext.innerHTML = isLast ? 
+      '<span>Lihat Animasi &amp; Nilai Akhir</span> <i class="fa-solid fa-trophy text-yellow"></i>' : 
+      '<span>Lanjut ke Soal Berikutnya</span> <i class="fa-solid fa-arrow-right"></i>';
+  }
+  if (feedbackBox) feedbackBox.classList.remove('hidden');
+
+  const liveScoreText = document.getElementById('quizLiveScoreText');
+  const streakText = document.getElementById('quizStreakText');
+  if (liveScoreText) liveScoreText.textContent = `${quizState.score} Poin`;
+  if (streakText) streakText.textContent = `${quizState.streak}x`;
+
+  // Begitu selesai mengerjakan seluruh soal, otomatis keluarkan animasi special sesuai ketentuan nilai
+  if (curr + 1 >= total) {
+    setTimeout(() => {
+      const modal = document.getElementById('modalQuizResult');
+      const overlay = document.getElementById('quizSpecialAnimOverlay');
+      if (modal && modal.classList.contains('hidden') && 
+          overlay && overlay.classList.contains('hidden') && 
+          quizState.answered && quizState.currentIndex + 1 >= total) {
+        triggerQuizFinishWithSpecialAnim();
+      }
+    }, 1400);
+  }
+}
+
+function nextQuizQuestion() {
+  const total = quizState.questions.length;
+  if (quizState.currentIndex + 1 >= total) {
+    triggerQuizFinishWithSpecialAnim();
+  } else {
+    quizState.currentIndex++;
+    renderCurrentQuizQuestion();
+  }
+}
+
+// Menjalankan animasi special sesuai ketentuan nilai:
+// - Nilai di bawah 85: KALAH (animasi kekalahan Ultraman dan raungan monster)
+// - Nilai di atas 85: MENANG (animasi Spacium Beam menumbangkan monster)
+// - Nilai 100: SEMPURNA dengan mengeluarkan JURUS ULTIMATE (animasi kosmik pamungkas)
+function triggerQuizFinishWithSpecialAnim() {
+  const total = quizState.questions.length || 1;
+  const rawScore = (quizState.correctCount / total) * 100;
+  const finalScore = Math.round(rawScore);
+  const outcome = (finalScore === 100 ? 'ultimate' : (finalScore >= 85 ? 'menang' : 'kalah'));
+
+  playSpecialOutcomeAnimation(outcome, finalScore, () => {
+    finishQuizBattle(outcome, finalScore);
+  });
+}
+
+function playSpecialOutcomeAnimation(outcome, finalScore, onFinish) {
+  const overlay = document.getElementById('quizSpecialAnimOverlay');
+  if (!overlay) {
+    if (typeof onFinish === 'function') onFinish();
+    return;
+  }
+
+  if (quizState.specialAnimTimer) {
+    clearTimeout(quizState.specialAnimTimer);
+    quizState.specialAnimTimer = null;
+  }
+  quizState.specialAnimCallback = onFinish;
+
+  overlay.classList.remove('anim-state-defeat', 'anim-state-victory', 'anim-state-ultimate', 'hidden');
+
+  const eventBadge = document.getElementById('animEventBadge');
+  const badgeText = document.getElementById('animEventBadgeText');
+  const headline = document.getElementById('animHeadline');
+  const subhead = document.getElementById('animSubhead');
+  const detail = document.getElementById('animDetail');
+  const scoreCard = document.getElementById('animScoreCard');
+  const announcementBox = document.getElementById('animAnnouncementBox');
+  const centerClash = document.getElementById('animCenterClash');
+  const vsBadge = document.getElementById('animVsBadge');
+  const monsterFighter = document.getElementById('animFighterMonster');
+  const heroFighter = document.getElementById('animFighterHero');
+  const heroLabel = document.querySelector('#animFighterHero .anim-fighter-label');
+  const monsterLabel = document.querySelector('#animFighterMonster .anim-fighter-label');
+
+  const hero = quizState.selectedHero || getSelectedQuizHero();
+  const monster = quizState.currentMonster || MONSTER_ROSTER[0];
+
+  const animHeroImg = document.getElementById('animHeroImg');
+  if (animHeroImg) {
+    animHeroImg.src = hero.image;
+    animHeroImg.alt = hero.name;
+  }
+
+  const animMonsterImg = document.getElementById('animMonsterImg');
+  if (animMonsterImg) {
+    animMonsterImg.src = monster.image;
+    animMonsterImg.alt = monster.name;
+  }
+
+  if (outcome === 'ultimate') {
+    overlay.classList.add('anim-state-ultimate');
+    // 1. Hidden badge atas
+    if (eventBadge) eventBadge.classList.add('hidden');
+
+    // 2. Hapus gambar "VS", center clash, dan monster
+    if (vsBadge) vsBadge.classList.add('hidden');
+    if (centerClash) centerClash.classList.add('hidden');
+    if (monsterFighter) monsterFighter.classList.add('hidden');
+
+    // 3. Hapus kotak "ULTIMATE Sempurna 100" & announcement box
+    if (scoreCard) scoreCard.classList.add('hidden');
+    if (announcementBox) announcementBox.classList.add('hidden');
+    if (subhead) subhead.classList.add('hidden');
+    if (detail) detail.classList.add('hidden');
+
+    // 4. Cukup hanya tampilkan animasi Ultraman bertuliskan "ULTIMATE" warna biru font petir
+    if (heroFighter) heroFighter.classList.remove('hidden');
+    if (heroLabel) {
+      heroLabel.className = 'anim-fighter-label text-lightning-blue ultimate-standalone-label';
+      heroLabel.innerHTML = '<i class="fa-solid fa-bolt-lightning"></i> ULTIMATE <i class="fa-solid fa-bolt-lightning"></i>';
+    }
+    if (monsterLabel) {
+      monsterLabel.className = 'anim-fighter-label';
+      monsterLabel.textContent = monster.name;
+    }
+    playBattleAudio('ultimate');
+  } else if (outcome === 'menang') {
+    overlay.classList.add('anim-state-victory');
+    // 1. Hidden badge atas
+    if (eventBadge) eventBadge.classList.add('hidden');
+
+    // 2. Hapus gambar "VS", center clash, dan MONSTER GIGA LAG
+    if (vsBadge) vsBadge.classList.add('hidden');
+    if (centerClash) centerClash.classList.add('hidden');
+    if (monsterFighter) monsterFighter.classList.add('hidden');
+
+    // 3. Hapus kotak "MONSTER GIGA LAG", score card & announcement box
+    if (scoreCard) scoreCard.classList.add('hidden');
+    if (announcementBox) announcementBox.classList.add('hidden');
+    if (subhead) subhead.classList.add('hidden');
+    if (detail) detail.classList.add('hidden');
+
+    // 4. Cukup hanya tampilkan animasi ULTRAMAN bertuliskan "MENANG" warna hijau font aurora
+    if (heroFighter) heroFighter.classList.remove('hidden');
+    if (heroLabel) {
+      heroLabel.className = 'anim-fighter-label text-aurora-green victory-standalone-label';
+      heroLabel.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> MENANG <i class="fa-solid fa-wand-magic-sparkles"></i>';
+    }
+    if (monsterLabel) {
+      monsterLabel.className = 'anim-fighter-label';
+      monsterLabel.textContent = monster.name;
+    }
+    playBattleAudio('victory');
+  } else {
+    overlay.classList.add('anim-state-defeat');
+    // 1. Hidden badge atas
+    if (eventBadge) eventBadge.classList.add('hidden');
+
+    // 2. Hapus gambar "VS", center clash, dan Ultraman
+    if (vsBadge) vsBadge.classList.add('hidden');
+    if (centerClash) centerClash.classList.add('hidden');
+    if (heroFighter) heroFighter.classList.add('hidden');
+
+    // 3. Hapus kotak "kalah" & announcement box
+    if (scoreCard) scoreCard.classList.add('hidden');
+    if (announcementBox) announcementBox.classList.add('hidden');
+    if (subhead) subhead.classList.add('hidden');
+    if (detail) detail.classList.add('hidden');
+
+    // 4. Cukup hanya tampilkan animasi MONSTER bertuliskan "Kalah" warna merah font api
+    if (monsterFighter) monsterFighter.classList.remove('hidden');
+    if (monsterLabel) {
+      monsterLabel.className = 'anim-fighter-label text-fire-red defeat-standalone-label';
+      monsterLabel.innerHTML = '<i class="fa-solid fa-fire"></i> Kalah <i class="fa-solid fa-fire"></i>';
+    }
+    if (heroLabel) {
+      heroLabel.textContent = hero.name;
+      heroLabel.className = 'anim-fighter-label';
+    }
+    playBattleAudio('defeat');
+  }
+
+  // Otomatis tutup animasi dan buka dialog hasil setelah 4.2 detik
+  quizState.specialAnimTimer = setTimeout(() => {
+    dismissSpecialOutcomeAnimation();
+  }, 4200);
+}
+
+function dismissSpecialOutcomeAnimation() {
+  if (quizState.specialAnimTimer) {
+    clearTimeout(quizState.specialAnimTimer);
+    quizState.specialAnimTimer = null;
+  }
+  const overlay = document.getElementById('quizSpecialAnimOverlay');
+  if (overlay) overlay.classList.add('hidden');
+
+  const cb = quizState.specialAnimCallback;
+  quizState.specialAnimCallback = null;
+  if (typeof cb === 'function') {
+    cb();
+  }
+}
+
+function finishQuizBattle(resolvedOutcome, resolvedScore) {
+  quizState.endTime = Date.now();
+  const total = quizState.questions.length || 1;
+  const rawScore = (quizState.correctCount / total) * 100;
+  const finalScore = (resolvedScore !== undefined ? resolvedScore : Math.round(rawScore));
+  const durationSec = Math.round((quizState.endTime - (quizState.startTime || quizState.endTime)) / 1000);
+  const durationStr = `${String(Math.floor(durationSec / 60)).padStart(2, '0')}:${String(durationSec % 60).padStart(2, '0')}`;
+
+  let outcome = resolvedOutcome;
+  if (!outcome) {
+    if (finalScore === 100) {
+      outcome = 'ultimate';
+    } else if (finalScore >= 85) {
+      outcome = 'menang';
+    } else {
+      outcome = 'kalah';
+    }
+  }
+
+  let monsterStatus = 'Masih Mendominasi Jaringan';
+  if (outcome === 'ultimate') {
+    monsterStatus = 'Lenyap Tereliminasi Total (Jurus Ultimate)';
+  } else if (outcome === 'menang') {
+    monsterStatus = 'Tumbang Terkalahkan (Spacium Beam)';
+  } else {
+    monsterStatus = 'Masih Bertahan (Ultraman Kehabisan Energi)';
+  }
+
+  const modal = document.getElementById('modalQuizResult');
+  const resultHeader = document.getElementById('quizResultHeader');
+  const resultTitle = document.getElementById('quizResultTitle');
+  const outcomeBadge = document.getElementById('quizResultOutcomeBadge');
+  const outcomeDesc = document.getElementById('quizResultOutcomeDesc');
+  const ultimateBanner = document.getElementById('quizUltimateBanner');
+  const scoreCard = document.getElementById('quizResultScoreCard');
+  const monsterStatItem = document.getElementById('resultStatItemMonster');
+  const durationStatItem = document.getElementById('resultStatItemDuration');
+  const correctCountEl = document.getElementById('quizResultCorrectCount');
+  const wrongCountEl = document.getElementById('quizResultWrongCount');
+  const durationEl = document.getElementById('quizResultDuration');
+  const monsterStatusEl = document.getElementById('quizResultMonsterStatus');
+  const reviewCountBadge = document.getElementById('quizReviewCountBadge');
+  const reviewList = document.getElementById('quizReviewList');
+
+  if (correctCountEl) correctCountEl.textContent = `${quizState.correctCount} Soal`;
+  if (wrongCountEl) wrongCountEl.textContent = `${quizState.wrongCount} Soal`;
+  if (durationEl) durationEl.textContent = durationStr;
+  if (monsterStatusEl) monsterStatusEl.textContent = monsterStatus;
+  if (reviewCountBadge) reviewCountBadge.textContent = `${total} Soal Dievaluasi`;
+
+  if (outcome === 'ultimate') {
+    // 1. Hidden "SEMPURNA 100% • JURUS ULTIMATE AKTIF!"
+    if (outcomeBadge) outcomeBadge.classList.add('hidden');
+    // 2. Hidden "Pertarungan Selesai!"
+    if (resultTitle) resultTitle.classList.add('hidden');
+    // 3. Hidden "Sensasional! Seluruh soal kuis dijawab sempurna..."
+    if (outcomeDesc) outcomeDesc.classList.add('hidden');
+    if (resultHeader) resultHeader.classList.add('header-ultimate-clean');
+
+    // 4. Hidden kotak "jurus pamungkas aktif"
+    if (ultimateBanner) ultimateBanner.classList.add('hidden');
+
+    // 5. Hidden "Dampak Monster: Lenyap Tereliminasi Total (Jurus Ultimate)"
+    if (monsterStatItem) monsterStatItem.classList.add('hidden');
+    if (durationStatItem) durationStatItem.classList.add('result-stat-item-full');
+
+    // 6. Ubah "100 NILAI AKHIR 🌟 KINERJA SEMPURNA (100)" dengan "ULTIMATE 100" dengan tanda petir
+    if (scoreCard) {
+      scoreCard.className = 'result-score-circle-card card-ultimate';
+      scoreCard.innerHTML = `
+        <div class="score-circle-ultimate-lightning">
+          <div class="ultimate-lightning-text">
+            <i class="fa-solid fa-bolt-lightning text-yellow"></i> ULTIMATE 100 <i class="fa-solid fa-bolt-lightning text-yellow"></i>
+          </div>
+        </div>
+      `;
+    }
+  } else if (outcome === 'menang') {
+    // 1. Hidden "MENANG • MONSTER BERHASIL DIKALAHKAN!"
+    if (outcomeBadge) outcomeBadge.classList.add('hidden');
+
+    // 2. Hidden "Pertarungan Selesai!"
+    if (resultTitle) resultTitle.classList.add('hidden');
+
+    // 3. Hidden "Hebat! Anda memperoleh nilai ... (di atas standar 85)..."
+    if (outcomeDesc) outcomeDesc.classList.add('hidden');
+    if (resultHeader) resultHeader.classList.add('header-ultimate-clean');
+
+    if (ultimateBanner) ultimateBanner.classList.add('hidden');
+
+    // 4. Hidden "Dampak Monster: Tumbang Terkalahkan (Spacium Beam)"
+    if (monsterStatItem) monsterStatItem.classList.add('hidden');
+    if (durationStatItem) durationStatItem.classList.add('result-stat-item-full');
+
+    // 5. Kotak warna hijau dengan nilai berwarna hijau dan tanda aurora
+    if (scoreCard) {
+      scoreCard.className = 'result-score-circle-card card-victory';
+      scoreCard.innerHTML = `
+        <div class="score-circle-victory-aurora">
+          <div class="victory-aurora-text">
+            <i class="fa-solid fa-wand-magic-sparkles text-green"></i> ${finalScore} <i class="fa-solid fa-wand-magic-sparkles text-green"></i>
+          </div>
+        </div>
+      `;
+    }
+  } else {
+    // 1. Hidden "KALAH • GAGAL MENGALAHKAN MONSTER"
+    if (outcomeBadge) outcomeBadge.classList.add('hidden');
+
+    // 2. Hidden "Pertarungan Selesai!"
+    if (resultTitle) resultTitle.classList.add('hidden');
+
+    // 3. Hidden "Energi Ultraman Iconnet habis! Nilai Anda adalah ... Monster Giga Lag masih mengganggu jaringan..."
+    if (outcomeDesc) outcomeDesc.classList.add('hidden');
+    if (resultHeader) resultHeader.classList.add('header-ultimate-clean');
+
+    if (ultimateBanner) ultimateBanner.classList.add('hidden');
+
+    // 4. Hidden "Dampak Monster: Masih Bertahan (Ultraman Kehabisan Energi)"
+    if (monsterStatItem) monsterStatItem.classList.add('hidden');
+    if (durationStatItem) durationStatItem.classList.add('result-stat-item-full');
+
+    // 5. Kotak warna merah dengan nilai berwarna merah dan tanda api
+    if (scoreCard) {
+      scoreCard.className = 'result-score-circle-card card-defeat';
+      scoreCard.innerHTML = `
+        <div class="score-circle-defeat-fire">
+          <div class="defeat-fire-text">
+            <i class="fa-solid fa-fire text-red"></i> ${finalScore} <i class="fa-solid fa-fire text-red"></i>
+          </div>
+        </div>
+      `;
+    }
+  }
+
+  if (reviewList) {
+    reviewList.innerHTML = quizState.userAnswers.map((ans, idx) => {
+      const q = ans.question;
+      const isOk = ans.isCorrect;
+      const uChoice = ans.userChoice;
+      const cChoice = q.correctAnswer;
+      return `
+        <div class="review-item glass-subpanel ${isOk ? 'review-correct' : 'review-wrong'}">
+          <div class="review-item-header">
+            <span class="badge ${isOk ? 'badge-green' : 'badge-red'}">
+              ${isOk ? '<i class="fa-solid fa-check"></i> Soal ' + (idx + 1) + ' Benar' : '<i class="fa-solid fa-xmark"></i> Soal ' + (idx + 1) + ' Salah'}
+            </span>
+            <span class="review-category-tag">${escapeQuizHtml(q.category || 'Materi ICONNET')}</span>
+          </div>
+          <p class="review-prompt"><strong>${idx + 1}.</strong> ${escapeQuizHtml(q.prompt)}</p>
+          <div class="review-choices-compare">
+            <div class="choice-tag ${isOk ? 'tag-correct' : 'tag-wrong'}">
+              <span>Jawaban Anda:</span>
+              <strong>(${uChoice}) ${escapeQuizHtml((q.options && q.options[uChoice]) || '-')}</strong>
+            </div>
+            ${!isOk ? `
+              <div class="choice-tag tag-key">
+                <span>Kunci Jawaban:</span>
+                <strong>(${cChoice}) ${escapeQuizHtml((q.options && q.options[cChoice]) || '-')}</strong>
+              </div>
+            ` : ''}
+          </div>
+          ${q.explanation ? `
+            <div class="review-explanation-box">
+              <i class="fa-solid fa-lightbulb text-yellow"></i>
+              <div>
+                <strong>Pembahasan:</strong>
+                <span>${escapeQuizHtml(q.explanation)}</span>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  const currentUser = state.currentUser || { id: 'U-GUEST', fullName: 'Peserta Tamu', username: 'guest', department: 'CSO LAYANAN' };
+  const historyList = state.getQuizHistory();
+  const now = new Date();
+  const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+  
+  const historyItem = {
+    id: 'QZH-' + Date.now(),
+    userId: currentUser.id,
+    userFullName: currentUser.fullName,
+    username: currentUser.username || currentUser.id,
+    department: currentUser.department || 'CSO LAYANAN',
+    score: finalScore,
+    correctCount: quizState.correctCount,
+    totalQuestions: total,
+    outcome,
+    duration: durationStr,
+    timestamp: dateStr
+  };
+  historyList.unshift(historyItem);
+  if (historyList.length > 300) historyList.pop();
+  state.saveQuizHistory(historyList);
+
+  state.addLog('Quiz Battle', 'Battle', `Menyelesaikan kuis Ultraman vs Monster dengan skor ${finalScore}/100 (${outcome.toUpperCase()})`);
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function openAddQuizQuestionModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat menambah soal kuis.', 'warning');
+    return;
+  }
+  quizState.editingQuestionId = null;
+  const modal = document.getElementById('modalQuizQuestionForm');
+  const title = document.getElementById('modalQuizQuestionTitle');
+  const form = document.getElementById('formQuizQuestion');
+  const submitText = document.getElementById('btnSubmitQuizQuestionText');
+
+  if (title) title.textContent = 'Tambah Soal Kuis Baru (Pilihan A - E)';
+  if (submitText) submitText.textContent = 'Simpan Soal Kuis';
+  if (form) form.reset();
+
+  const idField = document.getElementById('formQuizQuestionId');
+  const catField = document.getElementById('formQuizCategory');
+  const keyField = document.getElementById('formQuizCorrectAnswer');
+  const optE = document.getElementById('formQuizOptE');
+
+  if (idField) idField.value = '';
+  if (catField) catField.value = 'Informasi';
+  if (keyField) keyField.value = 'A';
+  if (optE) optE.value = '';
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function openEditQuizQuestionModal(qId) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat mengubah soal kuis.', 'warning');
+    return;
+  }
+  const questions = state.getQuizQuestions();
+  const q = questions.find(item => item.id === qId);
+  if (!q) {
+    showToast('Gagal', 'Soal tidak ditemukan.', 'error');
+    return;
+  }
+
+  quizState.editingQuestionId = qId;
+  const modal = document.getElementById('modalQuizQuestionForm');
+  const title = document.getElementById('modalQuizQuestionTitle');
+  const submitText = document.getElementById('btnSubmitQuizQuestionText');
+
+  if (title) title.textContent = 'Edit Soal Kuis (Pilihan A - E)';
+  if (submitText) submitText.textContent = 'Perbarui Soal Kuis';
+
+  const idEl = document.getElementById('formQuizQuestionId');
+  const catEl = document.getElementById('formQuizCategory');
+  const keyEl = document.getElementById('formQuizCorrectAnswer');
+  const promptEl = document.getElementById('formQuizPrompt');
+  const aEl = document.getElementById('formQuizOptA');
+  const bEl = document.getElementById('formQuizOptB');
+  const cEl = document.getElementById('formQuizOptC');
+  const dEl = document.getElementById('formQuizOptD');
+  const eEl = document.getElementById('formQuizOptE');
+  const explEl = document.getElementById('formQuizExplanation');
+
+  if (idEl) idEl.value = q.id;
+  if (catEl) catEl.value = q.category || 'Informasi';
+  if (keyEl) keyEl.value = q.correctAnswer || 'A';
+  if (promptEl) promptEl.value = q.prompt || '';
+  if (aEl) aEl.value = q.options?.A || '';
+  if (bEl) bEl.value = q.options?.B || '';
+  if (cEl) cEl.value = q.options?.C || '';
+  if (dEl) dEl.value = q.options?.D || '';
+  if (eEl) eEl.value = q.options?.E || '';
+  if (explEl) explEl.value = q.explanation || '';
+
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeQuizQuestionModal() {
+  const modal = document.getElementById('modalQuizQuestionForm');
+  if (modal) modal.classList.add('hidden');
+  quizState.editingQuestionId = null;
+}
+
+function handleSaveQuizQuestion(e) {
+  e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat menyimpan soal kuis.', 'warning');
+    return;
+  }
+
+  const idVal = (document.getElementById('formQuizQuestionId')?.value || '').trim();
+  const category = (document.getElementById('formQuizCategory')?.value || 'Informasi').trim();
+  const correctAnswer = (document.getElementById('formQuizCorrectAnswer')?.value || 'A').trim();
+  const prompt = (document.getElementById('formQuizPrompt')?.value || '').trim();
+  const optA = (document.getElementById('formQuizOptA')?.value || '').trim();
+  const optB = (document.getElementById('formQuizOptB')?.value || '').trim();
+  const optC = (document.getElementById('formQuizOptC')?.value || '').trim();
+  const optD = (document.getElementById('formQuizOptD')?.value || '').trim();
+  const optE = (document.getElementById('formQuizOptE')?.value || '').trim();
+  const explanation = (document.getElementById('formQuizExplanation')?.value || '').trim();
+
+  if (!prompt || !optA || !optB || !optC || !optD || !optE) {
+    showToast('Form Belum Lengkap', 'Teks pertanyaan dan seluruh 5 pilihan jawaban (A, B, C, D, E) wajib diisi.', 'warning');
+    return;
+  }
+
+  const questions = state.getQuizQuestions();
+
+  if (idVal) {
+    const idx = questions.findIndex(q => q.id === idVal);
+    if (idx !== -1) {
+      questions[idx] = {
+        ...questions[idx],
+        category,
+        correctAnswer,
+        prompt,
+        options: { A: optA, B: optB, C: optC, D: optD, E: optE },
+        explanation
+      };
+      state.saveQuizQuestions(questions);
+      state.addLog('Quiz Bank', 'Edit', `Mengubah soal kuis ID ${idVal}`);
+      showToast('Berhasil', 'Soal kuis 5 pilihan berhasil diperbarui.', 'success');
+    }
+  } else {
+    const newId = 'QZ-' + String(Date.now()).slice(-6);
+    const newQuestion = {
+      id: newId,
+      category,
+      correctAnswer,
+      prompt,
+      options: { A: optA, B: optB, C: optC, D: optD, E: optE },
+      explanation
+    };
+    questions.push(newQuestion);
+    state.saveQuizQuestions(questions);
+    state.addLog('Quiz Bank', 'Tambah', `Menambahkan soal kuis baru 5 pilihan (${category})`);
+    showToast('Berhasil', 'Soal kuis baru (A-E) berhasil ditambahkan.', 'success');
+  }
+
+  closeQuizQuestionModal();
+  renderQuizAdminQuestions();
+
+  if (quizState.activeTab === 'battle') {
+    startQuizBattle();
+  }
+}
+
+function promptDeleteQuizQuestion(qId) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat menghapus soal kuis.', 'warning');
+    return;
+  }
+
+  const questions = state.getQuizQuestions();
+  const q = questions.find(item => item.id === qId);
+  if (!q) return;
+
+  if (UI.confirmDeleteTitle && UI.confirmDeleteMessage && UI.modalConfirmDelete) {
+    state.pendingDelete = {
+      type: 'quiz_question',
+      id: qId,
+      name: q.id
+    };
+    UI.confirmDeleteTitle.textContent = 'Hapus Soal Kuis?';
+    UI.confirmDeleteMessage.innerHTML = `Anda akan menghapus soal kuis <strong>${q.id}</strong> ("${escapeQuizHtml(q.prompt.slice(0, 80))}...") secara permanen.`;
+    UI.modalConfirmDelete.classList.remove('hidden');
+  } else if (confirm(`Apakah Anda yakin ingin menghapus soal berikut?\n\n"${q.prompt.slice(0, 80)}..."`)) {
+    const filtered = questions.filter(item => item.id !== qId);
+    state.saveQuizQuestions(filtered);
+    if (quizState.selectedQuestionIds) quizState.selectedQuestionIds.delete(qId);
+    state.addLog('Quiz Bank', 'Hapus', `Menghapus soal kuis ID ${qId}`);
+    showToast('Soal Dihapus', 'Soal kuis berhasil dihapus dari bank soal.', 'info');
+    renderQuizAdminQuestions();
+
+    if (quizState.activeTab === 'battle') {
+      startQuizBattle();
+    }
+  }
+}
+
+function getFilteredQuizAdminQuestions() {
+  const allQuestions = state.getQuizQuestions();
+  let questions = [...allQuestions];
+
+  const cat = quizState.adminCategory || 'ALL';
+  if (cat !== 'ALL') {
+    questions = questions.filter(q => q.category === cat);
+  }
+
+  const search = (quizState.adminSearch || '').toLowerCase().trim();
+  if (search) {
+    questions = questions.filter(q => {
+      const p = (q.prompt || '').toLowerCase();
+      const expl = (q.explanation || '').toLowerCase();
+      const c = (q.category || '').toLowerCase();
+      const optStr = Object.values(q.options || {}).join(' ').toLowerCase();
+      return p.includes(search) || expl.includes(search) || c.includes(search) || optStr.includes(search);
+    });
+  }
+
+  return questions;
+}
+
+// Fitur: Tandai Soal (Menandai Beberapa / Semua Soal & Hapus yang Ditandai)
+function toggleSelectAllQuizQuestions(shouldSelect) {
+  if (!state.isAdmin()) return;
+  if (!quizState.selectedQuestionIds) quizState.selectedQuestionIds = new Set();
+
+  const visibleQuestions = getFilteredQuizAdminQuestions();
+  const visibleIds = visibleQuestions.map(q => q.id);
+  if (visibleIds.length === 0) return;
+
+  const isAllSelected = visibleIds.every(id => quizState.selectedQuestionIds.has(id));
+  const targetSelect = (shouldSelect !== undefined) ? shouldSelect : !isAllSelected;
+
+  visibleIds.forEach(id => {
+    if (targetSelect) {
+      quizState.selectedQuestionIds.add(id);
+    } else {
+      quizState.selectedQuestionIds.delete(id);
+    }
+  });
+
+  renderQuizAdminQuestions();
+}
+
+function promptDeleteSelectedQuizQuestions() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat menghapus soal kuis.', 'warning');
+    return;
+  }
+
+  const selectedList = Array.from(quizState.selectedQuestionIds || []);
+  if (selectedList.length === 0) {
+    showToast('Belum Ada Soal Ditandai', 'Silakan tandai beberapa atau semua soal kuis yang ingin dihapus.', 'warning');
+    return;
+  }
+
+  if (UI.confirmDeleteTitle && UI.confirmDeleteMessage && UI.modalConfirmDelete) {
+    state.pendingDelete = {
+      type: 'quiz_batch',
+      id: 'quiz_batch',
+      name: `${selectedList.length} soal kuis`,
+      ids: selectedList
+    };
+    UI.confirmDeleteTitle.textContent = 'Hapus Soal Kuis yang Ditandai?';
+    UI.confirmDeleteMessage.innerHTML = `Anda akan menghapus <strong>${selectedList.length} soal kuis</strong> yang telah ditandai secara permanen dari Bank Soal.`;
+    UI.modalConfirmDelete.classList.remove('hidden');
+  } else if (confirm(`Apakah Anda yakin ingin menghapus ${selectedList.length} soal kuis yang telah ditandai secara permanen?`)) {
+    const questions = state.getQuizQuestions();
+    const remaining = questions.filter(q => !selectedList.includes(q.id));
+    state.saveQuizQuestions(remaining);
+    selectedList.forEach(id => quizState.selectedQuestionIds.delete(id));
+    state.addLog('Quiz Bank', 'Hapus Massal', `Menghapus ${selectedList.length} soal kuis yang ditandai.`);
+    showToast('Soal Ditandai Dihapus', `Sebanyak ${selectedList.length} soal kuis yang ditandai berhasil dihapus.`, 'danger');
+    renderQuizAdminQuestions();
+
+    if (quizState.activeTab === 'battle') {
+      startQuizBattle();
+    }
+  }
+}
+
+function renderQuizAdminQuestions() {
+  if (!state.isAdmin()) return;
+
+  const tbody = document.getElementById('quizAdminQuestionsTableBody');
+  if (!tbody) return;
+
+  if (!quizState.selectedQuestionIds) {
+    quizState.selectedQuestionIds = new Set();
+  }
+
+  const questions = getFilteredQuizAdminQuestions();
+  const visibleIds = questions.map(q => q.id);
+  const selectedVisibleCount = visibleIds.filter(id => quizState.selectedQuestionIds.has(id)).length;
+  const totalSelected = quizState.selectedQuestionIds.size;
+
+  // Update Master Checkbox in Table Header
+  const chkMaster = document.getElementById('chkQuizSelectAll');
+  if (chkMaster) {
+    chkMaster.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+    chkMaster.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+  }
+
+  // Update "Tandai Semua" Button
+  const btnSelectAll = document.getElementById('btnQuizSelectAll');
+  if (btnSelectAll) {
+    const isAllSelected = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+    btnSelectAll.innerHTML = isAllSelected ? 
+      '<i class="fa-solid fa-square-minus"></i> <span>Batal Tandai Semua</span>' : 
+      '<i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>';
+    btnSelectAll.title = isAllSelected ? 'Batalkan penandaan seluruh soal yang tampil' : 'Tandai semua soal yang tampil';
+  }
+
+  // Update "Hapus yang Ditandai" Button & Counter
+  const btnDeleteSelected = document.getElementById('btnQuizDeleteSelected');
+  const lblCount = document.getElementById('lblCountSelectedQuiz');
+  if (lblCount) lblCount.textContent = totalSelected;
+  if (btnDeleteSelected) {
+    btnDeleteSelected.disabled = totalSelected === 0;
+    btnDeleteSelected.style.opacity = totalSelected > 0 ? '1' : '0.5';
+    btnDeleteSelected.style.cursor = totalSelected > 0 ? 'pointer' : 'not-allowed';
+    btnDeleteSelected.title = totalSelected > 0 ? `Hapus ${totalSelected} soal kuis yang ditandai` : 'Tandai minimal satu soal untuk menghapus';
+  }
+
+  if (questions.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="7" style="text-align:center; padding:30px; color:var(--gray-400);">
+          <i class="fa-solid fa-folder-open" style="font-size:2rem; margin-bottom:8px; display:block;"></i>
+          Tidak ada soal kuis yang sesuai dengan filter pencarian.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = questions.map((q, idx) => {
+    let catBadgeClass = 'badge-blue';
+    let catIcon = 'fa-circle-info';
+    if (q.category === 'Keluhan') {
+      catBadgeClass = 'badge-yellow';
+      catIcon = 'fa-comments';
+    } else if (q.category === 'Gangguan') {
+      catBadgeClass = 'badge-red';
+      catIcon = 'fa-triangle-exclamation';
+    }
+
+    const isSelected = quizState.selectedQuestionIds.has(q.id);
+
+    return `
+      <tr class="${isSelected ? 'quiz-row-selected' : ''}" style="${isSelected ? 'background: rgba(239, 68, 68, 0.08);' : ''}">
+        <td style="text-align:center;">
+          <input type="checkbox" class="quiz-table-checkbox chk-quiz-select" data-id="${q.id}" ${isSelected ? 'checked' : ''} title="Tandai soal ini">
+        </td>
+        <td style="text-align:center; font-weight:700; color:var(--gray-400);">${idx + 1}</td>
+        <td>
+          <span class="badge ${catBadgeClass}" style="font-size:0.75rem;">
+            <i class="fa-solid ${catIcon}"></i> ${escapeQuizHtml(q.category || 'Informasi')}
+          </span>
+          ${isSelected ? '<div style="margin-top:4px;"><span class="badge badge-red" style="font-size:0.7rem; display:inline-flex; align-items:center; gap:4px;"><i class="fa-solid fa-check"></i> Ditandai</span></div>' : ''}
+        </td>
+        <td>
+          <div style="font-weight:600; color:#fff; line-height:1.4; margin-bottom:6px;">${escapeQuizHtml(q.prompt)}</div>
+          <div style="font-size:0.8rem; color:var(--gray-400); display:grid; grid-template-columns:1fr 1fr; gap:4px;">
+            <span style="${q.correctAnswer === 'A' ? 'color:#22c55e; font-weight:700;' : ''}"><strong>A:</strong> ${escapeQuizHtml(q.options?.A || '-')}</span>
+            <span style="${q.correctAnswer === 'B' ? 'color:#22c55e; font-weight:700;' : ''}"><strong>B:</strong> ${escapeQuizHtml(q.options?.B || '-')}</span>
+            <span style="${q.correctAnswer === 'C' ? 'color:#22c55e; font-weight:700;' : ''}"><strong>C:</strong> ${escapeQuizHtml(q.options?.C || '-')}</span>
+            <span style="${q.correctAnswer === 'D' ? 'color:#22c55e; font-weight:700;' : ''}"><strong>D:</strong> ${escapeQuizHtml(q.options?.D || '-')}</span>
+            <span style="grid-column: 1 / -1; ${q.correctAnswer === 'E' ? 'color:#22c55e; font-weight:700;' : ''}"><strong>E:</strong> ${escapeQuizHtml(q.options?.E || '-')}</span>
+          </div>
+        </td>
+        <td style="text-align:center;">
+          <span class="badge badge-green" style="font-weight:700; font-size:0.9rem;">${escapeQuizHtml(q.correctAnswer)}</span>
+        </td>
+        <td style="font-size:0.85rem; color:var(--gray-300); line-height:1.4;">
+          ${escapeQuizHtml(q.explanation || '-')}
+        </td>
+        <td style="text-align:center;">
+          <div style="display:flex; justify-content:center; gap:6px;">
+            <button type="button" class="btn btn-outline-gray btn-xs btn-edit-quiz-q" data-id="${q.id}" title="Edit Soal">
+              <i class="fa-solid fa-pen"></i>
+            </button>
+            <button type="button" class="btn btn-outline-danger btn-xs btn-delete-quiz-q" data-id="${q.id}" title="Hapus Soal">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Row selection checkbox change listener
+  tbody.querySelectorAll('.chk-quiz-select').forEach(chk => {
+    chk.addEventListener('change', (e) => {
+      const qId = chk.getAttribute('data-id');
+      if (e.target.checked) {
+        quizState.selectedQuestionIds.add(qId);
+      } else {
+        quizState.selectedQuestionIds.delete(qId);
+      }
+      renderQuizAdminQuestions();
+    });
+  });
+
+  tbody.querySelectorAll('.btn-edit-quiz-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qId = btn.getAttribute('data-id');
+      openEditQuizQuestionModal(qId);
+    });
+  });
+
+  tbody.querySelectorAll('.btn-delete-quiz-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const qId = btn.getAttribute('data-id');
+      promptDeleteQuizQuestion(qId);
+    });
+  });
+}
+
+// ==========================================
+// PAPAN SKOR & RIWAYAT: ISOLASI PRIVAT & ADMIN MONITOR
+// Ketentuan:
+// 1. Tiap user memiliki nilai yang berbeda dan HANYA BISA MELIHAT NILAINYA SENDIRI.
+// 2. Admin DAPAT MEMANTAU HASIL NILAI yang dikerjakan oleh setiap user.
+// ==========================================
+function renderQuizLeaderboard() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser || { id: 'U-GUEST', username: 'guest', fullName: 'Peserta Tamu', department: 'CSO LAYANAN' };
+  const allHistory = state.getQuizHistory();
+
+  const banner = document.getElementById('quizLeaderboardBanner');
+  const bannerIcon = document.getElementById('quizLeaderboardBannerIcon');
+  const bannerTitle = document.getElementById('quizLeaderboardBannerTitle');
+  const bannerDesc = document.getElementById('quizLeaderboardBannerDesc');
+  const bannerBadge = document.getElementById('quizLeaderboardBannerBadge');
+  const toolbarAdmin = document.getElementById('toolbarQuizAdminMonitor');
+  const thAction = document.getElementById('thQuizHistoryAction');
+  const btnClearMy = document.getElementById('btnClearMyQuizHistory');
+  const tableTitle = document.getElementById('quizHistoryTableTitle');
+  const tableDesc = document.getElementById('quizHistoryTableDesc');
+
+  // 1. Update UI Role Mode: Banner & Toolbars
+  if (isAdmin) {
+    if (banner) banner.classList.add('hidden');
+    if (toolbarAdmin) toolbarAdmin.classList.remove('hidden');
+    if (thAction) thAction.classList.remove('hidden');
+    if (btnClearMy) btnClearMy.classList.add('hidden');
+    if (tableTitle) tableTitle.textContent = 'Pemantauan Hasil Nilai Kuis Tim CSO (Semua Peserta)';
+    if (tableDesc) {
+      tableDesc.textContent = '';
+      tableDesc.classList.add('hidden');
+    }
+
+    // Populate user filter dropdown
+    const filterUserSelect = document.getElementById('filterQuizHistoryUser');
+    if (filterUserSelect) {
+      const currentSelected = quizState.historyFilterUser || 'ALL';
+      const userMap = new Map();
+      allHistory.forEach(h => {
+        if (h.userId && !userMap.has(h.userId)) {
+          userMap.set(h.userId, { id: h.userId, name: h.userFullName || h.userId, dept: h.department || 'CSO' });
+        }
+      });
+      if (Array.isArray(state.users)) {
+        state.users.forEach(u => {
+          if (u.id && !userMap.has(u.id)) {
+            userMap.set(u.id, { id: u.id, name: u.fullName || u.username, dept: u.department || 'CSO' });
+          }
+        });
+      }
+
+      let optionsHtml = `<option value="ALL">Semua Anggota Tim (${allHistory.length} Riwayat)</option>`;
+      userMap.forEach(u => {
+        optionsHtml += `<option value="${escapeQuizHtml(u.id)}">${escapeQuizHtml(u.name)} (${escapeQuizHtml(u.dept)})</option>`;
+      });
+      filterUserSelect.innerHTML = optionsHtml;
+      filterUserSelect.value = currentSelected;
+    }
+
+    const filterOutcomeSelect = document.getElementById('filterQuizHistoryOutcome');
+    if (filterOutcomeSelect) {
+      filterOutcomeSelect.value = quizState.historyFilterOutcome || 'ALL';
+    }
+
+    const searchInput = document.getElementById('searchQuizHistoryInput');
+    const btnClearSearch = document.getElementById('btnClearSearchQuizHistory');
+    if (searchInput) searchInput.value = quizState.historySearch || '';
+    if (btnClearSearch) btnClearSearch.classList.toggle('hidden', !(quizState.historySearch));
+  } else {
+    // Mode User Reguler: Strictly Private
+    const uDisplayName = currentUser.fullName || currentUser.username || 'Peserta';
+    if (bannerTitle) bannerTitle.textContent = `Mode Riwayat Pribadi (${uDisplayName})`;
+    if (bannerDesc) bannerDesc.innerHTML = 'Hasil nilai kuis Anda bersifat <strong>privat dan hanya dapat dilihat oleh Anda sendiri</strong>. Pengguna lain tidak dapat melihat skor Anda. Administrator dapat memantau hasil kuis untuk evaluasi mutu layanan.';
+    if (bannerBadge) {
+      bannerBadge.className = 'badge badge-user';
+      bannerBadge.innerHTML = '<i class="fa-solid fa-lock"></i> Privat (Hanya Diri Sendiri)';
+    }
+    if (bannerIcon) bannerIcon.className = 'fa-solid fa-user-shield text-cyan';
+    if (toolbarAdmin) toolbarAdmin.classList.add('hidden');
+    if (thAction) thAction.classList.add('hidden');
+    if (btnClearMy) btnClearMy.classList.remove('hidden');
+    if (tableTitle) tableTitle.textContent = 'Riwayat Pertarungan Quiz Pribadi Saya';
+    if (tableDesc) {
+      tableDesc.textContent = '';
+      tableDesc.classList.add('hidden');
+    }
+  }
+
+  // 2. Data Filtering: Role-based strict isolation
+  let displayedHistory = [];
+  if (!isAdmin) {
+    // USER HANYA BISA MELIHAT NILAINYA SENDIRI
+    displayedHistory = allHistory.filter(h => h.userId === currentUser.id);
+  } else {
+    // ADMIN DAPAT MEMANTAU SELURUH USER DENGAN FILTER
+    displayedHistory = [...allHistory];
+    if (quizState.historyFilterUser && quizState.historyFilterUser !== 'ALL') {
+      displayedHistory = displayedHistory.filter(h => h.userId === quizState.historyFilterUser);
+    }
+    if (quizState.historyFilterOutcome && quizState.historyFilterOutcome !== 'ALL') {
+      displayedHistory = displayedHistory.filter(h => h.outcome === quizState.historyFilterOutcome);
+    }
+    if (quizState.historySearch) {
+      const q = quizState.historySearch.toLowerCase().trim();
+      displayedHistory = displayedHistory.filter(h => {
+        const name = (h.userFullName || '').toLowerCase();
+        const dept = (h.department || '').toLowerCase();
+        const uname = (h.username || '').toLowerCase();
+        const uid = (h.userId || '').toLowerCase();
+        return name.includes(q) || dept.includes(q) || uname.includes(q) || uid.includes(q);
+      });
+    }
+  }
+
+  // 3. Stat Cards Update
+  const statBest = document.getElementById('statQuizMyBestScore');
+  const statBestSub = document.getElementById('statQuizMyBestStatus');
+  const statVic = document.getElementById('statQuizTotalVictories');
+  const statWinRate = document.getElementById('statQuizWinRate');
+  const statPerf = document.getElementById('statQuizTotalPerfect');
+  const statPlay = document.getElementById('statQuizTotalPlayed');
+  const lblCard1Tag = document.getElementById('lblQuizStatCard1Tag');
+  const lblCard1Title = document.getElementById('lblQuizStatCard1Title');
+  const lblCard2Title = document.getElementById('lblQuizStatCard2Title');
+  const lblCard3Title = document.getElementById('lblQuizStatCard3Title');
+  const lblCard4Title = document.getElementById('lblQuizStatCard4Title');
+  const lblCard4Sub = document.getElementById('lblQuizStatCard4Sub');
+
+  if (!isAdmin) {
+    if (lblCard1Tag) lblCard1Tag.textContent = 'Personal Best';
+    if (lblCard1Title) lblCard1Title.textContent = 'Skor Terbaik Saya';
+    if (lblCard2Title) lblCard2Title.textContent = 'Total Kemenangan Saya';
+    if (lblCard3Title) lblCard3Title.textContent = 'Rekor Nilai Sempurna 100';
+    if (lblCard4Title) lblCard4Title.textContent = 'Total Sesi Kuis Saya';
+    if (lblCard4Sub) lblCard4Sub.textContent = 'Riwayat pribadi tersimpan';
+
+    const myScores = displayedHistory.map(h => h.score);
+    const bestScore = myScores.length > 0 ? Math.max(...myScores) : 0;
+    let bestStatus = 'Belum menyelesaikan kuis';
+    if (myScores.length > 0) {
+      if (bestScore === 100) bestStatus = '🌟 Sempurna 100 • Jurus Ultimate';
+      else if (bestScore >= 85) bestStatus = '✅ Lulus Standar (≥ 85)';
+      else bestStatus = '❌ Belum Lulus Standar (< 85)';
+    }
+
+    const victories = displayedHistory.filter(h => h.score >= 85).length;
+    const perfects = displayedHistory.filter(h => h.score === 100).length;
+    const winRate = displayedHistory.length > 0 ? Math.round((victories / displayedHistory.length) * 100) : 0;
+
+    if (statBest) statBest.innerHTML = `${bestScore} <small style="font-size:0.85rem; color:var(--gray-400);">/ 100</small>`;
+    if (statBestSub) statBestSub.textContent = bestStatus;
+    if (statVic) statVic.innerHTML = `${victories} <small style="font-size:0.85rem; color:var(--gray-400);">Kali</small>`;
+    if (statWinRate) statWinRate.textContent = `Win Rate: ${winRate}%`;
+    if (statPerf) statPerf.innerHTML = `${perfects} <small style="font-size:0.85rem; color:var(--gray-400);">Sempurna</small>`;
+    if (statPlay) statPlay.textContent = displayedHistory.length;
+  } else {
+    if (lblCard1Tag) lblCard1Tag.textContent = 'Team Best';
+    if (lblCard1Title) lblCard1Title.textContent = 'Nilai Tertinggi Tim';
+    if (lblCard2Title) lblCard2Title.textContent = 'Total Kemenangan Tim';
+    if (lblCard3Title) lblCard3Title.textContent = 'Total Sempurna 100 (Ultimate)';
+    if (lblCard4Title) lblCard4Title.textContent = 'Total Sesi Terpantau';
+    if (lblCard4Sub) lblCard4Sub.textContent = 'Dari seluruh pengguna tim';
+
+    const teamScores = displayedHistory.map(h => h.score);
+    const bestScore = teamScores.length > 0 ? Math.max(...teamScores) : 0;
+    const topPerformer = displayedHistory.find(h => h.score === bestScore);
+    const bestStatus = topPerformer ? `Top: ${topPerformer.userFullName || 'Peserta'}` : 'Belum ada data';
+
+    const victories = displayedHistory.filter(h => h.score >= 85).length;
+    const perfects = displayedHistory.filter(h => h.score === 100).length;
+    const winRate = displayedHistory.length > 0 ? Math.round((victories / displayedHistory.length) * 100) : 0;
+
+    if (statBest) statBest.innerHTML = `${bestScore} <small style="font-size:0.85rem; color:var(--gray-400);">/ 100</small>`;
+    if (statBestSub) statBestSub.textContent = bestStatus;
+    if (statVic) statVic.innerHTML = `${victories} <small style="font-size:0.85rem; color:var(--gray-400);">Kali</small>`;
+    if (statWinRate) statWinRate.textContent = `Tingkat Kelulusan: ${winRate}%`;
+    if (statPerf) statPerf.innerHTML = `${perfects} <small style="font-size:0.85rem; color:var(--gray-400);">Ultimate</small>`;
+    if (statPlay) statPlay.textContent = displayedHistory.length;
+  }
+
+  // 4. Render Table Rows
+  const tbody = document.getElementById('quizHistoryTableBody');
+  if (!tbody) return;
+
+  if (displayedHistory.length === 0) {
+    const emptyMsg = isAdmin ? 
+      'Tidak ada riwayat nilai kuis yang sesuai dengan filter pemantauan admin.' : 
+      'Anda belum memiliki riwayat kuis. Silakan kerjakan latihan kuis di Arena Pertarungan untuk melihat perolehan skor Anda.';
+    const colSpan = isAdmin ? 8 : 7;
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="${colSpan}" style="text-align:center; padding:35px 20px; color:var(--gray-400);">
+          <i class="fa-solid fa-gamepad" style="font-size:2.2rem; margin-bottom:10px; display:block; color:var(--gray-500);"></i>
+          ${emptyMsg}
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = displayedHistory.slice(0, 100).map(item => {
+    let outcomeBadge = '';
+    let noteBadge = '';
+    if (item.score === 100) {
+      outcomeBadge = '<span class="badge badge-yellow" style="font-weight:700;"><i class="fa-solid fa-crown text-yellow"></i> SEMPURNA (Ultimate)</span>';
+      noteBadge = '<span class="text-yellow" style="font-weight:600;"><i class="fa-solid fa-bolt"></i> Jurus Pamungkas 100% Aktif</span>';
+    } else if (item.score >= 85) {
+      outcomeBadge = '<span class="badge badge-green" style="font-weight:700;"><i class="fa-solid fa-trophy text-green"></i> MENANG (&ge; 85)</span>';
+      noteBadge = '<span class="text-green"><i class="fa-solid fa-check"></i> Spacium Beam Menang</span>';
+    } else {
+      outcomeBadge = '<span class="badge badge-red" style="font-weight:700;"><i class="fa-solid fa-circle-xmark text-red"></i> KALAH (&lt; 85)</span>';
+      noteBadge = '<span class="text-red"><i class="fa-solid fa-triangle-exclamation"></i> Energi Habis / Kalah</span>';
+    }
+
+    const isMe = (currentUser && item.userId === currentUser.id);
+
+    return `
+      <tr>
+        <td style="font-size:0.85rem; color:var(--gray-300);">${escapeQuizHtml(item.timestamp || '-')}</td>
+        <td>
+          <div style="font-weight:600; color:#fff; display:flex; align-items:center; gap:6px;">
+            <span>${escapeQuizHtml(item.userFullName || 'Peserta')}</span>
+            ${isMe ? '<span class="badge badge-user" style="font-size:0.65rem; padding:1px 6px;">Saya</span>' : ''}
+          </div>
+          ${isAdmin ? `<div style="font-size:0.75rem; color:var(--gray-400);">@${escapeQuizHtml(item.username || item.userId)}</div>` : ''}
+        </td>
+        <td><span class="badge badge-gray" style="font-size:0.75rem;">${escapeQuizHtml(item.department || 'CSO')}</span></td>
+        <td style="text-align:center; font-weight:800; font-size:1.1rem; ${item.score === 100 ? 'color:#facc15;' : item.score >= 85 ? 'color:#22c55e;' : 'color:#ef4444;'}">
+          ${item.score}
+        </td>
+        <td style="text-align:center; font-weight:600; color:var(--gray-300);">
+          ${item.correctCount || 0} / ${item.totalQuestions || 10}
+        </td>
+        <td style="text-align:center;">
+          ${outcomeBadge}
+        </td>
+        <td style="font-size:0.85rem; color:var(--gray-400);">
+          ${noteBadge} <small style="display:block; color:var(--gray-500); margin-top:2px;">Durasi: ${escapeQuizHtml(item.duration || '-')}</small>
+        </td>
+        ${isAdmin ? `
+          <td style="text-align:center;">
+            <button type="button" class="btn btn-outline-danger btn-xs btn-delete-quiz-history" data-id="${item.id}" title="Hapus Catatan Kuis Ini">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        ` : ''}
+      </tr>
+    `;
+  }).join('');
+
+  if (isAdmin) {
+    tbody.querySelectorAll('.btn-delete-quiz-history').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const histId = btn.getAttribute('data-id');
+        deleteQuizHistoryRecord(histId);
+      });
+    });
+  }
+}
+
+function deleteQuizHistoryRecord(historyId) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat menghapus data pantauan kuis.', 'warning');
+    return;
+  }
+  if (confirm('Hapus rekaman nilai kuis ini dari pantauan sistem?')) {
+    let history = state.getQuizHistory();
+    history = history.filter(h => h.id !== historyId);
+    state.saveQuizHistory(history);
+    state.addLog('Quiz Monitor', 'Hapus', `Menghapus riwayat kuis ID ${historyId}`);
+    showToast('Riwayat Dihapus', 'Catatan nilai kuis berhasil dihapus.', 'info');
+    renderQuizLeaderboard();
+  }
+}
+
+function clearAllTeamQuizHistory() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Admin yang dapat mereset riwayat kuis tim.', 'warning');
+    return;
+  }
+  if (confirm('PERINGATAN ADMIN: Apakah Anda yakin ingin menghapus SELURUH riwayat nilai kuis yang dikerjakan oleh semua anggota tim? Tindakan ini tidak dapat dibatalkan.')) {
+    state.saveQuizHistory([]);
+    state.addLog('Quiz Monitor', 'Reset', 'Mereset seluruh riwayat kuis tim');
+    showToast('Riwayat Tim Direset', 'Seluruh riwayat nilai kuis tim telah dibersihkan.', 'info');
+    renderQuizLeaderboard();
+  }
+}
+
+function clearMyQuizHistory() {
+  const currentUser = state.currentUser;
+  if (!currentUser) return;
+
+  if (confirm('Hapus seluruh riwayat hasil kuis pribadi Anda? Riwayat pengguna lain tidak akan terpengaruh.')) {
+    let history = state.getQuizHistory();
+    history = history.filter(h => h.userId !== currentUser.id);
+    state.saveQuizHistory(history);
+    showToast('Riwayat Dibersihkan', 'Riwayat kuis pribadi Anda berhasil dihapus.', 'info');
+    renderQuizLeaderboard();
+  }
+}
+
+function initQuizBattle() {
+  const btnBattle = document.getElementById('btnTabQuizBattle');
+  const btnLeaderboard = document.getElementById('btnTabQuizLeaderboard');
+  const btnAdminBank = document.getElementById('btnTabQuizAdminBank');
+  const btnRestart = document.getElementById('btnRestartQuiz');
+
+  if (btnBattle) btnBattle.addEventListener('click', () => switchQuizTab('battle'));
+  if (btnLeaderboard) btnLeaderboard.addEventListener('click', () => switchQuizTab('leaderboard'));
+  if (btnAdminBank) btnAdminBank.addEventListener('click', () => switchQuizTab('adminBank'));
+  if (btnRestart) btnRestart.addEventListener('click', () => {
+    startQuizBattle();
+    showToast('Kuis Dimulai Ulang', 'Pertarungan dimulai kembali dari soal pertama.', 'info');
+  });
+
+  const selectHero = document.getElementById('selectQuizHero');
+  if (selectHero) {
+    selectHero.addEventListener('change', (e) => {
+      selectQuizHero(e.target.value);
+    });
+  }
+
+  // 5 Options A, B, C, D, E listeners
+  ['A', 'B', 'C', 'D', 'E'].forEach(ch => {
+    const btn = document.getElementById('btnOption' + ch);
+    if (btn) {
+      btn.addEventListener('click', () => handleSelectQuizOption(ch));
+    }
+  });
+
+  const btnNext = document.getElementById('btnNextQuestion');
+  if (btnNext) btnNext.addEventListener('click', nextQuizQuestion);
+
+  // Special cutscene animation skip button
+  const btnSkipAnim = document.getElementById('btnSkipSpecialAnim');
+  if (btnSkipAnim) {
+    btnSkipAnim.addEventListener('click', () => {
+      dismissSpecialOutcomeAnimation();
+    });
+  }
+
+  const btnCloseResult = document.getElementById('btnCloseQuizResult');
+  const btnCloseResultFooter = document.getElementById('btnCloseQuizResultFooter');
+  const btnRematch = document.getElementById('btnQuizRematch');
+
+  const closeResultFunc = () => {
+    const modal = document.getElementById('modalQuizResult');
+    if (modal) modal.classList.add('hidden');
+  };
+  if (btnCloseResult) btnCloseResult.addEventListener('click', closeResultFunc);
+  if (btnCloseResultFooter) btnCloseResultFooter.addEventListener('click', closeResultFunc);
+  if (btnRematch) btnRematch.addEventListener('click', () => {
+    closeResultFunc();
+    startQuizBattle();
+  });
+
+  const btnOpenAdd = document.getElementById('btnOpenAddQuestionModal');
+  if (btnOpenAdd) btnOpenAdd.addEventListener('click', openAddQuizQuestionModal);
+
+  const btnCloseQModal = document.getElementById('btnCloseQuizQuestionModal');
+  const btnCancelQModal = document.getElementById('btnCancelQuizQuestionModal');
+  if (btnCloseQModal) btnCloseQModal.addEventListener('click', closeQuizQuestionModal);
+  if (btnCancelQModal) btnCancelQModal.addEventListener('click', closeQuizQuestionModal);
+
+  const formQ = document.getElementById('formQuizQuestion');
+  if (formQ) formQ.addEventListener('submit', handleSaveQuizQuestion);
+
+  const searchInput = document.getElementById('searchQuizQuestionInput');
+  const btnClearSearch = document.getElementById('btnClearSearchQuizQuestion');
+  const filterCat = document.getElementById('filterQuizQuestionCategory');
+  const chkMasterQuiz = document.getElementById('chkQuizSelectAll');
+  const btnSelectAllQuiz = document.getElementById('btnQuizSelectAll');
+  const btnDeleteSelectedQuiz = document.getElementById('btnQuizDeleteSelected');
+
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      quizState.adminSearch = e.target.value;
+      if (btnClearSearch) btnClearSearch.classList.toggle('hidden', !e.target.value);
+      renderQuizAdminQuestions();
+    });
+  }
+
+  if (btnClearSearch) {
+    btnClearSearch.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      quizState.adminSearch = '';
+      btnClearSearch.classList.add('hidden');
+      renderQuizAdminQuestions();
+    });
+  }
+
+  if (filterCat) {
+    filterCat.addEventListener('change', (e) => {
+      quizState.adminCategory = e.target.value;
+      renderQuizAdminQuestions();
+    });
+  }
+
+  if (chkMasterQuiz) {
+    chkMasterQuiz.addEventListener('change', () => {
+      toggleSelectAllQuizQuestions(chkMasterQuiz.checked);
+    });
+  }
+
+  if (btnSelectAllQuiz) {
+    btnSelectAllQuiz.addEventListener('click', () => {
+      toggleSelectAllQuizQuestions();
+    });
+  }
+
+  if (btnDeleteSelectedQuiz) {
+    btnDeleteSelectedQuiz.addEventListener('click', promptDeleteSelectedQuizQuestions);
+  }
+
+  // Admin Monitoring Toolbar Listeners
+  const filterHistUser = document.getElementById('filterQuizHistoryUser');
+  if (filterHistUser) {
+    filterHistUser.addEventListener('change', (e) => {
+      quizState.historyFilterUser = e.target.value;
+      renderQuizLeaderboard();
+    });
+  }
+
+  const filterHistOutcome = document.getElementById('filterQuizHistoryOutcome');
+  if (filterHistOutcome) {
+    filterHistOutcome.addEventListener('change', (e) => {
+      quizState.historyFilterOutcome = e.target.value;
+      renderQuizLeaderboard();
+    });
+  }
+
+  const searchHistInput = document.getElementById('searchQuizHistoryInput');
+  const btnClearHistSearch = document.getElementById('btnClearSearchQuizHistory');
+  if (searchHistInput) {
+    searchHistInput.addEventListener('input', (e) => {
+      quizState.historySearch = e.target.value;
+      if (btnClearHistSearch) btnClearHistSearch.classList.toggle('hidden', !e.target.value);
+      renderQuizLeaderboard();
+    });
+  }
+
+  if (btnClearHistSearch) {
+    btnClearHistSearch.addEventListener('click', () => {
+      if (searchHistInput) searchHistInput.value = '';
+      quizState.historySearch = '';
+      btnClearHistSearch.classList.add('hidden');
+      renderQuizLeaderboard();
+    });
+  }
+
+  const btnResetAllTeam = document.getElementById('btnClearAllTeamQuizHistory');
+  if (btnResetAllTeam) {
+    btnResetAllTeam.addEventListener('click', clearAllTeamQuizHistory);
+  }
+
+  const btnClearHist = document.getElementById('btnClearMyQuizHistory');
+  if (btnClearHist) btnClearHist.addEventListener('click', clearMyQuizHistory);
+}
+
+// ==========================================
+// 16. INITIALIZATION
 // ==========================================
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -12224,6 +14470,7 @@ document.addEventListener('DOMContentLoaded', () => {
   populateNotifications();
   startTimerTicker();
   initTypingTest();
+  initQuizBattle();
   initEvents();
   renderAppView();
 });

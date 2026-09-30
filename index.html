@@ -212,6 +212,13 @@
               <span class="nav-tag nav-tag-game" id="navTypingTag">Game</span>
             </button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="quiz" id="navQuiz">
+              <i class="fa-solid fa-shield-halved nav-icon text-red"></i>
+              <span class="nav-label">Quiz</span>
+              <span class="nav-tag nav-tag-quiz" id="navQuizTag">Battle</span>
+            </button>
+          </li>
         </ul>
 
         <div id="sidebarAdminSection">
@@ -2783,6 +2790,438 @@
 
         </section>
 
+        <!-- ==================== PAGE: QUIZ BATTLE (ULTRAMAN ICONNET VS MONSTER) ==================== -->
+        <section class="page-section" id="pageQuiz">
+          <div class="page-title-bar">
+            <div>
+              <div class="badge-title-group">
+                <h2 class="page-title" id="quizPageMainTitle"><span id="quizPageTitleBase">Quiz</span><span id="quizTitleThemeSuffix" class="hidden">: Ultraman Iconnet vs Monster</span></h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-shield-halved"></i> Interactive Battle Arena</span>
+                <span class="badge badge-gray" id="quizPassingScoreBadge"><i class="fa-solid fa-trophy text-yellow"></i> Standar Lulus: &ge; 85</span>
+              </div>
+              <p class="page-desc hidden" id="quizPageDesc">Latihan soal interaktif bertema pertarungan versus antara Ultraman Iconnet melawan Monster Giga Lag. Jawab pertanyaan dengan benar untuk menyerang monster. Nilai &lt; 85 dinyatakan Kalah, nilai &ge; 85 Menang, dan nilai 100 Sempurna mengaktifkan Jurus Pamungkas Ultimate!</p>
+            </div>
+            <div class="page-title-actions">
+              <div class="quiz-nav-tabs" style="display:inline-flex; gap:6px; background:rgba(0,0,0,0.4); padding:4px; border-radius:8px; border:1px solid var(--border-color);">
+                <button type="button" class="btn btn-sm btn-primary" id="btnTabQuizBattle">
+                  <i class="fa-solid fa-gamepad"></i> <span>Arena Kuis</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-gray" id="btnTabQuizLeaderboard">
+                  <i class="fa-solid fa-ranking-star"></i> <span>Papan Skor</span>
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-gray hidden" id="btnTabQuizAdminBank">
+                  <i class="fa-solid fa-database"></i> <span>Kelola Bank Soal</span>
+                </button>
+              </div>
+              <button class="btn btn-outline-gray" id="btnRestartQuiz" title="Mulai Ulang Kuis">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span>Mulai Ulang</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Banner for Quiz (Admin Only) -->
+          <div class="permission-status-banner glass-subpanel hidden" id="quizPermissionBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-shield-halved text-red"></i>
+              <div>
+                <strong id="quizBannerRoleLabel">Otoritas Akses Kuis: Administrator (Kelola Soal &amp; Pantau Nilai Tim)</strong>
+                <p id="quizBannerRoleDesc">Admin dapat mencoba kuis latihan, memantau perolehan nilai seluruh pengguna, serta memiliki wewenang penuh untuk menambah, mengubah, dan menghapus soal kuis (pilihan A, B, C, D, E).</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-admin" id="quizBannerBadgePrivilege">Admin (Kelola Soal &amp; Monitor Tim)</span>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT 1: ARENA PERTARUNGAN (BATTLE ARENA) -->
+          <div id="quizTabBattleSection">
+            <!-- Battle Arena Visual Stage -->
+            <div class="quiz-battle-stage glass-panel" id="quizBattleStage">
+              <!-- Arena Ambient Background Lines & Scanlines -->
+              <div class="battle-stage-ambient"></div>
+
+              <!-- Top Match Header & Combat Counters -->
+              <div class="battle-top-bar">
+                <div class="battle-stage-title">
+                  <span class="stage-tag"><i class="fa-solid fa-network-wired"></i> CYBER ARENA ICONNET</span>
+                  <span class="stage-sub">Misi Perlindungan Jaringan</span>
+                </div>
+
+                <!-- Dropdown Pilih Karakter Ultraman Anda (Dalam kotak CYBER ARENA ICONNET) -->
+                <div class="hero-select-dropdown-group" id="quizHeroSelectDropdownGroup">
+                  <label for="selectQuizHero" class="hero-select-dropdown-label">
+                    <i class="fa-solid fa-mask text-cyan"></i>
+                    <span>Pilih Karakter Ultraman Anda:</span>
+                  </label>
+                  <div class="hero-select-dropdown-wrapper">
+                    <select id="selectQuizHero" class="hero-select-dropdown" aria-label="Pilih Karakter Ultraman Anda">
+                      <option value="iconnet">Ultraman Iconnet (Hero 1:1)</option>
+                      <option value="zero">Ultraman Zero (Cosmic Hero)</option>
+                      <option value="tiga">Ultraman Tiga (Multi-Type)</option>
+                      <option value="geed">Ultraman Geed (Primitive)</option>
+                      <option value="orb">Ultraman Orb (Orb Origin)</option>
+                      <option value="blazar">Ultraman Blazar (Spiral Hunter)</option>
+                    </select>
+                    <i class="fa-solid fa-chevron-down hero-select-dropdown-chevron"></i>
+                  </div>
+                </div>
+
+                <div class="battle-stats-pills">
+                  <div class="battle-pill">
+                    <span class="pill-label">Pertanyaan</span>
+                    <strong class="pill-val text-white" id="quizProgressText">1 / 10</strong>
+                  </div>
+                  <div class="battle-pill">
+                    <span class="pill-label">Poin Saat Ini</span>
+                    <strong class="pill-val text-red" id="quizLiveScoreText">0 Poin</strong>
+                  </div>
+                  <div class="battle-pill" id="quizStreakPill">
+                    <span class="pill-label">Combo</span>
+                    <strong class="pill-val text-yellow" id="quizStreakText">0x</strong>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Visual Fighters Arena (Ultraman vs Monster) -->
+              <div class="battle-fighters-grid">
+                <!-- LEFT: Ultraman Iconnet -->
+                <div class="fighter-card fighter-hero" id="cardUltramanHero">
+                  <div class="fighter-avatar-wrapper">
+                    <img src="assets/ultraman_iconnet.jpg" alt="Ultraman Iconnet" class="fighter-avatar" id="avatarUltraman">
+                    <div class="fighter-color-timer" id="ultramanColorTimer" title="Color Timer Energi Ultraman"></div>
+                    <div class="fighter-energy-glow"></div>
+                  </div>
+                  <div class="fighter-info">
+                    <div class="fighter-name-row">
+                      <strong class="fighter-name text-cyan">ULTRAMAN ICONNET</strong>
+                      <span class="fighter-type-tag tag-cyan">Hero 1:1</span>
+                    </div>
+                    <div class="fighter-title">Pelindung Kecepatan Sinar Fiber Optic</div>
+                    
+                    <!-- Health Bar -->
+                    <div class="fighter-hp-container">
+                      <div class="hp-label-row">
+                        <span><i class="fa-solid fa-heart-pulse text-green"></i> Energi Pahlawan</span>
+                        <span id="ultramanHpLabel">100 / 100 HP</span>
+                      </div>
+                      <div class="hp-track">
+                        <div class="hp-fill hp-fill-hero" id="ultramanHpBar" style="width: 100%;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CENTER: VS Badge & Combat Announcer -->
+                <div class="battle-center-divider">
+                  <div class="battle-vs-crest">
+                    <span class="vs-text">VS</span>
+                    <div class="vs-ring-glow"></div>
+                  </div>
+                  <div class="battle-announcer-bubble hidden" id="battleAnnouncer">
+                    <i class="fa-solid fa-crosshairs text-red"></i>
+                    <span id="battleAnnouncerText"></span>
+                  </div>
+                </div>
+
+                <!-- RIGHT: Monster Giga Lag -->
+                <div class="fighter-card fighter-monster" id="cardMonsterEnemy">
+                  <div class="fighter-avatar-wrapper">
+                    <img src="assets/monster_giga_lag.jpg" alt="Monster Giga Lag" class="fighter-avatar" id="avatarMonster">
+                    <div class="monster-glitch-overlay"></div>
+                  </div>
+                  <div class="fighter-info">
+                    <div class="fighter-name-row">
+                      <strong class="fighter-name text-red">MONSTER GIGA LAG</strong>
+                      <span class="fighter-type-tag tag-red">Kaiju</span>
+                    </div>
+                    <div class="fighter-title">Perusak Latency &amp; Pemutus Sinyal</div>
+                    
+                    <!-- Health Bar -->
+                    <div class="fighter-hp-container">
+                      <div class="hp-label-row">
+                        <span><i class="fa-solid fa-skull text-red"></i> Daya Tahan Monster</span>
+                        <span id="monsterHpLabel">100 / 100 HP</span>
+                      </div>
+                      <div class="hp-track">
+                        <div class="hp-fill hp-fill-monster" id="monsterHpBar" style="width: 100%;"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Beam / Projectile Animation Elements -->
+              <div class="battle-projectile-track" id="battleProjectileTrack">
+                <div class="spacium-beam-fx hidden" id="spaciumBeamFx"></div>
+                <div class="monster-strike-fx hidden" id="monsterStrikeFx"></div>
+              </div>
+            </div>
+
+            <!-- Active Question & Answer Arena Card -->
+            <div class="quiz-question-card glass-panel" id="quizQuestionCard">
+              <div class="question-card-header">
+                <div class="question-meta-group">
+                  <span class="badge badge-gray" id="quizQuestionCategory"><i class="fa-solid fa-bookmark text-red"></i> Kategori Soal</span>
+                  <span class="badge badge-red-subtle" id="quizQuestionPointBadge"><i class="fa-solid fa-star text-yellow"></i> 10 Poin</span>
+                </div>
+                <div class="question-progress-bar-wrap">
+                  <div class="question-progress-bar-fill" id="quizQuestionProgressFill" style="width: 10%;"></div>
+                </div>
+              </div>
+
+              <div class="question-body">
+                <h3 class="question-prompt" id="quizQuestionPrompt">
+                  Memuat pertanyaan kuis...
+                </h3>
+              </div>
+
+              <!-- Options Grid: 5 Interactive Choices (A, B, C, D, E) -->
+              <div class="quiz-options-grid" id="quizOptionsGrid">
+                <button type="button" class="quiz-option-btn" data-choice="A" id="btnOptionA">
+                  <span class="option-key">A</span>
+                  <span class="option-text" id="textOptionA">Pilihan A</span>
+                  <i class="option-feedback-icon fa-solid"></i>
+                </button>
+                <button type="button" class="quiz-option-btn" data-choice="B" id="btnOptionB">
+                  <span class="option-key">B</span>
+                  <span class="option-text" id="textOptionB">Pilihan B</span>
+                  <i class="option-feedback-icon fa-solid"></i>
+                </button>
+                <button type="button" class="quiz-option-btn" data-choice="C" id="btnOptionC">
+                  <span class="option-key">C</span>
+                  <span class="option-text" id="textOptionC">Pilihan C</span>
+                  <i class="option-feedback-icon fa-solid"></i>
+                </button>
+                <button type="button" class="quiz-option-btn" data-choice="D" id="btnOptionD">
+                  <span class="option-key">D</span>
+                  <span class="option-text" id="textOptionD">Pilihan D</span>
+                  <i class="option-feedback-icon fa-solid"></i>
+                </button>
+                <button type="button" class="quiz-option-btn" data-choice="E" id="btnOptionE">
+                  <span class="option-key">E</span>
+                  <span class="option-text" id="textOptionE">Pilihan E</span>
+                  <i class="option-feedback-icon fa-solid"></i>
+                </button>
+              </div>
+
+              <!-- Instant Feedback & Pembahasan Singkat Box -->
+              <div class="quiz-feedback-box hidden" id="quizFeedbackBox">
+                <div class="feedback-header">
+                  <span class="feedback-badge" id="quizFeedbackBadge">Jawaban Tepat!</span>
+                  <span class="feedback-damage-text" id="quizFeedbackDamage">+10 Poin Serangan</span>
+                </div>
+                <p class="feedback-explanation" id="quizFeedbackExplanation">
+                  Penjelasan pembahasan materi...
+                </p>
+                <div class="feedback-footer">
+                  <button type="button" class="btn btn-primary btn-sm glow-effect-red" id="btnNextQuestion">
+                    <span>Lanjut ke Soal Berikutnya</span> <i class="fa-solid fa-arrow-right"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT 2: PAPAN SKOR & RIWAYAT (LEADERBOARD & HISTORY) -->
+          <div id="quizTabLeaderboardSection" class="hidden">
+            <!-- Dynamic Privacy / Monitor Status Banner -->
+            <div class="permission-status-banner glass-subpanel" id="quizLeaderboardBanner" style="margin-bottom: 18px;">
+              <div class="status-banner-left">
+                <i class="fa-solid fa-user-shield text-cyan" id="quizLeaderboardBannerIcon"></i>
+                <div>
+                  <strong id="quizLeaderboardBannerTitle">Mode Riwayat Pribadi</strong>
+                  <p id="quizLeaderboardBannerDesc">Setiap pengguna memiliki hasil nilai yang berbeda dan hanya dapat melihat nilainya sendiri. Administrator dapat memantau perolehan nilai seluruh anggota tim.</p>
+                </div>
+              </div>
+              <div class="status-banner-right">
+                <span class="badge badge-user" id="quizLeaderboardBannerBadge">Privat (Hanya Diri Sendiri)</span>
+              </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid" style="margin-bottom: 20px;">
+              <div class="metric-card glass-panel card-hover">
+                <div class="metric-header">
+                  <div class="metric-icon-box bg-red-gradient"><i class="fa-solid fa-trophy text-white"></i></div>
+                  <span class="metric-tag tag-green" id="lblQuizStatCard1Tag">Personal Best</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-label" id="lblQuizStatCard1Title">Skor Terbaik Saya</span>
+                  <h3 class="metric-value text-red" id="statQuizMyBestScore">0 <small style="font-size:0.85rem; color:var(--gray-400);">/ 100</small></h3>
+                  <span class="metric-subtext" id="statQuizMyBestStatus">Belum menyelesaikan kuis</span>
+                </div>
+              </div>
+
+              <div class="metric-card glass-panel card-hover">
+                <div class="metric-header">
+                  <div class="metric-icon-box bg-gray-dark"><i class="fa-solid fa-shield-cat text-green"></i></div>
+                  <span class="metric-tag tag-green">Kemenangan</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-label" id="lblQuizStatCard2Title">Total Monster Dikalahkan</span>
+                  <h3 class="metric-value text-green" id="statQuizTotalVictories">0 <small style="font-size:0.85rem; color:var(--gray-400);">Kali</small></h3>
+                  <span class="metric-subtext" id="statQuizWinRate">Win Rate: 0%</span>
+                </div>
+              </div>
+
+              <div class="metric-card glass-panel card-hover">
+                <div class="metric-header">
+                  <div class="metric-icon-box bg-gray-dark"><i class="fa-solid fa-sun text-yellow"></i></div>
+                  <span class="metric-tag tag-yellow">Jurus Ultimate</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-label" id="lblQuizStatCard3Title">Rekor Nilai Sempurna 100</span>
+                  <h3 class="metric-value text-yellow" id="statQuizTotalPerfect">0 <small style="font-size:0.85rem; color:var(--gray-400);">Sempurna</small></h3>
+                  <span class="metric-subtext">Mengeluarkan Jurus Ultimate</span>
+                </div>
+              </div>
+
+              <div class="metric-card glass-panel card-hover">
+                <div class="metric-header">
+                  <div class="metric-icon-box bg-red-subtle"><i class="fa-solid fa-gamepad text-red"></i></div>
+                  <span class="metric-tag tag-gray">Total Sesi</span>
+                </div>
+                <div class="metric-body">
+                  <span class="metric-label" id="lblQuizStatCard4Title">Total Sesi Pertarungan</span>
+                  <h3 class="metric-value text-silver" id="statQuizTotalPlayed">0</h3>
+                  <span class="metric-subtext" id="lblQuizStatCard4Sub">Riwayat tersimpan di sistem</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin Monitoring Filter Toolbar (Visible strictly for Admin) -->
+            <div class="table-toolbar glass-panel hidden" id="toolbarQuizAdminMonitor" style="margin-bottom: 14px;">
+              <div class="toolbar-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchQuizHistoryInput" class="search-input" placeholder="Pantau hasil nilai peserta: cari nama, username, atau layanan CSO...">
+                <button class="btn-clear-search hidden" id="btnClearSearchQuizHistory" aria-label="Bersihkan pencarian">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div class="toolbar-filters">
+                <select id="filterQuizHistoryUser" class="filter-select">
+                  <option value="ALL">Semua Anggota Tim</option>
+                  <!-- Populated dynamically -->
+                </select>
+                <select id="filterQuizHistoryOutcome" class="filter-select">
+                  <option value="ALL">Semua Hasil Pertarungan</option>
+                  <option value="sempurna">Sempurna (100) • Ultimate</option>
+                  <option value="menang">Menang (&ge; 85)</option>
+                  <option value="kalah">Kalah (&lt; 85)</option>
+                </select>
+                <button type="button" class="btn btn-outline-danger btn-sm" id="btnClearAllTeamQuizHistory" title="Bersihkan seluruh riwayat kuis tim">
+                  <i class="fa-solid fa-trash-can"></i> <span>Reset Riwayat Tim</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Table of History -->
+            <div class="table-container glass-panel">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
+                <div>
+                  <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-clock-rotate-left text-red"></i>
+                    <span id="quizHistoryTableTitle">Riwayat Pertarungan Quiz Pribadi</span>
+                  </h3>
+                  <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;" id="quizHistoryTableDesc">Rekapitulasi pencapaian skor dan hasil akhir pertarungan kuis pribadi Anda.</p>
+                </div>
+                <div style="display:flex; gap:8px;">
+                  <button type="button" class="btn btn-outline-gray btn-sm" id="btnClearMyQuizHistory">
+                    <i class="fa-solid fa-trash-can"></i> <span>Bersihkan Riwayat Pribadi</span>
+                  </button>
+                </div>
+              </div>
+              <div class="table-responsive">
+                <table class="custom-table" id="tableQuizHistory">
+                  <thead>
+                    <tr>
+                      <th style="width: 140px;">Waktu Selesai</th>
+                      <th>Peserta CSO</th>
+                      <th>Layanan CSO</th>
+                      <th style="text-align:center; width: 100px;">Skor Akhir</th>
+                      <th style="text-align:center; width: 110px;">Benar / Total</th>
+                      <th style="text-align:center; width: 170px;">Status Pertarungan</th>
+                      <th>Catatan Pencapaian</th>
+                      <th style="text-align:center; width: 80px;" id="thQuizHistoryAction" class="hidden">Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quizHistoryTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB CONTENT 3: KELOLA BANK SOAL (ADMIN ONLY) -->
+          <div id="quizTabAdminBankSection" class="hidden">
+            <div class="section-title-bar" style="margin-bottom: 14px;">
+              <div>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+                  <i class="fa-solid fa-database text-red"></i>
+                  <span>Bank Soal Latihan &amp; Uji Kompetensi ICONNET</span>
+                </h3>
+                <p class="hidden" id="quizAdminBankDesc" style="font-size: 0.8rem; color: var(--gray-400);">Admin dapat menambah, mengubah, dan menghapus soal kuis. Perubahan soal akan langsung aktif pada arena pertarungan kuis.</p>
+              </div>
+              <div>
+                <button type="button" class="btn btn-primary glow-effect-red" id="btnOpenAddQuestionModal">
+                  <i class="fa-solid fa-plus"></i> <span>Tambah Soal Baru</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Toolbar Search & Filter -->
+            <div class="table-toolbar glass-panel">
+              <div class="toolbar-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchQuizQuestionInput" class="search-input" placeholder="Cari pertanyaan, opsi jawaban, atau kata kunci materi...">
+                <button class="btn-clear-search hidden" id="btnClearSearchQuizQuestion" aria-label="Bersihkan pencarian">
+                  <i class="fa-solid fa-xmark"></i>
+                </button>
+              </div>
+              <div class="toolbar-filters">
+                <select id="filterQuizQuestionCategory" class="filter-select">
+                  <option value="ALL">Semua Kategori Soal</option>
+                  <option value="Informasi">Informasi</option>
+                  <option value="Keluhan">Keluhan</option>
+                  <option value="Gangguan">Gangguan</option>
+                </select>
+                <button type="button" class="btn btn-outline-gray btn-sm" id="btnQuizSelectAll" title="Tandai semua soal yang tampil">
+                  <i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>
+                </button>
+                <button type="button" class="btn btn-danger btn-sm glow-effect-red" id="btnQuizDeleteSelected" disabled style="opacity: 0.5;" title="Hapus soal kuis yang ditandai">
+                  <i class="fa-solid fa-trash-can"></i> <span>Hapus yang Ditandai</span> (<span id="lblCountSelectedQuiz">0</span>)
+                </button>
+              </div>
+            </div>
+
+            <!-- Table of Questions -->
+            <div class="table-container glass-panel">
+              <div class="table-responsive">
+                <table class="custom-table" id="tableQuizAdminQuestions">
+                  <thead>
+                    <tr>
+                      <th style="width: 44px; text-align:center;" id="quizThSelectAll">
+                        <input type="checkbox" id="chkQuizSelectAll" class="quiz-table-checkbox" title="Tandai Semua Soal">
+                      </th>
+                      <th style="width: 50px; text-align:center;">No</th>
+                      <th style="width: 170px;">Kategori</th>
+                      <th>Pertanyaan Kuis</th>
+                      <th style="width: 80px; text-align:center;">Kunci</th>
+                      <th>Pembahasan / Penjelasan</th>
+                      <th style="width: 110px; text-align:center;">Aksi Admin</th>
+                    </tr>
+                  </thead>
+                  <tbody id="quizAdminQuestionsTableBody">
+                    <!-- Rendered dynamically -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- ==================== PAGE 3: MANAJEMEN TEAM (ADMIN ONLY) ==================== -->
         <section class="page-section" id="pageUserManagement">
           
@@ -4646,6 +5085,244 @@
         </button>
         <button type="button" class="btn btn-outline-gray" id="btnCloseAdminDetailFooterBtn">Tutup</button>
       </div>
+    </div>
+  </div>
+
+  <!-- ==================== SPECIAL ANIMATION OVERLAY (QUIZ OUTCOME CUTSCENE) ==================== -->
+  <div class="quiz-special-anim-overlay hidden" id="quizSpecialAnimOverlay">
+    <div class="anim-ambient-bg" id="animAmbientBg"></div>
+    <div class="anim-particles-container" id="animParticlesContainer"></div>
+    
+    <div class="anim-cutscene-container">
+      <div class="anim-event-badge" id="animEventBadge">
+        <i class="fa-solid fa-bolt"></i> <span id="animEventBadgeText">PERTEMPURAN SELESAI</span>
+      </div>
+
+      <div class="anim-stage-row">
+        <!-- Ultraman Hero Actor -->
+        <div class="anim-fighter anim-fighter-hero" id="animFighterHero">
+          <div class="anim-fighter-halo" id="animHeroHalo"></div>
+          <img src="assets/ultraman_iconnet.jpg" alt="Ultraman Iconnet" class="anim-fighter-img" id="animHeroImg">
+          <div class="anim-color-timer" id="animHeroTimer"></div>
+          <div class="anim-fighter-label">ULTRAMAN ICONNET</div>
+        </div>
+
+        <!-- Center Beam / Clash FX -->
+        <div class="anim-center-clash" id="animCenterClash">
+          <div class="anim-laser-beam" id="animLaserBeam"></div>
+          <div class="anim-cosmic-ray" id="animCosmicRay"></div>
+          <div class="anim-shockwave" id="animShockwave"></div>
+          <div class="anim-explosion" id="animExplosion"></div>
+          <div class="anim-vs-badge" id="animVsBadge">VS</div>
+        </div>
+
+        <!-- Monster Kaiju Actor -->
+        <div class="anim-fighter anim-fighter-monster" id="animFighterMonster">
+          <div class="anim-fighter-glitch" id="animMonsterGlitch"></div>
+          <img src="assets/monster_giga_lag.jpg" alt="Monster Giga Lag" class="anim-fighter-img" id="animMonsterImg">
+          <div class="anim-fighter-label">MONSTER GIGA LAG</div>
+        </div>
+      </div>
+
+      <!-- Banner and Outcome Announcement -->
+      <div class="anim-announcement-box" id="animAnnouncementBox">
+        <h1 class="anim-headline" id="animHeadline">MENANG!</h1>
+        <h3 class="anim-subhead" id="animSubhead">SPACIUM BEAM MENUMBANGKAN MONSTER!</h3>
+        <p class="anim-detail" id="animDetail">Deskripsi hasil pertarungan...</p>
+
+        <div class="anim-score-card" id="animScoreCard">
+          <span class="anim-score-title">NILAI AKHIR</span>
+          <span class="anim-score-val" id="animScoreVal">100</span>
+          <span class="anim-score-status" id="animScoreStatus">LULUS STANDAR</span>
+        </div>
+      </div>
+
+      <!-- Skip Button -->
+      <div class="anim-actions">
+        <button type="button" class="btn btn-outline-gray btn-sm" id="btnSkipSpecialAnim">
+          <span>Lewati Animasi</span> <i class="fa-solid fa-forward-step"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: HASIL PERTARUNGAN QUIZ ULTRAMAN VS MONSTER ==================== -->
+  <div class="modal-backdrop hidden" id="modalQuizResult" role="dialog" aria-modal="true">
+    <div class="modal-dialog modal-lg glass-panel quiz-result-dialog">
+      <div class="modal-header quiz-result-header" id="quizResultHeader">
+        <div class="quiz-result-header-content">
+          <div class="quiz-result-badge-pill" id="quizResultOutcomeBadge">
+            <!-- Outcome badge: KALAH / MENANG / SEMPURNA JURUS ULTIMATE -->
+          </div>
+          <h2 class="quiz-result-title" id="quizResultTitle">Pertarungan Selesai!</h2>
+          <p class="quiz-result-subtitle" id="quizResultOutcomeDesc">Hasil evaluasi kuis dan dampak pertarungan terhadap Monster Giga Lag.</p>
+        </div>
+        <button type="button" class="modal-close-btn" id="btnCloseQuizResult" aria-label="Tutup Hasil Kuis">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body quiz-result-body">
+        <!-- Ultimate Cutscene Banner (Shown when score == 100) -->
+        <div class="quiz-ultimate-banner hidden" id="quizUltimateBanner">
+          <div class="ultimate-glow-ring"></div>
+          <div class="ultimate-ray-beam"></div>
+          <div class="ultimate-content">
+            <span class="ultimate-tag"><i class="fa-solid fa-bolt-lightning text-yellow"></i> JURUS PAMUNGKAS AKTIF</span>
+            <h3 class="ultimate-move-name text-gradient-gold">MAXIMUM HYPER SPECTRUM RAY 100%!</h3>
+            <p class="ultimate-desc">Sinar kosmik berkecepatan 1:1 serat optik melenyapkan Monster Giga Lag tanpa sisa! Kinerja sempurna tanpa satu pun kesalahan!</p>
+          </div>
+        </div>
+
+        <!-- Result Score Metric Grid -->
+        <div class="quiz-result-stats-row">
+          <div class="result-score-circle-card" id="quizResultScoreCard">
+            <div class="score-circle-number" id="quizResultScoreNum">0</div>
+            <div class="score-circle-label">NILAI AKHIR</div>
+            <div class="score-circle-sub" id="quizResultScoreSub">Standar Lulus: 85</div>
+          </div>
+          <div class="result-stats-details">
+            <div class="result-stat-item">
+              <span class="stat-lbl"><i class="fa-solid fa-circle-check text-green"></i> Jawaban Benar:</span>
+              <strong class="stat-val text-green" id="quizResultCorrectCount">0 Soal</strong>
+            </div>
+            <div class="result-stat-item">
+              <span class="stat-lbl"><i class="fa-solid fa-circle-xmark text-red"></i> Jawaban Salah:</span>
+              <strong class="stat-val text-red" id="quizResultWrongCount">0 Soal</strong>
+            </div>
+            <div class="result-stat-item" id="resultStatItemDuration">
+              <span class="stat-lbl"><i class="fa-solid fa-clock text-silver"></i> Waktu Pertarungan:</span>
+              <strong class="stat-val text-white" id="quizResultDuration">00:45</strong>
+            </div>
+            <div class="result-stat-item" id="resultStatItemMonster">
+              <span class="stat-lbl"><i class="fa-solid fa-shield-halved text-yellow"></i> Dampak Monster:</span>
+              <strong class="stat-val text-yellow" id="quizResultMonsterStatus">Tumbang</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Review & Pembahasan Soal Section -->
+        <div class="quiz-review-section">
+          <div class="review-section-header">
+            <h4><i class="fa-solid fa-list-check text-red"></i> Pembahasan &amp; Kunci Jawaban Lengkap</h4>
+            <span class="badge badge-gray" id="quizReviewCountBadge">10 Soal Dievaluasi</span>
+          </div>
+          <div class="quiz-review-list" id="quizReviewList">
+            <!-- Rendered dynamically -->
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <button type="button" class="btn btn-outline-gray" id="btnCloseQuizResultFooter">Tutup</button>
+        <button type="button" class="btn btn-primary glow-effect-red" id="btnQuizRematch">
+          <i class="fa-solid fa-rotate-left"></i> <span>Ulangi Pertarungan (Rematch)</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: FORM TAMBAH / EDIT SOAL QUIZ (ADMIN ONLY) ==================== -->
+  <div class="modal-backdrop hidden" id="modalQuizQuestionForm">
+    <div class="modal-dialog glass-panel" style="max-width: 680px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-pen-to-square"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalQuizQuestionTitle">Tambah Soal Kuis Baru</h3>
+            <p class="modal-subtitle" id="modalQuizQuestionSubtitle">Kelola materi pertanyaan, 4 pilihan jawaban, kunci benar, dan pembahasan.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseQuizQuestionModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formQuizQuestion" novalidate>
+        <input type="hidden" id="formQuizQuestionId" value="">
+
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formQuizCategory" class="form-label">
+                Kategori Materi Soal <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-bookmark input-icon"></i>
+                <select id="formQuizCategory" class="form-control" required>
+                  <option value="Informasi">Informasi</option>
+                  <option value="Keluhan">Keluhan</option>
+                  <option value="Gangguan">Gangguan</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group flex-1">
+              <label for="formQuizCorrectAnswer" class="form-label">
+                Kunci Jawaban Benar <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-key input-icon"></i>
+                <select id="formQuizCorrectAnswer" class="form-control" required>
+                  <option value="A">Pilihan A</option>
+                  <option value="B">Pilihan B</option>
+                  <option value="C">Pilihan C</option>
+                  <option value="D">Pilihan D</option>
+                  <option value="E">Pilihan E</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formQuizPrompt" class="form-label">
+              Teks Pertanyaan Kuis <span class="required">*</span>
+            </label>
+            <textarea id="formQuizPrompt" class="form-control" rows="3" placeholder="Tuliskan teks pertanyaan kuis dengan jelas..." required></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formQuizOptA" class="form-label">Pilihan Jawaban A <span class="required">*</span></label>
+              <input type="text" id="formQuizOptA" class="form-control" placeholder="Teks opsi A..." required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="formQuizOptB" class="form-label">Pilihan Jawaban B <span class="required">*</span></label>
+              <input type="text" id="formQuizOptB" class="form-control" placeholder="Teks opsi B..." required>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formQuizOptC" class="form-label">Pilihan Jawaban C <span class="required">*</span></label>
+              <input type="text" id="formQuizOptC" class="form-control" placeholder="Teks opsi C..." required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="formQuizOptD" class="form-label">Pilihan Jawaban D <span class="required">*</span></label>
+              <input type="text" id="formQuizOptD" class="form-control" placeholder="Teks opsi D..." required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formQuizOptE" class="form-label">Pilihan Jawaban E <span class="required">*</span></label>
+            <input type="text" id="formQuizOptE" class="form-control" placeholder="Teks opsi E..." required>
+          </div>
+
+          <div class="form-group">
+            <label for="formQuizExplanation" class="form-label">Pembahasan &amp; Alasan Jawaban</label>
+            <textarea id="formQuizExplanation" class="form-control" rows="2" placeholder="Uraian pembahasan agar peserta dapat belajar dari materi ini..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelQuizQuestionModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitQuizQuestion">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnSubmitQuizQuestionText">Simpan Soal Kuis</span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
