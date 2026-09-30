@@ -842,121 +842,295 @@ function generateDefaultTiketLogs() {
 
 const DEFAULT_TIKETS = generateDefaultTiketLogs();
 
-const DEFAULT_AHT_LOGS = [
-  {
-    sessionTime: '2026-09-28 08:35',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    interactionId: 'CHAT-WA-8921',
-    actualSeconds: 195,
-    targetSeconds: 300,
-    deviationText: '-105 dtk (Cepat)',
-    status: 'Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 09:12',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    interactionId: 'CALL-IN-4412',
-    actualSeconds: 245,
-    targetSeconds: 300,
-    deviationText: '-55 dtk (Cepat)',
-    status: 'Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 10:04',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    interactionId: 'TKT-BO-1029',
-    actualSeconds: 280,
-    targetSeconds: 300,
-    deviationText: '-20 dtk (Optimal)',
-    status: 'Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 11:15',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    interactionId: 'CHAT-WA-8964',
-    actualSeconds: 340,
-    targetSeconds: 300,
-    deviationText: '+40 dtk (Over SLA)',
-    status: 'Over SLA'
-  },
-  {
-    sessionTime: '2026-09-28 12:40',
-    userFullName: 'Dewi Lestari, M.T.',
-    department: 'TEAM LEADER',
-    interactionId: 'CHAT-DM-3105',
-    actualSeconds: 180,
-    targetSeconds: 300,
-    deviationText: '-120 dtk (Cepat)',
-    status: 'Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 13:25',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    interactionId: 'TKT-BO-1045',
-    actualSeconds: 215,
-    targetSeconds: 300,
-    deviationText: '-85 dtk (Cepat)',
-    status: 'Sesuai SLA'
-  }
-];
+function generateDefaultAhtLogs() {
+  const septWorkdays = [
+    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
+    '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11',
+    '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18',
+    '2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25',
+    '2026-09-28', '2026-09-29', '2026-09-30'
+  ];
 
-const DEFAULT_ART_LOGS = [
-  {
-    sessionTime: '2026-09-28 08:30',
-    userFullName: 'Siti Rahma',
-    channel: 'CSO DIGILIVE CHAT - WA',
-    queueSeconds: 4,
-    frtSeconds: 6,
-    avgResponseSeconds: 12.4,
-    targetSeconds: 30,
-    status: 'Optimal / Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 09:15',
-    userFullName: 'Siti Rahma',
-    channel: 'CSO DIGILIVE CHAT - WA',
-    queueSeconds: 8,
-    frtSeconds: 9,
-    avgResponseSeconds: 15.2,
-    targetSeconds: 30,
-    status: 'Optimal / Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 10:10',
-    userFullName: 'Dewi Lestari, M.T.',
-    channel: 'CSO DIGILIVE CHAT - DM',
-    queueSeconds: 5,
-    frtSeconds: 7,
-    avgResponseSeconds: 11.0,
-    targetSeconds: 30,
-    status: 'Optimal / Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 11:22',
-    userFullName: 'Siti Rahma',
-    channel: 'CSO DIGILIVE CHAT - MY ICON+',
-    queueSeconds: 12,
-    frtSeconds: 14,
-    avgResponseSeconds: 19.8,
-    targetSeconds: 30,
-    status: 'Optimal / Sesuai SLA'
-  },
-  {
-    sessionTime: '2026-09-28 13:05',
-    userFullName: 'Budi Santoso, S.Kom',
-    channel: 'CSO EMAIL',
-    queueSeconds: 18,
-    frtSeconds: 22,
-    avgResponseSeconds: 25.5,
-    targetSeconds: 30,
-    status: 'Optimal / Sesuai SLA'
-  }
-];
+  const augWorkdays = [
+    '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07',
+    '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
+    '2026-08-18', '2026-08-19', '2026-08-20', '2026-08-21',
+    '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28',
+    '2026-08-31'
+  ];
+
+  // Daily AHT profiles for each user (SLA Target: 300 seconds / 05:00 minutes)
+  const sitiSeptSecs = [195, 210, 185, 200, 190, 215, 205, 195, 220, 180, 205, 195, 210, 190, 200, 215, 190, 205, 195, 210, 185, 200];
+  const sitiCounts =   [ 58,  62,  55,  60,  64,  52,  58,  61,  60,  57,  54,  63,  62,  55,  58,  60,  61,  56,  57,  61,  63,  56];
+
+  const budiSeptSecs = [245, 255, 235, 260, 250, 240, 265, 250, 275, 245, 250, 260, 245, 255, 270, 315, 240, 250, 265, 255, 245, 250];
+  const budiCounts =   [ 42,  45,  40,  44,  46,  38,  43,  45,  44,  41,  39,  46,  45,  40,  42,  44,  45,  41,  42,  45,  46,  41];
+
+  const dewiSeptSecs = [180, 195, 175, 190, 185, 205, 190, 185, 200, 175, 190, 185, 195, 180, 190, 205, 180, 195, 185, 195, 175, 190];
+  const dewiCounts =   [ 28,  30,  26,  29,  31,  25,  28,  30,  29,  27,  26,  31,  30,  26,  28,  30,  31,  27,  28,  30,  31,  27];
+
+  const ahmadSeptSecs = [275, 285, 265, 290, 280, 320, 270, 285, 330, 275, 280, 290, 275, 285, 295, 280, 270, 285, 290, 280, 275, 280];
+  const ahmadCounts =   [ 36,  38,  34,  37,  39,  32,  36,  38,  37,  35,  33,  39,  38,  34,  36,  38,  39,  35,  36,  38,  39,  35];
+
+  const usersConfig = [
+    {
+      name: 'Siti Rahma',
+      dept: 'CSO DIGILIVE CHAT - WA',
+      prefix: 'sr',
+      septSecs: sitiSeptSecs,
+      septCounts: sitiCounts,
+      noteBase: 'Pelayanan live chat interaktif WA cepat, tanggap, dan efisien.'
+    },
+    {
+      name: 'Budi Santoso, S.Kom',
+      dept: 'CSO INBOUND',
+      prefix: 'bs',
+      septSecs: budiSeptSecs,
+      septCounts: budiCounts,
+      noteBase: 'Penerimaan panggilan komplain dan eskalasi telepon inbound terkendali.'
+    },
+    {
+      name: 'Dewi Lestari, M.T.',
+      dept: 'TEAM LEADER',
+      prefix: 'dl',
+      septSecs: dewiSeptSecs,
+      septCounts: dewiCounts,
+      noteBase: 'Supervisi penanganan kendala tier-2 dan mediasi pelanggan VIP berjalan lancar.'
+    },
+    {
+      name: 'Ahmad Fauzi',
+      dept: 'CSO BACK OFFICE',
+      prefix: 'af',
+      septSecs: ahmadSeptSecs,
+      septCounts: ahmadCounts,
+      noteBase: 'Validasi berkas administrasi dan investigasi keluhan teknis selesai.'
+    }
+  ];
+
+  const list = [];
+
+  // Generate September 2026 daily logs (22 hari input)
+  septWorkdays.forEach((dateStr, dayIdx) => {
+    usersConfig.forEach((cfg) => {
+      const actualSec = cfg.septSecs[dayIdx];
+      const count = cfg.septCounts[dayIdx];
+      const targetSec = 300;
+      const totalDurSec = count * actualSec;
+      const devSec = actualSec - targetSec;
+      const isSla = actualSec <= targetSec;
+      const devText = isSla ? `-${Math.abs(devSec)} dtk (Cepat)` : `+${devSec} dtk (Over SLA)`;
+
+      list.push({
+        id: `aht_${cfg.prefix}_202609_${String(dayIdx + 1).padStart(2, '0')}`,
+        date: dateStr,
+        userFullName: cfg.name,
+        department: cfg.dept,
+        interactionCount: count,
+        totalDurationSeconds: totalDurSec,
+        actualSeconds: actualSec,
+        targetSeconds: targetSec,
+        deviationSeconds: devSec,
+        deviationText: devText,
+        status: isSla ? 'Sesuai SLA' : 'Over SLA',
+        notes: isSla 
+          ? `${cfg.noteBase} Rata-rata durasi ${Math.floor(actualSec/60)}m ${actualSec%60}s per interaksi.`
+          : `${cfg.noteBase} Melebihi SLA karena investigasi kendala kompleks pelanggan.`,
+        createdAt: `${dateStr} 17:30`
+      });
+    });
+  });
+
+  // Generate August 2026 daily logs (20 hari input historis)
+  augWorkdays.forEach((dateStr, dayIdx) => {
+    usersConfig.forEach((cfg, uIdx) => {
+      const baseSec = cfg.septSecs[dayIdx % cfg.septSecs.length];
+      const actualSec = Math.max(160, baseSec + ((dayIdx * 7 + uIdx * 11) % 31) - 15);
+      const count = Math.max(20, cfg.septCounts[dayIdx % cfg.septCounts.length] + ((dayIdx + uIdx) % 7) - 3);
+      const targetSec = 300;
+      const totalDurSec = count * actualSec;
+      const devSec = actualSec - targetSec;
+      const isSla = actualSec <= targetSec;
+      const devText = isSla ? `-${Math.abs(devSec)} dtk (Cepat)` : `+${devSec} dtk (Over SLA)`;
+
+      list.push({
+        id: `aht_${cfg.prefix}_202608_${String(dayIdx + 1).padStart(2, '0')}`,
+        date: dateStr,
+        userFullName: cfg.name,
+        department: cfg.dept,
+        interactionCount: count,
+        totalDurationSeconds: totalDurSec,
+        actualSeconds: actualSec,
+        targetSeconds: targetSec,
+        deviationSeconds: devSec,
+        deviationText: devText,
+        status: isSla ? 'Sesuai SLA' : 'Over SLA',
+        notes: `Riwayat pencatatan handling time bulan Agustus. Durasi rata-rata ${Math.floor(actualSec/60)}m ${actualSec%60}s.`,
+        createdAt: `${dateStr} 17:30`
+      });
+    });
+  });
+
+  return list;
+}
+
+const DEFAULT_AHT_LOGS = generateDefaultAhtLogs();
+
+function generateDefaultArtLogs() {
+  const septWorkdays = [
+    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
+    '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11',
+    '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18',
+    '2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25',
+    '2026-09-28', '2026-09-29', '2026-09-30'
+  ];
+
+  const augWorkdays = [
+    '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07',
+    '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
+    '2026-08-18', '2026-08-19', '2026-08-20', '2026-08-21',
+    '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28',
+    '2026-08-31'
+  ];
+
+  // Daily ART profiles for each user (SLA Target: < 30 seconds)
+  // Siti Rahma (WA) - Fast & responsive (12-16s)
+  const sitiSeptArt =   [12.4, 13.8, 11.5, 14.2, 12.0, 15.1, 13.5, 12.2, 14.8, 11.9, 13.0, 12.5, 14.0, 12.8, 13.2, 15.0, 12.4, 13.6, 12.9, 14.1, 11.8, 13.4];
+  const sitiSeptFrt =   [ 6.2,  7.0,  5.8,  7.5,  6.0,  8.2,  7.1,  6.4,  7.8,  6.1,  6.8,  6.5,  7.2,  6.7,  7.0,  8.0,  6.3,  7.1,  6.6,  7.4,  5.9,  6.9];
+  const sitiSeptQueue = [ 3.8,  4.5,  3.2,  4.8,  4.0,  5.5,  4.2,  3.9,  5.1,  3.6,  4.3,  4.1,  4.6,  4.2,  4.4,  5.2,  3.9,  4.5,  4.1,  4.7,  3.5,  4.2];
+  const sitiCounts =    [  58,   62,   55,   60,   64,   52,   58,   61,   60,   57,   54,   63,   62,   55,   58,   60,   61,   56,   57,   61,   63,   56];
+
+  // Budi Santoso (INBOUND / EMAIL) - Inbound telephone & email (18-26s, peak 33.2s)
+  const budiSeptArt =   [21.5, 23.0, 19.8, 24.2, 22.0, 25.5, 23.8, 21.2, 26.0, 20.5, 22.4, 24.0, 21.8, 23.5, 26.2, 33.5, 20.8, 22.0, 24.5, 23.2, 21.6, 22.8];
+  const budiSeptFrt =   [11.2, 12.5, 10.4, 13.0, 11.8, 14.2, 12.6, 11.0, 14.5, 10.8, 12.0, 13.1, 11.5, 12.7, 14.6, 18.2, 10.9, 11.8, 13.4, 12.5, 11.3, 12.2];
+  const budiSeptQueue = [ 8.5,  9.8,  7.9, 10.2,  9.1, 11.5,  9.8,  8.4, 11.8,  8.2,  9.4, 10.5,  8.9, 10.0, 11.7, 15.0,  8.3,  9.2, 10.6,  9.7,  8.8,  9.5];
+  const budiCounts =    [  42,   45,   40,   44,   46,   38,   43,   45,   44,   41,   39,   46,   45,   40,   42,   44,   45,   41,   42,   45,   46,   41];
+
+  // Dewi Lestari (TEAM LEADER / DM) - Highest speed (9-14s)
+  const dewiSeptArt =   [10.2, 11.5,  9.8, 11.0, 10.5, 12.2, 11.0, 10.4, 11.8,  9.9, 10.8, 10.5, 11.2, 10.3, 10.9, 12.4, 10.1, 11.2, 10.6, 11.3,  9.7, 10.8];
+  const dewiSeptFrt =   [ 5.1,  6.0,  4.9,  5.8,  5.3,  6.5,  5.7,  5.2,  6.2,  5.0,  5.6,  5.4,  5.9,  5.3,  5.7,  6.6,  5.1,  5.8,  5.5,  5.9,  4.8,  5.6];
+  const dewiSeptQueue = [ 3.2,  4.0,  3.0,  3.9,  3.5,  4.5,  3.8,  3.3,  4.2,  3.1,  3.7,  3.5,  4.0,  3.4,  3.8,  4.6,  3.3,  3.9,  3.6,  4.0,  3.0,  3.7];
+  const dewiCounts =    [  28,   30,   26,   29,   31,   25,   28,   30,   29,   27,   26,   31,   30,   26,   28,   30,   31,   27,   28,   30,   31,   27];
+
+  // Ahmad Fauzi (BACK OFFICE / MY ICON+) - Investigation & ticketing (19-27s, peak 32.8s)
+  const ahmadSeptArt =   [22.8, 24.5, 21.0, 25.0, 23.5, 27.2, 23.0, 24.2, 28.5, 22.0, 23.8, 25.2, 22.9, 24.1, 26.5, 32.8, 21.9, 23.6, 25.0, 24.0, 22.5, 23.9];
+  const ahmadSeptFrt =   [12.5, 13.8, 11.6, 14.5, 13.0, 15.6, 12.9, 13.7, 16.2, 12.1, 13.2, 14.3, 12.7, 13.5, 15.1, 19.5, 12.0, 13.1, 14.2, 13.6, 12.4, 13.3];
+  const ahmadSeptQueue = [ 9.8, 11.0,  8.9, 11.5, 10.2, 12.8, 10.1, 10.9, 13.5,  9.5, 10.4, 11.2,  9.9, 10.7, 12.1, 16.0,  9.4, 10.3, 11.4, 10.8,  9.7, 10.5];
+  const ahmadCounts =    [  36,   38,   34,   37,   39,   32,   36,   38,   37,   35,   33,   39,   38,   34,   36,   38,   39,   35,   36,   38,   39,   35];
+
+  const usersConfig = [
+    {
+      name: 'Siti Rahma',
+      dept: 'CSO DIGILIVE CHAT - WA',
+      prefix: 'sr',
+      septArt: sitiSeptArt,
+      septFrt: sitiSeptFrt,
+      septQueue: sitiSeptQueue,
+      septCounts: sitiCounts,
+      noteBase: 'Respon live chat interaktif WhatsApp prima dan cepat di bawah 15 detik.'
+    },
+    {
+      name: 'Budi Santoso, S.Kom',
+      dept: 'CSO INBOUND',
+      prefix: 'bs',
+      septArt: budiSeptArt,
+      septFrt: budiSeptFrt,
+      septQueue: budiSeptQueue,
+      septCounts: budiCounts,
+      noteBase: 'Penanganan antrian panggilan telepon dan klarifikasi tiket inbound pelanggan.'
+    },
+    {
+      name: 'Dewi Lestari, M.T.',
+      dept: 'TEAM LEADER',
+      prefix: 'dl',
+      septArt: dewiSeptArt,
+      septFrt: dewiSeptFrt,
+      septQueue: dewiSeptQueue,
+      septCounts: dewiCounts,
+      noteBase: 'Kecepatan respon live chat DM & eskalasi keluhan pelanggan sangat responsif.'
+    },
+    {
+      name: 'Ahmad Fauzi',
+      dept: 'CSO BACK OFFICE',
+      prefix: 'af',
+      septArt: ahmadSeptArt,
+      septFrt: ahmadSeptFrt,
+      septQueue: ahmadSeptQueue,
+      septCounts: ahmadCounts,
+      noteBase: 'Respon chat My Icon+ dan koordinasi investigasi teknis operasional back office.'
+    }
+  ];
+
+  const list = [];
+
+  // Generate September 2026 daily logs (22 hari input)
+  septWorkdays.forEach((dateStr, dayIdx) => {
+    usersConfig.forEach((cfg) => {
+      const artSec = cfg.septArt[dayIdx];
+      const frtSec = cfg.septFrt[dayIdx];
+      const queueSec = cfg.septQueue[dayIdx];
+      const count = cfg.septCounts[dayIdx];
+      const targetSec = 30;
+      const devSec = parseFloat((artSec - targetSec).toFixed(1));
+      const isSla = artSec <= targetSec;
+      const devText = isSla ? `-${Math.abs(devSec).toFixed(1)} dtk (Cepat)` : `+${devSec.toFixed(1)} dtk (Over SLA)`;
+
+      list.push({
+        id: `art_${cfg.prefix}_202609_${String(dayIdx + 1).padStart(2, '0')}`,
+        date: dateStr,
+        userFullName: cfg.name,
+        department: cfg.dept,
+        interactionCount: count,
+        queueSeconds: queueSec,
+        frtSeconds: frtSec,
+        avgResponseSeconds: artSec,
+        targetSeconds: targetSec,
+        deviationSeconds: devSec,
+        deviationText: devText,
+        status: isSla ? 'Sesuai SLA' : 'Over SLA',
+        notes: isSla
+          ? `${cfg.noteBase} Rata-rata respon ${artSec} detik per interaksi.`
+          : `${cfg.noteBase} Lonjakan antrian menyebabkan response time melewati batas 30 detik.`,
+        createdAt: `${dateStr} 17:30`
+      });
+    });
+  });
+
+  // Generate August 2026 daily logs (20 hari input historis)
+  augWorkdays.forEach((dateStr, dayIdx) => {
+    usersConfig.forEach((cfg, uIdx) => {
+      const baseArt = cfg.septArt[dayIdx % cfg.septArt.length];
+      const artSec = parseFloat(Math.max(8.0, baseArt + (((dayIdx * 3 + uIdx * 5) % 11) * 0.4) - 2.0).toFixed(1));
+      const frtSec = parseFloat(Math.max(4.0, (artSec * 0.55)).toFixed(1));
+      const queueSec = parseFloat(Math.max(2.5, (artSec * 0.35)).toFixed(1));
+      const count = Math.max(20, cfg.septCounts[dayIdx % cfg.septCounts.length] + ((dayIdx + uIdx) % 7) - 3);
+      const targetSec = 30;
+      const devSec = parseFloat((artSec - targetSec).toFixed(1));
+      const isSla = artSec <= targetSec;
+      const devText = isSla ? `-${Math.abs(devSec).toFixed(1)} dtk (Cepat)` : `+${devSec.toFixed(1)} dtk (Over SLA)`;
+
+      list.push({
+        id: `art_${cfg.prefix}_202608_${String(dayIdx + 1).padStart(2, '0')}`,
+        date: dateStr,
+        userFullName: cfg.name,
+        department: cfg.dept,
+        interactionCount: count,
+        queueSeconds: queueSec,
+        frtSeconds: frtSec,
+        avgResponseSeconds: artSec,
+        targetSeconds: targetSec,
+        deviationSeconds: devSec,
+        deviationText: devText,
+        status: isSla ? 'Sesuai SLA' : 'Over SLA',
+        notes: `Riwayat pencatatan response time bulan Agustus. ART: ${artSec}s, FRT: ${frtSec}s.`,
+        createdAt: `${dateStr} 17:30`
+      });
+    });
+  });
+
+  return list;
+}
+
+const DEFAULT_ART_LOGS = generateDefaultArtLogs();
 
 const DEFAULT_FINDINGS = [
   {
@@ -1023,13 +1197,19 @@ class AppState {
     this.sortOrder = 'asc';
 
     // Pending delete action
-    this.pendingDelete = null; // { type: 'item'|'user'|'timer'|'stopwatch'|'pa'|'ca'|'tiket'|'finding', id: string, name: string }
+    this.pendingDelete = null; // { type: 'item'|'user'|'timer'|'stopwatch'|'pa'|'ca'|'tiket'|'aht'|'art'|'finding', id: string, name: string }
 
     // Selected CA IDs for marking / batch actions
     this.selectedCaIds = new Set();
 
     // Selected Tiket IDs for marking / batch actions
     this.selectedTiketIds = new Set();
+
+    // Selected AHT IDs for marking / batch actions
+    this.selectedAhtIds = new Set();
+
+    // Selected ART IDs for marking / batch actions
+    this.selectedArtIds = new Set();
 
     // Chart instances
     this.monthlyChartInstance = null;
@@ -1059,10 +1239,12 @@ class AppState {
     if (!localStorage.getItem('vortex_tikets')) {
       localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
     }
-    if (!localStorage.getItem('vortex_aht_logs')) {
+    const existingAht = JSON.parse(localStorage.getItem('vortex_aht_logs') || '[]');
+    if (!existingAht.length || !existingAht[0].date) {
       localStorage.setItem('vortex_aht_logs', JSON.stringify(DEFAULT_AHT_LOGS));
     }
-    if (!localStorage.getItem('vortex_art_logs')) {
+    const existingArt = JSON.parse(localStorage.getItem('vortex_art_logs') || '[]');
+    if (!existingArt.length || !existingArt[0].date) {
       localStorage.setItem('vortex_art_logs', JSON.stringify(DEFAULT_ART_LOGS));
     }
     if (!localStorage.getItem('vortex_findings')) {
@@ -1712,6 +1894,7 @@ const UI = {
     finding: document.getElementById('pageFinding'),
     'data-management': document.getElementById('pageDataManagement'),
     timer: document.getElementById('pageTimer'),
+    'typing-test': document.getElementById('pageTypingTest'),
     'user-management': document.getElementById('pageUserManagement'),
     'activity-log': document.getElementById('pageActivityLog'),
     settings: document.getElementById('pageSettings')
@@ -1896,25 +2079,148 @@ const UI = {
   btnCancelTiketModal: document.getElementById('btnCancelTiketModal'),
   btnSubmitTiket: document.getElementById('btnSubmitTiket'),
   btnSubmitTiketText: document.getElementById('btnSubmitTiketText'),
-// AHT Elements
+  // AHT Elements
   navAht: document.getElementById('navAht'),
   pageAht: document.getElementById('pageAht'),
+  filterAhtMonth: document.getElementById('filterAhtMonth'),
   btnRefreshAht: document.getElementById('btnRefreshAht'),
+  btnDeleteAllAhtMonth: document.getElementById('btnDeleteAllAhtMonth'),
+  btnOpenAddAhtModal: document.getElementById('btnOpenAddAhtModal'),
+
+  ahtPermissionBanner: document.getElementById('ahtPermissionBanner'),
+  ahtBannerRoleLabel: document.getElementById('ahtBannerRoleLabel'),
+  ahtBannerRoleDesc: document.getElementById('ahtBannerRoleDesc'),
+  ahtBannerBadgePrivilege: document.getElementById('ahtBannerBadgePrivilege'),
+
   ahtStatAvg: document.getElementById('ahtStatAvg'),
+  ahtStatAvgSub: document.getElementById('ahtStatAvgSub'),
   ahtStatCompliance: document.getElementById('ahtStatCompliance'),
+  ahtStatComplianceSub: document.getElementById('ahtStatComplianceSub'),
   ahtStatOver: document.getElementById('ahtStatOver'),
+  ahtStatOverSub: document.getElementById('ahtStatOverSub'),
+  ahtStatTopUser: document.getElementById('ahtStatTopUser'),
+  ahtStatTopUserSub: document.getElementById('ahtStatTopUserSub'),
+
+  ahtMonthHeaderLabel: document.getElementById('ahtMonthHeaderLabel'),
+  filterSummaryAhtUser: document.getElementById('filterSummaryAhtUser'),
+  filterSummaryAhtService: document.getElementById('filterSummaryAhtService'),
+  filterAhtSummarySort: document.getElementById('filterAhtSummarySort'),
+  ahtUserCountBadge: document.getElementById('ahtUserCountBadge'),
+  tableAhtUserSummary: document.getElementById('tableAhtUserSummary'),
+  ahtUserSummaryBody: document.getElementById('ahtUserSummaryBody'),
+
+  ahtDailySubtitle: document.getElementById('ahtDailySubtitle'),
+  searchAhtInput: document.getElementById('searchAhtInput'),
+  btnClearSearchAht: document.getElementById('btnClearSearchAht'),
+  filterAhtUserSelect: document.getElementById('filterAhtUserSelect'),
+  filterAhtService: document.getElementById('filterAhtService'),
+  filterAhtStatus: document.getElementById('filterAhtStatus'),
+  filterAhtSort: document.getElementById('filterAhtSort'),
+  btnResetAhtFilters: document.getElementById('btnResetAhtFilters'),
+
+  ahtBatchBar: document.getElementById('ahtBatchBar'),
+  ahtSelectedCount: document.getElementById('ahtSelectedCount'),
+  btnAhtDeselectAll: document.getElementById('btnAhtDeselectAll'),
+  btnAhtSelectAll: document.getElementById('btnAhtSelectAll'),
+  btnAhtDeleteSelected: document.getElementById('btnAhtDeleteSelected'),
+
+  ahtThSelectAll: document.getElementById('ahtThSelectAll'),
+  ahtSelectAllCheckbox: document.getElementById('ahtSelectAllCheckbox'),
   tableAhtLogs: document.getElementById('tableAhtLogs'),
   ahtTableBody: document.getElementById('ahtTableBody'),
+
+  // Modal AHT Form
+  modalAhtForm: document.getElementById('modalAhtForm'),
+  modalAhtTitle: document.getElementById('modalAhtTitle'),
+  modalAhtSubtitle: document.getElementById('modalAhtSubtitle'),
+  btnCloseAhtModal: document.getElementById('btnCloseAhtModal'),
+  btnCancelAhtModal: document.getElementById('btnCancelAhtModal'),
+  formAht: document.getElementById('formAht'),
+  formAhtId: document.getElementById('formAhtId'),
+  formAhtDate: document.getElementById('formAhtDate'),
+  formAhtUserSelect: document.getElementById('formAhtUserSelect'),
+  formAhtDept: document.getElementById('formAhtDept'),
+  formAhtInteractionCount: document.getElementById('formAhtInteractionCount'),
+  formAhtDurationMins: document.getElementById('formAhtDurationMins'),
+  formAhtDurationSecs: document.getElementById('formAhtDurationSecs'),
+  formAhtDurationPreview: document.getElementById('formAhtDurationPreview'),
+  formAhtTargetSecs: document.getElementById('formAhtTargetSecs'),
+  formAhtNotes: document.getElementById('formAhtNotes'),
+  btnSubmitAht: document.getElementById('btnSubmitAht'),
+  btnSubmitAhtText: document.getElementById('btnSubmitAhtText'),
 
   // ART Elements
   navArt: document.getElementById('navArt'),
   pageArt: document.getElementById('pageArt'),
+  filterArtMonth: document.getElementById('filterArtMonth'),
   btnRefreshArt: document.getElementById('btnRefreshArt'),
+  btnDeleteAllArtMonth: document.getElementById('btnDeleteAllArtMonth'),
+  btnOpenAddArtModal: document.getElementById('btnOpenAddArtModal'),
+
+  artPermissionBanner: document.getElementById('artPermissionBanner'),
+  artBannerRoleLabel: document.getElementById('artBannerRoleLabel'),
+  artBannerRoleDesc: document.getElementById('artBannerRoleDesc'),
+  artBannerBadgePrivilege: document.getElementById('artBannerBadgePrivilege'),
+
   artStatAvg: document.getElementById('artStatAvg'),
+  artStatAvgSub: document.getElementById('artStatAvgSub'),
   artStatFrt: document.getElementById('artStatFrt'),
+  artStatFrtSub: document.getElementById('artStatFrtSub'),
   artStatCompliance: document.getElementById('artStatCompliance'),
+  artStatComplianceSub: document.getElementById('artStatComplianceSub'),
+  artStatTopUser: document.getElementById('artStatTopUser'),
+  artStatTopUserSub: document.getElementById('artStatTopUserSub'),
+  artStatTopUserTag: document.getElementById('artStatTopUserTag'),
+  artStatTopUserLabel: document.getElementById('artStatTopUserLabel'),
+
+  artMonthHeaderLabel: document.getElementById('artMonthHeaderLabel'),
+  filterSummaryArtUser: document.getElementById('filterSummaryArtUser'),
+  filterSummaryArtService: document.getElementById('filterSummaryArtService'),
+  filterArtSummarySort: document.getElementById('filterArtSummarySort'),
+  artUserCountBadge: document.getElementById('artUserCountBadge'),
+  tableArtUserSummary: document.getElementById('tableArtUserSummary'),
+  artUserSummaryBody: document.getElementById('artUserSummaryBody'),
+
+  artDailySubtitle: document.getElementById('artDailySubtitle'),
+  searchArtInput: document.getElementById('searchArtInput'),
+  btnClearSearchArt: document.getElementById('btnClearSearchArt'),
+  filterArtUserSelect: document.getElementById('filterArtUserSelect'),
+  filterArtService: document.getElementById('filterArtService'),
+  filterArtStatus: document.getElementById('filterArtStatus'),
+  filterArtSort: document.getElementById('filterArtSort'),
+  btnResetArtFilters: document.getElementById('btnResetArtFilters'),
+
+  artBatchBar: document.getElementById('artBatchBar'),
+  artSelectedCount: document.getElementById('artSelectedCount'),
+  btnArtDeselectAll: document.getElementById('btnArtDeselectAll'),
+  btnArtSelectAll: document.getElementById('btnArtSelectAll'),
+  btnArtDeleteSelected: document.getElementById('btnArtDeleteSelected'),
+
+  artThSelectAll: document.getElementById('artThSelectAll'),
+  artSelectAllCheckbox: document.getElementById('artSelectAllCheckbox'),
   tableArtLogs: document.getElementById('tableArtLogs'),
   artTableBody: document.getElementById('artTableBody'),
+
+  // Modal ART Form
+  modalArtForm: document.getElementById('modalArtForm'),
+  modalArtTitle: document.getElementById('modalArtTitle'),
+  modalArtSubtitle: document.getElementById('modalArtSubtitle'),
+  btnCloseArtModal: document.getElementById('btnCloseArtModal'),
+  btnCancelArtModal: document.getElementById('btnCancelArtModal'),
+  formArt: document.getElementById('formArt'),
+  formArtId: document.getElementById('formArtId'),
+  formArtDate: document.getElementById('formArtDate'),
+  formArtUserSelect: document.getElementById('formArtUserSelect'),
+  formArtDept: document.getElementById('formArtDept'),
+  formArtInteractionCount: document.getElementById('formArtInteractionCount'),
+  formArtQueueSecs: document.getElementById('formArtQueueSecs'),
+  formArtFrtSecs: document.getElementById('formArtFrtSecs'),
+  formArtResponseSecs: document.getElementById('formArtResponseSecs'),
+  formArtResponsePreview: document.getElementById('formArtResponsePreview'),
+  formArtTargetSecs: document.getElementById('formArtTargetSecs'),
+  formArtNotes: document.getElementById('formArtNotes'),
+  btnSubmitArt: document.getElementById('btnSubmitArt'),
+  btnSubmitArtText: document.getElementById('btnSubmitArtText'),
 
   // Finding Elements
   navFinding: document.getElementById('navFinding'),
@@ -2486,6 +2792,72 @@ function renderAppView() {
     UI.tiketBatchBar.classList.add('hidden');
   }
 
+  // AHT permission and banner info
+  const ahtBannerRoleLabel = document.getElementById('ahtBannerRoleLabel');
+  const ahtBannerRoleDesc = document.getElementById('ahtBannerRoleDesc');
+  const ahtBannerBadgePrivilege = document.getElementById('ahtBannerBadgePrivilege');
+  if (ahtBannerRoleLabel && ahtBannerRoleDesc && ahtBannerBadgePrivilege) {
+    if (isAdmin) {
+      ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Administrator Penuh';
+      ahtBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> data handling time harian seluruh pengguna. Pengguna biasa hanya dapat melihat.';
+      ahtBannerBadgePrivilege.className = 'badge badge-admin';
+      ahtBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
+    } else {
+      ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Pengguna (Hanya Lihat)';
+      ahtBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi Average Handling Time 1 bulan dengan interval input per hari dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Penambahan, pengubahan, atau penghapusan data dikelola oleh Admin.';
+      ahtBannerBadgePrivilege.className = 'badge badge-user';
+      ahtBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+  }
+  if (UI.btnOpenAddAhtModal) {
+    UI.btnOpenAddAhtModal.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnDeleteAllAhtMonth) {
+    UI.btnDeleteAllAhtMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnAhtDeleteSelected) {
+    UI.btnAhtDeleteSelected.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.ahtThSelectAll) {
+    UI.ahtThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.ahtBatchBar && !isAdmin) {
+    UI.ahtBatchBar.classList.add('hidden');
+  }
+
+  // ART permission and banner info
+  const artBannerRoleLabel = document.getElementById('artBannerRoleLabel');
+  const artBannerRoleDesc = document.getElementById('artBannerRoleDesc');
+  const artBannerBadgePrivilege = document.getElementById('artBannerBadgePrivilege');
+  if (artBannerRoleLabel && artBannerRoleDesc && artBannerBadgePrivilege) {
+    if (isAdmin) {
+      artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Administrator Penuh';
+      artBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> data response time harian seluruh pengguna. Standar SLA &lt; 30 detik. Pengguna biasa hanya dapat melihat.';
+      artBannerBadgePrivilege.className = 'badge badge-admin';
+      artBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
+    } else {
+      artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Pengguna (Hanya Lihat)';
+      artBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi Average Response Time 1 bulan dengan interval input per hari dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Standar SLA &lt; 30 detik. Penambahan, pengubahan, atau penghapusan data dikelola oleh Admin.';
+      artBannerBadgePrivilege.className = 'badge badge-user';
+      artBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+  }
+  if (UI.btnOpenAddArtModal) {
+    UI.btnOpenAddArtModal.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnDeleteAllArtMonth) {
+    UI.btnDeleteAllArtMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnArtDeleteSelected) {
+    UI.btnArtDeleteSelected.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.artThSelectAll) {
+    UI.artThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.artBatchBar && !isAdmin) {
+    UI.artBatchBar.classList.add('hidden');
+  }
+
   // Settings page info
   if (UI.settingsUserAvatar) UI.settingsUserAvatar.src = u.avatar;
   if (UI.settingsFullname) UI.settingsFullname.textContent = u.fullName;
@@ -2498,6 +2870,11 @@ function renderAppView() {
   }
   if (UI.settingsRolePill) {
     UI.settingsRolePill.textContent = isAdmin ? 'Hak Akses: Administrator' : 'Hak Akses: Pengguna';
+  }
+
+  // Typing test admin leaderboard visibility
+  if (typeof renderAdminTypingLeaderboard === 'function') {
+    renderAdminTypingLeaderboard();
   }
 
   // Render active section
@@ -2538,6 +2915,7 @@ function navigateToPage(pageId) {
     finding: 'Rekapitulasi Temuan Audit QA (Finding)',
     'data-management': 'Kelola Data Barang',
     timer: 'Pusat Timer & Stopwatch',
+    'typing-test': 'Typing Test (Speed Racer 60s)',
     'user-management': 'Manajemen Team',
     'activity-log': 'Log Aktivitas & Jejak Audit',
     settings: 'Profil Akun'
@@ -2575,6 +2953,8 @@ function navigateToPage(pageId) {
     renderDataTable();
   } else if (pageId === 'timer') {
     renderTimerPage();
+  } else if (pageId === 'typing-test') {
+    renderTypingTestPage();
   } else if (pageId === 'user-management') {
     renderUserManagementPage();
   } else if (pageId === 'activity-log') {
@@ -3206,6 +3586,58 @@ function executePendingDelete() {
     state.addLog('DELETE_TIKET_BATCH', 'Hapus Data Tiket Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data nilai tiket yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data perolehan tiket</strong> berhasil dihapus.`, 'danger');
     renderTiketPage();
+  } else if (type === 'aht') {
+    const ahtLogs = state.getAhtLogs().filter(t => t.id !== id);
+    state.saveAhtLogs(ahtLogs);
+    if (state.selectedAhtIds) state.selectedAhtIds.delete(id);
+    state.addLog('DELETE_AHT', 'Hapus Handling Time', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus catatan handling time harian: ${name}.`);
+    showToast('Handling Time Dihapus', `Data handling time harian berhasil dihapus.`, 'danger');
+    renderAhtPage();
+  } else if (type === 'aht_month') {
+    const month = id;
+    const oldLogs = state.getAhtLogs();
+    const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
+    const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
+    state.saveAhtLogs(remainingLogs);
+    if (state.selectedAhtIds) state.selectedAhtIds.clear();
+    state.addLog('DELETE_AHT_MONTH', 'Hapus AHT Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data handling time periode ${name} (${countBefore} catatan).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data handling time</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderAhtPage();
+  } else if (type === 'aht_batch') {
+    const idsToDelete = state.pendingDelete.ids || [];
+    const oldLogs = state.getAhtLogs();
+    const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
+    state.saveAhtLogs(remainingLogs);
+    if (state.selectedAhtIds) state.selectedAhtIds.clear();
+    state.addLog('DELETE_AHT_BATCH', 'Hapus AHT Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data handling time yang ditandai.`);
+    showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data handling time</strong> berhasil dihapus.`, 'danger');
+    renderAhtPage();
+  } else if (type === 'art') {
+    const artLogs = state.getArtLogs().filter(t => t.id !== id);
+    state.saveArtLogs(artLogs);
+    if (state.selectedArtIds) state.selectedArtIds.delete(id);
+    state.addLog('DELETE_ART', 'Hapus Response Time', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus catatan response time harian: ${name}.`);
+    showToast('Response Time Dihapus', `Data response time harian berhasil dihapus.`, 'danger');
+    renderArtPage();
+  } else if (type === 'art_month') {
+    const month = id;
+    const oldLogs = state.getArtLogs();
+    const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
+    const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
+    state.saveArtLogs(remainingLogs);
+    if (state.selectedArtIds) state.selectedArtIds.clear();
+    state.addLog('DELETE_ART_MONTH', 'Hapus ART Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data response time periode ${name} (${countBefore} catatan).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data response time</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderArtPage();
+  } else if (type === 'art_batch') {
+    const idsToDelete = state.pendingDelete.ids || [];
+    const oldLogs = state.getArtLogs();
+    const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
+    state.saveArtLogs(remainingLogs);
+    if (state.selectedArtIds) state.selectedArtIds.clear();
+    state.addLog('DELETE_ART_BATCH', 'Hapus ART Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data response time yang ditandai.`);
+    showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data response time</strong> berhasil dihapus.`, 'danger');
+    renderArtPage();
   } else if (type === 'finding') {
     const findings = state.getFindings().filter(f => f.id !== id);
     state.saveFindings(findings);
@@ -5698,10 +6130,22 @@ function renderTiketPage() {
     UI.tiketMonthHeaderLabel.textContent = monthLabel;
   }
 
+  // Update Page Title and Description based on Role
+  const pageTitle = document.querySelector('#pageTiket .page-title');
+  const pageDesc = document.querySelector('#pageTiket .page-desc');
+  if (pageTitle) {
+    pageTitle.textContent = isAdmin ? 'Perolehan Tiket User (Target: 1.320 / Bulan)' : 'Perolehan Tiket Saya (Target: 1.320 / Bulan)';
+  }
+  if (pageDesc) {
+    pageDesc.textContent = isAdmin
+      ? 'Informasi akumulasi jumlah perolehan tiket seluruh user dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket. Admin dapat menambah, mengubah, dan menghapus perolehan tiket. Pengguna biasa hanya dapat melihat.'
+      : 'Informasi akumulasi jumlah perolehan tiket untuk akun Anda dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket.';
+  }
+
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
     if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Administrator Penuh (CRUD)';
-    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh agent. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat.';
+    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh agent. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat perolehan tiket miliknya sendiri.';
     if (UI.tiketBannerBadgePrivilege) {
       UI.tiketBannerBadgePrivilege.className = 'badge badge-admin';
       UI.tiketBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
@@ -5710,11 +6154,11 @@ function renderTiketPage() {
     if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.remove('hidden');
     if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.remove('hidden');
   } else {
-    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Mode Tinjauan (Hanya Lihat)';
-    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi akumulasi perolehan tiket seluruh agent dan target 1.320 tiket/bulan. Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Data Pribadi (Hanya Lihat)';
+    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi akumulasi dan rincian perolehan tiket untuk diri Anda sendiri (target 1.320 tiket/bulan). Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
     if (UI.tiketBannerBadgePrivilege) {
       UI.tiketBannerBadgePrivilege.className = 'badge badge-user';
-      UI.tiketBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+      UI.tiketBannerBadgePrivilege.textContent = 'Hanya Lihat Pribadi';
     }
     if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.classList.add('hidden');
     if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.add('hidden');
@@ -5729,35 +6173,71 @@ function renderTiketPage() {
 
   // Populate filterSummaryTiketUser in Section 1
   if (UI.filterSummaryTiketUser) {
-    const curVal = UI.filterSummaryTiketUser.value || 'ALL';
-    UI.filterSummaryTiketUser.innerHTML = '<option value="ALL">Semua Nama User</option>' +
-      users.map(u => `<option value="${u.fullName}">${u.fullName}</option>`).join('');
-    if (Array.from(UI.filterSummaryTiketUser.options).some(o => o.value === curVal)) {
-      UI.filterSummaryTiketUser.value = curVal;
+    if (isAdmin) {
+      const curVal = UI.filterSummaryTiketUser.value || 'ALL';
+      UI.filterSummaryTiketUser.disabled = false;
+      UI.filterSummaryTiketUser.innerHTML = '<option value="ALL">Semua Nama User</option>' +
+        users.map(u => `<option value="${u.fullName}">${u.fullName}</option>`).join('');
+      if (Array.from(UI.filterSummaryTiketUser.options).some(o => o.value === curVal)) {
+        UI.filterSummaryTiketUser.value = curVal;
+      }
+    } else {
+      // Non-admin user can ONLY select themselves
+      UI.filterSummaryTiketUser.innerHTML = `<option value="${currentFullName}" selected>${currentFullName} (Diri Sendiri)</option>`;
+      UI.filterSummaryTiketUser.disabled = true;
     }
   }
 
   // Populate filterTiketUserSelect dynamically in Section 2 toolbar
   if (UI.filterTiketUserSelect) {
-    const currentVal = UI.filterTiketUserSelect.value || 'ALL';
-    UI.filterTiketUserSelect.innerHTML = '<option value="ALL">Semua User</option>' +
-      users.map(u => `<option value="${u.fullName}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
-    if (Array.from(UI.filterTiketUserSelect.options).some(o => o.value === currentVal)) {
-      UI.filterTiketUserSelect.value = currentVal;
+    if (isAdmin) {
+      const currentVal = UI.filterTiketUserSelect.value || 'ALL';
+      UI.filterTiketUserSelect.disabled = false;
+      UI.filterTiketUserSelect.innerHTML = '<option value="ALL">Semua User</option>' +
+        users.map(u => `<option value="${u.fullName}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+      if (Array.from(UI.filterTiketUserSelect.options).some(o => o.value === currentVal)) {
+        UI.filterTiketUserSelect.value = currentVal;
+      }
+    } else {
+      // Non-admin user can ONLY select themselves
+      UI.filterTiketUserSelect.innerHTML = `<option value="${currentFullName}" selected>${currentFullName} (Diri Sendiri)</option>`;
+      UI.filterTiketUserSelect.disabled = true;
     }
   }
 
   // ========================================================
-  // Section 1: Rekapitulasi Perolehan Tiket Seluruh Agent dalam 1 Bulan
+  // Section 1: Rekapitulasi Perolehan Tiket Bulanan
   // Target Baku Bulanan: 1.320 Tiket Per Agent
-  // Filter: Nama User, Layanan, Urutkan
-  // Kolom: Kekurangan Target Tiket
+  // (Untuk user: Hanya data perolehan dirinya sendiri yang tampil)
   // ========================================================
-  const summaryFilterUser = (UI.filterSummaryTiketUser ? UI.filterSummaryTiketUser.value : 'ALL');
+  const summaryTitleEl = document.querySelector('#tiketUserSummarySection h3 span');
+  const summaryDescEl = document.querySelector('#tiketUserSummarySection p');
+  if (summaryTitleEl) {
+    if (isAdmin) {
+      summaryTitleEl.innerHTML = `Rekapitulasi Perolehan Tiket Seluruh Agent Periode <span id="tiketMonthHeaderLabel" class="text-red">${monthLabel}</span>`;
+    } else {
+      summaryTitleEl.innerHTML = `Rekapitulasi Perolehan Tiket Saya Periode <span id="tiketMonthHeaderLabel" class="text-red">${monthLabel}</span>`;
+    }
+  }
+  if (summaryDescEl) {
+    if (isAdmin) {
+      summaryDescEl.textContent = 'Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.';
+    } else {
+      summaryDescEl.textContent = 'Monitoring akumulasi perolehan tiket harian pribadi Anda terhadap target bulanan 1.320 tiket.';
+    }
+  }
+
+  const summaryFilterUser = isAdmin ? (UI.filterSummaryTiketUser ? UI.filterSummaryTiketUser.value : 'ALL') : currentFullName;
   const summaryFilterService = (UI.filterSummaryTiketService ? UI.filterSummaryTiketService.value : 'ALL');
 
-  const filteredAgents = users.filter(u => {
-    if (summaryFilterUser !== 'ALL' && u.fullName !== summaryFilterUser) return false;
+  // Filter agen: Jika bukan admin, hanya ambil user yang sedang login
+  const availableAgents = isAdmin
+    ? users
+    : users.filter(u => u.fullName === currentFullName || (currentUser && (u.username === currentUser.username || u.id === currentUser.id)));
+
+  const filteredAgents = availableAgents.filter(u => {
+    if (!isAdmin && u.fullName !== currentFullName) return false;
+    if (isAdmin && summaryFilterUser !== 'ALL' && u.fullName !== summaryFilterUser) return false;
     if (summaryFilterService !== 'ALL' && (u.department || 'CSO INBOUND') !== summaryFilterService) return false;
     return true;
   });
@@ -5821,14 +6301,18 @@ function renderTiketPage() {
   }
 
   if (UI.tiketUserCountBadge) {
-    UI.tiketUserCountBadge.textContent = `${filteredAgents.length} Agent Terdaftar`;
+    if (isAdmin) {
+      UI.tiketUserCountBadge.textContent = `${filteredAgents.length} Agent Terdaftar`;
+    } else {
+      UI.tiketUserCountBadge.textContent = 'Perolehan Pribadi';
+    }
   }
 
   // Render Section 1 table
   if (UI.tiketUserSummaryBody) {
     UI.tiketUserSummaryBody.innerHTML = '';
     if (userSummaries.length === 0) {
-      UI.tiketUserSummaryBody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data agent yang sesuai dengan filter Nama User atau Layanan.</td></tr>';
+      UI.tiketUserSummaryBody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data perolehan tiket yang sesuai dengan filter.</td></tr>';
     } else {
       userSummaries.forEach(summary => {
         const u = summary.user;
@@ -5902,55 +6386,147 @@ function renderTiketPage() {
 
   // ========================================================
   // Monthly Overview Top 4 Metric Cards
+  // (Untuk admin: Data tim, Untuk user: Data perolehan diri sendiri)
   // ========================================================
-  const teamTotalTickets = monthLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
-  if (UI.tiketStatTotalTickets) {
-    UI.tiketStatTotalTickets.innerHTML = `${teamTotalTickets.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket</small>`;
-  }
-  if (UI.tiketStatTotalTicketsSub) {
-    UI.tiketStatTotalTicketsSub.textContent = `Akumulasi seluruh agent (${monthLogs.length} input harian)`;
-  }
-  if (UI.tiketStatMonthlyTarget) {
-    UI.tiketStatMonthlyTarget.innerHTML = `1.320 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket / User</small>`;
-  }
-
-  // Top Performer
-  const allUserSummaries = users.map(u => {
-    const uLogs = monthLogs.filter(l => l.userFullName === u.fullName);
-    const tot = uLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
-    return { user: u, total: tot, days: uLogs.length };
-  }).sort((a, b) => b.total - a.total);
-
-  if (allUserSummaries.length > 0 && allUserSummaries[0].days > 0) {
-    const top = allUserSummaries[0];
-    const topPct = ((top.total / MONTHLY_TICKET_TARGET) * 100).toFixed(1);
-    if (UI.tiketStatTopUser) UI.tiketStatTopUser.textContent = top.user.fullName;
-    if (UI.tiketStatTopUserSub) {
-      UI.tiketStatTopUserSub.textContent = `Perolehan: ${top.total.toLocaleString('id-ID')} Tiket (${topPct}% dari 1.320)`;
+  if (isAdmin) {
+    const teamTotalTickets = monthLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+    if (UI.tiketStatTotalTickets) {
+      UI.tiketStatTotalTickets.innerHTML = `${teamTotalTickets.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket</small>`;
     }
-  } else {
-    if (UI.tiketStatTopUser) UI.tiketStatTopUser.textContent = '-';
-    if (UI.tiketStatTopUserSub) UI.tiketStatTopUserSub.textContent = 'Belum ada input bulan ini';
-  }
+    if (UI.tiketStatTotalTicketsSub) {
+      UI.tiketStatTotalTicketsSub.textContent = `Akumulasi seluruh agent (${monthLogs.length} input harian)`;
+    }
+    if (UI.tiketStatMonthlyTarget) {
+      UI.tiketStatMonthlyTarget.innerHTML = `1.320 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket / User</small>`;
+    }
 
-  // Team Daily Average
-  const teamDailyAvg = monthLogs.length > 0 ? (teamTotalTickets / monthLogs.length).toFixed(1) : '0,0';
-  if (UI.tiketStatDailyAvg) {
-    UI.tiketStatDailyAvg.innerHTML = `${teamDailyAvg.replace('.', ',')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket/Hari</small>`;
-  }
-  if (UI.tiketStatDailyAvgSub) {
-    UI.tiketStatDailyAvgSub.textContent = 'Performa harian menuju target 1.320';
-  }
-  if (UI.tiketStatSlaTag) {
-    UI.tiketStatSlaTag.textContent = 'Standar: ~60/Hari';
+    // Top Performer
+    const allUserSummaries = users.map(u => {
+      const uLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+      const tot = uLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+      return { user: u, total: tot, days: uLogs.length };
+    }).sort((a, b) => b.total - a.total);
+
+    if (allUserSummaries.length > 0 && allUserSummaries[0].days > 0) {
+      const top = allUserSummaries[0];
+      const topPct = ((top.total / MONTHLY_TICKET_TARGET) * 100).toFixed(1);
+      if (UI.tiketStatTopUser) UI.tiketStatTopUser.textContent = top.user.fullName;
+      if (UI.tiketStatTopUserSub) {
+        UI.tiketStatTopUserSub.textContent = `Perolehan: ${top.total.toLocaleString('id-ID')} Tiket (${topPct}% dari 1.320)`;
+      }
+    } else {
+      if (UI.tiketStatTopUser) UI.tiketStatTopUser.textContent = '-';
+      if (UI.tiketStatTopUserSub) UI.tiketStatTopUserSub.textContent = 'Belum ada input bulan ini';
+    }
+
+    // Team Daily Average
+    const teamDailyAvg = monthLogs.length > 0 ? (teamTotalTickets / monthLogs.length).toFixed(1) : '0,0';
+    if (UI.tiketStatDailyAvg) {
+      UI.tiketStatDailyAvg.innerHTML = `${teamDailyAvg.replace('.', ',')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket/Hari</small>`;
+    }
+    if (UI.tiketStatDailyAvgSub) {
+      UI.tiketStatDailyAvgSub.textContent = 'Performa harian menuju target 1.320';
+    }
+    if (UI.tiketStatSlaTag) {
+      UI.tiketStatSlaTag.textContent = 'Standar: ~60/Hari';
+    }
+
+    // Reset card headers for Admin
+    const card1Label = document.querySelector('#tiketCardTotalTickets .metric-label');
+    const card1Tag = document.querySelector('#tiketCardTotalTickets .metric-tag');
+    if (card1Label) card1Label.textContent = 'Total Perolehan Tim Bulan Ini';
+    if (card1Tag) card1Tag.textContent = 'Realisasi Tim';
+
+    const card3Label = document.querySelector('#tiketCardTopUser .metric-label');
+    const card3Tag = document.querySelector('#tiketCardTopUser .metric-tag');
+    if (card3Label) card3Label.textContent = 'User Perolehan Terbanyak';
+    if (card3Tag) {
+      card3Tag.textContent = 'Top Performer';
+      card3Tag.className = 'metric-tag tag-yellow';
+    }
+
+    const card4Label = document.querySelector('#tiketCardDailyAvg .metric-label');
+    if (card4Label) card4Label.textContent = 'Rata-rata Perolehan Tim';
+  } else {
+    // ========================================================
+    // REGULAR USER: ONLY OWN STATS ARE VISIBLE!
+    // ========================================================
+    const myLogs = monthLogs.filter(l => l.userFullName === currentFullName || (currentUser && l.userId === currentUser.id));
+    const myTotalTickets = myLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+    const myDaysInput = myLogs.length;
+    const myDailyAvg = myDaysInput > 0 ? (myTotalTickets / myDaysInput).toFixed(1) : '0,0';
+    const myTargetPct = ((myTotalTickets / MONTHLY_TICKET_TARGET) * 100).toFixed(1);
+    const myRemaining = MONTHLY_TICKET_TARGET - myTotalTickets;
+
+    // Card 1: Total Perolehan Tiket Saya
+    const card1Label = document.querySelector('#tiketCardTotalTickets .metric-label');
+    const card1Tag = document.querySelector('#tiketCardTotalTickets .metric-tag');
+    if (card1Label) card1Label.textContent = 'Total Perolehan Tiket Saya';
+    if (card1Tag) card1Tag.textContent = 'Perolehan Pribadi';
+
+    if (UI.tiketStatTotalTickets) {
+      UI.tiketStatTotalTickets.innerHTML = `${myTotalTickets.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket</small>`;
+    }
+    if (UI.tiketStatTotalTicketsSub) {
+      UI.tiketStatTotalTicketsSub.textContent = `Akumulasi perolehan pribadi (${myDaysInput} hari input)`;
+    }
+
+    // Card 2: Target Bulanan Anda
+    if (UI.tiketStatMonthlyTarget) {
+      UI.tiketStatMonthlyTarget.innerHTML = `1.320 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket / Bulan</small>`;
+    }
+
+    // Card 3: Pencapaian Target Saya
+    const card3Label = document.querySelector('#tiketCardTopUser .metric-label');
+    const card3Tag = document.querySelector('#tiketCardTopUser .metric-tag');
+    if (card3Label) card3Label.textContent = 'Status Pencapaian Target Saya';
+    if (card3Tag) {
+      card3Tag.textContent = myTotalTickets >= MONTHLY_TICKET_TARGET ? 'Target Tercapai' : 'Progres Target';
+      card3Tag.className = myTotalTickets >= MONTHLY_TICKET_TARGET ? 'metric-tag tag-green' : 'metric-tag tag-yellow';
+    }
+
+    if (UI.tiketStatTopUser) {
+      if (myTotalTickets >= MONTHLY_TICKET_TARGET) {
+        UI.tiketStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-check-double"></i> Target Tercapai</span>';
+      } else if (myDaysInput > 0) {
+        UI.tiketStatTopUser.innerHTML = `<span class="text-yellow">Kurang ${myRemaining.toLocaleString('id-ID')} Tiket</span>`;
+      } else {
+        UI.tiketStatTopUser.textContent = 'Belum Ada Input';
+      }
+    }
+    if (UI.tiketStatTopUserSub) {
+      UI.tiketStatTopUserSub.textContent = `${myTargetPct}% tercapai dari target 1.320 tiket`;
+    }
+
+    // Card 4: Rata-rata Harian Saya
+    const card4Label = document.querySelector('#tiketCardDailyAvg .metric-label');
+    if (card4Label) card4Label.textContent = 'Rata-rata Harian Saya';
+
+    if (UI.tiketStatDailyAvg) {
+      UI.tiketStatDailyAvg.innerHTML = `${myDailyAvg.replace('.', ',')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket/Hari</small>`;
+    }
+    if (UI.tiketStatDailyAvgSub) {
+      UI.tiketStatDailyAvgSub.textContent = myTotalTickets >= MONTHLY_TICKET_TARGET ? 'Target bulanan 1.320 tiket telah terpenuhi' : 'Rata-rata input harian pribadi Anda';
+    }
+    if (UI.tiketStatSlaTag) {
+      UI.tiketStatSlaTag.textContent = Number(myDailyAvg) >= 60 ? 'Performa Prima' : 'Standar: ~60/Hari';
+    }
   }
 
   // ========================================================
   // Section 2: Log Perolehan Tiket Harian (Interval Input Per Hari)
-  // Kolom Kategori Kendala & Kepatuhan SLA telah dihapus
+  // (Untuk user: Hanya data perolehan dirinya sendiri yang tampil)
   // ========================================================
+  if (UI.tiketDailySubtitle) {
+    if (isAdmin) {
+      UI.tiketDailySubtitle.textContent = 'Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.';
+    } else {
+      UI.tiketDailySubtitle.textContent = 'Daftar riwayat perolehan tiket per hari untuk diri Anda sendiri dalam bulan terpilih.';
+    }
+  }
+
   const searchQ = (UI.searchTiketInput ? UI.searchTiketInput.value.trim().toLowerCase() : '');
-  const filterUser = (UI.filterTiketUserSelect ? UI.filterTiketUserSelect.value : 'ALL');
+  const filterUser = isAdmin ? (UI.filterTiketUserSelect ? UI.filterTiketUserSelect.value : 'ALL') : currentFullName;
   const filterService = (UI.filterTiketService ? UI.filterTiketService.value : 'ALL');
   const filterGrade = (UI.filterTiketGrade ? UI.filterTiketGrade.value : 'ALL');
 
@@ -5959,6 +6535,13 @@ function renderTiketPage() {
   }
 
   const filteredLogs = monthLogs.filter(item => {
+    // SECURITY / RBAC: Regular user can ONLY see their own ticket logs
+    if (!isAdmin) {
+      const matchSelf = (item.userFullName === currentFullName) ||
+                        (currentUser && item.userId === currentUser.id) ||
+                        (currentUser && item.username === currentUser.username);
+      if (!matchSelf) return false;
+    }
     const tCount = Number(item.ticketCount) || 0;
     if (searchQ) {
       const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
@@ -5968,7 +6551,7 @@ function renderTiketPage() {
                     String(tCount).includes(searchQ);
       if (!match) return false;
     }
-    if (filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
+    if (isAdmin && filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
     if (filterService !== 'ALL' && item.department !== filterService) return false;
     if (filterGrade === 'Tercapai' && tCount < 60) return false;
     if (filterGrade === 'Di Bawah Target' && tCount >= 60) return false;
@@ -6014,7 +6597,10 @@ function renderTiketPage() {
   const totalCols = isAdmin ? 9 : 8;
   if (filteredLogs.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="${totalCols}" style="text-align: center; padding: 36px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>Tidak ada log perolehan tiket harian yang sesuai dengan filter atau bulan terpilih.</td>`;
+    const emptyMsg = isAdmin
+      ? 'Tidak ada log perolehan tiket harian yang sesuai dengan filter atau bulan terpilih.'
+      : 'Tidak ada log perolehan tiket harian untuk akun Anda pada bulan atau filter terpilih.';
+    tr.innerHTML = `<td colspan="${totalCols}" style="text-align: center; padding: 36px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>${emptyMsg}</td>`;
     UI.tiketTableBody.appendChild(tr);
     return;
   }
@@ -6239,6 +6825,11 @@ window.promptDeleteTiket = function(id, name) {
 };
 
 window.filterTiketByUser = function(userFullName) {
+  const currentFullName = state.currentUser ? state.currentUser.fullName : '';
+  if (!state.isAdmin() && userFullName !== currentFullName) {
+    showToast('Akses Dibatasi', 'Anda hanya dapat melihat rincian tiket untuk diri Anda sendiri.', 'warning');
+    return;
+  }
   if (UI.filterTiketUserSelect) {
     UI.filterTiketUserSelect.value = userFullName;
   }
@@ -6323,115 +6914,1583 @@ function deselectAllTiket() {
 
 
 // ==========================================
-// 12.7 AHT (AVERAGE HANDLING TIME)
+// 12.7 AHT (AVERAGE HANDLING TIME) - 1 BULAN & INTERVAL INPUT PER HARI
 // ==========================================
 
-function renderAhtPage() {
-  const logs = state.getAhtLogs();
+function formatAhtSeconds(sec) {
+  const safeSec = Math.max(0, parseInt(sec, 10) || 0);
+  const m = Math.floor(safeSec / 60);
+  const s = safeSec % 60;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
 
-  let totalActual = 0;
-  let complianceCount = 0;
-  logs.forEach(l => {
-    totalActual += (Number(l.actualSeconds) || 0);
-    if ((Number(l.actualSeconds) || 0) <= (Number(l.targetSeconds) || 300)) {
-      complianceCount++;
+function formatAhtDuration(totalSec) {
+  const safeSec = Math.max(0, parseInt(totalSec, 10) || 0);
+  if (safeSec >= 3600) {
+    const h = Math.floor(safeSec / 3600);
+    const m = Math.floor((safeSec % 3600) / 60);
+    return `${h}j ${String(m).padStart(2, '0')}m`;
+  }
+  const m = Math.floor(safeSec / 60);
+  const s = safeSec % 60;
+  return `${m}m ${String(s).padStart(2, '0')}s`;
+}
+
+function renderAhtPage() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+
+  const monthLabels = {
+    '2026-09': 'September 2026',
+    '2026-08': 'Agustus 2026',
+    '2026-07': 'Juli 2026'
+  };
+
+  const selectedMonth = (UI.filterAhtMonth ? UI.filterAhtMonth.value : '2026-09') || '2026-09';
+  const monthLabel = monthLabels[selectedMonth] || selectedMonth;
+
+  if (UI.ahtMonthHeaderLabel) {
+    UI.ahtMonthHeaderLabel.textContent = monthLabel;
+  }
+
+  // Update Page Title and Description based on Role
+  const pageTitle = document.querySelector('#pageAht .page-title');
+  const pageDesc = document.querySelector('#pageAht .page-desc');
+  if (pageTitle) {
+    pageTitle.textContent = isAdmin ? 'Average Handling Time (AHT)' : 'Average Handling Time (AHT) - Performa Saya';
+  }
+  if (pageDesc) {
+    pageDesc.textContent = isAdmin
+      ? 'Informasi Average Handling Time (AHT) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik. Admin dapat menambah, mengubah, dan menghapus handling time user. Pengguna biasa hanya dapat melihat.'
+      : 'Informasi Average Handling Time (AHT) akun Anda dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik.';
+  }
+
+  // Update Permission Explanatory Banner & Action Visibility
+  if (isAdmin) {
+    if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Administrator Penuh (CRUD)';
+    if (UI.ahtBannerRoleDesc) UI.ahtBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus handling time harian seluruh user. Standar SLA < 300 detik (05:00 menit). Pengguna biasa hanya dapat melihat.';
+    if (UI.ahtBannerBadgePrivilege) {
+      UI.ahtBannerBadgePrivilege.className = 'badge badge-admin';
+      UI.ahtBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
     }
+    if (UI.btnOpenAddAhtModal) UI.btnOpenAddAhtModal.classList.remove('hidden');
+    if (UI.btnDeleteAllAhtMonth) UI.btnDeleteAllAhtMonth.classList.remove('hidden');
+    if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.remove('hidden');
+  } else {
+    if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Data Pribadi (Hanya Lihat)';
+    if (UI.ahtBannerRoleDesc) UI.ahtBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi dan rincian Average Handling Time untuk diri Anda sendiri dalam mode Hanya Lihat. Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.ahtBannerBadgePrivilege) {
+      UI.ahtBannerBadgePrivilege.className = 'badge badge-user';
+      UI.ahtBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+    if (UI.btnOpenAddAhtModal) UI.btnOpenAddAhtModal.classList.add('hidden');
+    if (UI.btnDeleteAllAhtMonth) UI.btnDeleteAllAhtMonth.classList.add('hidden');
+    if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.add('hidden');
+    state.selectedAhtIds.clear();
+    if (UI.ahtBatchBar) UI.ahtBatchBar.classList.add('hidden');
+  }
+
+  const allAhtLogs = state.getAhtLogs();
+  const monthLogs = allAhtLogs.filter(l => (l.date || '').startsWith(selectedMonth));
+  const users = state.getUsers();
+
+  // Populate filterSummaryAhtUser in Section 1
+  if (UI.filterSummaryAhtUser) {
+    if (isAdmin) {
+      const curVal = UI.filterSummaryAhtUser.value || 'ALL';
+      UI.filterSummaryAhtUser.disabled = false;
+      UI.filterSummaryAhtUser.innerHTML = '<option value="ALL">Semua Nama User</option>' +
+        users.map(u => `<option value="${u.fullName}">${u.fullName}</option>`).join('');
+      if (Array.from(UI.filterSummaryAhtUser.options).some(o => o.value === curVal)) {
+        UI.filterSummaryAhtUser.value = curVal;
+      }
+    } else {
+      UI.filterSummaryAhtUser.innerHTML = `<option value="${currentFullName}" selected>${currentFullName} (Diri Sendiri)</option>`;
+      UI.filterSummaryAhtUser.disabled = true;
+    }
+  }
+
+  // Populate filterAhtUserSelect in Section 2 toolbar
+  if (UI.filterAhtUserSelect) {
+    if (isAdmin) {
+      const currentVal = UI.filterAhtUserSelect.value || 'ALL';
+      UI.filterAhtUserSelect.disabled = false;
+      UI.filterAhtUserSelect.innerHTML = '<option value="ALL">Semua User</option>' +
+        users.map(u => `<option value="${u.fullName}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+      if (Array.from(UI.filterAhtUserSelect.options).some(o => o.value === currentVal)) {
+        UI.filterAhtUserSelect.value = currentVal;
+      }
+    } else {
+      UI.filterAhtUserSelect.innerHTML = `<option value="${currentFullName}" selected>${currentFullName} (Diri Sendiri)</option>`;
+      UI.filterAhtUserSelect.disabled = true;
+    }
+  }
+
+  // ========================================================
+  // Section 1: Rekapitulasi Average Handling Time Bulanan
+  // (Untuk admin: Data seluruh agent; Untuk user: Data dirinya sendiri)
+  // ========================================================
+  const summaryTitleEl = document.querySelector('#ahtUserSummarySection h3 span');
+  const summaryDescEl = document.querySelector('#ahtUserSummarySection p');
+  if (summaryTitleEl) {
+    if (isAdmin) {
+      summaryTitleEl.innerHTML = `Rekapitulasi Average Handling Time Seluruh Agent Periode <span id="ahtMonthHeaderLabel" class="text-red">${monthLabel}</span>`;
+    } else {
+      summaryTitleEl.innerHTML = `Rekapitulasi Average Handling Time Saya Periode <span id="ahtMonthHeaderLabel" class="text-red">${monthLabel}</span>`;
+    }
+  }
+  if (summaryDescEl) {
+    if (isAdmin) {
+      summaryDescEl.textContent = 'Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.';
+    } else {
+      summaryDescEl.textContent = 'Monitoring performa durasi rata-rata penanganan interaksi akun pribadi Anda dalam 1 bulan terhadap batas SLA 300 detik.';
+    }
+  }
+
+  const summaryFilterUser = isAdmin ? (UI.filterSummaryAhtUser ? UI.filterSummaryAhtUser.value : 'ALL') : currentFullName;
+  const summaryFilterService = (UI.filterSummaryAhtService ? UI.filterSummaryAhtService.value : 'ALL');
+
+  const availableAgents = isAdmin
+    ? users
+    : users.filter(u => u.fullName === currentFullName || (currentUser && (u.username === currentUser.username || u.id === currentUser.id)));
+
+  const filteredAgents = availableAgents.filter(u => {
+    if (!isAdmin && u.fullName !== currentFullName) return false;
+    if (isAdmin && summaryFilterUser !== 'ALL' && u.fullName !== summaryFilterUser) return false;
+    if (summaryFilterService !== 'ALL' && (u.department || 'CSO INBOUND') !== summaryFilterService) return false;
+    return true;
   });
 
-  const avgSec = logs.length > 0 ? Math.round(totalActual / logs.length) : 222;
-  const avgMins = Math.floor(avgSec / 60);
-  const avgRemainSec = avgSec % 60;
-  const avgFormatted = `${String(avgMins).padStart(2,'0')}:${String(avgRemainSec).padStart(2,'0')}`;
-  const compPct = logs.length > 0 ? ((complianceCount / logs.length) * 100).toFixed(1) : '94.2';
-  const overPct = logs.length > 0 ? (100 - parseFloat(compPct)).toFixed(1) : '5.8';
+  const userSummaries = filteredAgents.map(u => {
+    const userLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+    const daysInput = userLogs.length;
+    let totalInteractions = 0;
+    let totalDurationSeconds = 0;
+    let avgAhtSec = 0;
+    let complianceDays = 0;
+    let complianceRate = '0.0';
+    let avgDeviationSec = 0;
+    let statusText = 'Belum Ada Input';
+    let statusBadge = 'badge-gray';
+    let statusIcon = 'fa-regular fa-clock';
 
-  if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${avgFormatted} <small style="font-size:0.9rem; color:var(--gray-400);">Menit</small>`;
-  if (UI.ahtStatCompliance) UI.ahtStatCompliance.textContent = `${compPct}%`;
-  if (UI.ahtStatOver) UI.ahtStatOver.textContent = `${overPct}%`;
+    if (daysInput > 0) {
+      totalInteractions = userLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 1), 0);
+      totalDurationSeconds = userLogs.reduce((acc, l) => acc + (Number(l.totalDurationSeconds) || ((Number(l.actualSeconds) || 0) * (Number(l.interactionCount) || 1))), 0);
+      avgAhtSec = Math.round(totalDurationSeconds / Math.max(1, totalInteractions));
+      complianceDays = userLogs.filter(l => (Number(l.actualSeconds) || 0) <= (Number(l.targetSeconds) || 300)).length;
+      complianceRate = ((complianceDays / daysInput) * 100).toFixed(1);
+      avgDeviationSec = avgAhtSec - 300;
 
+      if (avgAhtSec <= 240) {
+        statusText = 'Sangat Efisien';
+        statusBadge = 'badge-green';
+        statusIcon = 'fa-solid fa-bolt text-green';
+      } else if (avgAhtSec <= 300) {
+        statusText = 'Sesuai SLA';
+        statusBadge = 'badge-green';
+        statusIcon = 'fa-solid fa-circle-check text-green';
+      } else {
+        statusText = 'Over SLA';
+        statusBadge = 'badge-yellow';
+        statusIcon = 'fa-solid fa-triangle-exclamation text-yellow';
+      }
+    }
+
+    return {
+      user: u,
+      daysInput,
+      totalInteractions,
+      totalDurationSeconds,
+      avgAhtSec,
+      complianceRate,
+      avgDeviationSec,
+      statusText,
+      statusBadge,
+      statusIcon
+    };
+  });
+
+  // Sort summary by Fastest, Slowest, or Compliance
+  const summarySort = (UI.filterAhtSummarySort ? UI.filterAhtSummarySort.value : 'FASTEST');
+  if (summarySort === 'SLOWEST') {
+    userSummaries.sort((a, b) => b.avgAhtSec - a.avgAhtSec);
+  } else if (summarySort === 'COMPLIANCE_DESC') {
+    userSummaries.sort((a, b) => parseFloat(b.complianceRate) - parseFloat(a.complianceRate));
+  } else {
+    // FASTEST
+    userSummaries.sort((a, b) => {
+      if (a.daysInput === 0 && b.daysInput > 0) return 1;
+      if (b.daysInput === 0 && a.daysInput > 0) return -1;
+      return a.avgAhtSec - b.avgAhtSec;
+    });
+  }
+
+  if (UI.ahtUserCountBadge) {
+    if (isAdmin) {
+      UI.ahtUserCountBadge.textContent = `${filteredAgents.length} Agent Terdaftar`;
+    } else {
+      UI.ahtUserCountBadge.textContent = 'Performa Pribadi';
+    }
+  }
+
+  // Render Section 1 table
+  if (UI.ahtUserSummaryBody) {
+    UI.ahtUserSummaryBody.innerHTML = '';
+    if (userSummaries.length === 0) {
+      UI.ahtUserSummaryBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data handling time yang sesuai dengan filter.</td></tr>';
+    } else {
+      userSummaries.forEach(summary => {
+        const u = summary.user;
+        const tr = document.createElement('tr');
+
+        let devHtml = '<span style="color:var(--gray-400);">-</span>';
+        if (summary.daysInput > 0) {
+          const isUnder = summary.avgDeviationSec <= 0;
+          const devText = isUnder
+            ? `-${Math.abs(summary.avgDeviationSec)} dtk (Cepat)`
+            : `+${summary.avgDeviationSec} dtk (Over)`;
+          devHtml = `
+            <span class="${isUnder ? 'text-green' : 'text-yellow'}" style="font-size:0.8rem; font-weight:600;">
+              <i class="${isUnder ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${devText}
+            </span>
+          `;
+        }
+
+        const avgFormatted = summary.daysInput > 0 ? formatAhtSeconds(summary.avgAhtSec) : '-';
+        const durFormatted = summary.daysInput > 0 ? formatAhtDuration(summary.totalDurationSeconds) : '-';
+
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="${u.fullName}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid var(--border-color);">
+              <div>
+                <strong style="color:#fff; font-size:0.875rem;">${u.fullName}</strong>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                  <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}" style="font-size:0.65rem;">${u.role.toUpperCase()}</span>
+                  <span style="font-size:0.75rem; color:var(--gray-400);">${u.email}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${u.department || 'CSO Layanan'}</span></td>
+          <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200);">${summary.daysInput} Hari</span></td>
+          <td style="text-align: right;"><strong class="text-white font-mono">${summary.daysInput > 0 ? summary.totalInteractions.toLocaleString('id-ID') : '-'}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
+          <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${durFormatted}</span></td>
+          <td style="text-align: center;"><strong class="${summary.avgAhtSec <= 300 ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${avgFormatted}</strong> <small style="font-size:0.72rem; color:var(--gray-400);">Menit</small></td>
+          <td style="text-align: center;"><span class="font-mono text-silver" style="font-size:0.85rem;">05:00</span></td>
+          <td style="text-align: center;">${devHtml}</td>
+          <td style="text-align: center;"><span class="badge ${parseFloat(summary.complianceRate) >= 95 ? 'badge-green' : 'badge-yellow'} font-mono" style="font-size:0.75rem;">${summary.daysInput > 0 ? summary.complianceRate + '%' : '-'}</span></td>
+          <td style="text-align: center;"><span class="badge ${summary.statusBadge}" style="font-size:0.75rem;"><i class="${summary.statusIcon}" style="margin-right:4px;"></i>${summary.statusText}</span></td>
+          <td style="text-align: center;">
+            <button class="btn btn-outline-gray btn-sm" onclick="filterAhtByUser('${u.fullName.replace(/'/g, "\\'")}')" title="Filter Rincian Harian User Ini">
+              <i class="fa-solid fa-filter text-red"></i>
+              <span>Rincian</span>
+            </button>
+          </td>
+        `;
+        UI.ahtUserSummaryBody.appendChild(tr);
+      });
+    }
+  }
+
+  // ========================================================
+  // Monthly Overview Top 4 Metric Cards
+  // ========================================================
+  if (isAdmin) {
+    let teamTotalDur = 0;
+    let teamTotalInteractions = 0;
+    let teamCompCount = 0;
+
+    monthLogs.forEach(l => {
+      const act = Number(l.actualSeconds) || 0;
+      const cnt = Number(l.interactionCount) || 1;
+      teamTotalDur += (act * cnt);
+      teamTotalInteractions += cnt;
+      if (act <= (Number(l.targetSeconds) || 300)) {
+        teamCompCount++;
+      }
+    });
+
+    const teamAvgSec = teamTotalInteractions > 0 ? Math.round(teamTotalDur / teamTotalInteractions) : 222;
+    const teamAvgFormatted = formatAhtSeconds(teamAvgSec);
+    const teamCompPct = monthLogs.length > 0 ? ((teamCompCount / monthLogs.length) * 100).toFixed(1) : '95.2';
+    const teamOverPct = monthLogs.length > 0 ? (100 - parseFloat(teamCompPct)).toFixed(1) : '4.8';
+
+    if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${teamAvgFormatted} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Menit</small>`;
+    if (UI.ahtStatAvgSub) UI.ahtStatAvgSub.textContent = `${teamAvgSec} detik rata-rata durasi per interaksi`;
+    if (UI.ahtStatCompliance) UI.ahtStatCompliance.textContent = `${teamCompPct}%`;
+    if (UI.ahtStatComplianceSub) UI.ahtStatComplianceSub.textContent = `${teamCompCount} dari ${monthLogs.length} sesi input harian patuh SLA`;
+    if (UI.ahtStatOver) UI.ahtStatOver.textContent = `${teamOverPct}%`;
+    if (UI.ahtStatOverSub) UI.ahtStatOverSub.textContent = `${monthLogs.length - teamCompCount} hari/sesi input melebihi 05:00 menit`;
+
+    // Card 4: Top Performer User (Fastest compliant agent)
+    const validAgents = userSummaries.filter(s => s.daysInput > 0);
+    if (validAgents.length > 0) {
+      const best = validAgents[0]; // Already sorted FASTEST
+      if (UI.ahtStatTopUser) UI.ahtStatTopUser.textContent = best.user.fullName;
+      if (UI.ahtStatTopUserSub) UI.ahtStatTopUserSub.textContent = `AHT: ${formatAhtSeconds(best.avgAhtSec)} Menit (${best.complianceRate}% SLA)`;
+    } else {
+      if (UI.ahtStatTopUser) UI.ahtStatTopUser.textContent = '-';
+      if (UI.ahtStatTopUserSub) UI.ahtStatTopUserSub.textContent = 'Belum ada input bulan ini';
+    }
+
+    const card1Label = document.querySelector('#ahtCardMonthlyAvg .metric-label');
+    if (card1Label) card1Label.textContent = 'Rata-rata AHT Tim Bulan Ini';
+    const card4Label = document.getElementById('ahtStatTopUserLabel');
+    if (card4Label) card4Label.textContent = 'Agen Penanganan Tercepat';
+  } else {
+    // REGULAR USER STATS
+    const myLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    const myDaysInput = myLogs.length;
+    let myTotalDur = 0;
+    let myTotalInteractions = 0;
+    let myCompCount = 0;
+
+    myLogs.forEach(l => {
+      const act = Number(l.actualSeconds) || 0;
+      const cnt = Number(l.interactionCount) || 1;
+      myTotalDur += (act * cnt);
+      myTotalInteractions += cnt;
+      if (act <= (Number(l.targetSeconds) || 300)) {
+        myCompCount++;
+      }
+    });
+
+    const myAvgSec = myTotalInteractions > 0 ? Math.round(myTotalDur / myTotalInteractions) : 0;
+    const myAvgFormatted = myDaysInput > 0 ? formatAhtSeconds(myAvgSec) : '-';
+    const myCompPct = myDaysInput > 0 ? ((myCompCount / myDaysInput) * 100).toFixed(1) : '100.0';
+    const myOverPct = myDaysInput > 0 ? (100 - parseFloat(myCompPct)).toFixed(1) : '0.0';
+
+    const card1Label = document.querySelector('#ahtCardMonthlyAvg .metric-label');
+    if (card1Label) card1Label.textContent = 'Rata-rata AHT Saya Bulan Ini';
+    if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${myAvgFormatted} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Menit</small>`;
+    if (UI.ahtStatAvgSub) UI.ahtStatAvgSub.textContent = myDaysInput > 0 ? `${myAvgSec} detik per interaksi (${myDaysInput} hari input)` : 'Belum ada data bulan ini';
+
+    if (UI.ahtStatCompliance) UI.ahtStatCompliance.textContent = `${myCompPct}%`;
+    if (UI.ahtStatComplianceSub) UI.ahtStatComplianceSub.textContent = myDaysInput > 0 ? `${myCompCount} dari ${myDaysInput} hari memenuhi SLA` : 'Target SLA: < 05:00';
+
+    if (UI.ahtStatOver) UI.ahtStatOver.textContent = `${myOverPct}%`;
+    if (UI.ahtStatOverSub) UI.ahtStatOverSub.textContent = myDaysInput > 0 ? `${myDaysInput - myCompCount} hari melebihi batas SLA` : 'Status durasi terjaga';
+
+    const card4Label = document.getElementById('ahtStatTopUserLabel');
+    if (card4Label) card4Label.textContent = 'Status Kecepatan Penanganan';
+    if (UI.ahtStatTopUser) {
+      if (myDaysInput === 0) {
+        UI.ahtStatTopUser.textContent = 'Belum Ada Input';
+      } else if (myAvgSec <= 240) {
+        UI.ahtStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-bolt"></i> Sangat Efisien</span>';
+      } else if (myAvgSec <= 300) {
+        UI.ahtStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-circle-check"></i> Sesuai SLA</span>';
+      } else {
+        UI.ahtStatTopUser.innerHTML = '<span class="text-yellow"><i class="fa-solid fa-triangle-exclamation"></i> Over SLA</span>';
+      }
+    }
+    if (UI.ahtStatTopUserSub) {
+      UI.ahtStatTopUserSub.textContent = myDaysInput > 0 ? `Total ${myTotalInteractions} sesi interaksi ditangani` : 'Pencatatan dikelola oleh Admin';
+    }
+  }
+
+  // ========================================================
+  // Section 2: Log Handling Time Harian (Interval Input Per Hari)
+  // ========================================================
+  if (UI.ahtDailySubtitle) {
+    if (isAdmin) {
+      UI.ahtDailySubtitle.textContent = 'Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.';
+    } else {
+      UI.ahtDailySubtitle.textContent = 'Daftar riwayat durasi penanganan per hari untuk akun Anda dalam bulan terpilih (Hanya Lihat).';
+    }
+  }
+
+  const searchQ = (UI.searchAhtInput ? UI.searchAhtInput.value.trim().toLowerCase() : '');
+  const filterUser = isAdmin ? (UI.filterAhtUserSelect ? UI.filterAhtUserSelect.value : 'ALL') : currentFullName;
+  const filterService = (UI.filterAhtService ? UI.filterAhtService.value : 'ALL');
+  const filterStatus = (UI.filterAhtStatus ? UI.filterAhtStatus.value : 'ALL');
+
+  if (UI.btnClearSearchAht) {
+    UI.btnClearSearchAht.classList.toggle('hidden', !searchQ);
+  }
+
+  const filteredLogs = monthLogs.filter(item => {
+    // RBAC: Regular user can ONLY see their own logs
+    if (!isAdmin) {
+      const matchSelf = (item.userFullName === currentFullName) ||
+                        (currentUser && item.userId === currentUser.id) ||
+                        (currentUser && item.username === currentUser.username);
+      if (!matchSelf) return false;
+    }
+
+    if (searchQ) {
+      const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.date || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.notes || '').toLowerCase().includes(searchQ) ||
+                    (item.status || '').toLowerCase().includes(searchQ);
+      if (!match) return false;
+    }
+
+    if (isAdmin && filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
+    return true;
+  });
+
+  // Sort daily logs
+  const sortMode = (UI.filterAhtSort ? UI.filterAhtSort.value : 'DATE_DESC');
+  if (sortMode === 'DATE_ASC') {
+    filteredLogs.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  } else if (sortMode === 'AHT_ASC') {
+    filteredLogs.sort((a, b) => (Number(a.actualSeconds) || 0) - (Number(b.actualSeconds) || 0));
+  } else if (sortMode === 'AHT_DESC') {
+    filteredLogs.sort((a, b) => (Number(b.actualSeconds) || 0) - (Number(a.actualSeconds) || 0));
+  } else {
+    // DATE_DESC
+    filteredLogs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+
+  // Batch Toolbar & Checkbox sync for Admin
+  if (isAdmin) {
+    if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.remove('hidden');
+    const visibleIds = filteredLogs.map(l => l.id);
+    const selectedVisibleCount = visibleIds.filter(id => state.selectedAhtIds.has(id)).length;
+    if (UI.ahtSelectAllCheckbox) {
+      UI.ahtSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+      UI.ahtSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+    }
+    if (UI.ahtBatchBar) {
+      const hasSelected = state.selectedAhtIds.size > 0;
+      UI.ahtBatchBar.classList.toggle('hidden', !hasSelected);
+      if (UI.ahtSelectedCount) {
+        UI.ahtSelectedCount.textContent = state.selectedAhtIds.size;
+      }
+    }
+  } else {
+    if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.add('hidden');
+    state.selectedAhtIds.clear();
+    if (UI.ahtBatchBar) UI.ahtBatchBar.classList.add('hidden');
+  }
+
+  // Render Table Body
   if (!UI.ahtTableBody) return;
   UI.ahtTableBody.innerHTML = '';
 
-  logs.forEach(item => {
-    const isSlaMet = (item.actualSeconds <= item.targetSeconds);
-    const m = Math.floor(item.actualSeconds / 60);
-    const s = item.actualSeconds % 60;
-    const durFormatted = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-
+  const totalCols = isAdmin ? 12 : 11;
+  if (filteredLogs.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `
-      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.sessionTime}</span></td>
-      <td>
-        <span style="font-weight:600; color:#fff;">${item.userFullName}</span>
+    const emptyMsg = isAdmin
+      ? 'Tidak ada log handling time harian yang sesuai dengan filter atau bulan terpilih.'
+      : 'Tidak ada log handling time harian untuk akun Anda pada bulan atau filter terpilih.';
+    tr.innerHTML = `<td colspan="${totalCols}" style="text-align: center; padding: 36px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>${emptyMsg}</td>`;
+    UI.ahtTableBody.appendChild(tr);
+    return;
+  }
+
+  filteredLogs.forEach(item => {
+    const tr = document.createElement('tr');
+    const isChecked = state.selectedAhtIds.has(item.id);
+    const actualSec = Number(item.actualSeconds) || 0;
+    const targetSec = Number(item.targetSeconds) || 300;
+    const isSlaMet = actualSec <= targetSec;
+    const interactionCount = Number(item.interactionCount) || 1;
+    const totalDurationSeconds = Number(item.totalDurationSeconds) || (actualSec * interactionCount);
+
+    const durFormatted = formatAhtSeconds(actualSec);
+    const totalDurFormatted = formatAhtDuration(totalDurationSeconds);
+
+    const checkboxHtml = isAdmin ? `
+      <td style="text-align: center;">
+        <input type="checkbox" class="aht-table-checkbox aht-row-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
       </td>
-      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
-      <td><span class="font-mono text-silver" style="font-size:0.8rem;">${item.interactionId}</span></td>
-      <td style="text-align:right;"><strong class="${isSlaMet ? 'text-green' : 'text-yellow'} font-mono">${durFormatted}</strong></td>
-      <td style="text-align:right;"><span class="font-mono text-silver">05:00</span></td>
+    ` : '';
+
+    const actionHtml = isAdmin ? `
+      <td style="text-align:center;">
+        <div style="display:inline-flex; gap:4px;">
+          <button class="btn btn-icon btn-sm" onclick="promptEditAht('${item.id}')" title="Edit Handling Time">
+            <i class="fa-solid fa-pen-to-square text-silver"></i>
+          </button>
+          <button class="btn btn-icon btn-sm" onclick="promptDeleteAht('${item.id}', '${(item.userFullName || '').replace(/'/g, "\\'")}', '${item.date || ''}')" title="Hapus Handling Time">
+            <i class="fa-solid fa-trash-can text-red"></i>
+          </button>
+        </div>
+      </td>
+    ` : `
+      <td style="text-align:center;">
+        <span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>Hanya Lihat</span>
+      </td>
+    `;
+
+    tr.innerHTML = `
+      ${checkboxHtml}
+      <td><span class="font-mono font-bold" style="color:var(--gray-200);">${item.date || '-'}</span></td>
+      <td><strong style="color:#fff; font-size:0.875rem;">${item.userFullName || '-'}</strong></td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department || '-'}</span></td>
+      <td style="text-align: right;"><strong class="text-white font-mono">${interactionCount.toLocaleString('id-ID')}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
+      <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.82rem;">${totalDurFormatted}</span></td>
+      <td style="text-align: right;"><strong class="${isSlaMet ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${durFormatted}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Menit</small></td>
+      <td style="text-align: right;"><span class="font-mono text-silver">05:00</span></td>
       <td>
-        <span class="${isSlaMet ? 'text-green' : 'text-yellow'}" style="font-size:0.78rem;">
-          <i class="${isSlaMet ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${item.deviationText}
+        <span class="${isSlaMet ? 'text-green' : 'text-yellow'}" style="font-size:0.78rem; font-weight:600;">
+          <i class="${isSlaMet ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${item.deviationText || (isSlaMet ? 'Sesuai SLA' : 'Over SLA')}
         </span>
       </td>
       <td>
         <span class="badge ${isSlaMet ? 'badge-green' : 'badge-yellow'}" style="font-size:0.72rem;">
-          <i class="${isSlaMet ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation'}" style="margin-right:3px;"></i>${item.status}
+          <i class="${isSlaMet ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation'}" style="margin-right:3px;"></i>${item.status || (isSlaMet ? 'Sesuai SLA' : 'Over SLA')}
         </span>
       </td>
+      <td>
+        <div style="font-size:0.75rem; color:var(--gray-300); max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.notes || '').replace(/"/g, '&quot;')}">
+          ${item.notes || '-'}
+        </div>
+      </td>
+      ${actionHtml}
     `;
     UI.ahtTableBody.appendChild(tr);
   });
 }
+
+function updateAhtModalDurationPreview() {
+  const mins = parseInt(UI.formAhtDurationMins ? UI.formAhtDurationMins.value : '0', 10) || 0;
+  const secs = parseInt(UI.formAhtDurationSecs ? UI.formAhtDurationSecs.value : '0', 10) || 0;
+  const target = parseInt(UI.formAhtTargetSecs ? UI.formAhtTargetSecs.value : '300', 10) || 300;
+  const total = mins * 60 + secs;
+  const diff = total - target;
+  const isSla = total <= target;
+  const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+  const diffText = isSla ? `-${Math.abs(diff)} dtk (Sesuai SLA)` : `+${diff} dtk (Over SLA)`;
+  if (UI.formAhtDurationPreview) {
+    UI.formAhtDurationPreview.innerHTML = `Durasi: <strong style="color:#fff;">${formattedTime}</strong> (${total} detik) • Deviasi: <span class="${isSla ? 'text-green' : 'text-yellow'}"><strong>${diffText}</strong></span>`;
+  }
+}
+
+function openAddAhtModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menambah handling time user.', 'warning');
+    return;
+  }
+
+  if (UI.modalAhtTitle) UI.modalAhtTitle.textContent = 'Input Handling Time Harian (AHT)';
+  if (UI.btnSubmitAhtText) UI.btnSubmitAhtText.textContent = 'Simpan Handling Time';
+  if (UI.formAht) UI.formAht.reset();
+  if (UI.formAhtId) UI.formAhtId.value = '';
+
+  // Populate user dropdown
+  const users = state.getUsers();
+  if (UI.formAhtUserSelect) {
+    UI.formAhtUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    if (users.length > 0 && UI.formAhtDept) {
+      UI.formAhtDept.value = users[0].department || 'CSO INBOUND';
+    }
+  }
+
+  // Set default date to today or selected month
+  const now = new Date();
+  const selectedMonth = (UI.filterAhtMonth ? UI.filterAhtMonth.value : '2026-09') || '2026-09';
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const defaultDate = todayStr.startsWith(selectedMonth) ? todayStr : `${selectedMonth}-15`;
+
+  if (UI.formAhtDate) UI.formAhtDate.value = defaultDate;
+  if (UI.formAhtInteractionCount) UI.formAhtInteractionCount.value = '45';
+  if (UI.formAhtDurationMins) UI.formAhtDurationMins.value = '3';
+  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.value = '40';
+  if (UI.formAhtTargetSecs) UI.formAhtTargetSecs.value = '300';
+  if (UI.formAhtNotes) UI.formAhtNotes.value = '';
+
+  updateAhtModalDurationPreview();
+
+  if (UI.modalAhtForm) UI.modalAhtForm.classList.remove('hidden');
+}
+
+function openEditAhtModal(item) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang dapat mengedit handling time user.', 'warning');
+    return;
+  }
+
+  const users = state.getUsers();
+  if (UI.formAhtUserSelect) {
+    UI.formAhtUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    UI.formAhtUserSelect.value = item.userFullName;
+  }
+
+  const actualSec = Number(item.actualSeconds) || 220;
+  const mins = Math.floor(actualSec / 60);
+  const secs = actualSec % 60;
+
+  if (UI.formAhtId) UI.formAhtId.value = item.id;
+  if (UI.formAhtDate) UI.formAhtDate.value = item.date;
+  if (UI.formAhtDept) UI.formAhtDept.value = item.department || 'CSO INBOUND';
+  if (UI.formAhtInteractionCount) UI.formAhtInteractionCount.value = item.interactionCount || 45;
+  if (UI.formAhtDurationMins) UI.formAhtDurationMins.value = mins;
+  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.value = secs;
+  if (UI.formAhtTargetSecs) UI.formAhtTargetSecs.value = item.targetSeconds || 300;
+  if (UI.formAhtNotes) UI.formAhtNotes.value = item.notes || '';
+
+  if (UI.modalAhtTitle) UI.modalAhtTitle.textContent = 'Edit Handling Time Harian (AHT)';
+  if (UI.btnSubmitAhtText) UI.btnSubmitAhtText.textContent = 'Perbarui Handling Time';
+
+  updateAhtModalDurationPreview();
+
+  if (UI.modalAhtForm) UI.modalAhtForm.classList.remove('hidden');
+}
+
+function closeAhtModal() {
+  if (UI.modalAhtForm) UI.modalAhtForm.classList.add('hidden');
+}
+
+function handleSaveAht(e) {
+  e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang memiliki wewenang untuk menyimpan atau mengubah handling time.', 'danger');
+    return;
+  }
+  const u = state.currentUser;
+  if (!u) return;
+
+  const id = UI.formAhtId ? UI.formAhtId.value : '';
+  const date = (UI.formAhtDate ? UI.formAhtDate.value : '').trim();
+  const userFullName = (UI.formAhtUserSelect ? UI.formAhtUserSelect.value : '').trim();
+  const department = (UI.formAhtDept ? UI.formAhtDept.value : 'CSO INBOUND');
+  const interactionCount = parseInt(UI.formAhtInteractionCount ? UI.formAhtInteractionCount.value : '1', 10) || 1;
+  const mins = parseInt(UI.formAhtDurationMins ? UI.formAhtDurationMins.value : '0', 10) || 0;
+  const secs = parseInt(UI.formAhtDurationSecs ? UI.formAhtDurationSecs.value : '0', 10) || 0;
+  const targetSeconds = parseInt(UI.formAhtTargetSecs ? UI.formAhtTargetSecs.value : '300', 10) || 300;
+  const notes = (UI.formAhtNotes ? UI.formAhtNotes.value : '').trim();
+
+  const actualSeconds = mins * 60 + secs;
+
+  if (!date) {
+    showToast('Form Belum Lengkap', 'Tanggal input harian wajib diisi.', 'warning');
+    return;
+  }
+  if (!userFullName) {
+    showToast('Form Belum Lengkap', 'Pilih petugas CSO yang menangani.', 'warning');
+    return;
+  }
+  if (actualSeconds <= 0) {
+    showToast('Durasi Tidak Valid', 'Rata-rata durasi AHT harus lebih dari 0 detik.', 'warning');
+    return;
+  }
+  if (interactionCount <= 0) {
+    showToast('Jumlah Tidak Valid', 'Jumlah interaksi yang ditangani harus lebih dari 0.', 'warning');
+    return;
+  }
+
+  const deviationSeconds = actualSeconds - targetSeconds;
+  const isSlaMet = actualSeconds <= targetSeconds;
+  const deviationText = isSlaMet ? `-${Math.abs(deviationSeconds)} dtk (Cepat)` : `+${deviationSeconds} dtk (Over SLA)`;
+  const status = isSlaMet ? 'Sesuai SLA' : 'Over SLA';
+  const totalDurationSeconds = actualSeconds * interactionCount;
+
+  const ahtLogs = state.getAhtLogs();
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  if (id) {
+    // EDIT
+    const idx = ahtLogs.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      ahtLogs[idx] = {
+        ...ahtLogs[idx],
+        date,
+        userFullName,
+        department,
+        interactionCount,
+        totalDurationSeconds,
+        actualSeconds,
+        targetSeconds,
+        deviationSeconds,
+        deviationText,
+        status,
+        notes
+      };
+      state.saveAhtLogs(ahtLogs);
+      state.addLog('UPDATE_AHT', 'Ubah Handling Time', `Admin ${u.fullName} memperbarui handling time harian ${userFullName} (${date}): ${formatAhtSeconds(actualSeconds)} (${status}).`);
+      showToast('Handling Time Diperbarui', `Handling time <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${formatAhtSeconds(actualSeconds)} Menit</strong> (${status}).`, 'success');
+    }
+  } else {
+    // NEW
+    const newEntry = {
+      id: 'aht_' + Date.now(),
+      date,
+      userFullName,
+      department,
+      interactionCount,
+      totalDurationSeconds,
+      actualSeconds,
+      targetSeconds,
+      deviationSeconds,
+      deviationText,
+      status,
+      notes,
+      createdAt: timeStr
+    };
+    ahtLogs.unshift(newEntry);
+    state.saveAhtLogs(ahtLogs);
+    state.addLog('CREATE_AHT', 'Input Handling Time', `Admin ${u.fullName} mencatat handling time harian untuk ${userFullName}: ${formatAhtSeconds(actualSeconds)} (${interactionCount} sesi).`);
+    showToast('Handling Time Disimpan', `Handling time <strong>${formatAhtSeconds(actualSeconds)} Menit</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
+  }
+
+  closeAhtModal();
+  renderAhtPage();
+}
+
+window.promptEditAht = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mengedit handling time.', 'warning');
+    return;
+  }
+  const ahtLogs = state.getAhtLogs();
+  const item = ahtLogs.find(t => t.id === id);
+  if (!item) return;
+  openEditAhtModal(item);
+};
+
+window.promptDeleteAht = function(id, name, date) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki hak izin untuk menghapus handling time.', 'warning');
+    return;
+  }
+  state.pendingDelete = { type: 'aht', id, name: `${name} (${date})` };
+  UI.confirmDeleteTitle.textContent = 'Hapus Handling Time Harian?';
+  UI.confirmDeleteMessage.innerHTML = `Data handling time harian <strong>${name}</strong> tanggal <strong>${date}</strong> akan dihapus permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.promptDeleteAllAhtMonth = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat menghapus data handling time bulanan.', 'warning');
+    return;
+  }
+  const month = (UI.filterAhtMonth ? UI.filterAhtMonth.value : '2026-09') || '2026-09';
+  const monthText = month === '2026-09' ? 'September 2026' : (month === '2026-08' ? 'Agustus 2026' : 'Juli 2026');
+  state.pendingDelete = { type: 'aht_month', id: month, name: monthText };
+  UI.confirmDeleteTitle.textContent = `Hapus Semua Handling Time Bulan ${monthText}?`;
+  UI.confirmDeleteMessage.innerHTML = `Perhatian: Seluruh data handling time harian untuk periode <strong>${monthText}</strong> akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.handleAhtBatchDelete = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat melakukan penghapusan massal.', 'warning');
+    return;
+  }
+  const selectedList = Array.from(state.selectedAhtIds);
+  if (selectedList.length === 0) {
+    showToast('Pilih Data', 'Pilih minimal satu data handling time yang ingin dihapus.', 'info');
+    return;
+  }
+  state.pendingDelete = { type: 'aht_batch', id: 'batch', name: `${selectedList.length} data handling time`, ids: selectedList };
+  UI.confirmDeleteTitle.textContent = `Hapus ${selectedList.length} Data Handling Time?`;
+  UI.confirmDeleteMessage.innerHTML = `Sebanyak <strong>${selectedList.length} data handling time</strong> yang ditandai akan dihapus secara permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.filterAhtByUser = function(userName) {
+  if (UI.filterAhtUserSelect) {
+    if (Array.from(UI.filterAhtUserSelect.options).some(o => o.value === userName)) {
+      UI.filterAhtUserSelect.value = userName;
+    }
+  }
+  if (UI.filterSummaryAhtUser && state.isAdmin()) {
+    if (Array.from(UI.filterSummaryAhtUser.options).some(o => o.value === userName)) {
+      UI.filterSummaryAhtUser.value = userName;
+    }
+  }
+  renderAhtPage();
+  const sub = document.getElementById('ahtDailySubtitle');
+  if (sub) {
+    sub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
 
 // ==========================================
 // 12.8 ART (AVERAGE RESPONSE TIME)
 // ==========================================
 
 function renderArtPage() {
-  const logs = state.getArtLogs();
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
 
-  let totalArt = 0;
-  let totalFrt = 0;
-  let compCount = 0;
-  logs.forEach(l => {
-    totalArt += (Number(l.avgResponseSeconds) || 0);
-    totalFrt += (Number(l.frtSeconds) || 0);
-    if ((Number(l.avgResponseSeconds) || 0) <= (Number(l.targetSeconds) || 30)) {
-      compCount++;
+  const monthLabels = {
+    '2026-09': 'September 2026',
+    '2026-08': 'Agustus 2026',
+    '2026-07': 'Juli 2026'
+  };
+
+  const selectedMonth = (UI.filterArtMonth ? UI.filterArtMonth.value : '2026-09') || '2026-09';
+  const monthLabel = monthLabels[selectedMonth] || selectedMonth;
+
+  if (UI.artMonthHeaderLabel) {
+    UI.artMonthHeaderLabel.textContent = monthLabel;
+  }
+
+  // Update Page Title and Description based on Role
+  const pageTitle = document.querySelector('#pageArt .page-title');
+  const pageDesc = document.querySelector('#pageArt .page-desc');
+  if (pageTitle) {
+    pageTitle.textContent = isAdmin ? 'Average Response Time (ART)' : 'Average Response Time (ART) - Performa Saya';
+  }
+  if (pageDesc) {
+    pageDesc.textContent = isAdmin
+      ? 'Informasi Average Response Time (ART) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik. Admin dapat menambah, mengubah, dan menghapus response time user. Pengguna biasa hanya dapat melihat.'
+      : 'Informasi Average Response Time (ART) akun Anda dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik (Hanya Lihat).';
+  }
+
+  // Update Permission Explanatory Banner & Action Visibility
+  if (isAdmin) {
+    if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Administrator Penuh (CRUD)';
+    if (UI.artBannerRoleDesc) UI.artBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus response time harian seluruh user. Standar SLA < 30 detik. Pengguna biasa hanya dapat melihat.';
+    if (UI.artBannerBadgePrivilege) {
+      UI.artBannerBadgePrivilege.className = 'badge badge-admin';
+      UI.artBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
     }
+    if (UI.btnOpenAddArtModal) UI.btnOpenAddArtModal.classList.remove('hidden');
+    if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.remove('hidden');
+    if (UI.artThSelectAll) UI.artThSelectAll.classList.remove('hidden');
+  } else {
+    if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Data Pribadi (Hanya Lihat)';
+    if (UI.artBannerRoleDesc) UI.artBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi dan rincian Average Response Time untuk diri Anda sendiri dalam mode Hanya Lihat. Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.artBannerBadgePrivilege) {
+      UI.artBannerBadgePrivilege.className = 'badge badge-user';
+      UI.artBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+    if (UI.btnOpenAddArtModal) UI.btnOpenAddArtModal.classList.add('hidden');
+    if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.add('hidden');
+    if (UI.artThSelectAll) UI.artThSelectAll.classList.add('hidden');
+    state.selectedArtIds.clear();
+    if (UI.artBatchBar) UI.artBatchBar.classList.add('hidden');
+  }
+
+  const allArtLogs = state.getArtLogs();
+  const monthLogs = allArtLogs.filter(l => (l.date || '').startsWith(selectedMonth));
+  const users = state.getUsers();
+
+  // Populate filterSummaryArtUser in Section 1
+  if (UI.filterSummaryArtUser) {
+    if (isAdmin) {
+      const curVal = UI.filterSummaryArtUser.value || 'ALL';
+      UI.filterSummaryArtUser.disabled = false;
+      UI.filterSummaryArtUser.innerHTML = '<option value="ALL">Semua Nama User</option>' +
+        users.map(u => `<option value="${u.fullName}">${u.fullName}</option>`).join('');
+      if (Array.from(UI.filterSummaryArtUser.options).some(o => o.value === curVal)) {
+        UI.filterSummaryArtUser.value = curVal;
+      }
+    } else {
+      UI.filterSummaryArtUser.innerHTML = `<option value="${currentFullName}" selected>${currentFullName} (Diri Sendiri)</option>`;
+      UI.filterSummaryArtUser.disabled = true;
+    }
+  }
+
+  // Populate filterArtUserSelect in Section 2 toolbar
+  if (UI.filterArtUserSelect) {
+    if (isAdmin) {
+      const currentVal = UI.filterArtUserSelect.value || 'ALL';
+      UI.filterArtUserSelect.disabled = false;
+      UI.filterArtUserSelect.innerHTML = '<option value="ALL">Semua User</option>' +
+        users.map(u => `<option value="${u.fullName}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+      if (Array.from(UI.filterArtUserSelect.options).some(o => o.value === currentVal)) {
+        UI.filterArtUserSelect.value = currentVal;
+      }
+    } else {
+      UI.filterArtUserSelect.innerHTML = `<option value="${currentFullName}" selected>${currentFullName} (Diri Sendiri)</option>`;
+      UI.filterArtUserSelect.disabled = true;
+    }
+  }
+
+  // ========================================================
+  // Section 1: Rekapitulasi Average Response Time Bulanan
+  // (Untuk admin: Data seluruh agent; Untuk user: Data dirinya sendiri)
+  // ========================================================
+  const summaryTitleEl = document.querySelector('#artUserSummarySection h3 span');
+  const summaryDescEl = document.querySelector('#artUserSummarySection p');
+  if (summaryTitleEl) {
+    if (isAdmin) {
+      summaryTitleEl.innerHTML = `Rekapitulasi Average Response Time Seluruh Agent Periode <span id="artMonthHeaderLabel" class="text-red">${monthLabel}</span>`;
+    } else {
+      summaryTitleEl.innerHTML = `Rekapitulasi Average Response Time Saya Periode <span id="artMonthHeaderLabel" class="text-red">${monthLabel}</span>`;
+    }
+  }
+  if (summaryDescEl) {
+    if (isAdmin) {
+      summaryDescEl.textContent = 'Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.';
+    } else {
+      summaryDescEl.textContent = 'Monitoring kecepatan rata-rata respon interaksi akun pribadi Anda dalam 1 bulan terhadap batas standar SLA 30 detik.';
+    }
+  }
+
+  const summaryFilterUser = isAdmin ? (UI.filterSummaryArtUser ? UI.filterSummaryArtUser.value : 'ALL') : currentFullName;
+  const summaryFilterService = (UI.filterSummaryArtService ? UI.filterSummaryArtService.value : 'ALL');
+
+  const availableAgents = isAdmin
+    ? users
+    : users.filter(u => u.fullName === currentFullName || (currentUser && (u.username === currentUser.username || u.id === currentUser.id)));
+
+  const filteredAgents = availableAgents.filter(u => {
+    if (!isAdmin && u.fullName !== currentFullName) return false;
+    if (isAdmin && summaryFilterUser !== 'ALL' && u.fullName !== summaryFilterUser) return false;
+    if (summaryFilterService !== 'ALL' && (u.department || 'CSO DIGILIVE CHAT - WA') !== summaryFilterService) return false;
+    return true;
   });
 
-  const avgArt = logs.length > 0 ? (totalArt / logs.length).toFixed(1) : '14.8';
-  const avgFrt = logs.length > 0 ? (totalFrt / logs.length).toFixed(1) : '8.5';
-  const compPct = logs.length > 0 ? ((compCount / logs.length) * 100).toFixed(1) : '98.6';
+  const userSummaries = filteredAgents.map(u => {
+    const userLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+    const daysInput = userLogs.length;
+    let totalInteractions = 0;
+    let sumQueue = 0;
+    let sumFrt = 0;
+    let sumArt = 0;
+    let avgQueueSec = '-';
+    let avgFrtSec = '-';
+    let avgArtSec = 0;
+    let complianceDays = 0;
+    let complianceRate = '0.0';
+    let avgDeviationSec = 0;
+    let statusText = 'Belum Ada Input';
+    let statusBadge = 'badge-gray';
+    let statusIcon = 'fa-regular fa-clock';
 
-  if (UI.artStatAvg) UI.artStatAvg.innerHTML = `${avgArt} <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small>`;
-  if (UI.artStatFrt) UI.artStatFrt.innerHTML = `${avgFrt} <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small>`;
-  if (UI.artStatCompliance) UI.artStatCompliance.textContent = `${compPct}%`;
+    if (daysInput > 0) {
+      totalInteractions = userLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 1), 0);
+      sumQueue = userLogs.reduce((acc, l) => acc + ((Number(l.queueSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
+      sumFrt = userLogs.reduce((acc, l) => acc + ((Number(l.frtSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
+      sumArt = userLogs.reduce((acc, l) => acc + ((Number(l.avgResponseSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
 
+      avgQueueSec = totalInteractions > 0 ? (sumQueue / totalInteractions).toFixed(1) : '-';
+      avgFrtSec = totalInteractions > 0 ? (sumFrt / totalInteractions).toFixed(1) : '-';
+      avgArtSec = totalInteractions > 0 ? parseFloat((sumArt / totalInteractions).toFixed(1)) : 0;
+
+      complianceDays = userLogs.filter(l => (Number(l.avgResponseSeconds) || 0) <= (Number(l.targetSeconds) || 30)).length;
+      complianceRate = ((complianceDays / daysInput) * 100).toFixed(1);
+      avgDeviationSec = parseFloat((avgArtSec - 30).toFixed(1));
+
+      if (avgArtSec <= 15.0) {
+        statusText = 'Sangat Responsif';
+        statusBadge = 'badge-green';
+        statusIcon = 'fa-solid fa-bolt text-green';
+      } else if (avgArtSec <= 30.0) {
+        statusText = 'Sesuai SLA';
+        statusBadge = 'badge-green';
+        statusIcon = 'fa-solid fa-circle-check text-green';
+      } else {
+        statusText = 'Over SLA';
+        statusBadge = 'badge-yellow';
+        statusIcon = 'fa-solid fa-triangle-exclamation text-yellow';
+      }
+    }
+
+    return {
+      user: u,
+      daysInput,
+      totalInteractions,
+      avgQueueSec,
+      avgFrtSec,
+      avgArtSec,
+      complianceRate,
+      avgDeviationSec,
+      statusText,
+      statusBadge,
+      statusIcon
+    };
+  });
+
+  // Sort summary by Fastest, Slowest, or Compliance
+  const summarySort = (UI.filterArtSummarySort ? UI.filterArtSummarySort.value : 'FASTEST');
+  if (summarySort === 'SLOWEST') {
+    userSummaries.sort((a, b) => b.avgArtSec - a.avgArtSec);
+  } else if (summarySort === 'COMPLIANCE_DESC') {
+    userSummaries.sort((a, b) => parseFloat(b.complianceRate) - parseFloat(a.complianceRate));
+  } else {
+    // FASTEST
+    userSummaries.sort((a, b) => {
+      if (a.daysInput === 0 && b.daysInput > 0) return 1;
+      if (b.daysInput === 0 && a.daysInput > 0) return -1;
+      return a.avgArtSec - b.avgArtSec;
+    });
+  }
+
+  if (UI.artUserCountBadge) {
+    if (isAdmin) {
+      UI.artUserCountBadge.textContent = `${filteredAgents.length} Agent Terdaftar`;
+    } else {
+      UI.artUserCountBadge.textContent = 'Performa Pribadi';
+    }
+  }
+
+  // Render Section 1 table
+  if (UI.artUserSummaryBody) {
+    UI.artUserSummaryBody.innerHTML = '';
+    if (userSummaries.length === 0) {
+      UI.artUserSummaryBody.innerHTML = '<tr><td colspan="12" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data response time yang sesuai dengan filter.</td></tr>';
+    } else {
+      userSummaries.forEach(summary => {
+        const u = summary.user;
+        const tr = document.createElement('tr');
+
+        let devHtml = '<span style="color:var(--gray-400);">-</span>';
+        if (summary.daysInput > 0) {
+          const isUnder = summary.avgDeviationSec <= 0;
+          const devText = isUnder
+            ? `-${Math.abs(summary.avgDeviationSec).toFixed(1)} dtk (Cepat)`
+            : `+${summary.avgDeviationSec.toFixed(1)} dtk (Over)`;
+          devHtml = `
+            <span class="${isUnder ? 'text-green' : 'text-yellow'}" style="font-size:0.8rem; font-weight:600;">
+              <i class="${isUnder ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${devText}
+            </span>
+          `;
+        }
+
+        const avgFormatted = summary.daysInput > 0 ? `${summary.avgArtSec.toFixed(1)}s` : '-';
+
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="${u.fullName}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid var(--border-color);">
+              <div>
+                <strong style="color:#fff; font-size:0.875rem;">${u.fullName}</strong>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                  <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}" style="font-size:0.65rem;">${u.role.toUpperCase()}</span>
+                  <span style="font-size:0.75rem; color:var(--gray-400);">${u.email}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${u.department || 'CSO Layanan'}</span></td>
+          <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200);">${summary.daysInput} Hari</span></td>
+          <td style="text-align: right;"><strong class="text-white font-mono">${summary.daysInput > 0 ? summary.totalInteractions.toLocaleString('id-ID') : '-'}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
+          <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${summary.daysInput > 0 ? summary.avgQueueSec + 's' : '-'}</span></td>
+          <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${summary.daysInput > 0 ? summary.avgFrtSec + 's' : '-'}</span></td>
+          <td style="text-align: center;"><strong class="${summary.avgArtSec <= 30 ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${avgFormatted}</strong></td>
+          <td style="text-align: center;"><span class="font-mono text-silver" style="font-size:0.85rem;">&lt; 30s</span></td>
+          <td style="text-align: center;">${devHtml}</td>
+          <td style="text-align: center;"><span class="badge ${parseFloat(summary.complianceRate) >= 95 ? 'badge-green' : 'badge-yellow'} font-mono" style="font-size:0.75rem;">${summary.daysInput > 0 ? summary.complianceRate + '%' : '-'}</span></td>
+          <td style="text-align: center;"><span class="badge ${summary.statusBadge}" style="font-size:0.75rem;"><i class="${summary.statusIcon}" style="margin-right:4px;"></i>${summary.statusText}</span></td>
+          <td style="text-align: center;">
+            <button class="btn btn-outline-gray btn-sm" onclick="filterArtByUser('${u.fullName.replace(/'/g, "\\'")}')" title="Filter Rincian Harian User Ini">
+              <i class="fa-solid fa-filter text-red"></i>
+              <span>Rincian</span>
+            </button>
+          </td>
+        `;
+        UI.artUserSummaryBody.appendChild(tr);
+      });
+    }
+  }
+
+  // ========================================================
+  // Monthly Overview Top 4 Metric Cards
+  // ========================================================
+  if (isAdmin) {
+    let teamTotalArt = 0;
+    let teamTotalFrt = 0;
+    let teamTotalInteractions = 0;
+    let teamCompCount = 0;
+
+    monthLogs.forEach(l => {
+      const art = Number(l.avgResponseSeconds) || 0;
+      const frt = Number(l.frtSeconds) || 0;
+      const cnt = Number(l.interactionCount) || 1;
+      teamTotalArt += (art * cnt);
+      teamTotalFrt += (frt * cnt);
+      teamTotalInteractions += cnt;
+      if (art <= (Number(l.targetSeconds) || 30)) {
+        teamCompCount++;
+      }
+    });
+
+    const teamAvgArt = teamTotalInteractions > 0 ? (teamTotalArt / teamTotalInteractions).toFixed(1) : '14.8';
+    const teamAvgFrt = teamTotalInteractions > 0 ? (teamTotalFrt / teamTotalInteractions).toFixed(1) : '8.5';
+    const teamCompPct = monthLogs.length > 0 ? ((teamCompCount / monthLogs.length) * 100).toFixed(1) : '98.6';
+
+    if (UI.artStatAvg) UI.artStatAvg.innerHTML = `${teamAvgArt} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.artStatAvgSub) UI.artStatAvgSub.textContent = `Kecepatan respon chat aktif tim`;
+    if (UI.artStatFrt) UI.artStatFrt.innerHTML = `${teamAvgFrt} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.artStatFrtSub) UI.artStatFrtSub.textContent = `Waktu sapaan pertama agen ke pelanggan`;
+    if (UI.artStatCompliance) UI.artStatCompliance.textContent = `${teamCompPct}%`;
+    if (UI.artStatComplianceSub) UI.artStatComplianceSub.textContent = `${teamCompCount} dari ${monthLogs.length} sesi input harian patuh SLA`;
+
+    // Card 4: Top Performer User (Fastest compliant agent)
+    const validAgents = userSummaries.filter(s => s.daysInput > 0);
+    if (validAgents.length > 0) {
+      const best = validAgents[0]; // Already sorted FASTEST
+      if (UI.artStatTopUser) UI.artStatTopUser.textContent = best.user.fullName;
+      if (UI.artStatTopUserSub) UI.artStatTopUserSub.textContent = `ART: ${best.avgArtSec.toFixed(1)}s (${best.complianceRate}% SLA)`;
+    } else {
+      if (UI.artStatTopUser) UI.artStatTopUser.textContent = '-';
+      if (UI.artStatTopUserSub) UI.artStatTopUserSub.textContent = 'Belum ada input bulan ini';
+    }
+
+    const card1Label = document.querySelector('#artCardMonthlyAvg .metric-label');
+    if (card1Label) card1Label.textContent = 'Rata-rata ART Tim Bulan Ini';
+    const card4Label = document.getElementById('artStatTopUserLabel');
+    if (card4Label) card4Label.textContent = 'Agen Paling Responsif';
+  } else {
+    // REGULAR USER STATS
+    const myLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    const myDaysInput = myLogs.length;
+    let myTotalArt = 0;
+    let myTotalFrt = 0;
+    let myTotalInteractions = 0;
+    let myCompCount = 0;
+
+    myLogs.forEach(l => {
+      const art = Number(l.avgResponseSeconds) || 0;
+      const frt = Number(l.frtSeconds) || 0;
+      const cnt = Number(l.interactionCount) || 1;
+      myTotalArt += (art * cnt);
+      myTotalFrt += (frt * cnt);
+      myTotalInteractions += cnt;
+      if (art <= (Number(l.targetSeconds) || 30)) {
+        myCompCount++;
+      }
+    });
+
+    const myAvgArt = myTotalInteractions > 0 ? (myTotalArt / myTotalInteractions).toFixed(1) : '-';
+    const myAvgFrt = myTotalInteractions > 0 ? (myTotalFrt / myTotalInteractions).toFixed(1) : '-';
+    const myCompPct = myDaysInput > 0 ? ((myCompCount / myDaysInput) * 100).toFixed(1) : '100.0';
+
+    const card1Label = document.querySelector('#artCardMonthlyAvg .metric-label');
+    if (card1Label) card1Label.textContent = 'Rata-rata ART Saya Bulan Ini';
+    if (UI.artStatAvg) UI.artStatAvg.innerHTML = `${myAvgArt} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.artStatAvgSub) UI.artStatAvgSub.textContent = myDaysInput > 0 ? `${myDaysInput} hari input (${myTotalInteractions} sesi)` : 'Belum ada data bulan ini';
+
+    if (UI.artStatFrt) UI.artStatFrt.innerHTML = `${myAvgFrt} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.artStatFrtSub) UI.artStatFrtSub.textContent = 'Respon sapaan pertama akun Anda';
+
+    if (UI.artStatCompliance) UI.artStatCompliance.textContent = `${myCompPct}%`;
+    if (UI.artStatComplianceSub) UI.artStatComplianceSub.textContent = myDaysInput > 0 ? `${myCompCount} dari ${myDaysInput} hari memenuhi SLA (< 30s)` : 'Standar SLA: < 30 Detik';
+
+    const card4Label = document.getElementById('artStatTopUserLabel');
+    if (card4Label) card4Label.textContent = 'Status Kecepatan Respon';
+    if (UI.artStatTopUser) {
+      if (myDaysInput === 0) {
+        UI.artStatTopUser.textContent = 'Belum Ada Input';
+      } else {
+        const numAvg = parseFloat(myAvgArt);
+        if (numAvg <= 15.0) {
+          UI.artStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-bolt"></i> Sangat Responsif</span>';
+        } else if (numAvg <= 30.0) {
+          UI.artStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-circle-check"></i> Sesuai SLA</span>';
+        } else {
+          UI.artStatTopUser.innerHTML = '<span class="text-yellow"><i class="fa-solid fa-triangle-exclamation"></i> Over SLA</span>';
+        }
+      }
+    }
+    if (UI.artStatTopUserSub) {
+      UI.artStatTopUserSub.textContent = myDaysInput > 0 ? `Total ${myTotalInteractions} sesi chat dilayani` : 'Pencatatan dikelola oleh Admin';
+    }
+  }
+
+  // ========================================================
+  // Section 2: Log Response Time Harian (Interval Input Per Hari)
+  // ========================================================
+  if (UI.artDailySubtitle) {
+    if (isAdmin) {
+      UI.artDailySubtitle.textContent = 'Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.';
+    } else {
+      UI.artDailySubtitle.textContent = 'Daftar riwayat kecepatan respon per hari untuk akun Anda dalam bulan terpilih (Hanya Lihat).';
+    }
+  }
+
+  const searchQ = (UI.searchArtInput ? UI.searchArtInput.value.trim().toLowerCase() : '');
+  const filterUser = isAdmin ? (UI.filterArtUserSelect ? UI.filterArtUserSelect.value : 'ALL') : currentFullName;
+  const filterService = (UI.filterArtService ? UI.filterArtService.value : 'ALL');
+  const filterStatus = (UI.filterArtStatus ? UI.filterArtStatus.value : 'ALL');
+
+  if (UI.btnClearSearchArt) {
+    UI.btnClearSearchArt.classList.toggle('hidden', !searchQ);
+  }
+
+  const filteredLogs = monthLogs.filter(item => {
+    // RBAC: Regular user can ONLY see their own logs
+    if (!isAdmin) {
+      const matchSelf = (item.userFullName === currentFullName) ||
+                        (currentUser && item.userId === currentUser.id) ||
+                        (currentUser && item.username === currentUser.username);
+      if (!matchSelf) return false;
+    }
+
+    if (searchQ) {
+      const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.date || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.notes || '').toLowerCase().includes(searchQ) ||
+                    (item.status || '').toLowerCase().includes(searchQ);
+      if (!match) return false;
+    }
+
+    if (isAdmin && filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
+    return true;
+  });
+
+  // Sort daily logs
+  const sortMode = (UI.filterArtSort ? UI.filterArtSort.value : 'DATE_DESC');
+  if (sortMode === 'DATE_ASC') {
+    filteredLogs.sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+  } else if (sortMode === 'ART_ASC') {
+    filteredLogs.sort((a, b) => (Number(a.avgResponseSeconds) || 0) - (Number(b.avgResponseSeconds) || 0));
+  } else if (sortMode === 'ART_DESC') {
+    filteredLogs.sort((a, b) => (Number(b.avgResponseSeconds) || 0) - (Number(a.avgResponseSeconds) || 0));
+  } else {
+    // DATE_DESC
+    filteredLogs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
+
+  // Batch Toolbar & Checkbox sync for Admin
+  if (isAdmin) {
+    if (UI.artThSelectAll) UI.artThSelectAll.classList.remove('hidden');
+    const visibleIds = filteredLogs.map(l => l.id);
+    const selectedVisibleCount = visibleIds.filter(id => state.selectedArtIds.has(id)).length;
+    if (UI.artSelectAllCheckbox) {
+      UI.artSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+      UI.artSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+    }
+    if (UI.artBatchBar) {
+      const hasSelected = state.selectedArtIds.size > 0;
+      UI.artBatchBar.classList.toggle('hidden', !hasSelected);
+      if (UI.artSelectedCount) {
+        UI.artSelectedCount.textContent = state.selectedArtIds.size;
+      }
+    }
+  } else {
+    if (UI.artThSelectAll) UI.artThSelectAll.classList.add('hidden');
+    state.selectedArtIds.clear();
+    if (UI.artBatchBar) UI.artBatchBar.classList.add('hidden');
+  }
+
+  // Render Table Body
   if (!UI.artTableBody) return;
   UI.artTableBody.innerHTML = '';
 
-  logs.forEach(item => {
-    const isMet = (item.avgResponseSeconds <= item.targetSeconds);
+  const totalCols = isAdmin ? 13 : 12;
+  if (filteredLogs.length === 0) {
     const tr = document.createElement('tr');
+    const emptyMsg = isAdmin
+      ? 'Tidak ada log response time harian yang sesuai dengan filter atau bulan terpilih.'
+      : 'Tidak ada log response time harian untuk akun Anda pada bulan atau filter terpilih.';
+    tr.innerHTML = `<td colspan="${totalCols}" style="text-align: center; padding: 36px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>${emptyMsg}</td>`;
+    UI.artTableBody.appendChild(tr);
+    return;
+  }
+
+  filteredLogs.forEach(item => {
+    const tr = document.createElement('tr');
+    const isChecked = state.selectedArtIds.has(item.id);
+    const artSec = Number(item.avgResponseSeconds) || 0;
+    const targetSec = Number(item.targetSeconds) || 30;
+    const isSlaMet = artSec <= targetSec;
+    const interactionCount = Number(item.interactionCount) || 1;
+    const queueSec = Number(item.queueSeconds) || 0;
+    const frtSec = Number(item.frtSeconds) || 0;
+
+    const checkboxHtml = isAdmin ? `
+      <td style="text-align: center;">
+        <input type="checkbox" class="art-table-checkbox art-row-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
+      </td>
+    ` : '';
+
+    const actionHtml = isAdmin ? `
+      <td style="text-align:center;">
+        <div style="display:inline-flex; gap:4px;">
+          <button class="btn btn-icon btn-sm" onclick="promptEditArt('${item.id}')" title="Edit Response Time">
+            <i class="fa-solid fa-pen-to-square text-silver"></i>
+          </button>
+          <button class="btn btn-icon btn-sm" onclick="promptDeleteArt('${item.id}', '${(item.userFullName || '').replace(/'/g, "\\'")}', '${item.date || ''}')" title="Hapus Response Time">
+            <i class="fa-solid fa-trash-can text-red"></i>
+          </button>
+        </div>
+      </td>
+    ` : `
+      <td style="text-align:center;">
+        <span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>Hanya Lihat</span>
+      </td>
+    `;
+
     tr.innerHTML = `
-      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.sessionTime}</span></td>
-      <td><span style="font-weight:600; color:#fff;">${item.userFullName}</span></td>
-      <td><span class="badge badge-gray" style="font-size:0.75rem;">${item.channel}</span></td>
-      <td style="text-align:right;"><span class="font-mono text-silver">${item.queueSeconds}s</span></td>
-      <td style="text-align:right;"><span class="font-mono text-green font-weight-bold">${item.frtSeconds}s</span></td>
-      <td style="text-align:right;"><strong class="text-red font-mono">${item.avgResponseSeconds}s</strong></td>
-      <td><span class="badge badge-gray" style="font-size:0.75rem;">&lt; ${item.targetSeconds}s</span></td>
+      ${checkboxHtml}
+      <td><span class="font-mono font-bold" style="color:var(--gray-200);">${item.date || '-'}</span></td>
+      <td><strong style="color:#fff; font-size:0.875rem;">${item.userFullName || '-'}</strong></td>
+      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department || '-'}</span></td>
+      <td style="text-align: right;"><strong class="text-white font-mono">${interactionCount.toLocaleString('id-ID')}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
+      <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${queueSec.toFixed(1)}s</span></td>
+      <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${frtSec.toFixed(1)}s</span></td>
+      <td style="text-align: right;"><strong class="${isSlaMet ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${artSec.toFixed(1)}s</strong></td>
+      <td style="text-align: right;"><span class="font-mono text-silver">&lt; 30s</span></td>
       <td>
-        <span class="badge ${isMet ? 'badge-green' : 'badge-yellow'}" style="font-size:0.72rem;">
-          <i class="fa-solid fa-bolt" style="margin-right:3px;"></i>${item.status}
+        <span class="${isSlaMet ? 'text-green' : 'text-yellow'}" style="font-size:0.78rem; font-weight:600;">
+          <i class="${isSlaMet ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${item.deviationText || (isSlaMet ? 'Sesuai SLA' : 'Over SLA')}
         </span>
       </td>
+      <td>
+        <span class="badge ${isSlaMet ? 'badge-green' : 'badge-yellow'}" style="font-size:0.72rem;">
+          <i class="${isSlaMet ? 'fa-solid fa-bolt' : 'fa-solid fa-triangle-exclamation'}" style="margin-right:3px;"></i>${item.status || (isSlaMet ? 'Sesuai SLA' : 'Over SLA')}
+        </span>
+      </td>
+      <td>
+        <div style="font-size:0.75rem; color:var(--gray-300); max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.notes || '').replace(/"/g, '&quot;')}">
+          ${item.notes || '-'}
+        </div>
+      </td>
+      ${actionHtml}
     `;
     UI.artTableBody.appendChild(tr);
   });
 }
+
+function updateArtModalResponsePreview() {
+  const artSec = parseFloat(UI.formArtResponseSecs ? UI.formArtResponseSecs.value : '0') || 0;
+  const target = parseFloat(UI.formArtTargetSecs ? UI.formArtTargetSecs.value : '30') || 30;
+  const diff = parseFloat((artSec - target).toFixed(1));
+  const isSla = artSec <= target;
+  const diffText = isSla ? `-${Math.abs(diff).toFixed(1)} dtk (Sesuai SLA)` : `+${diff.toFixed(1)} dtk (Over SLA)`;
+  if (UI.formArtResponsePreview) {
+    UI.formArtResponsePreview.innerHTML = `Respon: <strong style="color:#fff;">${artSec.toFixed(1)}s</strong> • Deviasi: <span class="${isSla ? 'text-green' : 'text-yellow'}"><strong>${diffText}</strong></span>`;
+  }
+}
+
+function openAddArtModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menambah response time user.', 'warning');
+    return;
+  }
+
+  if (UI.modalArtTitle) UI.modalArtTitle.textContent = 'Input Response Time Harian (ART)';
+  if (UI.btnSubmitArtText) UI.btnSubmitArtText.textContent = 'Simpan Response Time';
+  if (UI.formArt) UI.formArt.reset();
+  if (UI.formArtId) UI.formArtId.value = '';
+
+  // Populate user dropdown
+  const users = state.getUsers();
+  if (UI.formArtUserSelect) {
+    UI.formArtUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO DIGILIVE CHAT - WA'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    if (users.length > 0 && UI.formArtDept) {
+      UI.formArtDept.value = users[0].department || 'CSO DIGILIVE CHAT - WA';
+    }
+  }
+
+  // Set default date to today or selected month
+  const now = new Date();
+  const selectedMonth = (UI.filterArtMonth ? UI.filterArtMonth.value : '2026-09') || '2026-09';
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const defaultDate = todayStr.startsWith(selectedMonth) ? todayStr : `${selectedMonth}-15`;
+
+  if (UI.formArtDate) UI.formArtDate.value = defaultDate;
+  if (UI.formArtInteractionCount) UI.formArtInteractionCount.value = '50';
+  if (UI.formArtQueueSecs) UI.formArtQueueSecs.value = '4.5';
+  if (UI.formArtFrtSecs) UI.formArtFrtSecs.value = '7.2';
+  if (UI.formArtResponseSecs) UI.formArtResponseSecs.value = '13.5';
+  if (UI.formArtTargetSecs) UI.formArtTargetSecs.value = '30';
+  if (UI.formArtNotes) UI.formArtNotes.value = '';
+
+  updateArtModalResponsePreview();
+
+  if (UI.modalArtForm) UI.modalArtForm.classList.remove('hidden');
+}
+
+function openEditArtModal(item) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang dapat mengedit response time user.', 'warning');
+    return;
+  }
+
+  const users = state.getUsers();
+  if (UI.formArtUserSelect) {
+    UI.formArtUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO DIGILIVE CHAT - WA'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    UI.formArtUserSelect.value = item.userFullName;
+  }
+
+  if (UI.formArtId) UI.formArtId.value = item.id;
+  if (UI.formArtDate) UI.formArtDate.value = item.date;
+  if (UI.formArtDept) UI.formArtDept.value = item.department || 'CSO DIGILIVE CHAT - WA';
+  if (UI.formArtInteractionCount) UI.formArtInteractionCount.value = item.interactionCount || 50;
+  if (UI.formArtQueueSecs) UI.formArtQueueSecs.value = item.queueSeconds !== undefined ? item.queueSeconds : 4.5;
+  if (UI.formArtFrtSecs) UI.formArtFrtSecs.value = item.frtSeconds !== undefined ? item.frtSeconds : 7.2;
+  if (UI.formArtResponseSecs) UI.formArtResponseSecs.value = item.avgResponseSeconds !== undefined ? item.avgResponseSeconds : 14.8;
+  if (UI.formArtTargetSecs) UI.formArtTargetSecs.value = item.targetSeconds || 30;
+  if (UI.formArtNotes) UI.formArtNotes.value = item.notes || '';
+
+  if (UI.modalArtTitle) UI.modalArtTitle.textContent = 'Edit Response Time Harian (ART)';
+  if (UI.btnSubmitArtText) UI.btnSubmitArtText.textContent = 'Perbarui Response Time';
+
+  updateArtModalResponsePreview();
+
+  if (UI.modalArtForm) UI.modalArtForm.classList.remove('hidden');
+}
+
+function closeArtModal() {
+  if (UI.modalArtForm) UI.modalArtForm.classList.add('hidden');
+}
+
+function handleSaveArt(e) {
+  e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang memiliki wewenang untuk menyimpan atau mengubah response time.', 'danger');
+    return;
+  }
+  const u = state.currentUser;
+  if (!u) return;
+
+  const id = UI.formArtId ? UI.formArtId.value : '';
+  const date = (UI.formArtDate ? UI.formArtDate.value : '').trim();
+  const userFullName = (UI.formArtUserSelect ? UI.formArtUserSelect.value : '').trim();
+  const department = (UI.formArtDept ? UI.formArtDept.value : 'CSO DIGILIVE CHAT - WA');
+  const interactionCount = parseInt(UI.formArtInteractionCount ? UI.formArtInteractionCount.value : '1', 10) || 1;
+  const queueSeconds = parseFloat(UI.formArtQueueSecs ? UI.formArtQueueSecs.value : '0') || 0;
+  const frtSeconds = parseFloat(UI.formArtFrtSecs ? UI.formArtFrtSecs.value : '0') || 0;
+  const avgResponseSeconds = parseFloat(UI.formArtResponseSecs ? UI.formArtResponseSecs.value : '0') || 0;
+  const targetSeconds = parseFloat(UI.formArtTargetSecs ? UI.formArtTargetSecs.value : '30') || 30;
+  const notes = (UI.formArtNotes ? UI.formArtNotes.value : '').trim();
+
+  if (!date) {
+    showToast('Form Belum Lengkap', 'Tanggal input harian wajib diisi.', 'warning');
+    return;
+  }
+  if (!userFullName) {
+    showToast('Form Belum Lengkap', 'Pilih petugas CSO yang menangani.', 'warning');
+    return;
+  }
+  if (avgResponseSeconds <= 0) {
+    showToast('Waktu Respon Tidak Valid', 'Rata-rata respon time harus lebih dari 0 detik.', 'warning');
+    return;
+  }
+  if (interactionCount <= 0) {
+    showToast('Jumlah Tidak Valid', 'Jumlah interaksi/sesi yang ditangani harus lebih dari 0.', 'warning');
+    return;
+  }
+
+  const deviationSeconds = parseFloat((avgResponseSeconds - targetSeconds).toFixed(1));
+  const isSlaMet = avgResponseSeconds <= targetSeconds;
+  const deviationText = isSlaMet ? `-${Math.abs(deviationSeconds).toFixed(1)} dtk (Cepat)` : `+${deviationSeconds.toFixed(1)} dtk (Over SLA)`;
+  const status = isSlaMet ? 'Sesuai SLA' : 'Over SLA';
+
+  const artLogs = state.getArtLogs();
+  const now = new Date();
+  const timeStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+
+  if (id) {
+    // EDIT
+    const idx = artLogs.findIndex(t => t.id === id);
+    if (idx !== -1) {
+      artLogs[idx] = {
+        ...artLogs[idx],
+        date,
+        userFullName,
+        department,
+        interactionCount,
+        queueSeconds,
+        frtSeconds,
+        avgResponseSeconds,
+        targetSeconds,
+        deviationSeconds,
+        deviationText,
+        status,
+        notes
+      };
+      state.saveArtLogs(artLogs);
+      state.addLog('UPDATE_ART', 'Ubah Response Time', `Admin ${u.fullName} memperbarui response time harian ${userFullName} (${date}): ${avgResponseSeconds}s (${status}).`);
+      showToast('Response Time Diperbarui', `Response time <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${avgResponseSeconds} Detik</strong> (${status}).`, 'success');
+    }
+  } else {
+    // NEW
+    const newEntry = {
+      id: 'art_' + Date.now(),
+      date,
+      userFullName,
+      department,
+      interactionCount,
+      queueSeconds,
+      frtSeconds,
+      avgResponseSeconds,
+      targetSeconds,
+      deviationSeconds,
+      deviationText,
+      status,
+      notes,
+      createdAt: timeStr
+    };
+    artLogs.unshift(newEntry);
+    state.saveArtLogs(artLogs);
+    state.addLog('CREATE_ART', 'Input Response Time', `Admin ${u.fullName} mencatat response time harian untuk ${userFullName}: ${avgResponseSeconds}s (${interactionCount} sesi).`);
+    showToast('Response Time Disimpan', `Response time <strong>${avgResponseSeconds} Detik</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
+  }
+
+  closeArtModal();
+  renderArtPage();
+}
+
+window.promptEditArt = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mengedit response time.', 'warning');
+    return;
+  }
+  const artLogs = state.getArtLogs();
+  const item = artLogs.find(t => t.id === id);
+  if (!item) return;
+  openEditArtModal(item);
+};
+
+window.promptDeleteArt = function(id, name, date) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki hak izin untuk menghapus response time.', 'warning');
+    return;
+  }
+  state.pendingDelete = { type: 'art', id, name: `${name} (${date})` };
+  UI.confirmDeleteTitle.textContent = 'Hapus Response Time Harian?';
+  UI.confirmDeleteMessage.innerHTML = `Data response time harian <strong>${name}</strong> tanggal <strong>${date}</strong> akan dihapus permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.promptDeleteAllArtMonth = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat menghapus data response time bulanan.', 'warning');
+    return;
+  }
+  const month = (UI.filterArtMonth ? UI.filterArtMonth.value : '2026-09') || '2026-09';
+  const monthText = month === '2026-09' ? 'September 2026' : (month === '2026-08' ? 'Agustus 2026' : 'Juli 2026');
+  state.pendingDelete = { type: 'art_month', id: month, name: monthText };
+  UI.confirmDeleteTitle.textContent = `Hapus Semua Response Time Bulan ${monthText}?`;
+  UI.confirmDeleteMessage.innerHTML = `Perhatian: Seluruh data response time harian untuk periode <strong>${monthText}</strong> akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.handleArtBatchDelete = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat melakukan penghapusan massal.', 'warning');
+    return;
+  }
+  const selectedList = Array.from(state.selectedArtIds);
+  if (selectedList.length === 0) {
+    showToast('Pilih Data', 'Pilih minimal satu data response time yang ingin dihapus.', 'info');
+    return;
+  }
+  state.pendingDelete = { type: 'art_batch', id: 'batch', name: `${selectedList.length} data response time`, ids: selectedList };
+  UI.confirmDeleteTitle.textContent = `Hapus ${selectedList.length} Data Response Time?`;
+  UI.confirmDeleteMessage.innerHTML = `Sebanyak <strong>${selectedList.length} data response time</strong> yang ditandai akan dihapus secara permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.filterArtByUser = function(userName) {
+  if (UI.filterArtUserSelect) {
+    if (Array.from(UI.filterArtUserSelect.options).some(o => o.value === userName)) {
+      UI.filterArtUserSelect.value = userName;
+    }
+  }
+  if (UI.filterSummaryArtUser && state.isAdmin()) {
+    if (Array.from(UI.filterSummaryArtUser.options).some(o => o.value === userName)) {
+      UI.filterSummaryArtUser.value = userName;
+    }
+  }
+  renderArtPage();
+  const sub = document.getElementById('artDailySubtitle');
+  if (sub) {
+    sub.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
 
 // ==========================================
 // 12.9 FINDING (QA AUDIT FINDINGS)
@@ -7198,10 +9257,12 @@ function initEvents() {
   if (UI.filterTiketScoreSort) UI.filterTiketScoreSort.addEventListener('change', renderTiketPage);
   if (UI.btnResetTiketFilters) {
     UI.btnResetTiketFilters.addEventListener('click', () => {
+      const isAdm = state.isAdmin();
+      const myName = state.currentUser ? state.currentUser.fullName : '';
       if (UI.filterTiketMonth) UI.filterTiketMonth.value = '2026-09';
-      if (UI.filterSummaryTiketUser) UI.filterSummaryTiketUser.value = 'ALL';
+      if (UI.filterSummaryTiketUser) UI.filterSummaryTiketUser.value = isAdm ? 'ALL' : myName;
       if (UI.filterSummaryTiketService) UI.filterSummaryTiketService.value = 'ALL';
-      if (UI.filterTiketUserSelect) UI.filterTiketUserSelect.value = 'ALL';
+      if (UI.filterTiketUserSelect) UI.filterTiketUserSelect.value = isAdm ? 'ALL' : myName;
       if (UI.searchTiketInput) UI.searchTiketInput.value = '';
       if (UI.filterTiketService) UI.filterTiketService.value = 'ALL';
       if (UI.filterTiketGrade) UI.filterTiketGrade.value = 'ALL';
@@ -7271,6 +9332,11 @@ function initEvents() {
 
 
   // AHT Event Listeners
+  if (UI.filterAhtMonth) UI.filterAhtMonth.addEventListener('change', renderAhtPage);
+  if (UI.filterSummaryAhtUser) UI.filterSummaryAhtUser.addEventListener('change', renderAhtPage);
+  if (UI.filterSummaryAhtService) UI.filterSummaryAhtService.addEventListener('change', renderAhtPage);
+  if (UI.filterAhtSummarySort) UI.filterAhtSummarySort.addEventListener('change', renderAhtPage);
+
   if (UI.btnRefreshAht) {
     UI.btnRefreshAht.addEventListener('click', () => {
       renderAhtPage();
@@ -7278,11 +9344,257 @@ function initEvents() {
     });
   }
 
+  if (UI.btnDeleteAllAhtMonth) UI.btnDeleteAllAhtMonth.addEventListener('click', promptDeleteAllAhtMonth);
+  if (UI.btnOpenAddAhtModal) UI.btnOpenAddAhtModal.addEventListener('click', openAddAhtModal);
+  if (UI.btnCloseAhtModal) UI.btnCloseAhtModal.addEventListener('click', closeAhtModal);
+  if (UI.btnCancelAhtModal) UI.btnCancelAhtModal.addEventListener('click', closeAhtModal);
+  if (UI.formAht) UI.formAht.addEventListener('submit', handleSaveAht);
+
+  if (UI.formAhtUserSelect) {
+    UI.formAhtUserSelect.addEventListener('change', () => {
+      const selectedOpt = UI.formAhtUserSelect.options[UI.formAhtUserSelect.selectedIndex];
+      if (selectedOpt && selectedOpt.dataset.dept && UI.formAhtDept) {
+        UI.formAhtDept.value = selectedOpt.dataset.dept;
+      }
+    });
+  }
+
+  if (UI.formAhtDurationMins) UI.formAhtDurationMins.addEventListener('input', updateAhtModalDurationPreview);
+  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.addEventListener('input', updateAhtModalDurationPreview);
+  if (UI.formAhtTargetSecs) UI.formAhtTargetSecs.addEventListener('input', updateAhtModalDurationPreview);
+
+  if (UI.searchAhtInput) UI.searchAhtInput.addEventListener('input', renderAhtPage);
+  if (UI.btnClearSearchAht) {
+    UI.btnClearSearchAht.addEventListener('click', () => {
+      if (UI.searchAhtInput) UI.searchAhtInput.value = '';
+      renderAhtPage();
+    });
+  }
+
+  if (UI.filterAhtUserSelect) UI.filterAhtUserSelect.addEventListener('change', renderAhtPage);
+  if (UI.filterAhtService) UI.filterAhtService.addEventListener('change', renderAhtPage);
+  if (UI.filterAhtStatus) UI.filterAhtStatus.addEventListener('change', renderAhtPage);
+  if (UI.filterAhtSort) UI.filterAhtSort.addEventListener('change', renderAhtPage);
+
+  if (UI.btnResetAhtFilters) {
+    UI.btnResetAhtFilters.addEventListener('click', () => {
+      if (UI.searchAhtInput) UI.searchAhtInput.value = '';
+      if (UI.filterAhtUserSelect && state.isAdmin()) UI.filterAhtUserSelect.value = 'ALL';
+      if (UI.filterAhtService) UI.filterAhtService.value = 'ALL';
+      if (UI.filterAhtStatus) UI.filterAhtStatus.value = 'ALL';
+      if (UI.filterAhtSort) UI.filterAhtSort.value = 'DATE_DESC';
+      if (UI.filterSummaryAhtUser && state.isAdmin()) UI.filterSummaryAhtUser.value = 'ALL';
+      if (UI.filterSummaryAhtService) UI.filterSummaryAhtService.value = 'ALL';
+      if (UI.filterAhtSummarySort) UI.filterAhtSummarySort.value = 'FASTEST';
+      renderAhtPage();
+      showToast('Filter Direset', 'Semua filter AHT dikembalikan ke setelan awal.', 'info');
+    });
+  }
+
+  // AHT Checkbox and batch toolbar listeners (Admin)
+  if (UI.ahtSelectAllCheckbox) {
+    UI.ahtSelectAllCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      const rowBoxes = document.querySelectorAll('.aht-row-checkbox');
+      rowBoxes.forEach(box => {
+        const id = box.dataset.id;
+        box.checked = checked;
+        if (checked) {
+          state.selectedAhtIds.add(id);
+        } else {
+          state.selectedAhtIds.delete(id);
+        }
+      });
+      if (UI.ahtBatchBar) {
+        UI.ahtBatchBar.classList.toggle('hidden', state.selectedAhtIds.size === 0);
+        if (UI.ahtSelectedCount) UI.ahtSelectedCount.textContent = state.selectedAhtIds.size;
+      }
+    });
+  }
+
+  if (UI.btnAhtSelectAll) {
+    UI.btnAhtSelectAll.addEventListener('click', () => {
+      const rowBoxes = document.querySelectorAll('.aht-row-checkbox');
+      rowBoxes.forEach(box => {
+        const id = box.dataset.id;
+        box.checked = true;
+        state.selectedAhtIds.add(id);
+      });
+      if (UI.ahtSelectAllCheckbox) UI.ahtSelectAllCheckbox.checked = true;
+      if (UI.ahtBatchBar) {
+        UI.ahtBatchBar.classList.remove('hidden');
+        if (UI.ahtSelectedCount) UI.ahtSelectedCount.textContent = state.selectedAhtIds.size;
+      }
+    });
+  }
+
+  if (UI.btnAhtDeselectAll) {
+    UI.btnAhtDeselectAll.addEventListener('click', () => {
+      state.selectedAhtIds.clear();
+      const rowBoxes = document.querySelectorAll('.aht-row-checkbox');
+      rowBoxes.forEach(box => box.checked = false);
+      if (UI.ahtSelectAllCheckbox) UI.ahtSelectAllCheckbox.checked = false;
+      if (UI.ahtBatchBar) UI.ahtBatchBar.classList.add('hidden');
+    });
+  }
+
+  if (UI.btnAhtDeleteSelected) UI.btnAhtDeleteSelected.addEventListener('click', handleAhtBatchDelete);
+
+  // Row checkbox click event delegation
+  if (UI.tableAhtLogs) {
+    UI.tableAhtLogs.addEventListener('change', (e) => {
+      if (e.target.classList.contains('aht-row-checkbox')) {
+        const id = e.target.dataset.id;
+        if (e.target.checked) {
+          state.selectedAhtIds.add(id);
+        } else {
+          state.selectedAhtIds.delete(id);
+        }
+        const rowBoxes = Array.from(document.querySelectorAll('.aht-row-checkbox'));
+        const allChecked = rowBoxes.length > 0 && rowBoxes.every(b => b.checked);
+        const anyChecked = rowBoxes.some(b => b.checked);
+        if (UI.ahtSelectAllCheckbox) {
+          UI.ahtSelectAllCheckbox.checked = allChecked;
+          UI.ahtSelectAllCheckbox.indeterminate = anyChecked && !allChecked;
+        }
+        if (UI.ahtBatchBar) {
+          UI.ahtBatchBar.classList.toggle('hidden', state.selectedAhtIds.size === 0);
+          if (UI.ahtSelectedCount) UI.ahtSelectedCount.textContent = state.selectedAhtIds.size;
+        }
+      }
+    });
+  }
+
   // ART Event Listeners
+  if (UI.filterArtMonth) UI.filterArtMonth.addEventListener('change', renderArtPage);
+  if (UI.filterSummaryArtUser) UI.filterSummaryArtUser.addEventListener('change', renderArtPage);
+  if (UI.filterSummaryArtService) UI.filterSummaryArtService.addEventListener('change', renderArtPage);
+  if (UI.filterArtSummarySort) UI.filterArtSummarySort.addEventListener('change', renderArtPage);
+
   if (UI.btnRefreshArt) {
     UI.btnRefreshArt.addEventListener('click', () => {
       renderArtPage();
       showToast('Data Diperbarui', 'Metrik Average Response Time diperbarui.', 'info');
+    });
+  }
+
+  if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.addEventListener('click', promptDeleteAllArtMonth);
+  if (UI.btnOpenAddArtModal) UI.btnOpenAddArtModal.addEventListener('click', openAddArtModal);
+  if (UI.btnCloseArtModal) UI.btnCloseArtModal.addEventListener('click', closeArtModal);
+  if (UI.btnCancelArtModal) UI.btnCancelArtModal.addEventListener('click', closeArtModal);
+  if (UI.formArt) UI.formArt.addEventListener('submit', handleSaveArt);
+
+  if (UI.formArtUserSelect) {
+    UI.formArtUserSelect.addEventListener('change', () => {
+      const selectedOpt = UI.formArtUserSelect.options[UI.formArtUserSelect.selectedIndex];
+      if (selectedOpt && selectedOpt.dataset.dept && UI.formArtDept) {
+        UI.formArtDept.value = selectedOpt.dataset.dept;
+      }
+    });
+  }
+
+  if (UI.formArtResponseSecs) UI.formArtResponseSecs.addEventListener('input', updateArtModalResponsePreview);
+  if (UI.formArtTargetSecs) UI.formArtTargetSecs.addEventListener('input', updateArtModalResponsePreview);
+
+  if (UI.searchArtInput) UI.searchArtInput.addEventListener('input', renderArtPage);
+  if (UI.btnClearSearchArt) {
+    UI.btnClearSearchArt.addEventListener('click', () => {
+      if (UI.searchArtInput) UI.searchArtInput.value = '';
+      renderArtPage();
+    });
+  }
+
+  if (UI.filterArtUserSelect) UI.filterArtUserSelect.addEventListener('change', renderArtPage);
+  if (UI.filterArtService) UI.filterArtService.addEventListener('change', renderArtPage);
+  if (UI.filterArtStatus) UI.filterArtStatus.addEventListener('change', renderArtPage);
+  if (UI.filterArtSort) UI.filterArtSort.addEventListener('change', renderArtPage);
+
+  if (UI.btnResetArtFilters) {
+    UI.btnResetArtFilters.addEventListener('click', () => {
+      if (UI.searchArtInput) UI.searchArtInput.value = '';
+      if (UI.filterArtUserSelect && state.isAdmin()) UI.filterArtUserSelect.value = 'ALL';
+      if (UI.filterArtService) UI.filterArtService.value = 'ALL';
+      if (UI.filterArtStatus) UI.filterArtStatus.value = 'ALL';
+      if (UI.filterArtSort) UI.filterArtSort.value = 'DATE_DESC';
+      if (UI.filterSummaryArtUser && state.isAdmin()) UI.filterSummaryArtUser.value = 'ALL';
+      if (UI.filterSummaryArtService) UI.filterSummaryArtService.value = 'ALL';
+      if (UI.filterArtSummarySort) UI.filterArtSummarySort.value = 'FASTEST';
+      renderArtPage();
+      showToast('Filter Direset', 'Semua filter ART dikembalikan ke setelan awal.', 'info');
+    });
+  }
+
+  // ART Checkbox and batch toolbar listeners (Admin)
+  if (UI.artSelectAllCheckbox) {
+    UI.artSelectAllCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      const rowBoxes = document.querySelectorAll('.art-row-checkbox');
+      rowBoxes.forEach(box => {
+        const id = box.dataset.id;
+        box.checked = checked;
+        if (checked) {
+          state.selectedArtIds.add(id);
+        } else {
+          state.selectedArtIds.delete(id);
+        }
+      });
+      if (UI.artBatchBar) {
+        UI.artBatchBar.classList.toggle('hidden', state.selectedArtIds.size === 0);
+        if (UI.artSelectedCount) UI.artSelectedCount.textContent = state.selectedArtIds.size;
+      }
+    });
+  }
+
+  if (UI.btnArtSelectAll) {
+    UI.btnArtSelectAll.addEventListener('click', () => {
+      const rowBoxes = document.querySelectorAll('.art-row-checkbox');
+      rowBoxes.forEach(box => {
+        const id = box.dataset.id;
+        box.checked = true;
+        state.selectedArtIds.add(id);
+      });
+      if (UI.artSelectAllCheckbox) UI.artSelectAllCheckbox.checked = true;
+      if (UI.artBatchBar) {
+        UI.artBatchBar.classList.remove('hidden');
+        if (UI.artSelectedCount) UI.artSelectedCount.textContent = state.selectedArtIds.size;
+      }
+    });
+  }
+
+  if (UI.btnArtDeselectAll) {
+    UI.btnArtDeselectAll.addEventListener('click', () => {
+      state.selectedArtIds.clear();
+      const rowBoxes = document.querySelectorAll('.art-row-checkbox');
+      rowBoxes.forEach(box => box.checked = false);
+      if (UI.artSelectAllCheckbox) UI.artSelectAllCheckbox.checked = false;
+      if (UI.artBatchBar) UI.artBatchBar.classList.add('hidden');
+    });
+  }
+
+  if (UI.btnArtDeleteSelected) UI.btnArtDeleteSelected.addEventListener('click', handleArtBatchDelete);
+
+  // Row checkbox click event delegation
+  if (UI.tableArtLogs) {
+    UI.tableArtLogs.addEventListener('change', (e) => {
+      if (e.target.classList.contains('art-row-checkbox')) {
+        const id = e.target.dataset.id;
+        if (e.target.checked) {
+          state.selectedArtIds.add(id);
+        } else {
+          state.selectedArtIds.delete(id);
+        }
+        const rowBoxes = Array.from(document.querySelectorAll('.art-row-checkbox'));
+        const allChecked = rowBoxes.length > 0 && rowBoxes.every(b => b.checked);
+        const anyChecked = rowBoxes.some(b => b.checked);
+        if (UI.artSelectAllCheckbox) {
+          UI.artSelectAllCheckbox.checked = allChecked;
+          UI.artSelectAllCheckbox.indeterminate = anyChecked && !allChecked;
+        }
+        if (UI.artBatchBar) {
+          UI.artBatchBar.classList.toggle('hidden', state.selectedArtIds.size === 0);
+          if (UI.artSelectedCount) UI.artSelectedCount.textContent = state.selectedArtIds.size;
+        }
+      }
     });
   }
 
@@ -7320,6 +9632,2589 @@ function initEvents() {
 }
 
 // ==========================================
+// 16. TYPING TEST GAME ENGINE (SPEED RACER 60s)
+// ==========================================
+
+const TYPING_TEST_DURATION = 60; // Durasi permainan 60 detik
+
+const TYPING_WORDS_DB = {
+  id_general: [
+    'kecepatan', 'kendaraan', 'sirkuit', 'pengemudi', 'teknologi', 'kemampuan', 'prestasi', 'fokus',
+    'semangat', 'juara', 'akurat', 'tangkas', 'lintasan', 'garis', 'finish', 'akselerasi', 'putaran',
+    'mesin', 'kinerja', 'laju', 'waktu', 'detik', 'menit', 'jarak', 'tempuh', 'kemudi', 'roda',
+    'aspal', 'piala', 'tantangan', 'latihan', 'konsentrasi', 'ketangkasan', 'jari', 'keyboard', 'huruf',
+    'kata', 'kalimat', 'paragraf', 'daya', 'kekuatan', 'stamina', 'ketahanan', 'refleks', 'kecekatan',
+    'keberhasilan', 'peluang', 'kemenangan', 'bakat', 'kompetisi', 'rekor', 'tertinggi', 'tercepat',
+    'hebat', 'efisien', 'dinamis', 'produktif', 'percaya', 'diri', 'optimis', 'tangguh', 'keberanian',
+    'target', 'sasaran', 'pencapaian', 'disiplin', 'konsistensi', 'keunggulan', 'kreativitas', 'inovasi',
+    'komitmen', 'ketepatan', 'kejujuran', 'profesional', 'teladan', 'semesta', 'kebanggaan', 'inspirasi',
+    'gerakan', 'momentum', 'kecepatan', 'gesit', 'stabil', 'kendali', 'pengendalian', 'keahlian',
+    'kecermatan', 'ketelitian', 'kelancaran', 'kemajuan', 'lompatan', 'kualitas', 'kapasitas', 'potensi'
+  ],
+  id_operations: [
+    'pelanggan', 'verifikasi', 'identitas', 'tiket', 'layanan', 'solusi', 'eskalasi', 'keluhan',
+    'interaksi', 'penanganan', 'respon', 'durasi', 'kualitas', 'evaluasi', 'penilaian', 'kepuasan',
+    'operasional', 'produktivitas', 'efisiensi', 'koordinasi', 'komunikasi', 'integritas', 'prosedur',
+    'standar', 'pedoman', 'kebijakan', 'pelaporan', 'ringkasan', 'audit', 'temuan', 'catatan',
+    'informasi', 'pembaruan', 'tindak', 'lanjut', 'perbaikan', 'peningkatan', 'kinerja', 'indikator',
+    'petugas', 'panggilan', 'obrolan', 'surel', 'saluran', 'jaringan', 'koneksi', 'keandalan',
+    'akurasi', 'ketuntasan', 'penyelesaian', 'prioritas', 'urgensi', 'tenggat', 'kesepakatan',
+    'pemantauan', 'pengawasan', 'analisis', 'wawasan', 'data', 'fakta', 'solutif', 'ramah',
+    'profesional', 'sopan', 'tanggap', 'cekatan', 'empati', 'pelayanan', 'keunggulan', 'kolaborasi'
+  ],
+  en_speed: [
+    'speed', 'racing', 'supercar', 'engine', 'velocity', 'throttle', 'asphalt', 'circuit',
+    'turbo', 'booster', 'champion', 'victory', 'trophy', 'driver', 'highway', 'gears',
+    'tires', 'acceleration', 'traction', 'momentum', 'precision', 'focus', 'power', 'torque',
+    'performance', 'fast', 'quick', 'rapid', 'dynamic', 'record', 'challenge', 'drifting',
+    'podium', 'winner', 'finish', 'streak', 'energy', 'lightning', 'apex', 'corner',
+    'straight', 'overtake', 'steering', 'cockpit', 'aerodynamic', 'telemetry', 'mileage', 'odometer',
+    'exhaust', 'ignite', 'spark', 'piston', 'horsepower', 'rpm', 'clutch', 'brakes', 'suspension',
+    'reflexes', 'stamina', 'dexterity', 'agility', 'rapidly', 'extreme', 'hypercar', 'legend'
+  ]
+};
+
+const TypingAudioEngine = {
+  ctx: null,
+  init() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) this.ctx = new AudioCtx();
+    }
+    if (this.ctx && this.ctx.state === 'suspended') {
+      this.ctx.resume().catch(() => {});
+    }
+  },
+  playKey() {
+    if (!typingState.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(550 + Math.random() * 250, this.ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, this.ctx.currentTime + 0.035);
+      gain.gain.setValueAtTime(0.06, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.035);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.04);
+    } catch (e) {}
+  },
+  playError() {
+    if (!typingState.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(130, this.ctx.currentTime);
+      gain.gain.setValueAtTime(0.1, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.1);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start();
+      osc.stop(this.ctx.currentTime + 0.11);
+    } catch (e) {}
+  },
+  playNitro() {
+    if (!typingState.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const bufferSize = Math.floor(this.ctx.sampleRate * 0.35);
+      const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+      const data = buffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+      const noise = this.ctx.createBufferSource();
+      noise.buffer = buffer;
+      const filter = this.ctx.createBiquadFilter();
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(700, this.ctx.currentTime);
+      filter.frequency.exponentialRampToValueAtTime(3200, this.ctx.currentTime + 0.3);
+      const gain = this.ctx.createGain();
+      gain.gain.setValueAtTime(0.07, this.ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, this.ctx.currentTime + 0.35);
+      noise.connect(filter);
+      filter.connect(gain);
+      gain.connect(this.ctx.destination);
+      noise.start();
+    } catch (e) {}
+  },
+  playFanfare() {
+    if (!typingState.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      const notes = [261.63, 329.63, 392.00, 523.25]; // C4, E4, G4, C5
+      notes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        const start = this.ctx.currentTime + idx * 0.12;
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.12, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.32);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.33);
+      });
+    } catch (e) {}
+  },
+  playKingFanfare() {
+    if (!typingState.soundEnabled) return;
+    try {
+      this.init();
+      if (!this.ctx) return;
+      // Majestic Royal King Fanfare (C4, G4, C5, E5, G5)
+      const kingNotes = [261.63, 392.00, 523.25, 659.25, 783.99];
+      kingNotes.forEach((freq, idx) => {
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        const start = this.ctx.currentTime + idx * 0.14;
+        osc.frequency.setValueAtTime(freq, start);
+        gain.gain.setValueAtTime(0.16, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.45);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(start);
+        osc.stop(start + 0.46);
+      });
+    } catch (e) {}
+  }
+};
+
+
+// ==========================================
+// 14. TYPING TEST MODULE - SPEED RACER 60S
+// ==========================================
+
+// TYPING_TEST_DURATION is already defined above
+
+// 5 Model Mobil Balap Supercar & Hot Wheels dengan Desain SVG Autentik
+const CAR_MODELS = {
+  ferrari: {
+    id: 'ferrari',
+    name: 'Ferrari SF90 Stradale',
+    theme: 'Rosso Corsa',
+    colorHex: '#e60000',
+    iconEmoji: '🏎️',
+    svg: `<svg class="racer-car-svg" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="ferrariRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#ff2e2e" />
+          <stop offset="25%" stop-color="#e60000" />
+          <stop offset="70%" stop-color="#c40000" />
+          <stop offset="100%" stop-color="#7a0000" />
+        </linearGradient>
+        <linearGradient id="ferrariGlossGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+          <stop offset="50%" stop-color="#ff7777" stop-opacity="0.8" />
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.1" />
+        </linearGradient>
+        <linearGradient id="ferrariGlassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#1e293b" stop-opacity="0.95" />
+          <stop offset="40%" stop-color="#0f172a" stop-opacity="0.9" />
+          <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.4" />
+        </linearGradient>
+        <linearGradient id="ferrariRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#475569" />
+          <stop offset="50%" stop-color="#1e293b" />
+          <stop offset="100%" stop-color="#0f172a" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="160" cy="94" rx="145" ry="5.5" fill="#000000" opacity="0.8" filter="blur(2px)" />
+      <path d="M 28 85 L 12 78 L 18 70 L 40 76 Z" fill="#18181b" />
+      <rect x="14" y="74" width="8" height="5" rx="2" fill="#3f3f46" stroke="#71717a" stroke-width="0.7" />
+      <path d="M 85 86 L 225 86 L 220 89 L 90 89 Z" fill="#09090b" />
+      <path d="M 90 88.5 L 215 88.5" stroke="#ef4444" stroke-width="1.2" />
+      <path d="M 24 74 C 22 62, 35 52, 60 52 C 85 52, 95 44, 115 30 C 135 17, 185 16, 215 32 C 230 40, 245 52, 280 64 C 300 71, 312 77, 310 82 C 305 87, 285 87, 275 87 C 272 73, 248 73, 245 87 L 85 87 C 82 73, 58 73, 55 87 L 26 87 Z" fill="url(#ferrariRedGrad)" />
+      <path d="M 58 53 C 95 53, 115 44, 130 31 C 150 18, 185 17, 212 32 C 235 43, 260 58, 290 67" fill="none" stroke="url(#ferrariGlossGrad)" stroke-width="2.5" stroke-linecap="round" />
+      <path d="M 120 32 C 138 20, 178 19, 205 32 C 215 37, 222 45, 228 51 L 110 51 C 114 43, 116 36, 120 32 Z" fill="url(#ferrariGlassGrad)" stroke="#0f172a" stroke-width="1.5" />
+      <path d="M 100 58 C 115 58, 125 66, 120 78 C 112 78, 100 72, 98 64 Z" fill="#09090b" stroke="#7f1d1d" stroke-width="0.8" />
+      <path d="M 102 61 L 116 75" stroke="#ef4444" stroke-width="1" opacity="0.6" />
+      <path d="M 292 78 L 315 82 L 305 86 L 275 86 Z" fill="#09090b" stroke="#27272a" stroke-width="0.8" />
+      <path d="M 282 66 L 302 74 L 285 73 Z" fill="#38bdf8" opacity="0.9" />
+      <ellipse cx="295" cy="72" rx="4" ry="1.8" fill="#ffffff" />
+      <polygon points="128,52 133,52 132,60 130.5,62 129,60" fill="#facc15" stroke="#000000" stroke-width="0.4" />
+      <polygon points="129.5,53 131.5,53 131,58 130,58" fill="#dc2626" />
+      <path d="M 22 55 L 42 53 L 40 57 L 20 59 Z" fill="#09090b" />
+      <line x1="28" y1="58" x2="30" y2="70" stroke="#18181b" stroke-width="2.5" />
+
+      <!-- Wheel Assembly at (70, 84) -->
+      <g class="wheel-station" transform="translate(70, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#dc2626" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelRear" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#64748b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#e2e8f0" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#facc15" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+      <!-- Wheel Assembly at (260, 84) -->
+      <g class="wheel-station" transform="translate(260, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#dc2626" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelFront" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#64748b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#e2e8f0" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#facc15" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+    </svg>`
+  },
+  lamborghini: {
+    id: 'lamborghini',
+    name: 'Lamborghini Huracán STO',
+    theme: 'Giallo Auge Yellow',
+    colorHex: '#eab308',
+    iconEmoji: '🏎️',
+    svg: `<svg class="racer-car-svg" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lamboYellowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fde047" />
+          <stop offset="25%" stop-color="#eab308" />
+          <stop offset="70%" stop-color="#ca8a04" />
+          <stop offset="100%" stop-color="#854d0e" />
+        </linearGradient>
+        <linearGradient id="lamboGlassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stop-color="#0f172a" stop-opacity="0.95" />
+          <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.4" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="160" cy="94" rx="145" ry="5.5" fill="#000000" opacity="0.8" filter="blur(2px)" />
+      <path d="M 15 45 L 45 42 L 40 48 L 12 51 Z" fill="#09090b" stroke="#eab308" stroke-width="0.8" />
+      <line x1="25" y1="50" x2="35" y2="72" stroke="#18181b" stroke-width="3" />
+      <path d="M 22 75 C 22 62, 36 50, 62 50 L 125 28 C 145 16, 185 16, 215 32 L 285 64 C 305 71, 314 77, 310 82 C 305 87, 285 87, 275 87 C 272 73, 248 73, 245 87 L 85 87 C 82 73, 58 73, 55 87 L 24 87 Z" fill="url(#lamboYellowGrad)" />
+      <polygon points="160,18 190,18 185,25 155,25" fill="#09090b" stroke="#ca8a04" stroke-width="0.8" />
+      <polygon points="130,30 205,30 228,51 118,51" fill="url(#lamboGlassGrad)" stroke="#09090b" stroke-width="1.5" />
+      <polygon points="95,58 125,58 115,76 85,76" fill="#09090b" stroke="#ca8a04" stroke-width="1" />
+      <polygon points="280,66 300,73 285,73" fill="#38bdf8" />
+
+      <!-- Wheel Assembly at (70, 84) -->
+      <g class="wheel-station" transform="translate(70, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#eab308" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelRear" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#18181b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#facc15" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#fde047" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#18181b" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+      <!-- Wheel Assembly at (260, 84) -->
+      <g class="wheel-station" transform="translate(260, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#eab308" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelFront" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#18181b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#facc15" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#fde047" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#18181b" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+    </svg>`
+  },
+  porsche: {
+    id: 'porsche',
+    name: 'Porsche 911 GT3 RS',
+    theme: 'Shark Blue',
+    colorHex: '#0284c7',
+    iconEmoji: '🏎️',
+    svg: `<svg class="racer-car-svg" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="porscheBlueGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#38bdf8" />
+          <stop offset="30%" stop-color="#0284c7" />
+          <stop offset="70%" stop-color="#0369a1" />
+          <stop offset="100%" stop-color="#075985" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="160" cy="94" rx="145" ry="5.5" fill="#000000" opacity="0.8" filter="blur(2px)" />
+      <path d="M 18 36 L 48 34 L 44 40 L 14 42 Z" fill="#09090b" stroke="#38bdf8" stroke-width="1" />
+      <path d="M 28 40 C 26 50, 38 60, 42 70" fill="none" stroke="#09090b" stroke-width="3.5" />
+      <path d="M 24 75 C 20 60, 32 46, 55 46 C 85 46, 110 32, 135 24 C 160 16, 195 18, 225 35 C 245 46, 260 56, 285 66 C 302 72, 312 77, 310 82 C 305 87, 285 87, 275 87 C 272 73, 248 73, 245 87 L 85 87 C 82 73, 58 73, 55 87 L 24 87 Z" fill="url(#porscheBlueGrad)" />
+      <path d="M 132 27 C 160 20, 190 20, 215 36 C 225 43, 230 49, 232 52 L 122 52 C 124 42, 127 34, 132 27 Z" fill="#0f172a" stroke="#38bdf8" stroke-width="1" />
+      <ellipse cx="285" cy="68" rx="6" ry="5" fill="#38bdf8" stroke="#ffffff" stroke-width="1" />
+
+      <!-- Wheel Assembly at (70, 84) -->
+      <g class="wheel-station" transform="translate(70, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#ef4444" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelRear" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#1e293b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#93c5fd" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#facc15" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+      <!-- Wheel Assembly at (260, 84) -->
+      <g class="wheel-station" transform="translate(260, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#ef4444" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelFront" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#ffffff" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#1e293b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#93c5fd" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#facc15" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+    </svg>`
+  },
+  mclaren: {
+    id: 'mclaren',
+    name: 'McLaren 720S Spider',
+    theme: 'Papaya Orange',
+    colorHex: '#f97316',
+    iconEmoji: '🏎️',
+    svg: `<svg class="racer-car-svg" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="mclarenOrangeGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fdba74" />
+          <stop offset="30%" stop-color="#f97316" />
+          <stop offset="70%" stop-color="#ea580c" />
+          <stop offset="100%" stop-color="#9a3412" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="160" cy="94" rx="145" ry="5.5" fill="#000000" opacity="0.8" filter="blur(2px)" />
+      <path d="M 25 58 L 48 55 L 45 61 L 22 63 Z" fill="#09090b" />
+      <path d="M 24 74 C 22 60, 36 48, 65 48 C 92 48, 115 36, 138 26 C 162 16, 192 18, 220 34 C 240 44, 255 54, 285 66 C 305 72, 314 77, 310 82 C 305 87, 285 87, 275 87 C 272 73, 248 73, 245 87 L 85 87 C 82 73, 58 73, 55 87 L 24 87 Z" fill="url(#mclarenOrangeGrad)" />
+      <path d="M 132 29 C 160 20, 190 20, 214 36 C 224 43, 228 48, 230 52 L 120 52 C 124 42, 128 35, 132 29 Z" fill="#09090b" opacity="0.9" />
+
+      <!-- Wheel Assembly at (70, 84) -->
+      <g class="wheel-station" transform="translate(70, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#f97316" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelRear" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#fdba74" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#fdba74" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#18181b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#fdba74" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#ffffff" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#f97316" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+      <!-- Wheel Assembly at (260, 84) -->
+      <g class="wheel-station" transform="translate(260, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#f97316" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelFront" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#fdba74" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#fdba74" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#18181b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#fdba74" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#ffffff" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#f97316" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+    </svg>`
+  },
+  hotwheels: {
+    id: 'hotwheels',
+    name: 'Hot Wheels Cyber Racer GT',
+    theme: 'Neon Purple & Cyan',
+    colorHex: '#a855f7',
+    iconEmoji: '🏎️',
+    svg: `<svg class="racer-car-svg" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="hwPurpleGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#c084fc" />
+          <stop offset="35%" stop-color="#a855f7" />
+          <stop offset="70%" stop-color="#7e22ce" />
+          <stop offset="100%" stop-color="#3b0764" />
+        </linearGradient>
+      </defs>
+      <ellipse cx="160" cy="94" rx="145" ry="5.5" fill="#000000" opacity="0.8" filter="blur(2px)" />
+      <polygon points="10,40 45,35 40,45 8,50" fill="#a855f7" stroke="#00f2fe" stroke-width="1.5" />
+      <line x1="24" y1="46" x2="30" y2="72" stroke="#00f2fe" stroke-width="2.5" />
+      <path d="M 22 75 C 18 60, 32 46, 58 46 L 115 32 L 160 14 L 215 30 L 285 64 C 305 71, 314 77, 310 82 C 305 87, 285 87, 275 87 C 272 73, 248 73, 245 87 L 85 87 C 82 73, 58 73, 55 87 L 22 87 Z" fill="url(#hwPurpleGrad)" stroke="#00f2fe" stroke-width="1" />
+      <path d="M 40 68 L 290 68" stroke="#00f2fe" stroke-width="2" stroke-dasharray="8 4" />
+      <polygon points="135,32 195,32 215,48 120,48" fill="#00f2fe" opacity="0.4" stroke="#ffffff" stroke-width="1" />
+
+      <!-- Wheel Assembly at (70, 84) -->
+      <g class="wheel-station" transform="translate(70, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#00f2fe" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelRear" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#ec4899" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#ec4899" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#18181b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#00f2fe" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#ec4899" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#00f2fe" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+      <!-- Wheel Assembly at (260, 84) -->
+      <g class="wheel-station" transform="translate(260, 84)">
+        <!-- Wheel Well Shadow -->
+        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+        <!-- Ventilated Brake Disc (Stationary) -->
+        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+        <!-- Brake Caliper (Stationary at ~10 o'clock) -->
+        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#00f2fe" stroke="rgba(0,0,0,0.5)" stroke-width="0.5" />
+        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+        <!-- Perfectly Symmetrical Rotating Wheel -->
+        <g id="wheelFront" class="car-wheel car-wheel-rotator">
+          <!-- Outer Tire Rubber -->
+          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+          <!-- Symmetrical Tire Decal Marks (Spinning) -->
+          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#ec4899" stroke-width="1.2" stroke-linecap="round" />
+          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#ec4899" stroke-width="1.2" stroke-linecap="round" />
+          <!-- Machined Alloy Rim Lip -->
+          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#18181b" stroke-width="1.2" />
+          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+          <!-- 6 Symmetrical Radial Spokes (0, 60, 120, 180, 240, 300 deg) -->
+          <g stroke="#00f2fe" stroke-width="1.6" stroke-linecap="round">
+            <line x1="0" y1="-10" x2="0" y2="10" />
+            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+          </g>
+          <!-- 3D Spoke Highlight Bevels -->
+          <g stroke="#ec4899" stroke-width="0.6">
+            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+            <line x1="0" y1="9.5" x2="0" y2="2" />
+            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+          </g>
+          <!-- Center Hub & Emblem -->
+          <circle cx="0" cy="0" r="3.5" fill="#00f2fe" stroke="#000000" stroke-width="0.5" />
+          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+          <!-- 5 Titanium Lug Nuts -->
+          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+        </g>
+      </g>
+    </svg>`
+  }
+};
+
+const typingState = {
+  duration: TYPING_TEST_DURATION,
+  timeLeft: TYPING_TEST_DURATION,
+  timerInterval: null,
+  physicsInterval: null,
+  status: 'idle', // 'idle' | 'running' | 'finished'
+  selectedCar: localStorage.getItem('drive_typing_selected_car') || 'ferrari',
+  category: 'id_general',
+  soundEnabled: localStorage.getItem('drive_typing_sound') !== 'false',
+  words: [],
+  currentWordIndex: 0,
+  currentInput: '',
+  correctChars: 0,
+  wrongChars: 0,
+  totalKeystrokes: 0,
+  correctWordsCount: 0,
+  wrongWordsCount: 0,
+  streak: 0,
+  maxStreak: 0,
+  currentWpm: 0,
+  currentSpeedKmh: 0,
+  targetSpeedKmh: 0,
+  topSpeedKmh: 0,
+  distanceMeters: 0,
+  lastKeyTime: 0,
+  wpmTimeline: [],
+  chartInstance: null
+};
+
+// Driver Rank Mapping
+function getDriverRank(wpm, accuracy) {
+  if (wpm >= 100 && accuracy >= 95) {
+    return {
+      title: 'HOT WHEELS HYPER SONIC',
+      badge: 'Pembalap Legenda (Godspeed)',
+      icon: 'fa-solid fa-crown',
+      desc: 'Performa tak tertandingi! Kecepatan hiper-sonik dengan presisi sempurna bagaikan legenda balap sejati.'
+    };
+  } else if (wpm >= 80) {
+    return {
+      title: 'MASTER SIRKUIT PRO',
+      badge: 'Grand Prix Pilot',
+      icon: 'fa-solid fa-trophy',
+      desc: 'Kecepatan luar biasa! Anda menguasai sirkuit dengan ritme mengetik secepat mobil balap profesional.'
+    };
+  } else if (wpm >= 60) {
+    return {
+      title: 'PEMBALAP TERAMPIL',
+      badge: 'Speed Racer',
+      icon: 'fa-solid fa-medal',
+      desc: 'Laju sangat kencang dan stabil di kecepatan tinggi dengan kontrol kemudi dan akurasi prima.'
+    };
+  } else if (wpm >= 40) {
+    return {
+      title: 'PENGEMUDI HANDAL',
+      badge: 'Highway Cruiser',
+      icon: 'fa-solid fa-award',
+      desc: 'Mengemudi dengan mantap dan lancar. Siap untuk melesat ke gigi balap yang lebih tinggi!'
+    };
+  } else if (wpm >= 25) {
+    return {
+      title: 'PENGEMUDI KOTA',
+      badge: 'City Driver',
+      icon: 'fa-solid fa-car-side',
+      desc: 'Laju aman dan teratur di jalan raya. Tingkatkan latihan untuk memacu mobil lebih kencang!'
+    };
+  } else {
+    return {
+      title: 'PENGEMUDI PEMULA',
+      badge: 'Learner Driver',
+      icon: 'fa-solid fa-seedling',
+      desc: 'Langkah awal yang baik! Terus berlatih mengetik 10 jari untuk meningkatkan akselerasi mobil.'
+    };
+  }
+}
+
+// Ganti Mobil Balap
+function switchCar(carId) {
+  const model = CAR_MODELS[carId] || CAR_MODELS.ferrari;
+  typingState.selectedCar = model.id;
+  localStorage.setItem('drive_typing_selected_car', model.id);
+
+  const svgWrap = document.getElementById('carSvgWrapper');
+  if (svgWrap) {
+    svgWrap.innerHTML = model.svg;
+  }
+
+  const modelLabel = document.getElementById('trackCarModelText');
+  if (modelLabel) {
+    modelLabel.textContent = `${model.name} • ${model.theme}`;
+  }
+
+  const select = document.getElementById('selectTypingCar');
+  if (select && select.value !== model.id) {
+    select.value = model.id;
+  }
+}
+
+// Simpan Hasil Balapan ke Penyimpanan Tim dan Pribadi
+function saveTypingResult(result) {
+  // 1. Simpan ke Riwayat Pribadi Pengguna
+  const history = JSON.parse(localStorage.getItem('drive_typing_history') || '[]');
+  history.unshift(result);
+  if (history.length > 50) history.pop();
+  localStorage.setItem('drive_typing_history', JSON.stringify(history));
+
+  // 2. Evaluasi Rekor Pribadi (PB)
+  const pb = JSON.parse(localStorage.getItem('drive_typing_pb') || 'null');
+  let isNewPb = false;
+  if (!pb || result.wpm > pb.wpm) {
+    isNewPb = true;
+    localStorage.setItem('drive_typing_pb', JSON.stringify(result));
+  }
+
+  // 3. Simpan ke Leaderboard Tim Bersama (Dapat dilihat dan dikelola Admin)
+  const teamResults = JSON.parse(localStorage.getItem('drive_typing_team_results') || '[]');
+  teamResults.unshift(result);
+  if (teamResults.length > 200) teamResults.pop();
+  localStorage.setItem('drive_typing_team_results', JSON.stringify(teamResults));
+
+  return { history, isNewPb };
+}
+
+// Inisialisasi Data Demo Leaderboard Tim (agar Admin langsung melihat rekor seluruh anggota)
+function seedInitialTeamTypingData() {
+  const existing = localStorage.getItem('drive_typing_team_results');
+  if (existing && JSON.parse(existing).length > 0) return;
+
+  const demoRuns = [
+    {
+      id: 'run_demo_1',
+      userId: 'usr_admin_2',
+      username: 'dewi_lestari',
+      fullName: 'Dewi Lestari, M.T.',
+      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+      role: 'admin',
+      department: 'TEAM LEADER',
+      date: '30/09/2026, 14:10',
+      timestamp: Date.now() - 3600000 * 2,
+      carId: 'hotwheels',
+      carName: 'Hot Wheels Cyber Racer GT',
+      category: 'id_general',
+      wpm: 104,
+      grossWpm: 107,
+      accuracy: 99.1,
+      topSpeed: 236,
+      correctChars: 520,
+      wrongChars: 5,
+      correctWords: 88,
+      wrongWords: 1,
+      distance: 2840,
+      maxStreak: 45,
+      rankTitle: 'HOT WHEELS HYPER SONIC',
+      rankBadge: 'Pembalap Legenda (Godspeed)'
+    },
+    {
+      id: 'run_demo_2',
+      userId: 'usr_admin_1',
+      username: 'admin',
+      fullName: 'Budi Santoso, S.Kom',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      role: 'admin',
+      department: 'CSO INBOUND',
+      date: '30/09/2026, 11:35',
+      timestamp: Date.now() - 3600000 * 5,
+      carId: 'ferrari',
+      carName: 'Ferrari SF90 Stradale',
+      category: 'id_operations',
+      wpm: 88,
+      grossWpm: 91,
+      accuracy: 98.4,
+      topSpeed: 215,
+      correctChars: 440,
+      wrongChars: 7,
+      correctWords: 74,
+      wrongWords: 2,
+      distance: 2410,
+      maxStreak: 32,
+      rankTitle: 'MASTER SIRKUIT PRO',
+      rankBadge: 'Grand Prix Pilot'
+    },
+    {
+      id: 'run_demo_3',
+      userId: 'usr_user_1',
+      username: 'user',
+      fullName: 'Siti Rahma',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+      role: 'user',
+      department: 'CSO DIGILIVE CHAT - WA',
+      date: '30/09/2026, 09:20',
+      timestamp: Date.now() - 3600000 * 8,
+      carId: 'mclaren',
+      carName: 'McLaren 720S Spider',
+      category: 'id_general',
+      wpm: 76,
+      grossWpm: 79,
+      accuracy: 97.2,
+      topSpeed: 188,
+      correctChars: 380,
+      wrongChars: 11,
+      correctWords: 64,
+      wrongWords: 2,
+      distance: 2090,
+      maxStreak: 24,
+      rankTitle: 'PEMBALAP TERAMPIL',
+      rankBadge: 'Speed Racer'
+    },
+    {
+      id: 'run_demo_4',
+      userId: 'usr_user_2',
+      username: 'ahmad_fauzi',
+      fullName: 'Ahmad Fauzi',
+      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+      role: 'user',
+      department: 'CSO BACK OFFICE',
+      date: '29/09/2026, 16:45',
+      timestamp: Date.now() - 3600000 * 24,
+      carId: 'porsche',
+      carName: 'Porsche 911 GT3 RS',
+      category: 'en_speed',
+      wpm: 63,
+      grossWpm: 67,
+      accuracy: 95.5,
+      topSpeed: 156,
+      correctChars: 315,
+      wrongChars: 15,
+      correctWords: 52,
+      wrongWords: 3,
+      distance: 1720,
+      maxStreak: 18,
+      rankTitle: 'PEMBALAP TERAMPIL',
+      rankBadge: 'Speed Racer'
+    }
+  ];
+
+  localStorage.setItem('drive_typing_team_results', JSON.stringify(demoRuns));
+}
+
+// Generate Kata Acak
+function generateShuffledWords(category, count = 100) {
+  const pool = TYPING_WORDS_DB[category] || TYPING_WORDS_DB.id_general;
+  const result = [];
+  while (result.length < count) {
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    result.push(...shuffled);
+  }
+  return result.slice(0, count);
+}
+
+// Render Tampilan Aliran Kata
+function renderWordsStream() {
+  const container = document.getElementById('wordsStreamContent');
+  if (!container) return;
+
+  container.innerHTML = '';
+  container.style.transform = 'translateY(0px)';
+
+  typingState.words.forEach((word, wIdx) => {
+    const wordSpan = document.createElement('span');
+    wordSpan.className = 'word-span';
+    wordSpan.dataset.wordIdx = wIdx;
+
+    if (wIdx === 0) wordSpan.classList.add('active-word');
+
+    word.split('').forEach((char, cIdx) => {
+      const charSpan = document.createElement('span');
+      charSpan.className = 'char-span';
+      charSpan.textContent = char;
+      charSpan.dataset.charIdx = cIdx;
+      if (wIdx === 0 && cIdx === 0) charSpan.classList.add('char-current');
+      wordSpan.appendChild(charSpan);
+    });
+
+    container.appendChild(wordSpan);
+  });
+}
+
+// Efek Partikel Melayang Dinamis Saat Mengetik Bersih & Streak
+function spawnTypingParticle(text, type = 'combo') {
+  const overlay = document.getElementById('typingParticlesOverlay');
+  if (!overlay) return;
+
+  const particle = document.createElement('div');
+  particle.className = 'typing-float-particle';
+  particle.textContent = text;
+
+  const randomLeft = 20 + Math.random() * 60;
+  particle.style.left = `${randomLeft}%`;
+  particle.style.top = '65%';
+
+  if (type === 'nitro') {
+    particle.style.color = '#f43f5e';
+    particle.style.fontSize = '1.05rem';
+    particle.style.textShadow = '0 0 12px #f43f5e';
+  } else if (type === 'turbo') {
+    particle.style.color = '#38bdf8';
+    particle.style.textShadow = '0 0 10px #38bdf8';
+  }
+
+  overlay.appendChild(particle);
+
+  setTimeout(() => {
+    if (particle.parentNode) particle.parentNode.removeChild(particle);
+  }, 850);
+}
+
+// Perbarui Efek Aura Dinamis Kolom Arena & Status Pace
+function updateDynamicArenaEffects() {
+  const arenaCard = document.getElementById('typingArenaCard');
+  const paceBadge = document.getElementById('dynamicPaceBadge');
+  const paceText = document.getElementById('dynamicPaceText');
+
+  const wpm = typingState.currentWpm;
+
+  // 1. Aura Warna Dinamis Arena Card
+  if (arenaCard) {
+    arenaCard.classList.remove('speed-tier-0', 'speed-tier-1', 'speed-tier-2', 'speed-tier-3');
+    if (typingState.status === 'running') {
+      if (wpm >= 75) arenaCard.classList.add('speed-tier-3');
+      else if (wpm >= 50) arenaCard.classList.add('speed-tier-2');
+      else if (wpm >= 25) arenaCard.classList.add('speed-tier-1');
+      else arenaCard.classList.add('speed-tier-0');
+    } else {
+      arenaCard.classList.add('speed-tier-0');
+    }
+  }
+
+  // 2. Status Badge Pace
+  if (paceBadge && paceText) {
+    paceBadge.classList.remove('pace-slow', 'pace-fast', 'pace-hyper');
+    if (typingState.status === 'running') {
+      if (wpm >= 80) {
+        paceBadge.classList.add('pace-hyper');
+        paceText.innerHTML = '<i class="fa-solid fa-fire text-red"></i> KECEPATAN F1! 🔥';
+      } else if (wpm >= 50) {
+        paceBadge.classList.add('pace-fast');
+        paceText.innerHTML = '<i class="fa-solid fa-bolt text-yellow"></i> Turbo Speed ⚡';
+      } else if (wpm >= 25) {
+        paceBadge.classList.add('pace-slow');
+        paceText.innerHTML = '<i class="fa-solid fa-gauge-high text-blue"></i> Cruising 🏎️';
+      } else {
+        paceText.innerHTML = '<i class="fa-solid fa-gauge text-gray"></i> Pemanasan... 🟢';
+      }
+    } else {
+      paceText.innerHTML = '<i class="fa-solid fa-flag text-gray"></i> Standby 🏁';
+    }
+  }
+
+  // 3. Counter Kata dan Karakter
+  const compWords = document.getElementById('completedWordsCount');
+  if (compWords) compWords.textContent = typingState.correctWordsCount;
+
+  const totalKeys = document.getElementById('totalKeystrokesCount');
+  if (totalKeys) totalKeys.textContent = typingState.totalKeystrokes;
+}
+
+// Update Highlight Karakter & Kata Aktif
+function updateWordStreamDisplay() {
+  const container = document.getElementById('wordsStreamContent');
+  if (!container) return;
+
+  const currentWordEl = container.querySelector(`[data-word-idx="${typingState.currentWordIndex}"]`);
+  if (!currentWordEl) return;
+
+  const targetWord = typingState.words[typingState.currentWordIndex] || '';
+  const inputVal = typingState.currentInput;
+  const chars = currentWordEl.querySelectorAll('.char-span');
+
+  chars.forEach((cSpan, idx) => {
+    cSpan.classList.remove('char-correct', 'char-wrong', 'char-current');
+    if (idx < inputVal.length) {
+      if (inputVal[idx] === targetWord[idx]) {
+        cSpan.classList.add('char-correct');
+      } else {
+        cSpan.classList.add('char-wrong');
+      }
+    }
+    if (idx === inputVal.length) {
+      cSpan.classList.add('char-current');
+    }
+  });
+
+  // Smooth Auto-scroll kata berikutnya
+  const elTop = currentWordEl.offsetTop;
+  if (elTop > 65) {
+    container.style.transform = `translateY(-${elTop - 15}px)`;
+  }
+}
+
+// Mulai Balapan 60 Detik
+function startTypingRace() {
+  if (typingState.status === 'running') return;
+
+  typingState.status = 'running';
+  typingState.timeLeft = TYPING_TEST_DURATION;
+  typingState.lastKeyTime = Date.now();
+  typingState.wpmTimeline = [0];
+
+  const liveDot = document.getElementById('arenaLiveDot');
+  if (liveDot) liveDot.classList.add('racing');
+
+  const hintText = document.getElementById('arenaHintText');
+  if (hintText) hintText.textContent = 'Balapan aktif! Tancap gas dan pertahankan akurasi!';
+
+  if (typingState.timerInterval) clearInterval(typingState.timerInterval);
+  typingState.timerInterval = setInterval(() => {
+    tickTypingTimer();
+  }, 1000);
+
+  if (typingState.physicsInterval) clearInterval(typingState.physicsInterval);
+  typingState.physicsInterval = setInterval(() => {
+    runTypingPhysics();
+  }, 50);
+
+  updateDynamicArenaEffects();
+}
+
+// Ticker 1 Detik Timer
+function tickTypingTimer() {
+  if (typingState.status !== 'running') return;
+
+  typingState.timeLeft--;
+
+  // Mobil melaju di lintasan dari Di Belakang Garis Start (1.5%) menuju Di Depan Garis Finish (73%) seiring durasi 60 detik
+  const timeProgress = (TYPING_TEST_DURATION - typingState.timeLeft) / TYPING_TEST_DURATION;
+  const carLeft = 1.5 + (timeProgress * 71.5); // 1.5% (Start Grid) -> 73% (Di Depan Garis Finish)
+  const elCar = document.getElementById('racerCar');
+  if (elCar) {
+    elCar.style.left = `${carLeft.toFixed(1)}%`;
+  }
+
+  // Update Telemetry HUD Timer
+  const timerSecs = document.getElementById('typingTimerDigits') || document.getElementById('liveTimerSeconds');
+  if (timerSecs) timerSecs.textContent = typingState.timeLeft;
+
+  const hudProg = document.getElementById('typingTimerProgressBar') || document.getElementById('hudTimerProgressBar');
+  if (hudProg) {
+    const pct = (typingState.timeLeft / TYPING_TEST_DURATION) * 100;
+    hudProg.style.width = `${pct}%`;
+    if (typingState.timeLeft <= 10) {
+      hudProg.className = 'hud-progress-bar danger';
+    } else if (typingState.timeLeft <= 20) {
+      hudProg.className = 'hud-progress-bar warning';
+    } else {
+      hudProg.className = 'hud-progress-bar';
+    }
+  }
+
+  const trackStatus = document.getElementById('trackStatusText');
+  if (trackStatus && typingState.status === 'running') {
+    trackStatus.textContent = `Balapan Berlangsung (${typingState.timeLeft}s tersisa)... Gas pol! 🏎️💨`;
+  }
+
+  // Rekam timeline WPM setiap 5 detik untuk grafik
+  if ((TYPING_TEST_DURATION - typingState.timeLeft) % 5 === 0) {
+    typingState.wpmTimeline.push(typingState.currentWpm);
+  }
+
+  if (typingState.timeLeft <= 0) {
+    finishTypingRace();
+  }
+}
+
+// Simulasi Fisika Mesin Supercar & Animasi Lintasan Sirkuit
+function runTypingPhysics() {
+  const speedDiff = typingState.targetSpeedKmh - typingState.currentSpeedKmh;
+  typingState.currentSpeedKmh += speedDiff * 0.15;
+  if (typingState.currentSpeedKmh < 0.5) typingState.currentSpeedKmh = 0;
+
+  if (typingState.status === 'running') {
+    const timeSinceLastKey = Date.now() - typingState.lastKeyTime;
+    if (timeSinceLastKey > 1400) {
+      typingState.targetSpeedKmh = Math.max(0, typingState.targetSpeedKmh * 0.94);
+    }
+  } else {
+    typingState.targetSpeedKmh = 0;
+  }
+
+  if (typingState.currentSpeedKmh > typingState.topSpeedKmh) {
+    typingState.topSpeedKmh = typingState.currentSpeedKmh;
+  }
+
+  // Jarak tempuh (meter)
+  if (typingState.status === 'running') {
+    const metersPerTick = (typingState.currentSpeedKmh * (1000 / 3600)) * (50 / 1000);
+    typingState.distanceMeters += metersPerTick;
+    const elDist = document.getElementById('trackDistanceVal');
+    if (elDist) elDist.textContent = Math.round(typingState.distanceMeters);
+  }
+
+  const spd = typingState.currentSpeedKmh;
+
+  // Pemetaan Gigi Balap & Turbo Mode
+  let gear = 'GEAR 1';
+  let isTurbo = false;
+  if (spd > 210) { gear = 'NITRO BOOST 🔥'; isTurbo = true; }
+  else if (spd > 165) { gear = 'GEAR 6'; }
+  else if (spd > 125) { gear = 'GEAR 5'; }
+  else if (spd > 85)  { gear = 'GEAR 4'; }
+  else if (spd > 50)  { gear = 'GEAR 3'; }
+  else if (spd > 20)  { gear = 'GEAR 2'; }
+  else if (spd <= 0)  { gear = 'GEAR N'; }
+
+  const elGear = document.getElementById('trackGearBadge');
+  if (elGear) {
+    elGear.textContent = gear;
+    if (isTurbo) elGear.classList.add('turbo-active');
+    else elGear.classList.remove('turbo-active');
+  }
+
+  // Speedometer HUD Digits
+  const speedDigits = document.getElementById('liveSpeedKmh') || document.getElementById('liveSpeedDigits');
+  if (speedDigits) speedDigits.textContent = Math.round(spd);
+
+  // Animasi Sirkuit: Garis Jalur, Papan Sponsor, Roda, Api Knalpot, & Efek Kecepatan
+  const elRoadStripes = document.getElementById('roadLaneStripes');
+  const elSponsors = document.getElementById('sponsorBillboardsStrip');
+  const elCar = document.getElementById('racerCar');
+  const wheelF = document.getElementById('wheelFront');
+  const wheelR = document.getElementById('wheelRear');
+  const flameL = document.getElementById('exhaustFlameLeft');
+  const flameR = document.getElementById('exhaustFlameRight');
+  const streaks = document.getElementById('speedStreaks');
+
+  if (spd > 3) {
+    const roadDuration = Math.max(0.12, 45 / spd);
+    if (elRoadStripes) {
+      elRoadStripes.classList.add('animating');
+      elRoadStripes.style.setProperty('--road-speed-duration', `${roadDuration.toFixed(2)}s`);
+    }
+    if (elSponsors) {
+      elSponsors.classList.add('animating');
+      elSponsors.style.setProperty('--road-speed-duration', `${(roadDuration * 1.5).toFixed(2)}s`);
+    }
+    const wheelDuration = Math.max(0.08, 25 / spd);
+    if (wheelF) {
+      wheelF.classList.add('spinning');
+      wheelF.style.setProperty('--wheel-spin-duration', `${wheelDuration.toFixed(2)}s`);
+    }
+    if (wheelR) {
+      wheelR.classList.add('spinning');
+      wheelR.style.setProperty('--wheel-spin-duration', `${wheelDuration.toFixed(2)}s`);
+    }
+    if (elCar) {
+      if (spd > 150) {
+        elCar.classList.remove('rumble');
+        elCar.classList.add('hyper-rumble');
+      } else if (spd > 40) {
+        elCar.classList.add('rumble');
+        elCar.classList.remove('hyper-rumble');
+      } else {
+        elCar.classList.remove('rumble', 'hyper-rumble');
+      }
+    }
+    if (spd > 140) {
+      if (flameL) { flameL.classList.remove('active'); flameL.classList.add('hyper'); }
+      if (flameR) { flameR.classList.remove('active'); flameR.classList.add('hyper'); }
+    } else if (spd > 65) {
+      if (flameL) { flameL.classList.add('active'); flameL.classList.remove('hyper'); }
+      if (flameR) { flameR.classList.add('active'); flameR.classList.remove('hyper'); }
+    } else {
+      if (flameL) flameL.classList.remove('active', 'hyper');
+      if (flameR) flameR.classList.remove('active', 'hyper');
+    }
+    if (streaks) {
+      if (spd > 110) streaks.classList.add('active');
+      else streaks.classList.remove('active');
+    }
+  } else {
+    if (elRoadStripes) elRoadStripes.classList.remove('animating');
+    if (elSponsors) elSponsors.classList.remove('animating');
+    if (wheelF) wheelF.classList.remove('spinning');
+    if (wheelR) wheelR.classList.remove('spinning');
+    if (elCar) elCar.classList.remove('rumble', 'hyper-rumble');
+    if (flameL) flameL.classList.remove('active', 'hyper');
+    if (flameR) flameR.classList.remove('active', 'hyper');
+    if (streaks) streaks.classList.remove('active');
+  }
+}
+
+// Penanganan Ketikan Tombol
+function handleTypingInput(e) {
+  const hiddenInput = e.target;
+  const val = hiddenInput.value;
+
+  if (typingState.status === 'idle') {
+    startTypingRace();
+  }
+
+  if (typingState.status !== 'running') {
+    hiddenInput.value = '';
+    return;
+  }
+
+  typingState.lastKeyTime = Date.now();
+  typingState.totalKeystrokes++;
+
+  const targetWord = typingState.words[typingState.currentWordIndex] || '';
+
+  // Spasi Ditekan: Selesaikan kata saat ini
+  if (val.endsWith(' ')) {
+    const trimmedVal = val.trim();
+    const container = document.getElementById('wordsStreamContent');
+    const wordEl = container ? container.querySelector(`[data-word-idx="${typingState.currentWordIndex}"]`) : null;
+
+    if (trimmedVal === targetWord) {
+      typingState.correctWordsCount++;
+      typingState.correctChars += targetWord.length + 1;
+      typingState.streak++;
+      typingState.maxStreak = Math.max(typingState.maxStreak, typingState.streak);
+      if (wordEl) {
+        wordEl.classList.remove('active-word');
+        wordEl.classList.add('word-correct');
+      }
+      TypingAudioEngine.playKey();
+
+      // Trigger Floating Particles
+      if (typingState.streak > 0 && typingState.streak % 10 === 0) {
+        spawnTypingParticle(`🔥 ${typingState.streak}x COMBO!`, 'nitro');
+        TypingAudioEngine.playNitro();
+      } else if (typingState.streak % 5 === 0) {
+        spawnTypingParticle(`⚡ ${typingState.streak}x Combo`, 'turbo');
+      } else {
+        spawnTypingParticle('+1 Kata', 'combo');
+      }
+    } else {
+      typingState.wrongWordsCount++;
+      typingState.wrongChars += targetWord.length;
+      typingState.streak = 0;
+      if (wordEl) {
+        wordEl.classList.remove('active-word');
+        wordEl.classList.add('word-error');
+      }
+      TypingAudioEngine.playError();
+    }
+
+    typingState.currentWordIndex++;
+    typingState.currentInput = '';
+    hiddenInput.value = '';
+
+    const nextWordEl = container ? container.querySelector(`[data-word-idx="${typingState.currentWordIndex}"]`) : null;
+    if (nextWordEl) {
+      nextWordEl.classList.add('active-word');
+    }
+  } else {
+    typingState.currentInput = val;
+    TypingAudioEngine.playKey();
+  }
+
+  // Kalkulasi Live WPM
+  const elapsedMinutes = (TYPING_TEST_DURATION - typingState.timeLeft) / 60;
+  if (elapsedMinutes > 0) {
+    typingState.currentWpm = Math.round((typingState.correctChars / 5) / elapsedMinutes);
+  }
+
+  // Akselerasi Mobil
+  typingState.targetSpeedKmh = Math.min(240, Math.max(typingState.currentWpm * 2.2, typingState.targetSpeedKmh + 4.5));
+
+  updateTelemetryUI();
+  updateWordStreamDisplay();
+  updateDynamicArenaEffects();
+}
+
+// Update Indikator Telemetry HUD (Kompak, Efisien, & Cepat)
+function updateTelemetryUI() {
+  const elWpm = document.getElementById('liveWpmVal');
+  if (elWpm) elWpm.textContent = typingState.currentWpm;
+
+  let accPercent = 100;
+  if (typingState.totalKeystrokes > 0) {
+    accPercent = Math.max(0, Math.min(100, Math.round((typingState.correctChars / typingState.totalKeystrokes) * 1000) / 10));
+  }
+  const elAccuracy = document.getElementById('liveAccuracyVal');
+  if (elAccuracy) elAccuracy.textContent = accPercent.toFixed(accPercent % 1 === 0 ? 0 : 1);
+
+  const accBadge = document.getElementById('liveCharsBadge') || document.getElementById('accStatusBadge');
+  if (accBadge) {
+    accBadge.textContent = `${typingState.correctChars} B / ${typingState.wrongChars} S`;
+  }
+
+  const elStreak = document.getElementById('liveStreakVal');
+  if (elStreak) elStreak.textContent = typingState.streak;
+
+  const elStreakLabel = document.getElementById('streakLabel');
+  if (elStreakLabel) {
+    if (typingState.streak >= 25) elStreakLabel.textContent = 'HYPER NITRO! 🔥';
+    else if (typingState.streak >= 10) elStreakLabel.textContent = 'Mantap!';
+    else if (typingState.streak > 0) elStreakLabel.textContent = 'Fokus Jalur';
+    else elStreakLabel.textContent = 'Start';
+  }
+
+  // Live Pace Badge (DRIVER / DRIVER KING indicator)
+  const elRankPill = document.getElementById('wpmRankBadge') || document.getElementById('liveRankPill');
+  if (elRankPill) {
+    if (typingState.currentWpm >= 50 && accPercent >= 100) {
+      elRankPill.className = 'hud-pill hud-pill-gold';
+      elRankPill.innerHTML = '<i class="fa-solid fa-crown text-yellow"></i> DRIVER KING Pace';
+    } else if (typingState.currentWpm >= 35 && accPercent >= 90) {
+      elRankPill.className = 'hud-pill hud-pill-cyan';
+      elRankPill.innerHTML = '<i class="fa-solid fa-flag-checkered text-cyan"></i> DRIVER Pace';
+    } else {
+      const rankInfo = getDriverRank(typingState.currentWpm, accPercent);
+      elRankPill.className = 'hud-pill';
+      elRankPill.textContent = rankInfo.badge;
+    }
+  }
+}
+
+// Selesai Balapan 60 Detik
+function finishTypingRace() {
+  typingState.status = 'finished';
+  if (typingState.timerInterval) clearInterval(typingState.timerInterval);
+  if (typingState.physicsInterval) clearInterval(typingState.physicsInterval);
+
+  // Mobil berakhir DI DEPAN garis finish (73%)! (Garis Finish di 65%)
+  const elCar = document.getElementById('racerCar');
+  if (elCar) {
+    elCar.style.left = '73%';
+    elCar.classList.remove('rumble', 'hyper-rumble');
+  }
+
+  // Hentikan putaran roda, api knalpot, dan animasi pemandangan
+  const wheelF = document.getElementById('wheelFront');
+  const wheelR = document.getElementById('wheelRear');
+  if (wheelF) wheelF.classList.remove('spinning');
+  if (wheelR) wheelR.classList.remove('spinning');
+  const flameL = document.getElementById('exhaustFlameLeft');
+  const flameR = document.getElementById('exhaustFlameRight');
+  if (flameL) flameL.classList.remove('active', 'hyper');
+  if (flameR) flameR.classList.remove('active', 'hyper');
+  const elRoadStripes = document.getElementById('roadLaneStripes');
+  if (elRoadStripes) elRoadStripes.classList.remove('animating');
+  const elSponsors = document.getElementById('sponsorBillboardsStrip');
+  if (elSponsors) elSponsors.classList.remove('animating');
+  const streaks = document.getElementById('speedStreaks');
+  if (streaks) streaks.classList.remove('active');
+
+  const netWpm = Math.round((typingState.correctChars / 5) / 1.0);
+  const grossWpm = Math.round(((typingState.correctChars + typingState.wrongChars) / 5) / 1.0);
+  let accuracy = 100;
+  if (typingState.totalKeystrokes > 0) {
+    accuracy = Math.max(0, Math.min(100, Math.round((typingState.correctChars / typingState.totalKeystrokes) * 1000) / 10));
+  }
+  const topSpeed = Math.round(typingState.topSpeedKmh);
+  const distance = Math.round(typingState.distanceMeters);
+
+  const driverRank = getDriverRank(netWpm, accuracy);
+  const carModel = CAR_MODELS[typingState.selectedCar] || CAR_MODELS.ferrari;
+
+  // Evaluasi Target Khusus Driver & Notifikasi:
+  // 1. Target melampaui 50 WPM & akurasi minimal 100% -> Notif "DRIVER KING"
+  // 2. Target melampaui 35 WPM & akurasi minimal 90% -> Notif "DRIVER"
+  let driverTitle = null;
+  let driverTitleType = null;
+
+  if (netWpm >= 50 && accuracy >= 100) {
+    driverTitle = 'DRIVER KING';
+    driverTitleType = 'king';
+  } else if (netWpm >= 35 && accuracy >= 90) {
+    driverTitle = 'DRIVER';
+    driverTitleType = 'driver';
+  }
+
+  // Nyalakan selebrasi Garis Finish & Victory Zone
+  const finishLine = document.getElementById('circuitFinishLine');
+  if (finishLine) {
+    finishLine.classList.remove('active-finish-king', 'active-finish-driver', 'active-finish');
+    if (driverTitleType === 'king') finishLine.classList.add('active-finish', 'active-finish-king');
+    else if (driverTitleType === 'driver') finishLine.classList.add('active-finish', 'active-finish-driver');
+    else finishLine.classList.add('active-finish');
+  }
+
+  const victoryZone = document.getElementById('circuitVictoryZone');
+  if (victoryZone) {
+    if (driverTitleType === 'king') {
+      victoryZone.innerHTML = '<span class="victory-zone-marker victory-king"><i class="fa-solid fa-crown text-yellow"></i> VICTORY ZONE • DRIVER KING 👑</span>';
+    } else if (driverTitleType === 'driver') {
+      victoryZone.innerHTML = '<span class="victory-zone-marker victory-driver"><i class="fa-solid fa-flag-checkered text-cyan"></i> VICTORY ZONE • DRIVER 🏎️</span>';
+    } else {
+      victoryZone.innerHTML = '<span class="victory-zone-marker"><i class="fa-solid fa-trophy text-yellow"></i> VICTORY ZONE</span>';
+    }
+  }
+
+  const trackStatus = document.getElementById('trackStatusText');
+  if (trackStatus) {
+    if (driverTitleType === 'king') {
+      trackStatus.innerHTML = '<strong class="text-yellow">👑 NOTIFIKASI: DRIVER KING! Target 50+ WPM & Akurasi 100% Berhasil Melampaui!</strong>';
+    } else if (driverTitleType === 'driver') {
+      trackStatus.innerHTML = '<strong class="text-cyan">🏎️ NOTIFIKASI: DRIVER! Target 35+ WPM & Akurasi ≥90% Berhasil Melampaui!</strong>';
+    } else {
+      trackStatus.textContent = 'Balapan 60 Detik Selesai! Finish di Depan Garis 🏁';
+    }
+  }
+
+  // Bunyikan Audio Fanfare dan Munculkan Notifikasi Toast
+  if (driverTitleType === 'king') {
+    TypingAudioEngine.playKingFanfare();
+    showToast(
+      'DRIVER KING',
+      `👑 LUAR BIASA! Anda melampaui target 50 WPM (${netWpm} WPM) dengan akurasi 100%! Predikat: DRIVER KING!`,
+      'success'
+    );
+  } else if (driverTitleType === 'driver') {
+    TypingAudioEngine.playFanfare();
+    showToast(
+      'DRIVER',
+      `🏎️ SELAMAT! Anda melampaui target 35 WPM (${netWpm} WPM) dengan akurasi ${accuracy}% (minimal 90%)! Predikat: DRIVER!`,
+      'info'
+    );
+  } else {
+    TypingAudioEngine.playFanfare();
+    showToast(
+      'Balapan Selesai',
+      `🏁 Waktu 60 detik selesai! Kecepatan: ${netWpm} WPM, Akurasi: ${accuracy}%.`,
+      'info'
+    );
+  }
+
+  const currentUser = (typeof state !== 'undefined' && state.currentUser) ? state.currentUser : {
+    id: 'usr_guest',
+    username: 'guest',
+    fullName: 'Pembalap DRIVE',
+    role: 'user',
+    department: 'Operasional',
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'
+  };
+
+  const resultRecord = {
+    id: 'run_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
+    userId: currentUser.id,
+    username: currentUser.username,
+    fullName: currentUser.fullName,
+    avatar: currentUser.avatar,
+    role: currentUser.role,
+    department: currentUser.department || 'Operasional',
+    carId: carModel.id,
+    carName: carModel.name,
+    carTheme: carModel.theme,
+    date: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }),
+    timestamp: Date.now(),
+    category: typingState.category,
+    wpm: netWpm,
+    grossWpm,
+    accuracy,
+    topSpeed,
+    correctChars: typingState.correctChars,
+    wrongChars: typingState.wrongChars,
+    correctWords: typingState.correctWordsCount,
+    wrongWords: typingState.wrongWordsCount,
+    distance,
+    maxStreak: typingState.maxStreak,
+    rankTitle: driverRank.title,
+    rankBadge: driverRank.badge,
+    driverTitle: driverTitle || '-',
+    driverTitleType: driverTitleType || null
+  };
+
+  const { isNewPb } = saveTypingResult(resultRecord);
+
+  if (typeof state !== 'undefined' && state.addLog) {
+    const logDriver = driverTitle ? ` | Notif: ${driverTitle}` : '';
+    state.addLog(
+      'Typing Test Selesai',
+      `${currentUser.fullName} menyelesaikan balapan 60 detik dengan ${carModel.name}: ${netWpm} WPM (${topSpeed} KM/H, akurasi ${accuracy}%, gelar ${driverRank.title}${logDriver}).`,
+      driverTitle === 'DRIVER KING' ? 'success' : 'info'
+    );
+  }
+
+  populateResultModal(resultRecord, driverRank, isNewPb);
+  renderTypingHistory();
+  renderAdminTypingLeaderboard();
+
+  const modal = document.getElementById('modalTypingResult');
+  if (modal) modal.classList.remove('hidden');
+}
+
+// Rekapitulasi Hasil Balapan di Modal
+function populateResultModal(result, rank, isNewPb) {
+  const pbBanner = document.getElementById('newRecordBanner');
+  if (pbBanner) {
+    if (isNewPb) pbBanner.classList.remove('hidden');
+    else pbBanner.classList.add('hidden');
+  }
+
+  // Render Driver Title Notification Banner (DRIVER / DRIVER KING)
+  const notifBanner = document.getElementById('driverNotifBanner');
+  if (notifBanner) {
+    if (result.driverTitle === 'DRIVER KING') {
+      notifBanner.className = 'driver-notif-banner notif-driver-king';
+      notifBanner.innerHTML = `
+        <div class="notif-badge-chip">
+          <i class="fa-solid fa-crown text-yellow"></i> NOTIFIKASI GELAR PENCAPAIAN
+        </div>
+        <div class="notif-title-row">
+          <span class="notif-title-text">👑 DRIVER KING</span>
+          <span class="notif-pill-tag">TARGET 50+ WPM & AKURASI 100% TERCAPAI!</span>
+        </div>
+        <p class="notif-desc-text">
+          Luar biasa! Anda sukses melampaui target dengan kecepatan <strong>${result.wpm} WPM</strong> dan akurasi sempurna <strong>${result.accuracy}%</strong>. Anda dinobatkan sebagai <strong>DRIVER KING</strong> di lintasan DRIVE!
+        </p>
+      `;
+    } else if (result.driverTitle === 'DRIVER') {
+      notifBanner.className = 'driver-notif-banner notif-driver';
+      notifBanner.innerHTML = `
+        <div class="notif-badge-chip">
+          <i class="fa-solid fa-flag-checkered text-cyan"></i> NOTIFIKASI GELAR PENCAPAIAN
+        </div>
+        <div class="notif-title-row">
+          <span class="notif-title-text">🏎️ DRIVER</span>
+          <span class="notif-pill-tag">TARGET 35+ WPM & AKURASI ≥90% TERCAPAI!</span>
+        </div>
+        <p class="notif-desc-text">
+          Selamat! Anda sukses melampaui target dengan kecepatan <strong>${result.wpm} WPM</strong> (target 35 WPM) dan akurasi <strong>${result.accuracy}%</strong> (target minimal 90%). Anda resmi meraih predikat <strong>DRIVER</strong>!
+        </p>
+      `;
+    } else {
+      const wpmDiff = Math.max(0, 35 - result.wpm);
+      const accDiff = Math.max(0, 90 - result.accuracy);
+      let advice = [];
+      if (wpmDiff > 0) advice.push(`+${wpmDiff} WPM`);
+      if (accDiff > 0) advice.push(`+${accDiff.toFixed(1)}% akurasi`);
+      const adviceText = advice.length > 0 ? `(Butuh: ${advice.join(', ')})` : '';
+
+      notifBanner.className = 'driver-notif-banner notif-target-hint';
+      notifBanner.innerHTML = `
+        <div class="notif-badge-chip">
+          <i class="fa-solid fa-bullseye text-muted"></i> INFO TARGET GELAR
+        </div>
+        <div class="notif-title-row">
+          <span class="notif-title-text" style="font-size: 1.1rem; color: #94a3b8;">Target Gelar Belum Terlampaui ${adviceText}</span>
+        </div>
+        <p class="notif-desc-text">
+          Capai target <strong>≥35 WPM & akurasi minimal 90%</strong> untuk mendapatkan notif <strong>"DRIVER"</strong>, atau target <strong>≥50 WPM & akurasi 100%</strong> untuk mendapatkan notif <strong>"DRIVER KING"</strong>!
+        </p>
+      `;
+    }
+  }
+
+  const elRankTitle = document.getElementById('resultRankTitle');
+  if (elRankTitle) elRankTitle.textContent = rank.title;
+
+  const elRankDesc = document.getElementById('resultRankDesc');
+  if (elRankDesc) elRankDesc.textContent = rank.desc;
+
+  const elRankIcon = document.getElementById('rankTrophyIcon');
+  if (elRankIcon) elRankIcon.innerHTML = `<i class="${rank.icon}"></i>`;
+
+  const elNetWpm = document.getElementById('resultNetWpm');
+  if (elNetWpm) elNetWpm.textContent = result.wpm;
+
+  const elGrossWpm = document.getElementById('resultGrossWpm');
+  if (elGrossWpm) elGrossWpm.textContent = `Gross: ${result.grossWpm} WPM`;
+
+  const elTopSpeed = document.getElementById('resultTopSpeed');
+  if (elTopSpeed) elTopSpeed.textContent = result.topSpeed;
+
+  const elAvgSpeed = document.getElementById('resultAvgSpeed');
+  if (elAvgSpeed) elAvgSpeed.textContent = `Jarak: ${result.distance} m`;
+
+  const elAccuracy = document.getElementById('resultAccuracy');
+  if (elAccuracy) elAccuracy.textContent = result.accuracy;
+
+  const elAccuracySub = document.getElementById('resultAccuracySub');
+  if (elAccuracySub) {
+    elAccuracySub.textContent = result.accuracy >= 98 ? 'Akurasi Sempurna' : `${result.wrongWords} Kesalahan Typo`;
+  }
+
+  const elTotalChars = document.getElementById('resultTotalChars');
+  if (elTotalChars) elTotalChars.textContent = result.correctChars + result.wrongChars;
+
+  const elCharsSub = document.getElementById('resultCharsSub');
+  if (elCharsSub) elCharsSub.textContent = `${result.correctChars} Benar / ${result.wrongChars} Salah`;
+
+  const elCorrectWords = document.getElementById('resultCorrectWords');
+  if (elCorrectWords) elCorrectWords.textContent = `${result.correctWords} Kata`;
+
+  const elWrongWords = document.getElementById('resultWrongWords');
+  if (elWrongWords) elWrongWords.textContent = `${result.wrongWords} Kata`;
+
+  const elDistance = document.getElementById('resultDistance');
+  if (elDistance) elDistance.textContent = `${result.distance} meter`;
+
+  const elMaxStreak = document.getElementById('resultMaxStreak');
+  if (elMaxStreak) elMaxStreak.textContent = `${result.maxStreak}x Beruntun`;
+
+  renderResultChart();
+}
+
+function renderResultChart() {
+  if (typeof Chart === 'undefined') return;
+  const canvas = document.getElementById('typingResultChart');
+  if (!canvas) return;
+
+  if (typingState.chartInstance) {
+    typingState.chartInstance.destroy();
+  }
+
+  const labels = ['0s', '5s', '10s', '15s', '20s', '25s', '30s', '35s', '40s', '45s', '50s', '55s', '60s'];
+  let chartData = [...typingState.wpmTimeline];
+  while (chartData.length < 13) {
+    chartData.push(chartData[chartData.length - 1] || 0);
+  }
+
+  const ctx = canvas.getContext('2d');
+  typingState.chartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [{
+        label: 'Kecepatan Mengetik (WPM)',
+        data: chartData,
+        borderColor: '#e62e44',
+        backgroundColor: 'rgba(230, 46, 68, 0.15)',
+        fill: true,
+        tension: 0.35,
+        borderWidth: 2.5,
+        pointBackgroundColor: '#ffffff',
+        pointBorderColor: '#e62e44',
+        pointRadius: 4,
+        pointHoverRadius: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => ` ${ctx.parsed.y} WPM`
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8' }
+        },
+        x: {
+          grid: { color: 'rgba(255, 255, 255, 0.05)' },
+          ticks: { color: '#94a3b8' }
+        }
+      }
+    }
+  });
+}
+
+// Mulai Ulang / Reset Balapan
+function resetTypingRace() {
+  if (typingState.timerInterval) clearInterval(typingState.timerInterval);
+  if (typingState.physicsInterval) clearInterval(typingState.physicsInterval);
+
+  typingState.status = 'idle';
+  typingState.timeLeft = TYPING_TEST_DURATION;
+  typingState.currentWordIndex = 0;
+  typingState.currentInput = '';
+  typingState.correctChars = 0;
+  typingState.wrongChars = 0;
+  typingState.totalKeystrokes = 0;
+  typingState.correctWordsCount = 0;
+  typingState.wrongWordsCount = 0;
+  typingState.streak = 0;
+  typingState.maxStreak = 0;
+  typingState.currentWpm = 0;
+  typingState.currentSpeedKmh = 0;
+  typingState.targetSpeedKmh = 0;
+  typingState.topSpeedKmh = 0;
+  typingState.distanceMeters = 0;
+  typingState.wpmTimeline = [];
+
+  typingState.words = generateShuffledWords(typingState.category);
+  renderWordsStream();
+
+  // Mobil kembali dengan mulus ke posisi awal di Belakang Garis Start (1.5%)!
+  const elCar = document.getElementById('racerCar');
+  if (elCar) {
+    elCar.style.left = '1.5%';
+    elCar.classList.remove('rumble', 'hyper-rumble');
+  }
+
+  // Matikan selebrasi Garis Finish & Reset Victory Zone
+  const finishLine = document.getElementById('circuitFinishLine');
+  if (finishLine) {
+    finishLine.classList.remove('active-finish', 'active-finish-king', 'active-finish-driver');
+  }
+
+  const victoryZone = document.getElementById('circuitVictoryZone');
+  if (victoryZone) {
+    victoryZone.innerHTML = '<span class="victory-zone-marker"><i class="fa-solid fa-trophy text-yellow"></i> VICTORY ZONE</span>';
+  }
+
+  const trackStatus = document.getElementById('trackStatusText');
+  if (trackStatus) {
+    trackStatus.textContent = 'Siap di Garis Start (Ketik teks untuk meluncur)';
+  }
+
+  // Matikan putaran roda, api, dan lintasan
+  const wheelF = document.getElementById('wheelFront');
+  const wheelR = document.getElementById('wheelRear');
+  if (wheelF) wheelF.classList.remove('spinning');
+  if (wheelR) wheelR.classList.remove('spinning');
+  const flameL = document.getElementById('exhaustFlameLeft');
+  const flameR = document.getElementById('exhaustFlameRight');
+  if (flameL) flameL.classList.remove('active', 'hyper');
+  if (flameR) flameR.classList.remove('active', 'hyper');
+  const elRoadStripes = document.getElementById('roadLaneStripes');
+  if (elRoadStripes) elRoadStripes.classList.remove('animating');
+  const elSponsors = document.getElementById('sponsorBillboardsStrip');
+  if (elSponsors) elSponsors.classList.remove('animating');
+  const streaks = document.getElementById('speedStreaks');
+  if (streaks) streaks.classList.remove('active');
+
+  // Reset Elemen HUD
+  const speedDigits = document.getElementById('liveSpeedKmh') || document.getElementById('liveSpeedDigits');
+  if (speedDigits) speedDigits.textContent = '0';
+
+  const timerSecs = document.getElementById('typingTimerDigits') || document.getElementById('liveTimerSeconds');
+  if (timerSecs) timerSecs.textContent = TYPING_TEST_DURATION;
+
+  const hudProg = document.getElementById('typingTimerProgressBar') || document.getElementById('hudTimerProgressBar');
+  if (hudProg) {
+    hudProg.style.width = '100%';
+    hudProg.className = 'hud-progress-bar';
+  }
+
+  const elDist = document.getElementById('trackDistanceVal');
+  if (elDist) elDist.textContent = '0';
+
+  const elGear = document.getElementById('trackGearBadge');
+  if (elGear) {
+    elGear.textContent = 'GIGI N';
+    elGear.classList.remove('turbo-active');
+  }
+
+  const liveDot = document.getElementById('arenaLiveDot');
+  if (liveDot) liveDot.classList.remove('racing');
+
+  const hintText = document.getElementById('arenaHintText');
+  if (hintText) hintText.textContent = 'Ketik kata di bawah ini. Balapan 60 detik otomatis dimulai saat tombol pertama ditekan!';
+
+  const inputEl = document.getElementById('typingHiddenInput');
+  if (inputEl) inputEl.value = '';
+
+  updateTelemetryUI();
+  updateDynamicArenaEffects();
+}
+
+// Render Riwayat Balapan Pribadi
+function renderTypingHistory() {
+  const history = JSON.parse(localStorage.getItem('drive_typing_history') || '[]');
+  const pb = JSON.parse(localStorage.getItem('drive_typing_pb') || 'null');
+
+  const elPbWpm = document.getElementById('pbWpmVal');
+  if (elPbWpm) elPbWpm.textContent = pb ? `${pb.wpm} WPM` : '0 WPM';
+
+  const elPbSpeed = document.getElementById('pbSpeedVal');
+  if (elPbSpeed) elPbSpeed.textContent = pb ? `${pb.topSpeed} KM/H` : '0 KM/H';
+
+  const elPbAcc = document.getElementById('pbAccuracyVal');
+  if (elPbAcc) elPbAcc.textContent = pb ? `${pb.accuracy}%` : '0%';
+
+  const elPbRank = document.getElementById('pbRankVal');
+  if (elPbRank) elPbRank.textContent = pb ? pb.rankTitle : '-';
+
+  const tbody = document.getElementById('typingHistoryTableBody');
+  if (!tbody) return;
+
+  if (history.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="9" class="text-center p-4 text-muted">
+          <i class="fa-solid fa-flag-checkered text-red" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
+          Belum ada catatan balapan typing test. Mulai balapan di sirkuit atas sekarang!
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = history.slice(0, 10).map((item, idx) => {
+    let catLabel = 'Bahasa Indonesia';
+    if (item.category === 'id_operations') catLabel = 'Operasional & CS';
+    else if (item.category === 'en_speed') catLabel = 'English Speed';
+
+    const carName = item.carName || 'Ferrari SF90';
+
+    let driverBadge = '';
+    if (item.driverTitle === 'DRIVER KING' || (item.wpm >= 50 && item.accuracy >= 100)) {
+      driverBadge = `<span class="badge-driver-title badge-driver-king"><i class="fa-solid fa-crown text-yellow"></i> DRIVER KING</span> `;
+    } else if (item.driverTitle === 'DRIVER' || (item.wpm >= 35 && item.accuracy >= 90)) {
+      driverBadge = `<span class="badge-driver-title badge-driver"><i class="fa-solid fa-car-side text-cyan"></i> DRIVER</span> `;
+    }
+
+    return `
+      <tr>
+        <td><strong>#${idx + 1}</strong></td>
+        <td><small class="text-muted">${item.date}</small></td>
+        <td><span class="car-badge-mini"><i class="fa-solid fa-car-side text-red"></i> ${carName}</span></td>
+        <td><span class="badge badge-neutral">${catLabel}</span></td>
+        <td><strong class="text-red font-mono">${item.wpm} WPM</strong></td>
+        <td><strong class="text-green font-mono">${item.accuracy}%</strong></td>
+        <td><strong class="text-yellow font-mono">${item.topSpeed} KM/H</strong></td>
+        <td><small>${item.correctChars} / ${item.wrongChars}</small></td>
+        <td>${driverBadge}<span class="badge badge-red-outline">${item.rankTitle}</span></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ==========================================================================
+// ADMIN TYPING LEADERBOARD & USER MANAGEMENT
+// ==========================================================================
+
+function renderAdminTypingLeaderboard() {
+  const section = document.getElementById('adminTypingSection');
+  if (!section) return;
+
+  // RBAC Enforcement: Hanya Admin yang dapat melihat dan mengelola Leaderboard Tim
+  const isAdmin = (typeof state !== 'undefined' && state.isAdmin && state.isAdmin());
+  if (!isAdmin) {
+    section.classList.add('hidden');
+    return;
+  }
+  section.classList.remove('hidden');
+
+  seedInitialTeamTypingData();
+
+  const allRuns = JSON.parse(localStorage.getItem('drive_typing_team_results') || '[]');
+  const searchInput = document.getElementById('searchAdminTypingUser');
+  const query = searchInput ? searchInput.value.toLowerCase().trim() : '';
+  const filterRank = document.getElementById('filterAdminTypingRank')?.value || 'ALL';
+
+  // Kelompokkan hasil per pengguna untuk mencari rekor terbaik masing-masing
+  const userMap = {};
+  allRuns.forEach(run => {
+    const uid = run.userId || run.username || 'unknown';
+    if (!userMap[uid]) {
+      userMap[uid] = {
+        userId: uid,
+        username: run.username || uid,
+        fullName: run.fullName || run.username || 'Pengguna',
+        avatar: run.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+        department: run.department || 'CSO',
+        runs: [],
+        bestWpm: 0,
+        bestAccuracy: 0,
+        topSpeed: 0,
+        totalRuns: 0,
+        favCar: '',
+        bestRank: null,
+        lastRunDate: ''
+      };
+    }
+
+    userMap[uid].runs.push(run);
+    if (run.wpm > userMap[uid].bestWpm) {
+      userMap[uid].bestWpm = run.wpm;
+    }
+    if (run.accuracy > userMap[uid].bestAccuracy) {
+      userMap[uid].bestAccuracy = run.accuracy;
+    }
+    if (run.topSpeed > userMap[uid].topSpeed) {
+      userMap[uid].topSpeed = run.topSpeed;
+    }
+    userMap[uid].totalRuns++;
+    userMap[uid].lastRunDate = run.date;
+  });
+
+  const userList = Object.values(userMap);
+
+  // Evaluasi Gelar Terbaik, DRIVER Title, & Mobil Favorit per pengguna
+  userList.forEach(u => {
+    u.bestRank = getDriverRank(u.bestWpm, u.bestAccuracy);
+    
+    // Evaluasi Gelar Target Pencapaian DRIVER / DRIVER KING
+    let bestDriverTitle = '-';
+    u.runs.forEach(r => {
+      if (r.driverTitle === 'DRIVER KING' || (r.wpm >= 50 && r.accuracy >= 100)) {
+        bestDriverTitle = 'DRIVER KING';
+      } else if (bestDriverTitle !== 'DRIVER KING' && (r.driverTitle === 'DRIVER' || (r.wpm >= 35 && r.accuracy >= 90))) {
+        bestDriverTitle = 'DRIVER';
+      }
+    });
+    u.bestDriverTitle = bestDriverTitle;
+
+    // Cari mobil paling sering dipakai
+    const carCounts = {};
+    u.runs.forEach(r => {
+      const c = r.carName || 'Ferrari SF90';
+      carCounts[c] = (carCounts[c] || 0) + 1;
+    });
+    let topCar = 'Ferrari SF90';
+    let maxC = 0;
+    Object.keys(carCounts).forEach(c => {
+      if (carCounts[c] > maxC) { maxC = carCounts[c]; topCar = c; }
+    });
+    u.favCar = topCar;
+  });
+
+  // Urutkan dari WPM Terbaik Tertinggi ke Terendah (Leaderboard Klasemen)
+  userList.sort((a, b) => b.bestWpm - a.bestWpm);
+
+  // Update Overview KPI Chips
+  const totalParticipantsEl = document.getElementById('adminTypingTotalParticipants');
+  if (totalParticipantsEl) totalParticipantsEl.textContent = `${userList.length} Pengguna`;
+
+  const topUserEl = document.getElementById('adminTypingTopUser');
+  if (topUserEl) {
+    if (userList.length > 0) {
+      topUserEl.textContent = `${userList[0].fullName} (${userList[0].bestWpm} WPM)`;
+    } else {
+      topUserEl.textContent = '-';
+    }
+  }
+
+  const avgAccEl = document.getElementById('adminTypingAvgAccuracy');
+  if (avgAccEl) {
+    if (userList.length > 0) {
+      const avg = userList.reduce((acc, curr) => acc + curr.bestAccuracy, 0) / userList.length;
+      avgAccEl.textContent = `${avg.toFixed(1)}%`;
+    } else {
+      avgAccEl.textContent = '0%';
+    }
+  }
+
+  const totalRunsEl = document.getElementById('adminTypingTotalRuns');
+  if (totalRunsEl) totalRunsEl.textContent = `${allRuns.length} Balapan`;
+
+  // Filter pencarian & rank
+  const filteredUsers = userList.filter(u => {
+    const matchQuery = !query || 
+      u.fullName.toLowerCase().includes(query) || 
+      u.username.toLowerCase().includes(query) || 
+      u.department.toLowerCase().includes(query);
+    const matchRank = (filterRank === 'ALL') || (u.bestRank && u.bestRank.title === filterRank);
+    return matchQuery && matchRank;
+  });
+
+  // Render Tabel Leaderboard
+  const tbody = document.getElementById('adminTypingLeaderboardBody');
+  if (!tbody) return;
+
+  if (filteredUsers.length === 0) {
+    tbody.innerHTML = `
+      <tr>
+        <td colspan="11" class="text-center p-4 text-muted">
+          <i class="fa-solid fa-users-slash text-gray mb-2" style="font-size: 1.5rem; display:block;"></i>
+          Tidak ada pengguna yang cocok dengan kriteria pencarian atau filter gelar.
+        </td>
+      </tr>
+    `;
+    return;
+  }
+
+  tbody.innerHTML = filteredUsers.map((u, idx) => {
+    let posBadge = `<span class="rank-pos-badge rank-pos-other">#${idx + 1}</span>`;
+    if (idx === 0) posBadge = `<span class="rank-pos-badge rank-pos-1"><i class="fa-solid fa-crown"></i> 1</span>`;
+    else if (idx === 1) posBadge = `<span class="rank-pos-badge rank-pos-2">2</span>`;
+    else if (idx === 2) posBadge = `<span class="rank-pos-badge rank-pos-3">3</span>`;
+
+    let driverPill = '';
+    if (u.bestDriverTitle === 'DRIVER KING') {
+      driverPill = `<span class="badge-driver-title badge-driver-king" title="Melampaui target 50 WPM & Akurasi 100%"><i class="fa-solid fa-crown text-yellow"></i> DRIVER KING</span> `;
+    } else if (u.bestDriverTitle === 'DRIVER') {
+      driverPill = `<span class="badge-driver-title badge-driver" title="Melampaui target 35 WPM & Akurasi 90%"><i class="fa-solid fa-car-side text-cyan"></i> DRIVER</span> `;
+    }
+
+    return `
+      <tr>
+        <td>${posBadge}</td>
+        <td>
+          <div class="user-cell-wrap">
+            <img src="${u.avatar}" alt="${u.fullName}" class="user-cell-avatar">
+            <div class="user-cell-info">
+              <span class="user-cell-name">${u.fullName}</span>
+              <span class="user-cell-sub">@${u.username}</span>
+            </div>
+          </div>
+        </td>
+        <td><span class="badge badge-neutral">${u.department}</span></td>
+        <td><span class="car-badge-mini"><i class="fa-solid fa-car text-yellow"></i> ${u.favCar}</span></td>
+        <td><strong class="text-red font-mono" style="font-size:1.05rem;">${u.bestWpm} WPM</strong></td>
+        <td><strong class="text-green font-mono">${u.bestAccuracy}%</strong></td>
+        <td><strong class="text-yellow font-mono">${u.topSpeed} KM/H</strong></td>
+        <td><span class="badge badge-neutral font-mono">${u.totalRuns} Sesi</span></td>
+        <td>${driverPill}<span class="badge badge-red-outline">${u.bestRank ? u.bestRank.title : '-'}</span></td>
+        <td><small class="text-muted">${u.lastRunDate || '-'}</small></td>
+        <td style="text-align: center;">
+          <div style="display:inline-flex; gap:0.35rem;">
+            <button type="button" class="btn btn-sm btn-outline-gray btn-action-view-user-typing" data-uid="${u.userId}" title="Lihat rincian seluruh balapan pengguna ini">
+              <i class="fa-solid fa-eye"></i> Detail
+            </button>
+            <button type="button" class="btn btn-sm btn-outline-red btn-action-delete-user-typing" data-uid="${u.userId}" data-uname="${u.fullName}" title="Hapus seluruh riwayat balapan pengguna ini">
+              <i class="fa-solid fa-trash-can"></i> Hapus
+            </button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  // Pasang event listener tombol Detail dan Hapus
+  tbody.querySelectorAll('.btn-action-view-user-typing').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const uid = e.currentTarget.getAttribute('data-uid');
+      openAdminUserTypingDetail(uid);
+    });
+  });
+
+  tbody.querySelectorAll('.btn-action-delete-user-typing').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      const uid = e.currentTarget.getAttribute('data-uid');
+      const uname = e.currentTarget.getAttribute('data-uname');
+      deleteUserTypingHistory(uid, uname);
+    });
+  });
+}
+
+// Buka Modal Detail Riwayat Pengguna Khusus Admin
+function openAdminUserTypingDetail(userId) {
+  const allRuns = JSON.parse(localStorage.getItem('drive_typing_team_results') || '[]');
+  const userRuns = allRuns.filter(r => (r.userId || r.username) === userId);
+
+  if (userRuns.length === 0) {
+    showToast('Data Tidak Ditemukan', 'Pengguna ini belum memiliki riwayat balapan.', 'info');
+    return;
+  }
+
+  const first = userRuns[0];
+  const avatarEl = document.getElementById('adminDetailUserAvatar');
+  if (avatarEl) avatarEl.src = first.avatar || '';
+
+  const nameEl = document.getElementById('adminDetailUserName');
+  if (nameEl) nameEl.textContent = first.fullName || first.username;
+
+  const subEl = document.getElementById('adminDetailUserSubtitle');
+  if (subEl) subEl.textContent = `@${first.username} • Layanan ${first.department || 'CSO'} • Total ${userRuns.length} sesi balapan`;
+
+  // Hitung stats
+  let topWpm = 0;
+  let topAcc = 0;
+  let topSpeed = 0;
+  userRuns.forEach(r => {
+    if (r.wpm > topWpm) topWpm = r.wpm;
+    if (r.accuracy > topAcc) topAcc = r.accuracy;
+    if (r.topSpeed > topSpeed) topSpeed = r.topSpeed;
+  });
+
+  const wpmEl = document.getElementById('adminDetailTopWpm');
+  if (wpmEl) wpmEl.textContent = `${topWpm} WPM`;
+
+  const accEl = document.getElementById('adminDetailTopAcc');
+  if (accEl) accEl.textContent = `${topAcc}%`;
+
+  const spdEl = document.getElementById('adminDetailTopSpeed');
+  if (spdEl) spdEl.textContent = `${topSpeed} KM/H`;
+
+  const runsEl = document.getElementById('adminDetailTotalRuns');
+  if (runsEl) runsEl.textContent = userRuns.length;
+
+  // Render Table
+  const tbody = document.getElementById('adminDetailUserTableBody');
+  if (tbody) {
+    tbody.innerHTML = userRuns.map((r, idx) => {
+      let driverBadge = '';
+      if (r.driverTitle === 'DRIVER KING' || (r.wpm >= 50 && r.accuracy >= 100)) {
+        driverBadge = `<span class="badge-driver-title badge-driver-king"><i class="fa-solid fa-crown text-yellow"></i> DRIVER KING</span> `;
+      } else if (r.driverTitle === 'DRIVER' || (r.wpm >= 35 && r.accuracy >= 90)) {
+        driverBadge = `<span class="badge-driver-title badge-driver"><i class="fa-solid fa-car-side text-cyan"></i> DRIVER</span> `;
+      }
+
+      return `
+        <tr>
+          <td><strong>#${idx + 1}</strong></td>
+          <td><small class="text-muted">${r.date}</small></td>
+          <td><span class="car-badge-mini"><i class="fa-solid fa-car-side text-red"></i> ${r.carName || 'Ferrari SF90'}</span></td>
+          <td><span class="badge badge-neutral">${r.category === 'id_operations' ? 'Operasional' : (r.category === 'en_speed' ? 'English' : 'Umum')}</span></td>
+          <td><strong class="text-red font-mono">${r.wpm} WPM</strong></td>
+          <td><strong class="text-green font-mono">${r.accuracy}%</strong></td>
+          <td><strong class="text-yellow font-mono">${r.topSpeed} KM/H</strong></td>
+          <td>${driverBadge}<span class="badge badge-red-outline">${r.rankTitle}</span></td>
+          <td style="text-align: center;">
+            <button type="button" class="btn btn-sm btn-outline-red btn-delete-single-run" data-run-id="${r.id}" title="Hapus sesi ini">
+              <i class="fa-solid fa-trash-can"></i>
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+
+    tbody.querySelectorAll('.btn-delete-single-run').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const runId = e.currentTarget.getAttribute('data-run-id');
+        deleteSingleRun(runId, userId);
+      });
+    });
+  }
+
+  // Tombol Hapus Seluruh Riwayat Pengguna Ini di Footer Modal
+  const btnDeleteAll = document.getElementById('btnAdminDeleteSelectedUserHistory');
+  if (btnDeleteAll) {
+    btnDeleteAll.onclick = () => {
+      deleteUserTypingHistory(userId, first.fullName || first.username);
+      closeAdminUserTypingDetailModal();
+    };
+  }
+
+  const modal = document.getElementById('modalAdminUserTypingDetail');
+  if (modal) modal.classList.remove('hidden');
+}
+
+function closeAdminUserTypingDetailModal() {
+  const modal = document.getElementById('modalAdminUserTypingDetail');
+  if (modal) modal.classList.add('hidden');
+}
+
+// Hapus Satu Sesi Balapan Tertentu oleh Admin
+function deleteSingleRun(runId, userId) {
+  if (!confirm('Apakah Anda yakin ingin menghapus sesi balapan ini?')) return;
+
+  let allRuns = JSON.parse(localStorage.getItem('drive_typing_team_results') || '[]');
+  allRuns = allRuns.filter(r => r.id !== runId);
+  localStorage.setItem('drive_typing_team_results', JSON.stringify(allRuns));
+
+  // Jika menghapus sesi pengguna saat ini, sync juga riwayat lokal
+  if (state.currentUser && (state.currentUser.id === userId || state.currentUser.username === userId)) {
+    let myHist = JSON.parse(localStorage.getItem('drive_typing_history') || '[]');
+    myHist = myHist.filter(r => r.id !== runId);
+    localStorage.setItem('drive_typing_history', JSON.stringify(myHist));
+    renderTypingHistory();
+  }
+
+  if (typeof state !== 'undefined' && state.addLog) {
+    state.addLog('Sesi Typing Dihapus', `Admin menghapus 1 sesi typing test (ID: ${runId}).`, 'warning');
+  }
+
+  showToast('Sesi Dihapus', 'Sesi balapan berhasil dihapus dari sistem.', 'info');
+  openAdminUserTypingDetail(userId);
+  renderAdminTypingLeaderboard();
+}
+
+// Hapus Seluruh Riwayat Pengguna oleh Admin
+function deleteUserTypingHistory(userId, userName) {
+  if (!confirm(`Apakah Anda yakin ingin menghapus seluruh riwayat typing test untuk ${userName}? Rekor terbaik dan hasil balapan pengguna ini akan direset dari sistem.`)) {
+    return;
+  }
+
+  let allRuns = JSON.parse(localStorage.getItem('drive_typing_team_results') || '[]');
+  allRuns = allRuns.filter(r => (r.userId || r.username) !== userId);
+  localStorage.setItem('drive_typing_team_results', JSON.stringify(allRuns));
+
+  // Jika yang dihapus adalah user yang sedang aktif login, hapus juga PB & history lokalnya
+  if (state.currentUser && (state.currentUser.id === userId || state.currentUser.username === userId)) {
+    localStorage.removeItem('drive_typing_history');
+    localStorage.removeItem('drive_typing_pb');
+    renderTypingHistory();
+  }
+
+  if (typeof state !== 'undefined' && state.addLog) {
+    state.addLog(
+      'Riwayat Typing Dihapus',
+      `Admin menghapus seluruh catatan riwayat balapan typing test pengguna: ${userName}.`,
+      'warning'
+    );
+  }
+
+  renderAdminTypingLeaderboard();
+  showToast('Riwayat Berhasil Dihapus', `Seluruh riwayat balapan untuk ${userName} telah dibersihkan.`, 'success');
+}
+
+// Reset Seluruh Riwayat Tim oleh Admin
+function resetAllTeamTypingHistory() {
+  if (!confirm('PERINGATAN: Apakah Anda yakin ingin menghapus SELURUH riwayat typing test semua anggota tim? Tindakan ini akan mengosongkan seluruh papan klasemen leaderboard.')) {
+    return;
+  }
+
+  localStorage.setItem('drive_typing_team_results', JSON.stringify([]));
+
+  if (typeof state !== 'undefined' && state.addLog) {
+    state.addLog('Reset Riwayat Tim', 'Admin mengosongkan seluruh riwayat balapan typing test tim.', 'danger');
+  }
+
+  renderAdminTypingLeaderboard();
+  showToast('Leaderboard Direset', 'Seluruh riwayat typing test tim berhasil dibersihkan.', 'success');
+}
+
+// Salin Hasil Balapan ke Clipboard
+function copyTypingResultToClipboard() {
+  const netWpm = document.getElementById('resultNetWpm')?.textContent || '0';
+  const topSpeed = document.getElementById('resultTopSpeed')?.textContent || '0';
+  const accuracy = document.getElementById('resultAccuracy')?.textContent || '100';
+  const rank = document.getElementById('resultRankTitle')?.textContent || 'Pembalap';
+  const correctWords = document.getElementById('resultCorrectWords')?.textContent || '0 Kata';
+  const distance = document.getElementById('resultDistance')?.textContent || '0 m';
+
+  const user = state.currentUser ? state.currentUser.fullName : 'Pembalap DRIVE';
+  const car = CAR_MODELS[typingState.selectedCar]?.name || 'Ferrari SF90';
+
+  const text = `🏎️ HASIL SPEED RACER TYPING TEST (60 DETIK) 🏎️
+👤 Pembalap: ${user}
+🏎️ Mobil: ${car}
+🏆 Gelar: ${rank}
+⚡ Kecepatan Ketik: ${netWpm} WPM
+🚗 Kecepatan Puncak: ${topSpeed} KM/H
+🎯 Akurasi: ${accuracy}%
+📝 Kata Benar: ${correctWords}
+🏁 Jarak Tempuh: ${distance}
+---
+Dashboard DRIVE (Reporting, Insight & Visibility of Employee)`;
+
+  navigator.clipboard.writeText(text).then(() => {
+    showToast('Rekapitulasi Disalin!', 'Rincian perolehan typing test berhasil disalin ke clipboard.', 'success');
+  }).catch(() => {
+    showToast('Gagal Menyalin', 'Silakan salin teks secara manual.', 'warning');
+  });
+}
+
+// Tampilkan Halaman Typing Test
+function renderTypingTestPage() {
+  if (typingState.status !== 'running') {
+    resetTypingRace();
+  }
+  switchCar(typingState.selectedCar);
+  renderTypingHistory();
+  renderAdminTypingLeaderboard();
+}
+
+// Inisialisasi Seluruh Event Listener Typing Test
+function initTypingTest() {
+  // 1. Selector Pilihan Mobil Balap
+  const selectCar = document.getElementById('selectTypingCar');
+  if (selectCar) {
+    selectCar.value = typingState.selectedCar;
+    selectCar.addEventListener('change', (e) => {
+      switchCar(e.target.value);
+      const m = CAR_MODELS[e.target.value];
+      showToast('Mobil Dipilih', `Mobil balap diubah ke: ${m.name} (${m.theme})`, 'info');
+    });
+  }
+
+  // 2. Sound Toggle
+  const btnSound = document.getElementById('btnTypingSoundToggle');
+  const soundIcon = document.getElementById('typingSoundIcon');
+  const soundLabel = document.getElementById('typingSoundLabel');
+  if (btnSound) {
+    if (!typingState.soundEnabled) {
+      if (soundIcon) soundIcon.className = 'fa-solid fa-volume-xmark';
+      if (soundLabel) soundLabel.textContent = 'Suara: Off';
+    }
+    btnSound.addEventListener('click', () => {
+      typingState.soundEnabled = !typingState.soundEnabled;
+      localStorage.setItem('drive_typing_sound', typingState.soundEnabled);
+      if (soundIcon) soundIcon.className = typingState.soundEnabled ? 'fa-solid fa-volume-high' : 'fa-solid fa-volume-xmark';
+      if (soundLabel) soundLabel.textContent = typingState.soundEnabled ? 'Suara: On' : 'Suara: Off';
+      showToast('Pengaturan Suara', typingState.soundEnabled ? 'Efek suara balapan diaktifkan.' : 'Efek suara dimatikan.', 'info');
+    });
+  }
+
+  // 3. Category Select
+  const selectCat = document.getElementById('selectTypingCategory');
+  if (selectCat) {
+    selectCat.addEventListener('change', (e) => {
+      typingState.category = e.target.value;
+      resetTypingRace();
+      showToast('Kategori Diubah', `Kategori teks diubah ke: ${selectCat.options[selectCat.selectedIndex].text}`, 'info');
+    });
+  }
+
+  // 4. Restart / Mulai Ulang
+  const btnRestart = document.getElementById('btnTypingRestart');
+  if (btnRestart) {
+    btnRestart.addEventListener('click', () => {
+      resetTypingRace();
+      showToast('Balapan Direset', 'Sirkuit dan timer 60 detik siap di garis start.', 'info');
+    });
+  }
+
+  // 5. Input Ketik & Arena Focus
+  const hiddenInput = document.getElementById('typingHiddenInput');
+  const arenaWrapper = document.getElementById('wordsStreamWrapper');
+  const btnFocus = document.getElementById('btnFocusArena');
+
+  if (hiddenInput) {
+    hiddenInput.addEventListener('input', handleTypingInput);
+  }
+
+  if (arenaWrapper) {
+    arenaWrapper.addEventListener('click', () => {
+      if (hiddenInput) hiddenInput.focus();
+      arenaWrapper.classList.add('focused');
+    });
+  }
+
+  if (btnFocus) {
+    btnFocus.addEventListener('click', () => {
+      if (hiddenInput) hiddenInput.focus();
+      if (arenaWrapper) arenaWrapper.classList.add('focused');
+    });
+  }
+
+  // 6. Keyboard Shortcuts: Tab + Enter atau Escape untuk Reset Cepat
+  document.addEventListener('keydown', (e) => {
+    const isTypingPageActive = document.getElementById('pageTypingTest')?.classList.contains('active') ||
+      (typeof state !== 'undefined' && state.currentPage === 'typing-test');
+    if (!isTypingPageActive) return;
+
+    if (e.key === 'Escape') {
+      resetTypingRace();
+      showToast('Balapan Direset', 'Mulai ulang sirkuit (Hotkeys: Esc).', 'info');
+    }
+  });
+
+  // 7. Modal Hasil Balapan
+  const btnCloseModal = document.getElementById('btnCloseTypingResultModal');
+  const btnCloseBtn = document.getElementById('btnCloseTypingResultBtn');
+  const modal = document.getElementById('modalTypingResult');
+  const closeModalFunc = () => {
+    if (modal) modal.classList.add('hidden');
+  };
+  if (btnCloseModal) btnCloseModal.addEventListener('click', closeModalFunc);
+  if (btnCloseBtn) btnCloseBtn.addEventListener('click', closeModalFunc);
+
+  const btnPlayAgain = document.getElementById('btnTypingPlayAgain');
+  if (btnPlayAgain) {
+    btnPlayAgain.addEventListener('click', () => {
+      closeModalFunc();
+      resetTypingRace();
+      if (hiddenInput) hiddenInput.focus();
+    });
+  }
+
+  const btnCopy = document.getElementById('btnCopyTypingResult');
+  if (btnCopy) {
+    btnCopy.addEventListener('click', copyTypingResultToClipboard);
+  }
+
+  // 8. Hapus Riwayat Pribadi Pengguna
+  const btnClearHist = document.getElementById('btnClearTypingHistory');
+  if (btnClearHist) {
+    btnClearHist.addEventListener('click', () => {
+      if (confirm('Apakah Anda yakin ingin menghapus seluruh riwayat balapan typing test pribadi Anda?')) {
+        localStorage.removeItem('drive_typing_history');
+        localStorage.removeItem('drive_typing_pb');
+        renderTypingHistory();
+        showToast('Riwayat Dihapus', 'Semua catatan riwayat typing test pribadi berhasil dibersihkan.', 'info');
+      }
+    });
+  }
+
+  // 9. Admin Leaderboard Toolbar: Search & Rank Filter
+  const searchAdmin = document.getElementById('searchAdminTypingUser');
+  if (searchAdmin) {
+    searchAdmin.addEventListener('input', () => {
+      renderAdminTypingLeaderboard();
+    });
+  }
+
+  const filterRank = document.getElementById('filterAdminTypingRank');
+  if (filterRank) {
+    filterRank.addEventListener('change', () => {
+      renderAdminTypingLeaderboard();
+    });
+  }
+
+  // 10. Admin Reset Semua Riwayat Tim
+  const btnResetTeam = document.getElementById('btnAdminResetAllTyping');
+  if (btnResetTeam) {
+    btnResetTeam.addEventListener('click', resetAllTeamTypingHistory);
+  }
+
+  // 11. Modal Detail Riwayat Pengguna Khusus Admin
+  const btnCloseAdminDetail = document.getElementById('btnCloseAdminUserTypingDetail');
+  const btnCloseAdminDetailFooter = document.getElementById('btnCloseAdminDetailFooterBtn');
+  if (btnCloseAdminDetail) btnCloseAdminDetail.addEventListener('click', closeAdminUserTypingDetailModal);
+  if (btnCloseAdminDetailFooter) btnCloseAdminDetailFooter.addEventListener('click', closeAdminUserTypingDetailModal);
+
+  // Inisialisasi mobil, kata, dan riwayat
+  switchCar(typingState.selectedCar);
+  typingState.words = generateShuffledWords(typingState.category);
+  renderWordsStream();
+  renderTypingHistory();
+}
+
+// ==========================================
 // 15. INITIALIZATION
 // ==========================================
 
@@ -7328,6 +12223,7 @@ document.addEventListener('DOMContentLoaded', () => {
   startClock();
   populateNotifications();
   startTimerTicker();
+  initTypingTest();
   initEvents();
   renderAppView();
 });

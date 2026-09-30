@@ -205,6 +205,13 @@
               <span class="nav-tag" id="navTimerTag">Live</span>
             </button>
           </li>
+          <li class="nav-item">
+            <button class="nav-link" data-page="typing-test" id="navTypingTest">
+              <i class="fa-solid fa-gauge-high nav-icon"></i>
+              <span class="nav-label">Typing Test</span>
+              <span class="nav-tag nav-tag-game" id="navTypingTag">Game</span>
+            </button>
+          </li>
         </ul>
 
         <div id="sidebarAdminSection">
@@ -1317,20 +1324,51 @@
               <div class="badge-title-group">
                 <h2 class="page-title">Average Handling Time (AHT)</h2>
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-stopwatch"></i> SLA Target: &lt; 300 Detik</span>
+                <span class="badge badge-gray" id="ahtIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Pemantauan efisiensi durasi rata-rata penanganan interaksi (Call / Chat / Tiket) terhadap ambang batas standar SLA.</p>
+              <p class="page-desc">Informasi Average Handling Time (AHT) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik. Admin dapat menambah, mengubah, dan menghapus handling time user. Pengguna biasa hanya dapat melihat.</p>
             </div>
             <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterAhtMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterAhtMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
               <button class="btn btn-outline-gray" id="btnRefreshAht">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
               </button>
+              <button class="btn btn-outline-red" id="btnDeleteAllAhtMonth" title="Hapus seluruh data handling time di bulan terpilih">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <span>Hapus Data Bulan Ini</span>
+              </button>
+              <button class="btn btn-primary glow-effect-red" id="btnOpenAddAhtModal">
+                <i class="fa-solid fa-plus"></i>
+                <span>Input AHT Harian</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Banner for AHT -->
+          <div class="permission-status-banner glass-subpanel" id="ahtPermissionBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-stopwatch text-red"></i>
+              <div>
+                <strong id="ahtBannerRoleLabel">Otoritas Akses Handling Time (AHT): Administrator Penuh</strong>
+                <p id="ahtBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus handling time harian seluruh user. Standar SLA &lt; 300 detik (05:00 menit). Pengguna biasa hanya dapat melihat.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-admin" id="ahtBannerBadgePrivilege">Akses Penuh (CRUD)</span>
             </div>
           </div>
 
           <!-- Metric Cards Grid for AHT -->
           <div class="metrics-grid">
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="ahtCardMonthlyAvg">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-gradient">
                   <i class="fa-solid fa-stopwatch-20 text-white"></i>
@@ -1338,13 +1376,13 @@
                 <span class="metric-tag tag-green">Target: &lt; 05:00</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Rata-rata AHT Tim</span>
-                <h3 class="metric-value text-red" id="ahtStatAvg">03:42 <small style="font-size:0.9rem; color:var(--gray-400);">Menit</small></h3>
-                <span class="metric-subtext">222 detik per sesi interaksi</span>
+                <span class="metric-label">Rata-rata AHT Tim Bulan Ini</span>
+                <h3 class="metric-value text-red" id="ahtStatAvg">03:42 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Menit</small></h3>
+                <span class="metric-subtext" id="ahtStatAvgSub">222 detik per sesi interaksi</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="ahtCardSlaCompliance">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
                   <i class="fa-solid fa-circle-check text-green"></i>
@@ -1353,54 +1391,210 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Kepatuhan Batas Waktu</span>
-                <h3 class="metric-value text-green" id="ahtStatCompliance">94.2%</h3>
-                <span class="metric-subtext">Interaksi diselesaikan di bawah 5 menit</span>
+                <h3 class="metric-value text-green" id="ahtStatCompliance">95.2%</h3>
+                <span class="metric-subtext" id="ahtStatComplianceSub">Sesi diselesaikan di bawah 5 menit</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="ahtCardOverSla">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
                   <i class="fa-solid fa-triangle-exclamation text-yellow"></i>
                 </div>
-                <span class="metric-tag tag-yellow">Over AHT</span>
+                <span class="metric-tag tag-yellow">Over SLA</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Interaksi Over SLA</span>
-                <h3 class="metric-value text-yellow" id="ahtStatOver">5.8%</h3>
-                <span class="metric-subtext">Kasus kendala kompleks &amp; eskalasi</span>
+                <span class="metric-label">Interaksi Over AHT</span>
+                <h3 class="metric-value text-yellow" id="ahtStatOver">4.8%</h3>
+                <span class="metric-subtext" id="ahtStatOverSub">Kasus kendala kompleks &amp; eskalasi</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover border-red-subtle">
+            <div class="metric-card glass-panel card-hover border-red-subtle" id="ahtCardTopUser">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-subtle">
                   <i class="fa-solid fa-gauge-high text-red"></i>
                 </div>
-                <span class="metric-tag tag-green">Status Efisien</span>
+                <span class="metric-tag tag-green" id="ahtStatTopUserTag">Top Performer</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Indeks Kecepatan Penanganan</span>
-                <h3 class="metric-value text-silver">Optimal</h3>
-                <span class="metric-subtext">Memenuhi standar SLA PLN Icon Plus</span>
+                <span class="metric-label" id="ahtStatTopUserLabel">Agen Penanganan Tercepat</span>
+                <h3 class="metric-value text-silver" id="ahtStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <span class="metric-subtext" id="ahtStatTopUserSub">AHT rata-rata terbaik bulan ini</span>
               </div>
             </div>
           </div>
 
-          <!-- Table Container -->
+          <!-- Section 1: Rekapitulasi Average Handling Time Seluruh User dalam 1 Bulan -->
+          <div class="table-container glass-panel" id="ahtUserSummarySection" style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-users-viewfinder text-red"></i>
+                  <span>Rekapitulasi Average Handling Time Seluruh Agent Periode <span id="ahtMonthHeaderLabel" class="text-red">September 2026</span></span>
+                </h3>
+                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.</p>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <!-- Filter Nama User / Agent -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterSummaryAhtUser" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-user text-red" style="margin-right:4px;"></i>Nama User:
+                  </label>
+                  <select id="filterSummaryAhtUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="ALL">Semua Nama User</option>
+                  </select>
+                </div>
+
+                <!-- Filter Layanan -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterSummaryAhtService" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>Layanan:
+                  </label>
+                  <select id="filterSummaryAhtService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="ALL">Semua Layanan</option>
+                    <option value="CSO INBOUND">CSO INBOUND</option>
+                    <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                    <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                    <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                    <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                    <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                    <option value="CSO EMAIL">CSO EMAIL</option>
+                    <option value="TEAM LEADER">TEAM LEADER</option>
+                  </select>
+                </div>
+
+                <!-- Urutkan -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterAhtSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Urutkan:
+                  </label>
+                  <select id="filterAhtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="FASTEST" selected>AHT Tercepat</option>
+                    <option value="SLOWEST">AHT Tertinggi</option>
+                    <option value="COMPLIANCE_DESC">Kepatuhan SLA Tertinggi</option>
+                  </select>
+                </div>
+                <span class="badge badge-gray" id="ahtUserCountBadge">4 Agent Terdaftar</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="tableAhtUserSummary">
+                <thead>
+                  <tr>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th style="text-align: center;">Hari Input</th>
+                    <th style="text-align: right;">Total Interaksi</th>
+                    <th style="text-align: right;">Total Durasi</th>
+                    <th style="text-align: center;">Rata-rata AHT Bulanan</th>
+                    <th style="text-align: center;">Standar SLA</th>
+                    <th style="text-align: center;">Deviasi Rata-rata</th>
+                    <th style="text-align: center;">Kepatuhan SLA</th>
+                    <th style="text-align: center;">Status Performa</th>
+                    <th style="text-align: center; width: 100px;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="ahtUserSummaryBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 2: Rincian Log Handling Time Harian (Interval Input Per Hari) -->
+          <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+                <i class="fa-solid fa-calendar-check text-red"></i>
+                <span>Log Handling Time Harian (Interval Per Hari)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--gray-400);" id="ahtDailySubtitle">Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.</p>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchAhtInput" class="search-input" placeholder="Cari nama user, tanggal (YYYY-MM-DD), layanan, atau catatan kinerja...">
+              <button class="btn-clear-search hidden" id="btnClearSearchAht" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="toolbar-filters">
+              <select id="filterAhtUserSelect" class="filter-select">
+                <option value="ALL">Semua User</option>
+              </select>
+              <select id="filterAhtService" class="filter-select">
+                <option value="ALL">Semua Layanan CSO</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+              <select id="filterAhtStatus" class="filter-select">
+                <option value="ALL">Semua Status SLA</option>
+                <option value="Sesuai SLA">Sesuai SLA (&le; 300 Detik)</option>
+                <option value="Over SLA">Over SLA (&gt; 300 Detik)</option>
+              </select>
+              <select id="filterAhtSort" class="filter-select">
+                <option value="DATE_DESC" selected>Urutan: Tanggal Terbaru</option>
+                <option value="DATE_ASC">Tanggal Terlama</option>
+                <option value="AHT_ASC">Durasi Tercepat</option>
+                <option value="AHT_DESC">Durasi Tertinggi</option>
+              </select>
+              <button class="btn btn-outline-gray btn-sm" id="btnResetAhtFilters" title="Reset Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Batch Actions Toolbar for AHT (Admin Only) -->
+          <div class="ca-batch-bar aht-batch-bar glass-panel hidden" id="ahtBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+                <i class="fa-solid fa-check-double text-red"></i> <span id="ahtSelectedCount">0</span> Data Ditandai
+              </span>
+              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data handling time harian untuk dikelola atau dihapus massal (Admin).</span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnAhtDeselectAll">
+                <i class="fa-solid fa-xmark"></i> <span>Batal Tandai</span>
+              </button>
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnAhtSelectAll">
+                <i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm glow-effect-red" id="btnAhtDeleteSelected">
+                <i class="fa-solid fa-trash-can"></i> <span>Hapus Data Ditandai</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container for Daily Logs -->
           <div class="table-container glass-panel">
             <div class="table-responsive">
               <table class="custom-table" id="tableAhtLogs">
                 <thead>
                   <tr>
-                    <th>Waktu Sesi</th>
+                    <th style="width: 44px; text-align: center;" id="ahtThSelectAll">
+                      <input type="checkbox" id="ahtSelectAllCheckbox" class="aht-table-checkbox" title="Tandai Semua Data">
+                    </th>
+                    <th>Tanggal Input</th>
                     <th>Petugas CSO</th>
                     <th>Layanan CSO</th>
-                    <th>ID Interaksi</th>
-                    <th style="text-align: right;">Durasi Aktual</th>
+                    <th style="text-align: right;">Jumlah Interaksi</th>
+                    <th style="text-align: right;">Total Durasi</th>
+                    <th style="text-align: right;">Rata-rata AHT Harian</th>
                     <th style="text-align: right;">Target SLA</th>
                     <th>Deviasi Waktu</th>
                     <th>Status SLA</th>
+                    <th>Catatan Kinerja Harian</th>
+                    <th style="width: 120px; text-align: center;" id="thAhtAction">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="ahtTableBody">
@@ -1418,20 +1612,51 @@
               <div class="badge-title-group">
                 <h2 class="page-title">Average Response Time (ART)</h2>
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-bolt-lightning"></i> SLA Target: &lt; 30 Detik</span>
+                <span class="badge badge-gray" id="artIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Pengukuran kecepatan waktu respon pertama (First Response Time) dan kecepatan balasan chat kepada pelanggan.</p>
+              <p class="page-desc">Informasi Average Response Time (ART) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik. Admin dapat menambah, mengubah, dan menghapus response time user. Pengguna biasa hanya dapat melihat.</p>
             </div>
             <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterArtMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterArtMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
               <button class="btn btn-outline-gray" id="btnRefreshArt">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
               </button>
+              <button class="btn btn-outline-red" id="btnDeleteAllArtMonth" title="Hapus seluruh data response time di bulan terpilih">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <span>Hapus Data Bulan Ini</span>
+              </button>
+              <button class="btn btn-primary glow-effect-red" id="btnOpenAddArtModal">
+                <i class="fa-solid fa-plus"></i>
+                <span>Input ART Harian</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Banner for ART -->
+          <div class="permission-status-banner glass-subpanel" id="artPermissionBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-bolt-lightning text-red"></i>
+              <div>
+                <strong id="artBannerRoleLabel">Otoritas Akses Response Time (ART): Administrator Penuh</strong>
+                <p id="artBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus response time harian seluruh user. Standar SLA &lt; 30 detik. Pengguna biasa hanya dapat melihat.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-admin" id="artBannerBadgePrivilege">Akses Penuh (CRUD)</span>
             </div>
           </div>
 
           <!-- Metric Cards Grid for ART -->
           <div class="metrics-grid">
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="artCardMonthlyAvg">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-gradient">
                   <i class="fa-solid fa-bolt text-white"></i>
@@ -1439,13 +1664,13 @@
                 <span class="metric-tag tag-green">Target: &lt; 30s</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Rata-rata ART Tim</span>
-                <h3 class="metric-value text-red" id="artStatAvg">14.8 <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small></h3>
-                <span class="metric-subtext">Kecepatan respon chat aktif</span>
+                <span class="metric-label">Rata-rata ART Tim Bulan Ini</span>
+                <h3 class="metric-value text-red" id="artStatAvg">14.8 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <span class="metric-subtext" id="artStatAvgSub">Kecepatan respon chat aktif</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="artCardFrt">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
                   <i class="fa-solid fa-reply text-silver"></i>
@@ -1454,12 +1679,12 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Respon Pertama (FRT)</span>
-                <h3 class="metric-value text-white" id="artStatFrt">8.5 <small style="font-size:0.9rem; color:var(--gray-400);">Detik</small></h3>
-                <span class="metric-subtext">Waktu pertama agen menyapa pelanggan</span>
+                <h3 class="metric-value text-white" id="artStatFrt">8.5 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <span class="metric-subtext" id="artStatFrtSub">Waktu pertama agen menyapa pelanggan</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="artCardCompliance">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
                   <i class="fa-solid fa-comments text-green"></i>
@@ -1469,39 +1694,197 @@
               <div class="metric-body">
                 <span class="metric-label">Tingkat Kepatuhan SLA ART</span>
                 <h3 class="metric-value text-green" id="artStatCompliance">98.6%</h3>
-                <span class="metric-subtext">Chat dibalas dalam &lt; 30 detik</span>
+                <span class="metric-subtext" id="artStatComplianceSub">Sesi dibalas di bawah 30 detik</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover border-red-subtle">
+            <div class="metric-card glass-panel card-hover border-red-subtle" id="artCardTopUser">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-subtle">
-                  <i class="fa-solid fa-chart-simple text-red"></i>
+                  <i class="fa-solid fa-gauge-high text-red"></i>
                 </div>
-                <span class="metric-tag tag-blue">210 Sesi</span>
+                <span class="metric-tag tag-green" id="artStatTopUserTag">Paling Responsif</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Total Sesi Terlayani</span>
-                <h3 class="metric-value text-silver">210 Chat</h3>
-                <span class="metric-subtext">Digilive WhatsApp, DM, &amp; My Icon+</span>
+                <span class="metric-label" id="artStatTopUserLabel">Agen Paling Responsif</span>
+                <h3 class="metric-value text-silver" id="artStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <span class="metric-subtext" id="artStatTopUserSub">Respon tercepat bulan ini</span>
               </div>
             </div>
           </div>
 
-          <!-- Table Container -->
+          <!-- Section 1: Rekapitulasi Average Response Time Seluruh User dalam 1 Bulan -->
+          <div class="table-container glass-panel" id="artUserSummarySection" style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-users-viewfinder text-red"></i>
+                  <span>Rekapitulasi Average Response Time Seluruh Agent Periode <span id="artMonthHeaderLabel" class="text-red">September 2026</span></span>
+                </h3>
+                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.</p>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <!-- Filter Nama User / Agent -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterSummaryArtUser" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-user text-red" style="margin-right:4px;"></i>Nama User:
+                  </label>
+                  <select id="filterSummaryArtUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="ALL">Semua Nama User</option>
+                  </select>
+                </div>
+
+                <!-- Filter Layanan -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterSummaryArtService" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>Layanan:
+                  </label>
+                  <select id="filterSummaryArtService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="ALL">Semua Layanan</option>
+                    <option value="CSO INBOUND">CSO INBOUND</option>
+                    <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                    <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                    <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                    <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                    <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                    <option value="CSO EMAIL">CSO EMAIL</option>
+                    <option value="TEAM LEADER">TEAM LEADER</option>
+                  </select>
+                </div>
+
+                <!-- Urutkan -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterArtSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Urutkan:
+                  </label>
+                  <select id="filterArtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="FASTEST" selected>ART Tercepat</option>
+                    <option value="SLOWEST">ART Tertinggi</option>
+                    <option value="COMPLIANCE_DESC">Kepatuhan SLA Tertinggi</option>
+                  </select>
+                </div>
+                <span class="badge badge-gray" id="artUserCountBadge">4 Agent Terdaftar</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="tableArtUserSummary">
+                <thead>
+                  <tr>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th style="text-align: center;">Hari Input</th>
+                    <th style="text-align: right;">Total Sesi</th>
+                    <th style="text-align: right;">Rata-rata Antrian (Queue)</th>
+                    <th style="text-align: right;">Respon Pertama (FRT)</th>
+                    <th style="text-align: center;">Rata-rata ART Bulanan</th>
+                    <th style="text-align: center;">Standar SLA</th>
+                    <th style="text-align: center;">Deviasi Waktu</th>
+                    <th style="text-align: center;">Kepatuhan SLA</th>
+                    <th style="text-align: center;">Status Performa</th>
+                    <th style="text-align: center; width: 100px;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="artUserSummaryBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 2: Rincian Log Response Time Harian (Interval Input Per Hari) -->
+          <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+                <i class="fa-solid fa-calendar-check text-red"></i>
+                <span>Log Response Time Harian (Interval Per Hari)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--gray-400);" id="artDailySubtitle">Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.</p>
+            </div>
+          </div>
+
+          <!-- Table Toolbar -->
+          <div class="table-toolbar glass-panel">
+            <div class="toolbar-search">
+              <i class="fa-solid fa-magnifying-glass search-icon"></i>
+              <input type="text" id="searchArtInput" class="search-input" placeholder="Cari nama user, tanggal (YYYY-MM-DD), layanan, atau catatan kinerja...">
+              <button class="btn-clear-search hidden" id="btnClearSearchArt" aria-label="Bersihkan pencarian">
+                <i class="fa-solid fa-xmark"></i>
+              </button>
+            </div>
+            <div class="toolbar-filters">
+              <select id="filterArtUserSelect" class="filter-select">
+                <option value="ALL">Semua User</option>
+              </select>
+              <select id="filterArtService" class="filter-select">
+                <option value="ALL">Semua Layanan CSO</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
+              <select id="filterArtStatus" class="filter-select">
+                <option value="ALL">Semua Status SLA</option>
+                <option value="Sesuai SLA">Sesuai SLA (&le; 30 Detik)</option>
+                <option value="Over SLA">Over SLA (&gt; 30 Detik)</option>
+              </select>
+              <select id="filterArtSort" class="filter-select">
+                <option value="DATE_DESC" selected>Urutan: Tanggal Terbaru</option>
+                <option value="DATE_ASC">Tanggal Terlama</option>
+                <option value="ART_ASC">Respon Tercepat</option>
+                <option value="ART_DESC">Respon Tertinggi</option>
+              </select>
+              <button class="btn btn-outline-gray btn-sm" id="btnResetArtFilters" title="Reset Filter">
+                <i class="fa-solid fa-rotate-left"></i>
+              </button>
+            </div>
+          </div>
+
+          <!-- Batch Actions Toolbar for ART (Admin Only) -->
+          <div class="ca-batch-bar art-batch-bar glass-panel hidden" id="artBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+                <i class="fa-solid fa-check-double text-red"></i> <span id="artSelectedCount">0</span> Data Ditandai
+              </span>
+              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data response time harian untuk dikelola atau dihapus massal (Admin).</span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnArtDeselectAll">
+                <i class="fa-solid fa-xmark"></i> <span>Batal Tandai</span>
+              </button>
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnArtSelectAll">
+                <i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm glow-effect-red" id="btnArtDeleteSelected">
+                <i class="fa-solid fa-trash-can"></i> <span>Hapus Data Ditandai</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container for Daily Logs -->
           <div class="table-container glass-panel">
             <div class="table-responsive">
               <table class="custom-table" id="tableArtLogs">
                 <thead>
                   <tr>
-                    <th>Waktu Sesi</th>
+                    <th style="width: 44px; text-align: center;" id="artThSelectAll">
+                      <input type="checkbox" id="artSelectAllCheckbox" class="art-table-checkbox" title="Tandai Semua Data">
+                    </th>
+                    <th>Tanggal Input</th>
                     <th>Petugas CSO</th>
                     <th>Channel Layanan</th>
-                    <th style="text-align: right;">Antrian / Waiting</th>
+                    <th style="text-align: right;">Total Sesi</th>
+                    <th style="text-align: right;">Antrian (Queue)</th>
                     <th style="text-align: right;">Respon Pertama (FRT)</th>
-                    <th style="text-align: right;">Rata-rata Respon (ART)</th>
-                    <th>Target SLA</th>
-                    <th>Status Kepatuhan</th>
+                    <th style="text-align: right;">Rata-rata ART Harian</th>
+                    <th style="text-align: right;">Target SLA</th>
+                    <th>Deviasi Waktu</th>
+                    <th>Status SLA</th>
+                    <th>Catatan Kinerja Harian</th>
+                    <th style="width: 120px; text-align: center;" id="thArtAction">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="artTableBody">
@@ -1811,6 +2194,589 @@
               <div class="stopwatches-list" id="stopwatchesContainer">
                 <!-- Rendered dynamically via JS -->
               </div>
+            </div>
+
+          </div>
+
+        </section>
+
+        <!-- ==================== PAGE: TYPING TEST (SPEED RACER 60 DETIK) ==================== -->
+        <section class="page-section" id="pageTypingTest">
+          
+          <!-- Compact Top Control Bar (Car Selector, Language, Audio, Reset) -->
+          <div class="typing-top-bar mb-3">
+            <div class="typing-top-left">
+              <div class="track-status-pill" id="trackStatusPill">
+                <span class="track-dot"></span>
+                <span id="trackStatusText">Siap di Garis Start (Ketik teks untuk meluncur)</span>
+              </div>
+            </div>
+            
+            <div class="page-title-actions">
+              <!-- Car Selection Dropdown -->
+              <div class="typing-car-select-wrap">
+                <select id="selectTypingCar" class="filter-select typing-car-dropdown" aria-label="Pilih Mobil Balap Sirkuit">
+                  <option value="ferrari" selected>🏎️ Ferrari SF90 (Rosso Corsa)</option>
+                  <option value="lamborghini">🏎️ Lamborghini Huracán (Giallo Yellow)</option>
+                  <option value="porsche">🏎️ Porsche 911 GT3 (Shark Blue)</option>
+                  <option value="mclaren">🏎️ McLaren 720S (Papaya Orange)</option>
+                  <option value="hotwheels">🏎️ Hot Wheels Cyber (Neon Purple)</option>
+                </select>
+              </div>
+
+              <!-- Sound Toggle -->
+              <button class="btn btn-outline-gray btn-sm" id="btnTypingSoundToggle" type="button" title="Nyalakan / Matikan Efek Suara (Web Audio)">
+                <i class="fa-solid fa-volume-high" id="typingSoundIcon"></i>
+                <span id="typingSoundLabel">Suara: On</span>
+              </button>
+              
+              <!-- Category Selector -->
+              <div class="typing-mode-select-wrap">
+                <select id="selectTypingCategory" class="filter-select typing-category-dropdown" aria-label="Kategori Bahasa Typing Test">
+                  <option value="id_general">Bahasa Indonesia (Umum)</option>
+                  <option value="id_operations">Operasional &amp; Layanan Pelanggan</option>
+                  <option value="en_speed">English (Speed &amp; Tech)</option>
+                </select>
+              </div>
+
+              <!-- Reset / Restart Button -->
+              <button class="btn btn-primary btn-sm glow-effect-red" id="btnTypingRestart" type="button" title="Mulai Ulang Balapan (Hotkeys: Tab + Enter)">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>Mulai Ulang</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Top Racing Arena: Grand Prix Circuit Track & Selected Supercar -->
+          <div class="typing-race-card glass-panel mb-3">
+            
+            <!-- Track Header Info Overlay -->
+            <div class="track-header-bar">
+              <div class="track-car-model">
+                <i class="fa-solid fa-flag-checkered text-red"></i>
+                <span id="trackCarModelText" class="ferrari-model-label">Ferrari SF90 Stradale &bull; Rosso Corsa</span>
+              </div>
+              <div class="track-distance-meter">
+                <i class="fa-solid fa-route text-red"></i>
+                <span>Jarak Tempuh: <strong id="trackDistanceVal">0</strong> m</span>
+              </div>
+              <div class="track-circuit-label hide-mobile">
+                <i class="fa-solid fa-road text-yellow"></i>
+                <span>Sirkuit Balap Grand Prix DRIVE</span>
+              </div>
+            </div>
+
+            <!-- Visual Track Canvas/Container (Grand Prix Racing Circuit) -->
+            <div class="track-viewport circuit-viewport" id="trackViewport">
+              <!-- Circuit Parallax Scenery (Grandstand, Floodlights, Stadium Silhouette) -->
+              <div class="circuit-scenery-layer" id="circuitScenery">
+                <!-- Stadium Floodlights -->
+                <div class="circuit-floodlight fl-1"></div>
+                <div class="circuit-floodlight fl-2"></div>
+                <div class="circuit-floodlight fl-3"></div>
+                <div class="circuit-floodlight fl-4"></div>
+
+                <!-- Grandstand Crowd Silhouettes -->
+                <div class="circuit-grandstand"></div>
+
+                <!-- Trackside Sponsor Advertising Hoardings / Barrier -->
+                <div class="circuit-sponsor-barrier" id="circuitSponsorBarrier">
+                  <div class="sponsor-billboards-strip" id="sponsorBillboardsStrip">
+                    <span class="sponsor-tag sponsor-drive"><i class="fa-solid fa-bolt"></i> DRIVE RACING</span>
+                    <span class="sponsor-tag sponsor-pirelli">PIRELLI P-ZERO</span>
+                    <span class="sponsor-tag sponsor-hw">HOT WHEELS GRAND PRIX</span>
+                    <span class="sponsor-tag sponsor-shell">SHELL V-POWER</span>
+                    <span class="sponsor-tag sponsor-brembo">BREMBO BRAKES</span>
+                    <span class="sponsor-tag sponsor-drive"><i class="fa-solid fa-bolt"></i> DRIVE RACING</span>
+                    <span class="sponsor-tag sponsor-pirelli">PIRELLI P-ZERO</span>
+                    <span class="sponsor-tag sponsor-hw">HOT WHEELS GRAND PRIX</span>
+                  </div>
+                </div>
+              </div>
+              
+              <!-- Circuit Road Surface with Textured Asphalt & 3D FIA Rumble Kerbs -->
+              <div class="track-road circuit-road" id="trackRoad">
+                <!-- Top FIA Kerb (Rumble Strips) -->
+                <div class="circuit-kerb kerb-top"></div>
+
+                <!-- Starting Grid Slot (Behind Start Line at 1.5% - 20%) -->
+                <div class="circuit-grid-slot" id="circuitGridSlot">
+                  <span class="grid-slot-marker"><i class="fa-solid fa-flag text-yellow"></i> GRID 1 • POLE</span>
+                </div>
+                
+                <!-- Circuit Start Line & Starting Grid Box (At 24% of Circuit) -->
+                <div class="circuit-start-line" id="circuitStartLine">
+                  <div class="start-line-bar"></div>
+                  <div class="start-line-grid-box">
+                    <span class="start-grid-pole">GRID 1</span>
+                    <span class="start-grid-text">START</span>
+                  </div>
+                </div>
+
+                <!-- Circuit Checkered Finish & Overhead Timing Gantry (At 65% of Circuit) -->
+                <div class="circuit-finish-line" id="circuitFinishLine">
+                  <div class="finish-gantry-banner">
+                    <i class="fa-solid fa-flag-checkered"></i> FINISH
+                  </div>
+                  <div class="finish-checkered-strip"></div>
+                  <div class="finish-line-bar"></div>
+                </div>
+
+                <!-- Victory Runoff Zone (In Front of Finish Line at 68% - 100%) -->
+                <div class="circuit-victory-zone" id="circuitVictoryZone">
+                  <span class="victory-zone-marker"><i class="fa-solid fa-trophy text-yellow"></i> VICTORY ZONE</span>
+                </div>
+                
+                <!-- Center Dashed Racing Line -->
+                <div class="road-lane-stripes" id="roadLaneStripes"></div>
+                
+                <!-- Distance Marker Boards Passing By (Neatly spaced between Start 24% and Finish 65%) -->
+                <div class="circuit-distance-markers" id="circuitDistanceMarkers">
+                  <span class="dist-board" style="left: 37%;">100M</span>
+                  <span class="dist-board" style="left: 48%;">200M</span>
+                  <span class="dist-board" style="left: 57%;">300M</span>
+                </div>
+
+                <!-- Bottom FIA Kerb -->
+                <div class="circuit-kerb kerb-bottom"></div>
+                
+                <!-- Speed Lines / Air Streaks -->
+                <div class="speed-streaks" id="speedStreaks"></div>
+
+                <!-- Animated Supercar Container (Swappable SVG) -->
+                <div class="racer-car-container" id="racerCar">
+                  <!-- Exhaust Flame Nitro Effects -->
+                  <div class="exhaust-flame flame-left" id="exhaustFlameLeft"></div>
+                  <div class="exhaust-flame flame-right" id="exhaustFlameRight"></div>
+
+                  <!-- SVG Container: Populated Dynamically or Default Ferrari -->
+                  <div id="carSvgWrapper" class="car-svg-wrapper">
+                    <!-- Default Ferrari SF90 SVG -->
+                    <svg class="racer-car-svg" viewBox="0 0 320 100" xmlns="http://www.w3.org/2000/svg">
+                      <defs>
+                        <linearGradient id="ferrariRedGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#ff2e2e" />
+                          <stop offset="25%" stop-color="#e60000" />
+                          <stop offset="70%" stop-color="#c40000" />
+                          <stop offset="100%" stop-color="#7a0000" />
+                        </linearGradient>
+                        <linearGradient id="ferrariGlossGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.45" />
+                          <stop offset="50%" stop-color="#ff7777" stop-opacity="0.8" />
+                          <stop offset="100%" stop-color="#ffffff" stop-opacity="0.1" />
+                        </linearGradient>
+                        <linearGradient id="ferrariGlassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                          <stop offset="0%" stop-color="#1e293b" stop-opacity="0.95" />
+                          <stop offset="40%" stop-color="#0f172a" stop-opacity="0.9" />
+                          <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.4" />
+                        </linearGradient>
+                        <linearGradient id="ferrariRimGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#475569" />
+                          <stop offset="50%" stop-color="#1e293b" />
+                          <stop offset="100%" stop-color="#0f172a" />
+                        </linearGradient>
+                        <filter id="ferrariGlow" x="-20%" y="-20%" width="140%" height="140%">
+                          <feDropShadow dx="0" dy="4" stdDeviation="4" flood-color="#e60000" flood-opacity="0.4" />
+                        </filter>
+                      </defs>
+                      <ellipse cx="160" cy="92" rx="145" ry="6" fill="rgba(0, 0, 0, 0.85)" />
+                      <g filter="url(#ferrariGlow)">
+                        <path d="M 16 78 L 305 78 L 308 83 L 12 83 Z" fill="#0d0f15" />
+                        <path d="M 24 58 L 32 50 Q 48 48, 70 48 Q 95 48, 120 34 L 140 26 L 195 26 Q 235 28, 260 52 L 298 64 Q 312 68, 308 76 L 295 78 L 285 78 Q 280 60, 258 60 Q 236 60, 230 78 L 122 78 Q 116 60, 94 60 Q 72 60, 66 78 L 22 78 Q 16 75, 18 66 Z" fill="url(#ferrariRedGrad)" />
+                        <path d="M 125 56 Q 160 54, 185 54 L 180 68 Q 145 68, 120 62 Z" fill="#a30000" />
+                        <path d="M 115 54 L 135 52 L 132 64 L 112 62 Z" fill="#141720" />
+                        <path d="M 122 34 L 142 28 L 192 28 L 232 52 L 205 52 Q 170 46, 122 46 Z" fill="url(#ferrariGlassGrad)" stroke="#0f172a" stroke-width="1.5" />
+                        <line x1="140" y1="28" x2="122" y2="46" stroke="#c40000" stroke-width="2.5" />
+                        <line x1="192" y1="28" x2="208" y2="52" stroke="#c40000" stroke-width="2" />
+                        <path d="M 50 51 Q 120 48, 195 48 L 275 62" fill="none" stroke="url(#ferrariGlossGrad)" stroke-width="1.5" stroke-linecap="round" />
+                        <path d="M 235 48 L 270 58 L 265 60 L 230 50 Z" fill="#990000" opacity="0.6" />
+                        <polygon points="296,74 314,75 310,79 292,78" fill="#141720" />
+                        <polygon points="288,62 305,65 301,69 284,66" fill="#e0f2fe" filter="drop-shadow(0 0 3px #38bdf8)" />
+                        <ellipse cx="26" cy="56" rx="4.5" ry="6" fill="#ff1a1a" filter="drop-shadow(0 0 5px #ff0000)" />
+                        <ellipse cx="26" cy="56" rx="2" ry="3" fill="#ff9999" />
+                        <rect x="16" y="62" width="6" height="4" rx="1.5" fill="#cbd5e1" stroke="#334155" stroke-width="0.8" />
+                        <rect x="18" y="68" width="6" height="4" rx="1.5" fill="#cbd5e1" stroke="#334155" stroke-width="0.8" />
+                        <g transform="translate(216, 52)">
+                          <polygon points="0,0 8,0 9,7 4,11 -1,7" fill="#ffea00" stroke="#000" stroke-width="0.6" />
+                          <rect x="0.5" y="0.5" width="2.2" height="1.2" fill="#009246" />
+                          <rect x="2.7" y="0.5" width="2.2" height="1.2" fill="#ffffff" />
+                          <rect x="4.9" y="0.5" width="2.2" height="1.2" fill="#ce2b37" />
+                          <path d="M 4 3.5 Q 4.8 4.5, 4 6 Q 3 7.5, 4.5 8 Q 3.5 8.5, 2.8 7.5 Z" fill="#000000" />
+                        </g>
+                        <text x="142" y="72" fill="#ffffff" font-family="'Plus Jakarta Sans', sans-serif" font-weight="800" font-size="9" font-style="italic" letter-spacing="1.5" opacity="0.9">FERRARI</text>
+                      </g>
+                      <!-- Rear Wheel Station (Symmetric & Realistic) -->
+                      <g class="wheel-station" transform="translate(70, 84)">
+                        <!-- Wheel Well Shadow -->
+                        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+                        <!-- Ventilated Brake Disc (Stationary) -->
+                        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+                        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+                        <!-- Red Racing Brembo Brake Caliper (Stationary at ~10 o'clock) -->
+                        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#dc2626" stroke="#991b1b" stroke-width="0.5" />
+                        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+                        <!-- Perfectly Symmetrical Rotating Wheel -->
+                        <g id="wheelRear" class="car-wheel car-wheel-rotator">
+                          <!-- Outer Tire with Tread Lines -->
+                          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+                          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+                          <!-- Symmetrical Tire Decal Marks -->
+                          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+                          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+                          <!-- Machined Alloy Rim Lip -->
+                          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#64748b" stroke-width="1.2" />
+                          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                          <!-- 6 Perfectly Balanced Radial Spokes -->
+                          <g stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round">
+                            <line x1="0" y1="-10" x2="0" y2="10" />
+                            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+                            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+                          </g>
+                          <!-- Spoke 3D Highlight Bevels -->
+                          <g stroke="rgba(255,255,255,0.4)" stroke-width="0.6">
+                            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+                            <line x1="0" y1="9.5" x2="0" y2="2" />
+                            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+                            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+                            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+                            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+                          </g>
+                          <!-- Center Hub & Scuderia Yellow Emblem -->
+                          <circle cx="0" cy="0" r="3.5" fill="#facc15" stroke="#000000" stroke-width="0.5" />
+                          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+                          <!-- 5 Titanium Lug Nuts -->
+                          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+                          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+                          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+                          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+                          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+                        </g>
+                      </g>
+
+                      <!-- Front Wheel Station (Symmetric & Realistic) -->
+                      <g class="wheel-station" transform="translate(260, 84)">
+                        <!-- Wheel Well Shadow -->
+                        <circle cx="0" cy="0" r="16.8" fill="#080a0f" opacity="0.6" />
+                        <!-- Ventilated Brake Disc (Stationary) -->
+                        <circle cx="0" cy="0" r="11.5" fill="#334155" stroke="#1e293b" stroke-width="0.8" />
+                        <circle cx="0" cy="0" r="8.8" fill="none" stroke="#64748b" stroke-width="0.6" stroke-dasharray="1.5 1.5" opacity="0.7" />
+                        <!-- Red Racing Brembo Brake Caliper (Stationary at ~10 o'clock) -->
+                        <path d="M -7.5 -7.5 A 10.8 10.8 0 0 1 1.5 -10.5 L 2.5 -8 A 8.2 8.2 0 0 0 -5.5 -5.5 Z" fill="#dc2626" stroke="#991b1b" stroke-width="0.5" />
+                        <circle cx="-2.8" cy="-8.2" r="0.75" fill="#ffffff" opacity="0.9" />
+
+                        <!-- Perfectly Symmetrical Rotating Wheel -->
+                        <g id="wheelFront" class="car-wheel car-wheel-rotator">
+                          <!-- Outer Tire with Tread Lines -->
+                          <circle cx="0" cy="0" r="16" fill="#111319" stroke="#1f2430" stroke-width="1.8" />
+                          <circle cx="0" cy="0" r="14.5" fill="none" stroke="#171a22" stroke-width="0.6" />
+                          <!-- Symmetrical Tire Decal Marks -->
+                          <path d="M -15.2 -1.2 A 15.2 15.2 0 0 1 -15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+                          <path d="M 15.2 -1.2 A 15.2 15.2 0 0 1 15.2 1.2" stroke="#facc15" stroke-width="1.2" stroke-linecap="round" />
+                          <!-- Machined Alloy Rim Lip -->
+                          <circle cx="0" cy="0" r="11.8" fill="#0d1017" stroke="#64748b" stroke-width="1.2" />
+                          <circle cx="0" cy="0" r="10.4" fill="#0a0c12" stroke="rgba(255,255,255,0.08)" stroke-width="0.5" />
+                          <!-- 6 Perfectly Balanced Radial Spokes -->
+                          <g stroke="#cbd5e1" stroke-width="1.6" stroke-linecap="round">
+                            <line x1="0" y1="-10" x2="0" y2="10" />
+                            <line x1="-8.66" y1="-5" x2="8.66" y2="5" />
+                            <line x1="-8.66" y1="5" x2="8.66" y2="-5" />
+                          </g>
+                          <!-- Spoke 3D Highlight Bevels -->
+                          <g stroke="rgba(255,255,255,0.4)" stroke-width="0.6">
+                            <line x1="0" y1="-9.5" x2="0" y2="-2" />
+                            <line x1="0" y1="9.5" x2="0" y2="2" />
+                            <line x1="-8.2" y1="-4.75" x2="-1.7" y2="-1" />
+                            <line x1="8.2" y1="4.75" x2="1.7" y2="1" />
+                            <line x1="-8.2" y1="4.75" x2="-1.7" y2="1" />
+                            <line x1="8.2" y1="-4.75" x2="1.7" y2="-1" />
+                          </g>
+                          <!-- Center Hub & Scuderia Yellow Emblem -->
+                          <circle cx="0" cy="0" r="3.5" fill="#facc15" stroke="#000000" stroke-width="0.5" />
+                          <circle cx="0" cy="0" r="1.4" fill="#000000" />
+                          <!-- 5 Titanium Lug Nuts -->
+                          <circle cx="0" cy="-2.1" r="0.4" fill="#e2e8f0" />
+                          <circle cx="2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+                          <circle cx="1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+                          <circle cx="-1.23" cy="1.7" r="0.4" fill="#e2e8f0" />
+                          <circle cx="-2.0" cy="-0.65" r="0.4" fill="#e2e8f0" />
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Compact & Ultra-Efficient Racing Telemetry HUD Strip -->
+            <div class="racing-hud-bar" id="racingHudBar">
+              
+              <!-- Telemetry 1: Speedometer & Gear -->
+              <div class="hud-item hud-speed">
+                <div class="hud-icon-bubble text-red"><i class="fa-solid fa-gauge-high"></i></div>
+                <div class="hud-data-col">
+                  <div class="hud-main-val">
+                    <span class="hud-digits" id="liveSpeedKmh">0</span>
+                    <span class="hud-unit">KM/H</span>
+                  </div>
+                  <span class="hud-pill hud-gear-pill" id="trackGearBadge">GIGI N</span>
+                </div>
+              </div>
+
+              <!-- Telemetry 2: 60-Second Countdown Timer -->
+              <div class="hud-item hud-timer">
+                <div class="hud-icon-bubble text-yellow"><i class="fa-solid fa-stopwatch-20"></i></div>
+                <div class="hud-data-col">
+                  <div class="hud-main-val">
+                    <span class="hud-digits" id="typingTimerDigits">60</span>
+                    <span class="hud-unit">DETIK</span>
+                  </div>
+                  <div class="hud-mini-progress">
+                    <div class="hud-progress-bar" id="typingTimerProgressBar"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Telemetry 3: WPM (Kata / Menit) -->
+              <div class="hud-item hud-wpm">
+                <div class="hud-icon-bubble text-red"><i class="fa-solid fa-bolt-lightning"></i></div>
+                <div class="hud-data-col">
+                  <div class="hud-main-val">
+                    <span class="hud-digits" id="liveWpmVal">0</span>
+                    <span class="hud-unit">WPM</span>
+                  </div>
+                  <span class="hud-pill" id="wpmRankBadge">Gigi N</span>
+                </div>
+              </div>
+
+              <!-- Telemetry 4: Akurasi & Karakter -->
+              <div class="hud-item hud-accuracy">
+                <div class="hud-icon-bubble text-green"><i class="fa-solid fa-bullseye"></i></div>
+                <div class="hud-data-col">
+                  <div class="hud-main-val">
+                    <span class="hud-digits" id="liveAccuracyVal">100</span>
+                    <span class="hud-unit">%</span>
+                  </div>
+                  <span class="hud-pill hud-pill-subtle" id="liveCharsBadge">0 B / 0 S</span>
+                </div>
+              </div>
+
+              <!-- Telemetry 5: Combo Streak -->
+              <div class="hud-item hud-streak">
+                <div class="hud-icon-bubble text-yellow"><i class="fa-solid fa-fire"></i></div>
+                <div class="hud-data-col">
+                  <div class="hud-main-val">
+                    <span class="hud-digits" id="liveStreakVal">0</span>
+                    <span class="hud-unit">COMBO</span>
+                  </div>
+                  <span class="hud-pill hud-pill-streak" id="streakLabel">Start</span>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <!-- Typing Arena: Interactive Dynamic Stage -->
+          <div class="typing-arena-card glass-panel mb-4" id="typingArenaCard">
+            
+            <!-- Arena Top Guidance & Dynamic Pace Status -->
+            <div class="arena-guidance-bar">
+              <div class="guidance-left">
+                <span class="live-dot" id="arenaLiveDot"></span>
+                <span id="arenaHintText">Ketik kata di bawah ini. Balapan 60 detik otomatis dimulai saat tombol pertama ditekan!</span>
+              </div>
+              <div class="guidance-right">
+                <div class="dynamic-pace-badge" id="dynamicPaceBadge">
+                  <i class="fa-solid fa-gauge"></i> <span id="dynamicPaceText">Standby</span>
+                </div>
+                <button type="button" class="btn-arena-focus" id="btnFocusArena" title="Fokus ke teks ketikan">
+                  <i class="fa-solid fa-crosshairs"></i> Fokus Input
+                </button>
+              </div>
+            </div>
+
+            <!-- Words Stream Display Box with Dynamic Caret & Speed Glow -->
+            <div class="words-stream-wrapper" id="wordsStreamWrapper" tabindex="0">
+              <!-- Floating Combo / Particles Overlay -->
+              <div class="typing-particles-overlay" id="typingParticlesOverlay"></div>
+              
+              <div class="words-stream-content" id="wordsStreamContent">
+                <!-- Dynamically generated word spans -->
+              </div>
+              <!-- Hidden native input to capture smooth keystrokes & IME -->
+              <input type="text" id="typingHiddenInput" class="typing-hidden-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" aria-label="Input ketik cepat">
+            </div>
+
+            <!-- Arena Bottom Progress & Dynamic Telemetry -->
+            <div class="arena-footer-bar">
+              <div class="arena-word-count">
+                <span>Kata Selesai: <strong id="completedWordsCount">0</strong></span>
+              </div>
+              <div class="arena-hotkey-hint hide-mobile">
+                <kbd>Tab</kbd> + <kbd>Enter</kbd> untuk mulai ulang cepat
+              </div>
+              <div class="arena-keys-count">
+                <span>Total Karakter: <strong id="totalKeystrokesCount">0</strong></span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Recent Runs & Personal Best Records Card (User View) -->
+          <div class="typing-records-card glass-panel mb-4">
+            <div class="records-card-header">
+              <div class="records-title-group">
+                <i class="fa-solid fa-trophy text-red"></i>
+                <h3 class="records-card-title">Rekor Pribadi &amp; Riwayat Balapan Saya</h3>
+              </div>
+              <div class="records-actions">
+                <button class="btn btn-sm btn-outline-gray" id="btnClearTypingHistory" type="button">
+                  <i class="fa-solid fa-trash-can"></i> Hapus Riwayat Saya
+                </button>
+              </div>
+            </div>
+
+            <div class="records-summary-row mb-3">
+              <div class="record-summary-chip">
+                <span class="chip-label">Top Record WPM:</span>
+                <span class="chip-val text-red" id="pbWpmVal">0 WPM</span>
+              </div>
+              <div class="record-summary-chip">
+                <span class="chip-label">Top Speed:</span>
+                <span class="chip-val text-yellow" id="pbSpeedVal">0 KM/H</span>
+              </div>
+              <div class="record-summary-chip">
+                <span class="chip-label">Akurasi Terbaik:</span>
+                <span class="chip-val text-green" id="pbAccuracyVal">0%</span>
+              </div>
+              <div class="record-summary-chip">
+                <span class="chip-label">Gelar Tertinggi:</span>
+                <span class="chip-val text-white" id="pbRankVal">-</span>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="custom-table" id="typingHistoryTable">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">No</th>
+                    <th>Waktu / Tanggal</th>
+                    <th>Mobil</th>
+                    <th>Kategori / Bahasa</th>
+                    <th>WPM</th>
+                    <th>Akurasi</th>
+                    <th>Top Speed</th>
+                    <th>Karakter (B/S)</th>
+                    <th>Gelar Pembalap</th>
+                  </tr>
+                </thead>
+                <tbody id="typingHistoryTableBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- ==================== ADMIN EXCLUSIVE: TEAM TYPING LEADERBOARD & MONITORING ==================== -->
+          <div class="typing-admin-card glass-panel mt-4 hidden" id="adminTypingSection">
+            <div class="admin-section-header">
+              <div class="section-title-wrapper">
+                <div class="icon-bubble bg-red-gradient">
+                  <i class="fa-solid fa-users-viewfinder"></i>
+                </div>
+                <div>
+                  <div class="badge-title-group">
+                    <h3 class="section-title">Leaderboard &amp; Monitoring Typing Test Tim</h3>
+                    <span class="badge badge-admin-exclusive"><i class="fa-solid fa-lock"></i> Khusus Admin</span>
+                  </div>
+                  <p class="section-subtitle">Pantau seluruh pengguna yang telah menyelesaikan typing test, evaluasi rekor terbaik masing-masing pengguna, dan kelola riwayat tim.</p>
+                </div>
+              </div>
+              <div class="admin-header-actions">
+                <button type="button" class="btn btn-sm btn-outline-red" id="btnAdminResetAllTyping" title="Hapus seluruh riwayat typing test tim">
+                  <i class="fa-solid fa-trash-can"></i>
+                  <span>Reset Semua Riwayat Tim</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Admin Overview KPI Chips -->
+            <div class="admin-kpi-grid mb-3">
+              <div class="admin-kpi-card">
+                <div class="kpi-icon-wrap text-blue"><i class="fa-solid fa-users"></i></div>
+                <div>
+                  <div class="kpi-label">Pengguna Berpartisipasi</div>
+                  <div class="kpi-value" id="adminTypingTotalParticipants">0 Pengguna</div>
+                </div>
+              </div>
+              <div class="admin-kpi-card">
+                <div class="kpi-icon-wrap text-red"><i class="fa-solid fa-crown"></i></div>
+                <div>
+                  <div class="kpi-label">Pembalap Tercepat (Top WPM)</div>
+                  <div class="kpi-value" id="adminTypingTopUser">-</div>
+                </div>
+              </div>
+              <div class="admin-kpi-card">
+                <div class="kpi-icon-wrap text-green"><i class="fa-solid fa-bullseye"></i></div>
+                <div>
+                  <div class="kpi-label">Rata-rata Akurasi Tim</div>
+                  <div class="kpi-value" id="adminTypingAvgAccuracy">0%</div>
+                </div>
+              </div>
+              <div class="admin-kpi-card">
+                <div class="kpi-icon-wrap text-yellow"><i class="fa-solid fa-flag-checkered"></i></div>
+                <div>
+                  <div class="kpi-label">Total Sesi Balapan</div>
+                  <div class="kpi-value" id="adminTypingTotalRuns">0 Balapan</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Admin Search & Filter Toolbar -->
+            <div class="table-toolbar p-0 mb-3" style="background:transparent; border:none;">
+              <div class="toolbar-search">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" id="searchAdminTypingUser" class="search-input" placeholder="Cari nama pengguna, username, atau layanan CSO...">
+              </div>
+              <div class="toolbar-filters">
+                <div class="filter-group">
+                  <label for="filterAdminTypingRank"><i class="fa-solid fa-trophy text-yellow"></i> Gelar:</label>
+                  <select id="filterAdminTypingRank" class="filter-select">
+                    <option value="ALL">Semua Gelar</option>
+                    <option value="HOT WHEELS HYPER SONIC">Hot Wheels Hyper Sonic</option>
+                    <option value="MASTER SIRKUIT PRO">Master Sirkuit Pro</option>
+                    <option value="PEMBALAP TERAMPIL">Pembalap Terampil</option>
+                    <option value="PENGEMUDI HANDAL">Pengemudi Handal</option>
+                    <option value="PENGEMUDI KOTA">Pengemudi Kota</option>
+                    <option value="PENGEMUDI PEMULA">Pengemudi Pemula</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Leaderboard Table of All Users -->
+            <div class="table-responsive">
+              <table class="custom-table" id="adminTypingLeaderboardTable">
+                <thead>
+                  <tr>
+                    <th style="width: 50px;">Pos</th>
+                    <th>Pengguna</th>
+                    <th>Layanan CSO</th>
+                    <th>Mobil Favorit</th>
+                    <th>WPM Terbaik</th>
+                    <th>Akurasi Terbaik</th>
+                    <th>Top Speed</th>
+                    <th>Total Balapan</th>
+                    <th>Gelar Pembalap</th>
+                    <th>Terakhir Balapan</th>
+                    <th style="text-align: center; width: 140px;">Aksi Admin</th>
+                  </tr>
+                </thead>
+                <tbody id="adminTypingLeaderboardBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
             </div>
 
           </div>
@@ -3117,6 +4083,293 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: FORM INPUT / EDIT HANDLING TIME USER (AHT) ==================== -->
+  <div class="modal-backdrop hidden" id="modalAhtForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-stopwatch"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalAhtTitle">Input Handling Time Harian (AHT)</h3>
+            <p class="modal-subtitle" id="modalAhtSubtitle">Pencatatan durasi rata-rata penanganan interaksi user harian terhadap target SLA 300 detik</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseAhtModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formAht" novalidate>
+        <input type="hidden" id="formAhtId" value="">
+
+        <div class="modal-body">
+          <!-- Information Callout regarding SLA Standard -->
+          <div class="form-info-callout" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <strong class="text-white"><i class="fa-solid fa-stopwatch text-red" style="margin-right:6px;"></i>Standar SLA AHT: &lt; 300 Detik (05:00 Menit)</strong>
+              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Durasi penanganan &le; 300 detik dinyatakan Sesuai SLA, di atas 300 detik Over SLA.</div>
+            </div>
+            <span class="badge badge-red-subtle"><i class="fa-regular fa-calendar-check text-red"></i> Interval Input Per Hari</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formAhtDate" class="form-label">
+                Tanggal Input Harian <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-regular fa-calendar input-icon"></i>
+                <input type="date" id="formAhtDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formAhtUserSelect" class="form-label">
+                Petugas CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <select id="formAhtUserSelect" class="form-control" required>
+                  <!-- Populated dynamically with users -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formAhtDept" class="form-label">
+                Layanan CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-headset input-icon"></i>
+                <select id="formAhtDept" class="form-control" required>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formAhtInteractionCount" class="form-label">
+                Jumlah Interaksi Ditangani <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-comments input-icon"></i>
+                <input type="number" id="formAhtInteractionCount" class="form-control" min="1" max="500" value="45" required>
+              </div>
+              <small class="form-hint">Jumlah panggilan/chat/tiket yang ditangani pada hari ini</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label class="form-label">
+                Rata-rata Durasi AHT (Menit &amp; Detik) <span class="required">*</span>
+              </label>
+              <div style="display:flex; gap:8px; align-items:center;">
+                <div class="input-with-icon" style="flex:1;">
+                  <i class="fa-solid fa-clock input-icon"></i>
+                  <input type="number" id="formAhtDurationMins" class="form-control" min="0" max="59" value="3" placeholder="Menit" required>
+                </div>
+                <span style="font-weight:700; color:var(--gray-300);">:</span>
+                <div class="input-with-icon" style="flex:1;">
+                  <i class="fa-solid fa-stopwatch input-icon"></i>
+                  <input type="number" id="formAhtDurationSecs" class="form-control" min="0" max="59" value="40" placeholder="Detik" required>
+                </div>
+              </div>
+              <small class="form-hint" id="formAhtDurationPreview">Durasi: 03:40 (220 detik) • Deviasi: -80 dtk (Sesuai SLA)</small>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formAhtTargetSecs" class="form-label">
+                Target Standar SLA (Detik) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-bullseye input-icon"></i>
+                <input type="number" id="formAhtTargetSecs" class="form-control" min="30" max="1800" value="300" required>
+              </div>
+              <small class="form-hint">Standar default: 300 detik (05:00 Menit)</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formAhtNotes" class="form-label">Catatan &amp; Evaluasi Kinerja Harian</label>
+            <textarea id="formAhtNotes" class="form-control" rows="3" placeholder="Uraian penanganan kendala pelanggan, kompleksitas kendala teknis, atau catatan evaluasi SLA..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelAhtModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitAht">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnSubmitAhtText">Simpan Handling Time</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: FORM INPUT / EDIT RESPONSE TIME USER (ART) ==================== -->
+  <div class="modal-backdrop hidden" id="modalArtForm">
+    <div class="modal-dialog glass-panel">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-bolt-lightning"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalArtTitle">Input Response Time Harian (ART)</h3>
+            <p class="modal-subtitle" id="modalArtSubtitle">Pencatatan kecepatan rata-rata respon interaksi user harian terhadap target SLA 30 detik</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseArtModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <form id="formArt" novalidate>
+        <input type="hidden" id="formArtId" value="">
+
+        <div class="modal-body">
+          <!-- Information Callout regarding SLA Standard -->
+          <div class="form-info-callout" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <strong class="text-white"><i class="fa-solid fa-bolt-lightning text-red" style="margin-right:6px;"></i>Standar SLA ART: &lt; 30 Detik</strong>
+              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Waktu respon rata-rata &le; 30 detik dinyatakan Sesuai SLA, di atas 30 detik Over SLA.</div>
+            </div>
+            <span class="badge badge-red-subtle"><i class="fa-regular fa-calendar-check text-red"></i> Interval Input Per Hari</span>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formArtDate" class="form-label">
+                Tanggal Input Harian <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-regular fa-calendar input-icon"></i>
+                <input type="date" id="formArtDate" class="form-control" required>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formArtUserSelect" class="form-label">
+                Petugas CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <select id="formArtUserSelect" class="form-control" required>
+                  <!-- Populated dynamically with users -->
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formArtDept" class="form-label">
+                Channel / Layanan CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-headset input-icon"></i>
+                <select id="formArtDept" class="form-control" required>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formArtInteractionCount" class="form-label">
+                Jumlah Sesi Terlayani <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-comments input-icon"></i>
+                <input type="number" id="formArtInteractionCount" class="form-control" min="1" max="500" value="50" required>
+              </div>
+              <small class="form-hint">Jumlah interaksi/chat yang ditangani pada hari ini</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formArtQueueSecs" class="form-label">
+                Waktu Antrian (Queue Time) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-hourglass-start input-icon"></i>
+                <input type="number" step="0.1" id="formArtQueueSecs" class="form-control" min="0" max="300" value="5.5" required>
+              </div>
+              <small class="form-hint">Rata-rata waktu tunggu pelanggan dalam antrian (detik)</small>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formArtFrtSecs" class="form-label">
+                Respon Pertama (FRT) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-reply input-icon"></i>
+                <input type="number" step="0.1" id="formArtFrtSecs" class="form-control" min="0" max="300" value="8.2" required>
+              </div>
+              <small class="form-hint">Kecepatan waktu sapaan pertama agen (detik)</small>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="formArtResponseSecs" class="form-label">
+                Rata-rata ART (Detik) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-stopwatch input-icon"></i>
+                <input type="number" step="0.1" id="formArtResponseSecs" class="form-control" min="0.1" max="300" value="14.8" required>
+              </div>
+              <small class="form-hint" id="formArtResponsePreview">Respon: 14.8s • Deviasi: -15.2 dtk (Sesuai SLA)</small>
+            </div>
+
+            <div class="form-group flex-1">
+              <label for="formArtTargetSecs" class="form-label">
+                Target Standar SLA (Detik) <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-bullseye input-icon"></i>
+                <input type="number" id="formArtTargetSecs" class="form-control" min="5" max="300" value="30" required>
+              </div>
+              <small class="form-hint">Standar baku ART: 30 detik</small>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="formArtNotes" class="form-label">Catatan &amp; Evaluasi Kecepatan Respon Harian</label>
+            <textarea id="formArtNotes" class="form-control" rows="3" placeholder="Uraian kondisi antrian chat, penanganan lonjakan trafik, kendala jaringan, atau catatan evaluasi respon..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelArtModal">Batal</button>
+          <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitArt">
+            <i class="fa-solid fa-floppy-disk"></i>
+            <span id="btnSubmitArtText">Simpan Response Time</span>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- ==================== MODAL 12: FORM CATAT TEMUAN QA (FINDING) ==================== -->
   <div class="modal-backdrop hidden" id="modalFindingForm">
     <div class="modal-dialog glass-panel">
@@ -3199,6 +4452,200 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: REKAPITULASI HASIL TYPING TEST ==================== -->
+  <div class="modal-backdrop hidden" id="modalTypingResult" role="dialog" aria-modal="true" aria-labelledby="modalTypingTitle">
+    <div class="modal-dialog modal-lg glass-panel result-modal-dialog">
+      
+      <!-- Modal Header with Checkered Flag & Finish Theme -->
+      <div class="modal-header result-modal-header">
+        <div class="result-header-title-block">
+          <div class="icon-bubble bg-red-gradient">
+            <i class="fa-solid fa-flag-checkered"></i>
+          </div>
+          <div>
+            <h3 class="modal-title" id="modalTypingTitle">Balapan Selesai! Rekapitulasi 60 Detik</h3>
+            <p class="modal-subtitle">Waktu 60 detik telah habis. Berikut rekapitulasi performa dan kecepatan mengetik Anda!</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal" id="btnCloseTypingResultModal" aria-label="Tutup Rekapitulasi">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body result-modal-body">
+        
+        <!-- New Record Banner (shown if beaten) -->
+        <div class="new-record-banner hidden" id="newRecordBanner">
+          <i class="fa-solid fa-crown text-yellow"></i>
+          <span>SELAMAT! ANDA MENCAPAI REKOR PRIBADI BARU (PERSONAL BEST)!</span>
+        </div>
+
+        <!-- Official Driver Title Notification Banner (DRIVER / DRIVER KING) -->
+        <div class="driver-notif-banner" id="driverNotifBanner">
+          <!-- Rendered dynamically -->
+        </div>
+
+        <!-- Grand Driver Rank Trophy Card -->
+        <div class="driver-rank-card" id="driverRankCard">
+          <div class="rank-trophy-icon" id="rankTrophyIcon">
+            <i class="fa-solid fa-trophy"></i>
+          </div>
+          <div class="rank-info-block">
+            <div class="rank-label-sub">GELAR PEMBALAP ANDA</div>
+            <div class="rank-title-big" id="resultRankTitle">PEMBALAP TERAMPIL</div>
+            <p class="rank-description" id="resultRankDesc">Laju konsisten di kecepatan tinggi dengan akurasi prima di sirkuit DRIVE!</p>
+          </div>
+        </div>
+
+        <!-- 4 Key Result Badges -->
+        <div class="result-stats-grid">
+          <div class="result-stat-box">
+            <div class="result-box-icon text-red"><i class="fa-solid fa-gauge-high"></i></div>
+            <div class="result-box-value" id="resultNetWpm">0</div>
+            <div class="result-box-label">WPM Bersih</div>
+            <div class="result-box-sub" id="resultGrossWpm">Gross: 0 WPM</div>
+          </div>
+
+          <div class="result-stat-box">
+            <div class="result-box-icon text-yellow"><i class="fa-solid fa-tachograph-digital"></i></div>
+            <div class="result-box-value"><span id="resultTopSpeed">0</span> <small style="font-size: 0.5em;">KM/H</small></div>
+            <div class="result-box-label">Kecepatan Maksimal</div>
+            <div class="result-box-sub" id="resultAvgSpeed">Rata-rata: 0 KM/H</div>
+          </div>
+
+          <div class="result-stat-box">
+            <div class="result-box-icon text-green"><i class="fa-solid fa-bullseye"></i></div>
+            <div class="result-box-value"><span id="resultAccuracy">0</span><small style="font-size: 0.5em;">%</small></div>
+            <div class="result-box-label">Akurasi Ketik</div>
+            <div class="result-box-sub" id="resultAccuracySub">Akurasi Sempurna</div>
+          </div>
+
+          <div class="result-stat-box">
+            <div class="result-box-icon text-blue"><i class="fa-solid fa-font"></i></div>
+            <div class="result-box-value" id="resultTotalChars">0</div>
+            <div class="result-box-label">Karakter Dipencet</div>
+            <div class="result-box-sub" id="resultCharsSub">0 Benar / 0 Salah</div>
+          </div>
+        </div>
+
+        <!-- Detailed Breakdown Grid -->
+        <div class="result-details-grid">
+          <div class="result-detail-item">
+            <span class="detail-label"><i class="fa-solid fa-check-double text-green"></i> Kata Benar</span>
+            <strong class="detail-value text-green" id="resultCorrectWords">0 Kata</strong>
+          </div>
+          <div class="result-detail-item">
+            <span class="detail-label"><i class="fa-solid fa-circle-xmark text-red"></i> Kata Salah (Typo)</span>
+            <strong class="detail-value text-red" id="resultWrongWords">0 Kata</strong>
+          </div>
+          <div class="result-detail-item">
+            <span class="detail-label"><i class="fa-solid fa-route text-yellow"></i> Jarak Ditempuh</span>
+            <strong class="detail-value" id="resultDistance">0 meter</strong>
+          </div>
+          <div class="result-detail-item">
+            <span class="detail-label"><i class="fa-solid fa-fire text-red"></i> Combo Terpanjang</span>
+            <strong class="detail-value text-yellow" id="resultMaxStreak">0x Beruntun</strong>
+          </div>
+        </div>
+
+        <!-- Speed Progression Chart (Chart.js WPM Curve) -->
+        <div class="result-chart-block">
+          <div class="chart-block-header">
+            <div class="chart-header-left">
+              <i class="fa-solid fa-chart-line text-red"></i>
+              <span>Kurva Akselerasi &amp; Kecepatan (WPM per 5 Detik)</span>
+            </div>
+            <span class="badge badge-neutral">Interval 5s &bull; Total 60s</span>
+          </div>
+          <div class="result-chart-container" style="position: relative; height: 180px; width: 100%;">
+            <canvas id="typingResultChart"></canvas>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="modal-footer result-modal-footer">
+        <button type="button" class="btn btn-outline-gray" id="btnCopyTypingResult">
+          <i class="fa-regular fa-copy"></i>
+          <span>Salin Rekapitulasi</span>
+        </button>
+        <button type="button" class="btn btn-outline-gray" id="btnCloseTypingResultBtn">
+          <span>Tutup</span>
+        </button>
+        <button type="button" class="btn btn-primary glow-effect-red" id="btnTypingPlayAgain">
+          <i class="fa-solid fa-flag-checkered"></i>
+          <span>Balapan Lagi (60 Detik)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: ADMIN DETAIL RIWAYAT USER TYPING TEST ==================== -->
+  <div class="modal-backdrop hidden" id="modalAdminUserTypingDetail" role="dialog" aria-modal="true" aria-labelledby="modalAdminUserTypingTitle">
+    <div class="modal-dialog modal-lg glass-panel">
+      <div class="modal-header">
+        <div class="user-detail-header-left" style="display:flex; align-items:center; gap:0.85rem;">
+          <img id="adminDetailUserAvatar" src="" alt="Avatar" class="avatar-sm" style="width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--red-primary); object-fit: cover;">
+          <div>
+            <h3 class="modal-title" id="modalAdminUserTypingTitle">Detail Riwayat: <span id="adminDetailUserName">-</span></h3>
+            <p class="modal-subtitle" id="adminDetailUserSubtitle">Rekapitulasi seluruh sesi latihan mengetik 60 detik pengguna ini</p>
+          </div>
+        </div>
+        <button type="button" class="btn-close-modal" id="btnCloseAdminUserTypingDetail" aria-label="Tutup">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="records-summary-row mb-3">
+          <div class="record-summary-chip">
+            <span class="chip-label">WPM Terbaik:</span>
+            <span class="chip-val text-red" id="adminDetailTopWpm">0 WPM</span>
+          </div>
+          <div class="record-summary-chip">
+            <span class="chip-label">Akurasi Terbaik:</span>
+            <span class="chip-val text-green" id="adminDetailTopAcc">0%</span>
+          </div>
+          <div class="record-summary-chip">
+            <span class="chip-label">Top Speed:</span>
+            <span class="chip-val text-yellow" id="adminDetailTopSpeed">0 KM/H</span>
+          </div>
+          <div class="record-summary-chip">
+            <span class="chip-label">Total Balapan:</span>
+            <span class="chip-val text-white" id="adminDetailTotalRuns">0</span>
+          </div>
+        </div>
+        <div class="table-responsive" style="max-height: 320px; overflow-y: auto;">
+          <table class="custom-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">No</th>
+                <th>Tanggal</th>
+                <th>Mobil</th>
+                <th>Kategori</th>
+                <th>WPM</th>
+                <th>Akurasi</th>
+                <th>Top Speed</th>
+                <th>Gelar</th>
+                <th style="text-align: center;">Aksi</th>
+              </tr>
+            </thead>
+            <tbody id="adminDetailUserTableBody">
+              <!-- Rendered dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
+        <button type="button" class="btn btn-outline-red" id="btnAdminDeleteSelectedUserHistory">
+          <i class="fa-solid fa-trash-can"></i> Hapus Seluruh Riwayat Pengguna Ini
+        </button>
+        <button type="button" class="btn btn-outline-gray" id="btnCloseAdminDetailFooterBtn">Tutup</button>
+      </div>
     </div>
   </div>
 
