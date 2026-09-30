@@ -13184,22 +13184,8 @@ function handleSelectQuizOption(choice) {
   });
 
   const feedbackBox = document.getElementById('quizFeedbackBox');
-  const feedbackBadge = document.getElementById('quizFeedbackBadge');
-  const feedbackDamage = document.getElementById('quizFeedbackDamage');
-  const feedbackExplanation = document.getElementById('quizFeedbackExplanation');
   const btnNext = document.getElementById('btnNextQuestion');
 
-  if (feedbackBadge) {
-    feedbackBadge.className = isCorrect ? 'feedback-badge feedback-badge-success' : 'feedback-badge feedback-badge-danger';
-    feedbackBadge.innerHTML = isCorrect ? '<i class="fa-solid fa-circle-check"></i> Jawaban Tepat!' : '<i class="fa-solid fa-circle-xmark"></i> Jawaban Kurang Tepat';
-  }
-  if (feedbackDamage) {
-    feedbackDamage.className = isCorrect ? 'feedback-damage-text text-green' : 'feedback-damage-text text-red';
-    feedbackDamage.textContent = isCorrect ? `+${pointsPerQuestion} Poin Serangan • Combo ${quizState.streak}x` : `Kunci Jawaban: Pilihan ${q.correctAnswer}`;
-  }
-  if (feedbackExplanation) {
-    feedbackExplanation.textContent = q.explanation || 'Materi ini merupakan bagian dari standar mutu pelayanan ICONNET.';
-  }
   if (btnNext) {
     const isLast = (curr + 1 >= total);
     btnNext.innerHTML = isLast ? 
@@ -13212,19 +13198,6 @@ function handleSelectQuizOption(choice) {
   const streakText = document.getElementById('quizStreakText');
   if (liveScoreText) liveScoreText.textContent = `${quizState.score} Poin`;
   if (streakText) streakText.textContent = `${quizState.streak}x`;
-
-  // Begitu selesai mengerjakan seluruh soal, otomatis keluarkan animasi special sesuai ketentuan nilai
-  if (curr + 1 >= total) {
-    setTimeout(() => {
-      const modal = document.getElementById('modalQuizResult');
-      const overlay = document.getElementById('quizSpecialAnimOverlay');
-      if (modal && modal.classList.contains('hidden') && 
-          overlay && overlay.classList.contains('hidden') && 
-          quizState.answered && quizState.currentIndex + 1 >= total) {
-        triggerQuizFinishWithSpecialAnim();
-      }
-    }, 1400);
-  }
 }
 
 function nextQuizQuestion() {
