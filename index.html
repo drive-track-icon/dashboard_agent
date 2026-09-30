@@ -1026,84 +1026,198 @@
           </div>
         </section>
 
-        <!-- ==================== PAGE TIKET: MANAJEMEN TIKET LAYANAN ==================== -->
+        <!-- ==================== PAGE TIKET: PEROLEHAN TIKET USER (TARGET 1.320 / BULAN) ==================== -->
         <section class="page-section" id="pageTiket">
           <div class="page-title-bar">
             <div>
               <div class="badge-title-group">
-                <h2 class="page-title">Manajemen &amp; Pelacakan Tiket</h2>
-                <span class="badge badge-red-subtle"><i class="fa-solid fa-ticket"></i> Service Desk</span>
+                <h2 class="page-title">Perolehan Tiket User (Target: 1.320 / Bulan)</h2>
+                <span class="badge badge-red-subtle"><i class="fa-solid fa-bullseye"></i> Target: 1.320 Tiket/Bulan</span>
+                <span class="badge badge-gray" id="tiketIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Monitoring antrian tiket gangguan jaringan Iconnet, eskalasi permohonan layanan, dan SLA penanganan pelanggan.</p>
+              <p class="page-desc">Informasi akumulasi jumlah perolehan tiket seluruh user dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket. Admin dapat menambah, mengubah, dan menghapus perolehan tiket. Pengguna biasa hanya dapat melihat.</p>
             </div>
             <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterTiketMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterTiketMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
               <button class="btn btn-outline-gray" id="btnRefreshTiket">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
               </button>
+              <button class="btn btn-outline-red" id="btnDeleteAllTiketMonth" title="Hapus seluruh data perolehan tiket di bulan terpilih">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <span>Hapus Data Bulan Ini</span>
+              </button>
               <button class="btn btn-primary glow-effect-red" id="btnOpenAddTiketModal">
                 <i class="fa-solid fa-plus"></i>
-                <span>Buat Tiket Baru</span>
+                <span>Input Perolehan Tiket</span>
               </button>
+            </div>
+          </div>
+
+          <!-- Permission Explanatory Banner for Tiket -->
+          <div class="permission-status-banner glass-subpanel" id="tiketPermissionBanner">
+            <div class="status-banner-left">
+              <i class="fa-solid fa-shield-halved text-red"></i>
+              <div>
+                <strong id="tiketBannerRoleLabel">Otoritas Akses Perolehan Tiket: Administrator Penuh</strong>
+                <p id="tiketBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh user. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat.</p>
+              </div>
+            </div>
+            <div class="status-banner-right">
+              <span class="badge badge-admin" id="tiketBannerBadgePrivilege">Akses Penuh (CRUD)</span>
             </div>
           </div>
 
           <!-- Metric Cards Grid for Tiket -->
           <div class="metrics-grid">
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="tiketCardTotalTickets">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-gradient">
-                  <i class="fa-solid fa-layer-group text-white"></i>
+                  <i class="fa-solid fa-ticket text-white"></i>
                 </div>
-                <span class="metric-tag tag-red">Hari Ini</span>
+                <span class="metric-tag tag-red">Realisasi Tim</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Total Tiket Masuk</span>
-                <h3 class="metric-value text-red" id="tiketStatTotal">142</h3>
-                <span class="metric-subtext">Dari seluruh channel CSO</span>
+                <span class="metric-label">Total Perolehan Tim Bulan Ini</span>
+                <h3 class="metric-value text-red" id="tiketStatTotalTickets">5.248 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket</small></h3>
+                <span class="metric-subtext" id="tiketStatTotalTicketsSub">Akumulasi seluruh user di bulan ini</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="tiketCardMonthlyTarget">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-spinner text-yellow"></i>
+                  <i class="fa-solid fa-bullseye text-red"></i>
                 </div>
-                <span class="metric-tag tag-yellow">Dalam Proses</span>
+                <span class="metric-tag tag-green">Target Baku</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Tiket Open &amp; In Progress</span>
-                <h3 class="metric-value text-yellow" id="tiketStatOpen">24</h3>
-                <span class="metric-subtext">Menunggu tindak lanjut teknis</span>
+                <span class="metric-label">Target Bulanan Per User</span>
+                <h3 class="metric-value text-white" id="tiketStatMonthlyTarget">1.320 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket / User</small></h3>
+                <span class="metric-subtext">Standar ~60 tiket per hari kerja</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover">
+            <div class="metric-card glass-panel card-hover" id="tiketCardTopUser">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-circle-check text-green"></i>
+                  <i class="fa-solid fa-trophy text-yellow"></i>
                 </div>
-                <span class="metric-tag tag-green">Closed</span>
+                <span class="metric-tag tag-yellow">Top Performer</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Tiket Selesai (Closed)</span>
-                <h3 class="metric-value text-green" id="tiketStatClosed">118</h3>
-                <span class="metric-subtext">Tuntas terselesaikan hari ini</span>
+                <span class="metric-label">User Perolehan Terbanyak</span>
+                <h3 class="metric-value text-yellow" id="tiketStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <span class="metric-subtext" id="tiketStatTopUserSub">Capaian tiket tertinggi bulan ini</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover border-red-subtle">
+            <div class="metric-card glass-panel card-hover border-red-subtle" id="tiketCardDailyAvg">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-subtle">
-                  <i class="fa-solid fa-shield-halved text-red"></i>
+                  <i class="fa-solid fa-chart-line text-green"></i>
                 </div>
-                <span class="metric-tag tag-green">Target 95%</span>
+                <span class="metric-tag tag-green" id="tiketStatSlaTag">Standar: ~60/Hari</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Pencapaian SLA Penyelesaian</span>
-                <h3 class="metric-value text-silver" id="tiketStatSla">96.2%</h3>
-                <span class="metric-subtext">Penyelesaian tepat waktu</span>
+                <span class="metric-label">Rata-rata Perolehan Tim</span>
+                <h3 class="metric-value text-green" id="tiketStatDailyAvg">60,2 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket/Hari</small></h3>
+                <span class="metric-subtext" id="tiketStatDailyAvgSub">Performa harian menuju target 1.320</span>
               </div>
+            </div>
+          </div>
+
+          <!-- Section 1: Rekapitulasi Perolehan Tiket Seluruh User dalam 1 Bulan -->
+          <div class="table-container glass-panel" id="tiketUserSummarySection" style="margin-bottom: 24px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
+              <div>
+                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                  <i class="fa-solid fa-users-viewfinder text-red"></i>
+                  <span>Rekapitulasi Perolehan Tiket Seluruh Agent Periode <span id="tiketMonthHeaderLabel" class="text-red">September 2026</span></span>
+                </h3>
+                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.</p>
+              </div>
+              <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <!-- Filter Nama User / Agent -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterSummaryTiketUser" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-user text-red" style="margin-right:4px;"></i>Nama User:
+                  </label>
+                  <select id="filterSummaryTiketUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="ALL">Semua Nama User</option>
+                    <!-- Populated dynamically with users -->
+                  </select>
+                </div>
+
+                <!-- Filter Layanan -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterSummaryTiketService" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>Layanan:
+                  </label>
+                  <select id="filterSummaryTiketService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="ALL">Semua Layanan</option>
+                    <option value="CSO INBOUND">CSO INBOUND</option>
+                    <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                    <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                    <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                    <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                    <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                    <option value="CSO EMAIL">CSO EMAIL</option>
+                    <option value="TEAM LEADER">TEAM LEADER</option>
+                  </select>
+                </div>
+
+                <!-- Urutkan -->
+                <div style="display:inline-flex; align-items:center; gap:6px;">
+                  <label for="filterTiketSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                    <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Urutkan:
+                  </label>
+                  <select id="filterTiketSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
+                    <option value="DESC" selected>Perolehan Terbanyak</option>
+                    <option value="ASC">Perolehan Terendah</option>
+                  </select>
+                </div>
+                <span class="badge badge-gray" id="tiketUserCountBadge">4 Agent Terdaftar</span>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="custom-table" id="tableTiketUserSummary">
+                <thead>
+                  <tr>
+                    <th>Petugas CSO</th>
+                    <th>Layanan CSO</th>
+                    <th style="text-align: center;">Hari Input</th>
+                    <th style="text-align: center;">Target Bulanan</th>
+                    <th style="text-align: right;">Total Perolehan</th>
+                    <th style="text-align: center; min-width: 170px;">Kekurangan Target Tiket</th>
+                    <th style="text-align: center;">Rata-rata / Hari</th>
+                    <th style="text-align: center;">Selisih Target</th>
+                    <th style="text-align: center;">Status Target</th>
+                    <th style="text-align: center; width: 100px;">Aksi</th>
+                  </tr>
+                </thead>
+                <tbody id="tiketUserSummaryBody">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Section 2: Rincian Log Perolehan Harian (Interval Input Per Hari) -->
+          <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
+            <div>
+              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+                <i class="fa-solid fa-calendar-check text-red"></i>
+                <span>Log Perolehan Tiket Harian (Interval Per Hari)</span>
+              </h3>
+              <p style="font-size: 0.8rem; color: var(--gray-400);" id="tiketDailySubtitle">Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1111,12 +1225,16 @@
           <div class="table-toolbar glass-panel">
             <div class="toolbar-search">
               <i class="fa-solid fa-magnifying-glass search-icon"></i>
-              <input type="text" id="searchTiketInput" class="search-input" placeholder="Cari nomor tiket, ID pelanggan, keluhan, atau nama...">
+              <input type="text" id="searchTiketInput" class="search-input" placeholder="Cari nama user, tanggal (YYYY-MM-DD), kategori tiket, layanan, atau catatan...">
               <button class="btn-clear-search hidden" id="btnClearSearchTiket" aria-label="Bersihkan pencarian">
                 <i class="fa-solid fa-xmark"></i>
               </button>
             </div>
             <div class="toolbar-filters">
+              <select id="filterTiketUserSelect" class="filter-select">
+                <option value="ALL">Semua User</option>
+                <!-- Populated dynamically -->
+              </select>
               <select id="filterTiketService" class="filter-select">
                 <option value="ALL">Semua Layanan CSO</option>
                 <option value="CSO INBOUND">CSO INBOUND</option>
@@ -1128,18 +1246,15 @@
                 <option value="CSO EMAIL">CSO EMAIL</option>
                 <option value="TEAM LEADER">TEAM LEADER</option>
               </select>
-              <select id="filterTiketStatus" class="filter-select">
-                <option value="ALL">Semua Status Tiket</option>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Pending Vendor">Pending Vendor</option>
-                <option value="Closed">Closed</option>
+              <select id="filterTiketGrade" class="filter-select">
+                <option value="ALL">Semua Target Harian</option>
+                <option value="Tercapai">Capaian Harian &ge; 60 Tiket</option>
+                <option value="Di Bawah Target">Capaian Harian &lt; 60 Tiket</option>
               </select>
-              <select id="filterTiketPriority" class="filter-select">
-                <option value="ALL">Semua Prioritas</option>
-                <option value="Darurat / High">Darurat / High</option>
-                <option value="Medium">Medium</option>
-                <option value="Low">Low</option>
+              <select id="filterTiketScoreSort" class="filter-select">
+                <option value="DATE_DESC" selected>Urutan: Tanggal Terbaru</option>
+                <option value="SCORE_DESC">Perolehan Terbanyak</option>
+                <option value="SCORE_ASC">Perolehan Terendah</option>
               </select>
               <button class="btn btn-outline-gray btn-sm" id="btnResetTiketFilters" title="Reset Filter">
                 <i class="fa-solid fa-rotate-left"></i>
@@ -1147,21 +1262,44 @@
             </div>
           </div>
 
-          <!-- Table Container -->
+          <!-- Batch Actions Toolbar for Tiket (Admin Only) -->
+          <div class="ca-batch-bar tiket-batch-bar glass-panel hidden" id="tiketBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+                <i class="fa-solid fa-check-double text-red"></i> <span id="tiketSelectedCount">0</span> Data Ditandai
+              </span>
+              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data perolehan tiket harian untuk dikelola atau dihapus massal (Admin).</span>
+            </div>
+            <div style="display:flex; align-items:center; gap: 8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnTiketDeselectAll">
+                <i class="fa-solid fa-xmark"></i> <span>Batal Tandai</span>
+              </button>
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnTiketSelectAll">
+                <i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>
+              </button>
+              <button type="button" class="btn btn-danger btn-sm glow-effect-red" id="btnTiketDeleteSelected">
+                <i class="fa-solid fa-trash-can"></i> <span>Hapus Data Ditandai</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Table Container for Daily Logs -->
           <div class="table-container glass-panel">
             <div class="table-responsive">
               <table class="custom-table" id="tableTiketLogs">
                 <thead>
                   <tr>
-                    <th>No. Tiket</th>
-                    <th>Waktu Lapor</th>
-                    <th>Pelanggan</th>
-                    <th>Layanan CSO</th>
-                    <th>Kategori Kendala</th>
-                    <th>Prioritas SLA</th>
-                    <th>Status</th>
-                    <th>Petugas Handler</th>
-                    <th style="width: 120px; text-align: center;">Aksi</th>
+                    <th style="width: 44px; text-align: center;" id="tiketThSelectAll">
+                      <input type="checkbox" id="tiketSelectAllCheckbox" class="tiket-table-checkbox" title="Tandai Semua Data">
+                    </th>
+                    <th>Tanggal Input</th>
+                    <th>Petugas CSO</th>
+                    <th>Layanan</th>
+                    <th style="text-align: right;">Jumlah Tiket</th>
+                    <th style="text-align: center;">Kontribusi ke 1.320</th>
+                    <th style="text-align: center;">Status Harian</th>
+                    <th>Catatan Harian</th>
+                    <th style="width: 120px; text-align: center;" id="thTiketAction">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="tiketTableBody">
@@ -2877,7 +3015,7 @@
     </div>
   </div>
 
-  <!-- ==================== MODAL 11: FORM BUAT / EDIT TIKET ==================== -->
+  <!-- ==================== MODAL 11: FORM INPUT / EDIT PEROLEHAN TIKET ==================== -->
   <div class="modal-backdrop hidden" id="modalTiketForm">
     <div class="modal-dialog glass-panel">
       <div class="modal-header">
@@ -2886,8 +3024,8 @@
             <i class="fa-solid fa-ticket"></i>
           </div>
           <div>
-            <h3 class="modal-title" id="modalTiketTitle">Buat Tiket Layanan Baru</h3>
-            <p class="modal-subtitle">Pencatatan gangguan, permohonan layanan, dan eskalasi teknis pelanggan</p>
+            <h3 class="modal-title" id="modalTiketTitle">Input Perolehan Tiket Harian</h3>
+            <p class="modal-subtitle" id="modalTiketSubtitle">Pencatatan perolehan tiket harian seluruh user terhadap target bulanan 1.320 tiket</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseTiketModal" aria-label="Tutup Modal">
@@ -2899,81 +3037,72 @@
         <input type="hidden" id="formTiketId" value="">
 
         <div class="modal-body">
+          <!-- Information Callout regarding 1.320 Monthly Target -->
+          <div class="form-info-callout" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <div>
+              <strong class="text-white"><i class="fa-solid fa-bullseye text-red" style="margin-right:6px;"></i>Target Bulanan Per User: 1.320 Tiket</strong>
+              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Standar ritme harian: ~60 tiket per hari kerja (estimasi 22 hari kerja per bulan).</div>
+            </div>
+            <span class="badge badge-red-subtle"><i class="fa-solid fa-calendar-check text-red"></i> Interval Input Per Hari</span>
+          </div>
+
           <div class="form-row">
             <div class="form-group flex-1">
-              <label for="formTiketNumber" class="form-label">Nomor Tiket</label>
+              <label for="formTiketDate" class="form-label">
+                Tanggal Input Harian <span class="required">*</span>
+              </label>
               <div class="input-with-icon">
-                <i class="fa-solid fa-barcode input-icon"></i>
-                <input type="text" id="formTiketNumber" class="form-control" readonly>
+                <i class="fa-regular fa-calendar input-icon"></i>
+                <input type="date" id="formTiketDate" class="form-control" required>
               </div>
             </div>
 
             <div class="form-group flex-1">
-              <label for="formTiketCustomer" class="form-label">Nama Pelanggan &amp; ID <span class="required">*</span></label>
+              <label for="formTiketUserSelect" class="form-label">
+                Petugas CSO <span class="required">*</span>
+              </label>
               <div class="input-with-icon">
-                <i class="fa-solid fa-user input-icon"></i>
-                <input type="text" id="formTiketCustomer" class="form-control" placeholder="Contoh: PT Surya Kencana / ID: 108849" required>
+                <i class="fa-solid fa-user-tag input-icon"></i>
+                <select id="formTiketUserSelect" class="form-control" required>
+                  <!-- Populated dynamically with all registered users -->
+                </select>
               </div>
             </div>
           </div>
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label for="formTiketDept" class="form-label">Layanan CSO <span class="required">*</span></label>
-              <select id="formTiketDept" class="form-control" required>
-                <option value="CSO INBOUND">CSO INBOUND</option>
-                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
-                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
-                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
-                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
-                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
-                <option value="CSO EMAIL">CSO EMAIL</option>
-                <option value="TEAM LEADER">TEAM LEADER</option>
-              </select>
+              <label for="formTiketDept" class="form-label">
+                Layanan CSO <span class="required">*</span>
+              </label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-headset input-icon"></i>
+                <select id="formTiketDept" class="form-control" required>
+                  <option value="CSO INBOUND">CSO INBOUND</option>
+                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                  <option value="CSO EMAIL">CSO EMAIL</option>
+                  <option value="TEAM LEADER">TEAM LEADER</option>
+                </select>
+              </div>
             </div>
 
             <div class="form-group flex-1">
-              <label for="formTiketCategory" class="form-label">Kategori Kendala <span class="required">*</span></label>
-              <select id="formTiketCategory" class="form-control" required>
-                <option value="Gangguan Koneksi Internet">Gangguan Koneksi Internet</option>
-                <option value="Penurunan Bandwidth / Lambat">Penurunan Bandwidth / Lambat</option>
-                <option value="Permohonan Upgrade Paket">Permohonan Upgrade Paket</option>
-                <option value="Kendala Tagihan / Billing">Kendala Tagihan / Billing</option>
-                <option value="Aktivasi Pelanggan Baru">Aktivasi Pelanggan Baru</option>
-                <option value="Gangguan Router / Perangkat">Gangguan Router / Perangkat</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="formTiketPriorityVal" class="form-label">Prioritas SLA <span class="required">*</span></label>
-              <select id="formTiketPriorityVal" class="form-control" required>
-                <option value="Darurat / High">Darurat / High (SLA 2 Jam)</option>
-                <option value="Medium" selected>Medium (SLA 4 Jam)</option>
-                <option value="Low">Low (SLA 24 Jam)</option>
-              </select>
-            </div>
-
-            <div class="form-group flex-1">
-              <label for="formTiketStatusVal" class="form-label">Status Tiket <span class="required">*</span></label>
-              <select id="formTiketStatusVal" class="form-control" required>
-                <option value="Open">Open</option>
-                <option value="In Progress">In Progress</option>
-                <option value="Pending Vendor">Pending Vendor</option>
-                <option value="Closed">Closed</option>
-              </select>
+              <label for="formTiketCount" class="form-label">Jumlah Perolehan Tiket Harian <span class="required">*</span></label>
+              <div class="input-with-icon">
+                <i class="fa-solid fa-ticket input-icon"></i>
+                <input type="number" id="formTiketCount" class="form-control" min="1" max="500" value="60" required>
+              </div>
+              <small class="form-hint" id="formTiketCountHint">Standar harian ~60 tiket menuju target 1.320 tiket/bulan</small>
             </div>
           </div>
 
           <div class="form-group">
-            <label for="formTiketHandler" class="form-label">Petugas Penanggung Jawab (Handler)</label>
-            <input type="text" id="formTiketHandler" class="form-control" placeholder="Nama agen atau tim teknis">
-          </div>
-
-          <div class="form-group">
-            <label for="formTiketDesc" class="form-label">Rincian Keluhan &amp; Catatan Tindak Lanjut</label>
-            <textarea id="formTiketDesc" class="form-control" rows="3" placeholder="Tuliskan detail kronologi keluhan pelanggan atau tindakan yang telah diambil..."></textarea>
+            <label for="formTiketNotes" class="form-label">Catatan &amp; Uraian Kinerja Tiket Harian</label>
+            <textarea id="formTiketNotes" class="form-control" rows="3" placeholder="Tuliskan catatan tindak lanjut, eskalasi, kendala teknis, atau keterangan perolehan tiket harian..."></textarea>
           </div>
         </div>
 
@@ -2981,7 +3110,7 @@
           <button type="button" class="btn btn-outline-gray" id="btnCancelTiketModal">Batal</button>
           <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitTiket">
             <i class="fa-solid fa-floppy-disk"></i>
-            <span>Simpan Tiket</span>
+            <span id="btnSubmitTiketText">Simpan Perolehan Tiket</span>
           </button>
         </div>
       </form>

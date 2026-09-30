@@ -715,73 +715,132 @@ const DEFAULT_CA_LOGS = [
   }
 ];
 
-const DEFAULT_TIKETS = [
-  {
-    id: 'tkt_1',
-    ticketNumber: 'INC-20260928-001',
-    reportTime: '2026-09-28 08:15',
-    customerName: 'PT Nusantara Citra Mandiri (ID: 108420)',
-    department: 'CSO INBOUND',
-    category: 'Gangguan Koneksi Internet',
-    priority: 'Darurat / High',
-    status: 'In Progress',
-    handler: 'Budi Santoso',
-    desc: 'Indikator LOS merah pada modem ONT, koneksi fiber optik kantor pusat terputus. Teknisi dispatch OSP sedang menuju lokasi.',
-    createdAt: '2026-09-28 08:20'
-  },
-  {
-    id: 'tkt_2',
-    ticketNumber: 'INC-20260928-002',
-    reportTime: '2026-09-28 09:05',
-    customerName: 'Dra. Endang Sulistyowati (ID: 104712)',
-    department: 'CSO DIGILIVE CHAT - WA',
-    category: 'Kendala Tagihan / Billing',
-    priority: 'Medium',
-    status: 'Closed',
-    handler: 'Siti Rahma',
-    desc: 'Konfirmasi pembayaran paket Iconnet 50 Mbps via Virtual Account Bank Mandiri belum ter-update. Telah direkonsiliasi dan status aktif kembali.',
-    createdAt: '2026-09-28 09:35'
-  },
-  {
-    id: 'tkt_3',
-    ticketNumber: 'INC-20260928-003',
-    reportTime: '2026-09-28 10:20',
-    customerName: 'CV Mitra Abadi Semesta (ID: 109923)',
-    department: 'CSO BACK OFFICE',
-    category: 'Permohonan Upgrade Paket',
-    priority: 'Medium',
-    status: 'Open',
-    handler: 'Ahmad Fauzi',
-    desc: 'Permohonan peningkatan bandwidth dari 100 Mbps ke 300 Mbps Dedicated Internet. Berkas formulir upgrade sedang diverifikasi.',
-    createdAt: '2026-09-28 10:25'
-  },
-  {
-    id: 'tkt_4',
-    ticketNumber: 'INC-20260928-004',
-    reportTime: '2026-09-28 11:40',
-    customerName: 'Rian Pratama (ID: 102381)',
-    department: 'CSO DIGILIVE CHAT - MY ICON+',
-    category: 'Penurunan Bandwidth / Lambat',
-    priority: 'Low',
-    status: 'In Progress',
-    handler: 'Siti Rahma',
-    desc: 'Keluhan speedtest menunjukkan 15 Mbps dari langganan 35 Mbps. Dilakukan remote restart port OLT dan pengujian ulang.',
-    createdAt: '2026-09-28 11:45'
-  },
-  {
-    id: 'tkt_5',
-    ticketNumber: 'INC-20260928-005',
-    reportTime: '2026-09-28 13:10',
-    customerName: 'Gedung Graha Mandiri Lt. 5 (ID: 105504)',
-    department: 'CSO INBOUND',
-    category: 'Gangguan Router / Perangkat',
-    priority: 'Darurat / High',
-    status: 'Pending Vendor',
-    handler: 'Dewi Lestari',
-    desc: 'Adaptor router mikrotik terbakar setelah petir. Menunggu penggantian unit cadangan dari tim hardware vendor.',
-    createdAt: '2026-09-28 13:20'
-  }
-];
+const MONTHLY_TICKET_TARGET = 1320;
+
+function generateDefaultTiketLogs() {
+  const septWorkdays = [
+    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
+    '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11',
+    '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18',
+    '2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25',
+    '2026-09-28', '2026-09-29', '2026-09-30'
+  ];
+
+  const augWorkdays = [
+    '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07',
+    '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
+    '2026-08-18', '2026-08-19', '2026-08-20', '2026-08-21',
+    '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28',
+    '2026-08-31'
+  ];
+
+  const categories = [
+    'Gangguan Koneksi Internet',
+    'Penurunan Bandwidth / Lambat',
+    'Permohonan Upgrade Paket',
+    'Kendala Tagihan / Billing',
+    'Aktivasi Pelanggan Baru',
+    'Gangguan Router / Perangkat',
+    'Eskalasi Insiden Kritis'
+  ];
+
+  // September distribution per user (Target bulanan: 1.320 tiket):
+  // Siti Rahma (WA) -> target 1320, realisasi 1345 (+25 tiket, capaian 101.9%)
+  // Budi Santoso (INBOUND) -> target 1320, realisasi 1328 (+8 tiket, capaian 100.6%)
+  // Dewi Lestari (TEAM LEADER) -> target 1320, realisasi 1310 (-10 tiket, capaian 99.2%)
+  // Ahmad Fauzi (BACK OFFICE) -> target 1320, realisasi 1265 (-55 tiket, capaian 95.8%)
+  const sitiSept = [64, 60, 59, 64, 65, 57, 59, 63, 62, 60, 57, 65, 64, 58, 60, 62, 63, 59, 59, 63, 64, 58];
+  const budiSept = [61, 60, 62, 59, 62, 57, 61, 60, 63, 58, 61, 60, 62, 60, 59, 62, 61, 59, 62, 60, 62, 57];
+  const dewiSept = [58, 61, 59, 61, 57, 61, 58, 61, 59, 61, 58, 61, 58, 61, 59, 61, 57, 61, 58, 61, 59, 60];
+  const ahmadSept = [59, 56, 58, 55, 59, 56, 60, 55, 58, 56, 58, 57, 59, 56, 58, 55, 59, 56, 60, 55, 58, 62];
+
+  const usersConfig = [
+    {
+      name: 'Siti Rahma',
+      dept: 'CSO DIGILIVE CHAT - WA',
+      prefix: 'sr',
+      septCounts: sitiSept,
+      slaBase: 97.6,
+      noteBase: 'Penanganan perolehan tiket live chat WA tuntas sesuai SLA.'
+    },
+    {
+      name: 'Budi Santoso, S.Kom',
+      dept: 'CSO INBOUND',
+      prefix: 'bs',
+      septCounts: budiSept,
+      slaBase: 97.2,
+      noteBase: 'Pelayanan tiket komplain suara inbound & eskalasi teknis tertangani sigap.'
+    },
+    {
+      name: 'Dewi Lestari, M.T.',
+      dept: 'TEAM LEADER',
+      prefix: 'dl',
+      septCounts: dewiSept,
+      slaBase: 98.1,
+      noteBase: 'Monitoring eskalasi kendala kritis & penyelesaian tiket tier-2 lancar.'
+    },
+    {
+      name: 'Ahmad Fauzi',
+      dept: 'CSO BACK OFFICE',
+      prefix: 'af',
+      septCounts: ahmadSept,
+      slaBase: 95.8,
+      noteBase: 'Proses tiket verifikasi upgrade paket & rekonsiliasi data pelanggan selesai.'
+    }
+  ];
+
+  const list = [];
+
+  // Generate September 2026 logs (22 hari input)
+  septWorkdays.forEach((dateStr, dayIdx) => {
+    usersConfig.forEach((cfg, uIdx) => {
+      const count = cfg.septCounts[dayIdx];
+      const solved = count;
+      const sla = parseFloat((cfg.slaBase + ((dayIdx * 3 + uIdx * 7) % 20) / 10 - 0.8).toFixed(1));
+      const cat = categories[(dayIdx + uIdx * 2) % categories.length];
+
+      list.push({
+        id: `tkt_${cfg.prefix}_202609_${String(dayIdx + 1).padStart(2, '0')}`,
+        date: dateStr,
+        userFullName: cfg.name,
+        department: cfg.dept,
+        category: cat,
+        ticketCount: count,
+        solvedTickets: solved,
+        slaRate: sla,
+        notes: `${cfg.noteBase} Memperoleh ${count} tiket harian (Kepatuhan SLA ${sla}%).`,
+        createdAt: `${dateStr} 17:00`
+      });
+    });
+  });
+
+  // Generate August 2026 logs (20 hari input historis)
+  augWorkdays.forEach((dateStr, dayIdx) => {
+    usersConfig.forEach((cfg, uIdx) => {
+      const count = 62 + ((dayIdx * 3 + uIdx * 5) % 9) - 3;
+      const solved = count;
+      const sla = parseFloat((96.2 + ((dayIdx + uIdx) % 30) / 10).toFixed(1));
+      const cat = categories[(dayIdx + uIdx) % categories.length];
+
+      list.push({
+        id: `tkt_${cfg.prefix}_202608_${String(dayIdx + 1).padStart(2, '0')}`,
+        date: dateStr,
+        userFullName: cfg.name,
+        department: cfg.dept,
+        category: cat,
+        ticketCount: count,
+        solvedTickets: solved,
+        slaRate: sla,
+        notes: `Riwayat perolehan tiket harian bulan Agustus. Realisasi ${count} tiket.`,
+        createdAt: `${dateStr} 17:00`
+      });
+    });
+  });
+
+  return list;
+}
+
+const DEFAULT_TIKETS = generateDefaultTiketLogs();
 
 const DEFAULT_AHT_LOGS = [
   {
@@ -969,6 +1028,9 @@ class AppState {
     // Selected CA IDs for marking / batch actions
     this.selectedCaIds = new Set();
 
+    // Selected Tiket IDs for marking / batch actions
+    this.selectedTiketIds = new Set();
+
     // Chart instances
     this.monthlyChartInstance = null;
     this.categoryDonutInstance = null;
@@ -1022,6 +1084,12 @@ class AppState {
     const existingCa = JSON.parse(localStorage.getItem('vortex_ca_logs') || '[]');
     if (existingCa.length < 10 || !existingCa.some(l => typeof l.score === 'number' && !Number.isInteger(l.score))) {
       localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
+    }
+
+    // Auto-migrate or initialize Tiket logs with daily interval per user and 1.320 target
+    const existingTikets = JSON.parse(localStorage.getItem('vortex_tikets') || '[]');
+    if (existingTikets.length === 0 || !existingTikets[0].ticketCount || existingTikets.length < 20) {
+      localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
     }
 
     // Auto-migrate team department to CSO Layanan if necessary
@@ -1772,36 +1840,63 @@ const UI = {
   // Tiket Elements
   navTiket: document.getElementById('navTiket'),
   pageTiket: document.getElementById('pageTiket'),
+  tiketPermissionBanner: document.getElementById('tiketPermissionBanner'),
+  tiketBannerRoleLabel: document.getElementById('tiketBannerRoleLabel'),
+  tiketBannerRoleDesc: document.getElementById('tiketBannerRoleDesc'),
+  tiketBannerBadgePrivilege: document.getElementById('tiketBannerBadgePrivilege'),
   btnRefreshTiket: document.getElementById('btnRefreshTiket'),
+  btnDeleteAllTiketMonth: document.getElementById('btnDeleteAllTiketMonth'),
   btnOpenAddTiketModal: document.getElementById('btnOpenAddTiketModal'),
-  tiketStatTotal: document.getElementById('tiketStatTotal'),
-  tiketStatOpen: document.getElementById('tiketStatOpen'),
-  tiketStatClosed: document.getElementById('tiketStatClosed'),
-  tiketStatSla: document.getElementById('tiketStatSla'),
+  filterTiketMonth: document.getElementById('filterTiketMonth'),
+  tiketStatTotalTickets: document.getElementById('tiketStatTotalTickets'),
+  tiketStatTotalTicketsSub: document.getElementById('tiketStatTotalTicketsSub'),
+  tiketStatMonthlyTarget: document.getElementById('tiketStatMonthlyTarget'),
+  tiketStatTopUser: document.getElementById('tiketStatTopUser'),
+  tiketStatTopUserSub: document.getElementById('tiketStatTopUserSub'),
+  tiketStatDailyAvg: document.getElementById('tiketStatDailyAvg'),
+  tiketStatDailyAvgSub: document.getElementById('tiketStatDailyAvgSub'),
+  tiketStatSlaTag: document.getElementById('tiketStatSlaTag'),
+  tiketUserSummarySection: document.getElementById('tiketUserSummarySection'),
+  tiketMonthHeaderLabel: document.getElementById('tiketMonthHeaderLabel'),
+  filterSummaryTiketUser: document.getElementById('filterSummaryTiketUser'),
+  filterSummaryTiketService: document.getElementById('filterSummaryTiketService'),
+  filterTiketSummarySort: document.getElementById('filterTiketSummarySort'),
+  tiketUserCountBadge: document.getElementById('tiketUserCountBadge'),
+  tableTiketUserSummary: document.getElementById('tableTiketUserSummary'),
+  tiketUserSummaryBody: document.getElementById('tiketUserSummaryBody'),
+  tiketDailySubtitle: document.getElementById('tiketDailySubtitle'),
   searchTiketInput: document.getElementById('searchTiketInput'),
   btnClearSearchTiket: document.getElementById('btnClearSearchTiket'),
+  filterTiketUserSelect: document.getElementById('filterTiketUserSelect'),
   filterTiketService: document.getElementById('filterTiketService'),
-  filterTiketStatus: document.getElementById('filterTiketStatus'),
-  filterTiketPriority: document.getElementById('filterTiketPriority'),
+  filterTiketGrade: document.getElementById('filterTiketGrade'),
+  filterTiketScoreSort: document.getElementById('filterTiketScoreSort'),
   btnResetTiketFilters: document.getElementById('btnResetTiketFilters'),
+  tiketBatchBar: document.getElementById('tiketBatchBar'),
+  tiketSelectedCount: document.getElementById('tiketSelectedCount'),
+  btnTiketDeselectAll: document.getElementById('btnTiketDeselectAll'),
+  btnTiketSelectAll: document.getElementById('btnTiketSelectAll'),
+  btnTiketDeleteSelected: document.getElementById('btnTiketDeleteSelected'),
   tableTiketLogs: document.getElementById('tableTiketLogs'),
+  tiketThSelectAll: document.getElementById('tiketThSelectAll'),
+  tiketSelectAllCheckbox: document.getElementById('tiketSelectAllCheckbox'),
+  thTiketAction: document.getElementById('thTiketAction'),
   tiketTableBody: document.getElementById('tiketTableBody'),
   modalTiketForm: document.getElementById('modalTiketForm'),
+  modalTiketTitle: document.getElementById('modalTiketTitle'),
+  modalTiketSubtitle: document.getElementById('modalTiketSubtitle'),
   formTiket: document.getElementById('formTiket'),
   formTiketId: document.getElementById('formTiketId'),
-  formTiketNumber: document.getElementById('formTiketNumber'),
-  formTiketCustomer: document.getElementById('formTiketCustomer'),
+  formTiketDate: document.getElementById('formTiketDate'),
+  formTiketUserSelect: document.getElementById('formTiketUserSelect'),
   formTiketDept: document.getElementById('formTiketDept'),
-  formTiketCategory: document.getElementById('formTiketCategory'),
-  formTiketPriorityVal: document.getElementById('formTiketPriorityVal'),
-  formTiketStatusVal: document.getElementById('formTiketStatusVal'),
-  formTiketHandler: document.getElementById('formTiketHandler'),
-  formTiketDesc: document.getElementById('formTiketDesc'),
+  formTiketCount: document.getElementById('formTiketCount'),
+  formTiketNotes: document.getElementById('formTiketNotes'),
   btnCloseTiketModal: document.getElementById('btnCloseTiketModal'),
   btnCancelTiketModal: document.getElementById('btnCancelTiketModal'),
   btnSubmitTiket: document.getElementById('btnSubmitTiket'),
-
-  // AHT Elements
+  btnSubmitTiketText: document.getElementById('btnSubmitTiketText'),
+// AHT Elements
   navAht: document.getElementById('navAht'),
   pageAht: document.getElementById('pageAht'),
   btnRefreshAht: document.getElementById('btnRefreshAht'),
@@ -2356,6 +2451,39 @@ function renderAppView() {
   }
   if (UI.caBatchBar && !isAdmin) {
     UI.caBatchBar.classList.add('hidden');
+  }
+
+  // Tiket permission and banner info
+  const tiketBannerRoleLabel = document.getElementById('tiketBannerRoleLabel');
+  const tiketBannerRoleDesc = document.getElementById('tiketBannerRoleDesc');
+  const tiketBannerBadgePrivilege = document.getElementById('tiketBannerBadgePrivilege');
+  if (tiketBannerRoleLabel && tiketBannerRoleDesc && tiketBannerBadgePrivilege) {
+    if (isAdmin) {
+      tiketBannerRoleLabel.textContent = 'Otoritas Akses Nilai Tiket: Administrator Penuh';
+      tiketBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> nilai tiket harian seluruh pengguna. Pengguna biasa hanya dapat melihat.';
+      tiketBannerBadgePrivilege.className = 'badge badge-admin';
+      tiketBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
+    } else {
+      tiketBannerRoleLabel.textContent = 'Otoritas Akses Nilai Tiket: Pengguna (Hanya Lihat)';
+      tiketBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi nilai tiket 1 bulan seluruh user dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Penambahan, pengubahan, atau penghapusan nilai dilakukan oleh Admin.';
+      tiketBannerBadgePrivilege.className = 'badge badge-user';
+      tiketBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+  }
+  if (UI.btnOpenAddTiketModal) {
+    UI.btnOpenAddTiketModal.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnDeleteAllTiketMonth) {
+    UI.btnDeleteAllTiketMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnTiketDeleteSelected) {
+    UI.btnTiketDeleteSelected.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.tiketThSelectAll) {
+    UI.tiketThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.tiketBatchBar && !isAdmin) {
+    UI.tiketBatchBar.classList.add('hidden');
   }
 
   // Settings page info
@@ -3055,8 +3183,28 @@ function executePendingDelete() {
   } else if (type === 'tiket') {
     const tikets = state.getTikets().filter(t => t.id !== id);
     state.saveTikets(tikets);
-    state.addLog('DELETE_TIKET', 'Hapus Tiket', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus tiket: ${name}.`);
-    showToast('Tiket Dihapus', `Data tiket berhasil dihapus.`, 'danger');
+    if (state.selectedTiketIds) state.selectedTiketIds.delete(id);
+    state.addLog('DELETE_TIKET', 'Hapus Perolehan Tiket', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus nilai tiket harian: ${name}.`);
+    showToast('Perolehan Tiket Dihapus', `Data perolehan tiket harian berhasil dihapus.`, 'danger');
+    renderTiketPage();
+  } else if (type === 'tiket_month') {
+    const month = id;
+    const oldLogs = state.getTikets();
+    const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
+    const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
+    state.saveTikets(remainingLogs);
+    if (state.selectedTiketIds) state.selectedTiketIds.clear();
+    state.addLog('DELETE_TIKET_MONTH', 'Hapus Perolehan Tiket Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh nilai tiket periode ${name} (${countBefore} catatan).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data perolehan tiket</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderTiketPage();
+  } else if (type === 'tiket_batch') {
+    const idsToDelete = state.pendingDelete.ids || [];
+    const oldLogs = state.getTikets();
+    const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
+    state.saveTikets(remainingLogs);
+    if (state.selectedTiketIds) state.selectedTiketIds.clear();
+    state.addLog('DELETE_TIKET_BATCH', 'Hapus Data Tiket Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data nilai tiket yang ditandai.`);
+    showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data perolehan tiket</strong> berhasil dihapus.`, 'danger');
     renderTiketPage();
   } else if (type === 'finding') {
     const findings = state.getFindings().filter(f => f.id !== id);
@@ -5521,143 +5669,475 @@ window.filterCaByUser = function(userName) {
   }
 };
 
-// ==========================================
-// 12.6 TIKET (SERVICE DESK MANAGEMENT)
+/// ==========================================
+// 12.6 TIKET (JUMLAH PEROLEHAN TIKET HARIAN & TARGET BULANAN 1.320)
 // ==========================================
 
+function formatTicketCount(val) {
+  if (val === null || val === undefined || val === '') return '0';
+  const num = parseInt(val, 10);
+  if (isNaN(num)) return '0';
+  return num.toLocaleString('id-ID');
+}
+
 function renderTiketPage() {
-  const tikets = state.getTikets();
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+
+  const monthLabels = {
+    '2026-09': 'September 2026',
+    '2026-08': 'Agustus 2026',
+    '2026-07': 'Juli 2026'
+  };
+
+  const selectedMonth = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
+  const monthLabel = monthLabels[selectedMonth] || selectedMonth;
+
+  if (UI.tiketMonthHeaderLabel) {
+    UI.tiketMonthHeaderLabel.textContent = monthLabel;
+  }
+
+  // Update Permission Explanatory Banner & Action Visibility
+  if (isAdmin) {
+    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Administrator Penuh (CRUD)';
+    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh agent. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat.';
+    if (UI.tiketBannerBadgePrivilege) {
+      UI.tiketBannerBadgePrivilege.className = 'badge badge-admin';
+      UI.tiketBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
+    }
+    if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.classList.remove('hidden');
+    if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.remove('hidden');
+    if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.remove('hidden');
+  } else {
+    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Mode Tinjauan (Hanya Lihat)';
+    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi akumulasi perolehan tiket seluruh agent dan target 1.320 tiket/bulan. Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.tiketBannerBadgePrivilege) {
+      UI.tiketBannerBadgePrivilege.className = 'badge badge-user';
+      UI.tiketBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
+    }
+    if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.classList.add('hidden');
+    if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.add('hidden');
+    if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.add('hidden');
+    state.selectedTiketIds.clear();
+    if (UI.tiketBatchBar) UI.tiketBatchBar.classList.add('hidden');
+  }
+
+  const allTikets = state.getTikets();
+  const monthLogs = allTikets.filter(l => (l.date || '').startsWith(selectedMonth));
+  const users = state.getUsers();
+
+  // Populate filterSummaryTiketUser in Section 1
+  if (UI.filterSummaryTiketUser) {
+    const curVal = UI.filterSummaryTiketUser.value || 'ALL';
+    UI.filterSummaryTiketUser.innerHTML = '<option value="ALL">Semua Nama User</option>' +
+      users.map(u => `<option value="${u.fullName}">${u.fullName}</option>`).join('');
+    if (Array.from(UI.filterSummaryTiketUser.options).some(o => o.value === curVal)) {
+      UI.filterSummaryTiketUser.value = curVal;
+    }
+  }
+
+  // Populate filterTiketUserSelect dynamically in Section 2 toolbar
+  if (UI.filterTiketUserSelect) {
+    const currentVal = UI.filterTiketUserSelect.value || 'ALL';
+    UI.filterTiketUserSelect.innerHTML = '<option value="ALL">Semua User</option>' +
+      users.map(u => `<option value="${u.fullName}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    if (Array.from(UI.filterTiketUserSelect.options).some(o => o.value === currentVal)) {
+      UI.filterTiketUserSelect.value = currentVal;
+    }
+  }
+
+  // ========================================================
+  // Section 1: Rekapitulasi Perolehan Tiket Seluruh Agent dalam 1 Bulan
+  // Target Baku Bulanan: 1.320 Tiket Per Agent
+  // Filter: Nama User, Layanan, Urutkan
+  // Kolom: Kekurangan Target Tiket
+  // ========================================================
+  const summaryFilterUser = (UI.filterSummaryTiketUser ? UI.filterSummaryTiketUser.value : 'ALL');
+  const summaryFilterService = (UI.filterSummaryTiketService ? UI.filterSummaryTiketService.value : 'ALL');
+
+  const filteredAgents = users.filter(u => {
+    if (summaryFilterUser !== 'ALL' && u.fullName !== summaryFilterUser) return false;
+    if (summaryFilterService !== 'ALL' && (u.department || 'CSO INBOUND') !== summaryFilterService) return false;
+    return true;
+  });
+
+  const userSummaries = filteredAgents.map(u => {
+    const userLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+    const daysInput = userLogs.length;
+    let totalTickets = 0;
+    let avgDaily = '0,0';
+    let targetPct = '0.0';
+    let diffTarget = -MONTHLY_TICKET_TARGET;
+    let isAchieved = false;
+    let statusText = 'Belum Ada Input';
+    let statusBadge = 'badge-gray';
+    let statusIcon = 'fa-regular fa-clock';
+
+    if (daysInput > 0) {
+      totalTickets = userLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+      avgDaily = (totalTickets / daysInput).toFixed(1);
+      targetPct = ((totalTickets / MONTHLY_TICKET_TARGET) * 100).toFixed(1);
+      diffTarget = totalTickets - MONTHLY_TICKET_TARGET;
+      isAchieved = totalTickets >= MONTHLY_TICKET_TARGET;
+
+      if (isAchieved) {
+        statusText = 'Target Tercapai';
+        statusBadge = 'badge-green';
+        statusIcon = 'fa-solid fa-check-double';
+      } else {
+        const remaining = Math.abs(diffTarget);
+        statusText = `Kurang ${remaining.toLocaleString('id-ID')} Tiket`;
+        statusBadge = 'badge-yellow';
+        statusIcon = 'fa-solid fa-hourglass-half';
+      }
+    }
+
+    return {
+      user: u,
+      daysInput,
+      monthlyTarget: MONTHLY_TICKET_TARGET,
+      totalTickets,
+      avgDaily,
+      targetPct,
+      diffTarget,
+      isAchieved,
+      statusText,
+      statusBadge,
+      statusIcon
+    };
+  });
+
+  // Sort summary by highest / lowest perolehan
+  const summarySort = (UI.filterTiketSummarySort ? UI.filterTiketSummarySort.value : 'DESC');
+  if (summarySort === 'ASC') {
+    userSummaries.sort((a, b) => {
+      if (a.daysInput === 0 && b.daysInput > 0) return 1;
+      if (b.daysInput === 0 && a.daysInput > 0) return -1;
+      return a.totalTickets - b.totalTickets;
+    });
+  } else {
+    userSummaries.sort((a, b) => b.totalTickets - a.totalTickets);
+  }
+
+  if (UI.tiketUserCountBadge) {
+    UI.tiketUserCountBadge.textContent = `${filteredAgents.length} Agent Terdaftar`;
+  }
+
+  // Render Section 1 table
+  if (UI.tiketUserSummaryBody) {
+    UI.tiketUserSummaryBody.innerHTML = '';
+    if (userSummaries.length === 0) {
+      UI.tiketUserSummaryBody.innerHTML = '<tr><td colspan="10" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data agent yang sesuai dengan filter Nama User atau Layanan.</td></tr>';
+    } else {
+      userSummaries.forEach(summary => {
+        const u = summary.user;
+        const tr = document.createElement('tr');
+
+        // Kekurangan Target Tiket:
+        // Jika totalTickets >= 1320: 0 Tiket (Tercapai)
+        // Jika totalTickets < 1320: Kekurangan = 1.320 - totalTickets
+        let kekuranganHtml = '<span style="color:var(--gray-400);">-</span>';
+        if (summary.daysInput > 0) {
+          if (summary.isAchieved) {
+            kekuranganHtml = `
+              <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                <span class="badge badge-green font-mono" style="font-size:0.8rem; font-weight:700;">
+                  <i class="fa-solid fa-check-double" style="margin-right:4px;"></i>0 Tiket
+                </span>
+                <small style="font-size:0.7rem; color:var(--green-400, #34d399);">Target Terpenuhi (Surplus +${summary.diffTarget.toLocaleString('id-ID')})</small>
+              </div>
+            `;
+          } else {
+            const kekurangan = MONTHLY_TICKET_TARGET - summary.totalTickets;
+            kekuranganHtml = `
+              <div style="display:flex; flex-direction:column; align-items:center; gap:2px;">
+                <span class="badge badge-yellow font-mono" style="font-size:0.8rem; font-weight:700;">
+                  <i class="fa-solid fa-triangle-exclamation" style="margin-right:4px;"></i>${kekurangan.toLocaleString('id-ID')} Tiket
+                </span>
+                <small style="font-size:0.7rem; color:var(--gray-400);">Realisasi: ${summary.totalTickets.toLocaleString('id-ID')} / 1.320 (${summary.targetPct}%)</small>
+              </div>
+            `;
+          }
+        }
+
+        const diffDisplay = summary.daysInput > 0
+          ? (summary.diffTarget >= 0
+              ? `<span class="text-green font-mono font-bold">+${summary.diffTarget.toLocaleString('id-ID')} Tiket</span>`
+              : `<span class="text-yellow font-mono font-bold">-${Math.abs(summary.diffTarget).toLocaleString('id-ID')} Tiket</span>`)
+          : '<span style="color:var(--gray-400);">-</span>';
+
+        tr.innerHTML = `
+          <td>
+            <div style="display:flex; align-items:center; gap: 10px;">
+              <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="${u.fullName}" style="width:34px; height:34px; border-radius:50%; object-fit:cover; border:2px solid var(--border-color);">
+              <div>
+                <strong style="color:#fff; font-size:0.875rem;">${u.fullName}</strong>
+                <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+                  <span class="badge ${u.role === 'admin' ? 'badge-admin' : 'badge-user'}" style="font-size:0.65rem;">${u.role.toUpperCase()}</span>
+                  <span style="font-size:0.75rem; color:var(--gray-400);">${u.email}</span>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${u.department || 'CSO Layanan'}</span></td>
+          <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200);">${summary.daysInput} Hari</span></td>
+          <td style="text-align: center;"><span class="font-mono font-bold" style="color:#fff;">${summary.monthlyTarget.toLocaleString('id-ID')}</span></td>
+          <td style="text-align: right;"><strong class="text-red font-mono" style="font-size:1.05rem;">${summary.daysInput > 0 ? summary.totalTickets.toLocaleString('id-ID') : '-'}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Tiket</small></td>
+          <td style="text-align: center; min-width: 170px;">${kekuranganHtml}</td>
+          <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200); font-size:0.85rem;">${summary.daysInput > 0 ? summary.avgDaily.replace('.', ',') : '-'}</span> <small style="font-size:0.7rem; color:var(--gray-400);">/hari</small></td>
+          <td style="text-align: center;">${diffDisplay}</td>
+          <td style="text-align: center;"><span class="badge ${summary.statusBadge}" style="font-size:0.75rem;"><i class="${summary.statusIcon}" style="margin-right:4px;"></i>${summary.statusText}</span></td>
+          <td style="text-align: center;">
+            <button class="btn btn-outline-gray btn-sm" onclick="filterTiketByUser('${u.fullName.replace(/'/g, "\\'")}')" title="Filter Rincian Harian User Ini">
+              <i class="fa-solid fa-filter text-red"></i>
+              <span>Rincian</span>
+            </button>
+          </td>
+        `;
+        UI.tiketUserSummaryBody.appendChild(tr);
+      });
+    }
+  }
+
+  // ========================================================
+  // Monthly Overview Top 4 Metric Cards
+  // ========================================================
+  const teamTotalTickets = monthLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+  if (UI.tiketStatTotalTickets) {
+    UI.tiketStatTotalTickets.innerHTML = `${teamTotalTickets.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket</small>`;
+  }
+  if (UI.tiketStatTotalTicketsSub) {
+    UI.tiketStatTotalTicketsSub.textContent = `Akumulasi seluruh agent (${monthLogs.length} input harian)`;
+  }
+  if (UI.tiketStatMonthlyTarget) {
+    UI.tiketStatMonthlyTarget.innerHTML = `1.320 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket / User</small>`;
+  }
+
+  // Top Performer
+  const allUserSummaries = users.map(u => {
+    const uLogs = monthLogs.filter(l => l.userFullName === u.fullName);
+    const tot = uLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+    return { user: u, total: tot, days: uLogs.length };
+  }).sort((a, b) => b.total - a.total);
+
+  if (allUserSummaries.length > 0 && allUserSummaries[0].days > 0) {
+    const top = allUserSummaries[0];
+    const topPct = ((top.total / MONTHLY_TICKET_TARGET) * 100).toFixed(1);
+    if (UI.tiketStatTopUser) UI.tiketStatTopUser.textContent = top.user.fullName;
+    if (UI.tiketStatTopUserSub) {
+      UI.tiketStatTopUserSub.textContent = `Perolehan: ${top.total.toLocaleString('id-ID')} Tiket (${topPct}% dari 1.320)`;
+    }
+  } else {
+    if (UI.tiketStatTopUser) UI.tiketStatTopUser.textContent = '-';
+    if (UI.tiketStatTopUserSub) UI.tiketStatTopUserSub.textContent = 'Belum ada input bulan ini';
+  }
+
+  // Team Daily Average
+  const teamDailyAvg = monthLogs.length > 0 ? (teamTotalTickets / monthLogs.length).toFixed(1) : '0,0';
+  if (UI.tiketStatDailyAvg) {
+    UI.tiketStatDailyAvg.innerHTML = `${teamDailyAvg.replace('.', ',')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket/Hari</small>`;
+  }
+  if (UI.tiketStatDailyAvgSub) {
+    UI.tiketStatDailyAvgSub.textContent = 'Performa harian menuju target 1.320';
+  }
+  if (UI.tiketStatSlaTag) {
+    UI.tiketStatSlaTag.textContent = 'Standar: ~60/Hari';
+  }
+
+  // ========================================================
+  // Section 2: Log Perolehan Tiket Harian (Interval Input Per Hari)
+  // Kolom Kategori Kendala & Kepatuhan SLA telah dihapus
+  // ========================================================
   const searchQ = (UI.searchTiketInput ? UI.searchTiketInput.value.trim().toLowerCase() : '');
+  const filterUser = (UI.filterTiketUserSelect ? UI.filterTiketUserSelect.value : 'ALL');
   const filterService = (UI.filterTiketService ? UI.filterTiketService.value : 'ALL');
-  const filterStatus = (UI.filterTiketStatus ? UI.filterTiketStatus.value : 'ALL');
-  const filterPriority = (UI.filterTiketPriority ? UI.filterTiketPriority.value : 'ALL');
+  const filterGrade = (UI.filterTiketGrade ? UI.filterTiketGrade.value : 'ALL');
 
   if (UI.btnClearSearchTiket) {
     UI.btnClearSearchTiket.classList.toggle('hidden', !searchQ);
   }
 
-  const filtered = tikets.filter(item => {
+  const filteredLogs = monthLogs.filter(item => {
+    const tCount = Number(item.ticketCount) || 0;
     if (searchQ) {
-      const match = (item.ticketNumber || '').toLowerCase().includes(searchQ) ||
-                    (item.customerName || '').toLowerCase().includes(searchQ) ||
-                    (item.category || '').toLowerCase().includes(searchQ) ||
-                    (item.handler || '').toLowerCase().includes(searchQ) ||
-                    (item.desc || '').toLowerCase().includes(searchQ);
+      const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.date || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.notes || '').toLowerCase().includes(searchQ) ||
+                    String(tCount).includes(searchQ);
       if (!match) return false;
     }
+    if (filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
     if (filterService !== 'ALL' && item.department !== filterService) return false;
-    if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
-    if (filterPriority !== 'ALL' && item.priority !== filterPriority) return false;
+    if (filterGrade === 'Tercapai' && tCount < 60) return false;
+    if (filterGrade === 'Di Bawah Target' && tCount >= 60) return false;
     return true;
   });
 
-  // Calculate metrics
-  const totalCount = tikets.length;
-  const openCount = tikets.filter(t => t.status !== 'Closed').length;
-  const closedCount = tikets.filter(t => t.status === 'Closed').length;
-  const slaPct = totalCount > 0 ? ((closedCount / totalCount) * 100).toFixed(1) : '96.2';
+  // Sort daily logs
+  const sortMode = (UI.filterTiketScoreSort ? UI.filterTiketScoreSort.value : 'DATE_DESC');
+  if (sortMode === 'SCORE_DESC') {
+    filteredLogs.sort((a, b) => (Number(b.ticketCount) || 0) - (Number(a.ticketCount) || 0));
+  } else if (sortMode === 'SCORE_ASC') {
+    filteredLogs.sort((a, b) => (Number(a.ticketCount) || 0) - (Number(b.ticketCount) || 0));
+  } else {
+    filteredLogs.sort((a, b) => (b.date || '').localeCompare(a.date || ''));
+  }
 
-  if (UI.tiketStatTotal) UI.tiketStatTotal.textContent = totalCount;
-  if (UI.tiketStatOpen) UI.tiketStatOpen.textContent = openCount;
-  if (UI.tiketStatClosed) UI.tiketStatClosed.textContent = closedCount;
-  if (UI.tiketStatSla) UI.tiketStatSla.textContent = `${slaPct}%`;
+  // Batch Toolbar & Checkbox sync for Admin
+  if (isAdmin) {
+    if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.remove('hidden');
+    const visibleIds = filteredLogs.map(l => l.id);
+    const selectedVisibleCount = visibleIds.filter(id => state.selectedTiketIds.has(id)).length;
+    if (UI.tiketSelectAllCheckbox) {
+      UI.tiketSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+      UI.tiketSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+    }
+    if (UI.tiketBatchBar) {
+      const hasSelected = state.selectedTiketIds.size > 0;
+      UI.tiketBatchBar.classList.toggle('hidden', !hasSelected);
+      if (UI.tiketSelectedCount) {
+        UI.tiketSelectedCount.textContent = state.selectedTiketIds.size;
+      }
+    }
+  } else {
+    if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.add('hidden');
+    state.selectedTiketIds.clear();
+    if (UI.tiketBatchBar) UI.tiketBatchBar.classList.add('hidden');
+  }
 
-  // Render Table
+  // Render Table Body
   if (!UI.tiketTableBody) return;
   UI.tiketTableBody.innerHTML = '';
 
-  if (filtered.length === 0) {
+  const totalCols = isAdmin ? 9 : 8;
+  if (filteredLogs.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="9" style="text-align: center; padding: 32px; color: var(--gray-400);">Tidak ada tiket yang sesuai dengan filter pencarian.</td>`;
+    tr.innerHTML = `<td colspan="${totalCols}" style="text-align: center; padding: 36px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>Tidak ada log perolehan tiket harian yang sesuai dengan filter atau bulan terpilih.</td>`;
     UI.tiketTableBody.appendChild(tr);
     return;
   }
 
-  filtered.forEach(item => {
+  filteredLogs.forEach(item => {
     const tr = document.createElement('tr');
+    const isChecked = state.selectedTiketIds.has(item.id);
+    const tCount = Number(item.ticketCount) || 0;
+    const isDayTargetAchieved = tCount >= 60;
 
-    let prioBadge = 'badge-gray';
-    if (item.priority.includes('Darurat') || item.priority.includes('High')) prioBadge = 'badge-red';
-    else if (item.priority.includes('Medium')) prioBadge = 'badge-yellow';
+    // Contribution to 1.320 monthly target
+    const contribPct = ((tCount / MONTHLY_TICKET_TARGET) * 100).toFixed(1);
 
-    let statusBadge = 'badge-gray';
-    let statusIcon = 'fa-solid fa-circle';
-    if (item.status === 'Open') {
-      statusBadge = 'badge-yellow';
-      statusIcon = 'fa-solid fa-circle-dot';
-    } else if (item.status === 'In Progress') {
-      statusBadge = 'badge-blue';
-      statusIcon = 'fa-solid fa-spinner fa-spin';
-    } else if (item.status === 'Pending Vendor') {
-      statusBadge = 'badge-purple';
-      statusIcon = 'fa-solid fa-clock';
-    } else if (item.status === 'Closed') {
-      statusBadge = 'badge-green';
-      statusIcon = 'fa-solid fa-circle-check';
-    }
-
-    tr.innerHTML = `
-      <td><span class="text-red font-mono" style="font-weight:700;">${item.ticketNumber}</span></td>
-      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.reportTime}</span></td>
-      <td>
-        <span style="font-weight:600; color:#fff;">${item.customerName}</span>
-        ${item.desc ? `<div style="font-size:0.72rem; color:var(--gray-400); max-width:220px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${item.desc.replace(/"/g, '&quot;')}">${item.desc}</div>` : ''}
+    const checkboxHtml = isAdmin ? `
+      <td style="text-align: center;">
+        <input type="checkbox" class="tiket-table-checkbox tiket-row-checkbox" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
       </td>
-      <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
-      <td><span style="font-size:0.8rem; color:var(--gray-200);">${item.category}</span></td>
-      <td><span class="badge ${prioBadge}" style="font-size:0.75rem;">${item.priority}</span></td>
-      <td>
-        <button class="badge ${statusBadge}" style="font-size:0.75rem; cursor:pointer; border:none;" onclick="quickCycleTiketStatus('${item.id}')" title="Klik untuk ubah status secara cepat">
-          <i class="${statusIcon}" style="margin-right:3px;"></i>${item.status}
-        </button>
-      </td>
-      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.handler || '-'}</span></td>
+    ` : '';
+
+    const actionHtml = isAdmin ? `
       <td style="text-align:center;">
         <div style="display:inline-flex; gap:4px;">
-          <button class="btn btn-icon btn-sm" onclick="promptEditTiket('${item.id}')" title="Edit Tiket">
+          <button class="btn btn-icon btn-sm" onclick="promptEditTiket('${item.id}')" title="Edit Perolehan Tiket">
             <i class="fa-solid fa-pen-to-square text-silver"></i>
           </button>
-          <button class="btn btn-icon btn-sm" onclick="promptDeleteTiket('${item.id}', '${item.ticketNumber}')" title="Hapus Tiket">
+          <button class="btn btn-icon btn-sm" onclick="promptDeleteTiket('${item.id}', '${(item.userFullName || '').replace(/'/g, "\\'")}')" title="Hapus Perolehan Tiket">
             <i class="fa-solid fa-trash-can text-red"></i>
           </button>
         </div>
       </td>
+    ` : `
+      <td style="text-align:center;">
+        <span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>Hanya Lihat</span>
+      </td>
+    `;
+
+    tr.innerHTML = `
+      ${checkboxHtml}
+      <td>
+        <span class="font-mono font-bold" style="color:var(--gray-200);">${item.date || '-'}</span>
+      </td>
+      <td>
+        <strong style="color:#fff; font-size:0.875rem;">${item.userFullName || '-'}</strong>
+      </td>
+      <td>
+        <span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department || '-'}</span>
+      </td>
+      <td style="text-align: right;">
+        <strong class="text-red font-mono" style="font-size:1.05rem;">${tCount}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Tiket</small>
+      </td>
+      <td style="text-align: center;">
+        <span class="badge badge-red-subtle font-mono" style="font-size:0.75rem;" title="${tCount} dari 1.320 target bulanan">+${contribPct}%</span>
+      </td>
+      <td style="text-align: center;">
+        ${isDayTargetAchieved 
+          ? '<span class="badge badge-green" style="font-size:0.75rem;"><i class="fa-solid fa-check" style="margin-right:4px;"></i>Tercapai (≥60)</span>' 
+          : '<span class="badge badge-yellow" style="font-size:0.75rem;"><i class="fa-solid fa-clock" style="margin-right:4px;"></i><60 Tiket</span>'}
+      </td>
+      <td>
+        <div style="font-size:0.75rem; color:var(--gray-300); max-width:260px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.notes || '').replace(/"/g, '&quot;')}">
+          ${item.notes || '-'}
+        </div>
+      </td>
+      ${actionHtml}
     `;
     UI.tiketTableBody.appendChild(tr);
   });
 }
 
 function openAddTiketModal() {
-  const u = state.currentUser;
-  if (!u) return;
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menambah perolehan tiket user.', 'warning');
+    return;
+  }
 
+  if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Input Perolehan Tiket Harian';
+  if (UI.btnSubmitTiketText) UI.btnSubmitTiketText.textContent = 'Simpan Perolehan Tiket';
   if (UI.formTiket) UI.formTiket.reset();
   if (UI.formTiketId) UI.formTiketId.value = '';
 
-  const todayStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
-  const randNum = String(Math.floor(Math.random() * 900) + 100);
-  if (UI.formTiketNumber) UI.formTiketNumber.value = `INC-${todayStr}-${randNum}`;
+  // Populate user dropdown
+  const users = state.getUsers();
+  if (UI.formTiketUserSelect) {
+    UI.formTiketUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    if (users.length > 0 && UI.formTiketDept) {
+      UI.formTiketDept.value = users[0].department || 'CSO INBOUND';
+    }
+  }
 
-  if (UI.formTiketDept) UI.formTiketDept.value = u.department || 'CSO INBOUND';
-  if (UI.formTiketPriorityVal) UI.formTiketPriorityVal.value = 'Medium';
-  if (UI.formTiketStatusVal) UI.formTiketStatusVal.value = 'Open';
-  if (UI.formTiketHandler) UI.formTiketHandler.value = u.fullName;
-  if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Buat Tiket Layanan Baru';
+  // Set default date to today or current month
+  const now = new Date();
+  const selectedMonth = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+  const defaultDate = todayStr.startsWith(selectedMonth) ? todayStr : `${selectedMonth}-15`;
+
+  if (UI.formTiketDate) UI.formTiketDate.value = defaultDate;
+  if (UI.formTiketCount) UI.formTiketCount.value = '60';
+  if (UI.formTiketNotes) UI.formTiketNotes.value = '';
 
   if (UI.modalTiketForm) UI.modalTiketForm.classList.remove('hidden');
 }
 
 function openEditTiketModal(item) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang dapat mengedit perolehan tiket user.', 'warning');
+    return;
+  }
+
+  const users = state.getUsers();
+  if (UI.formTiketUserSelect) {
+    UI.formTiketUserSelect.innerHTML = users.map(u => `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}">${u.fullName} (${u.role.toUpperCase()})</option>`).join('');
+    UI.formTiketUserSelect.value = item.userFullName;
+  }
+
+  const tCount = item.ticketCount || 60;
   if (UI.formTiketId) UI.formTiketId.value = item.id;
-  if (UI.formTiketNumber) UI.formTiketNumber.value = item.ticketNumber;
-  if (UI.formTiketCustomer) UI.formTiketCustomer.value = item.customerName;
-  if (UI.formTiketDept) UI.formTiketDept.value = item.department;
-  if (UI.formTiketCategory) UI.formTiketCategory.value = item.category;
-  if (UI.formTiketPriorityVal) UI.formTiketPriorityVal.value = item.priority;
-  if (UI.formTiketStatusVal) UI.formTiketStatusVal.value = item.status;
-  if (UI.formTiketHandler) UI.formTiketHandler.value = item.handler;
-  if (UI.formTiketDesc) UI.formTiketDesc.value = item.desc || '';
-  if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Edit Tiket Layanan';
+  if (UI.formTiketDate) UI.formTiketDate.value = item.date;
+  if (UI.formTiketDept) UI.formTiketDept.value = item.department || 'CSO INBOUND';
+  if (UI.formTiketCount) UI.formTiketCount.value = tCount;
+  if (UI.formTiketNotes) UI.formTiketNotes.value = item.notes || '';
+
+  if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Edit Perolehan Tiket Harian';
+  if (UI.btnSubmitTiketText) UI.btnSubmitTiketText.textContent = 'Perbarui Perolehan Tiket';
 
   if (UI.modalTiketForm) UI.modalTiketForm.classList.remove('hidden');
 }
@@ -5668,21 +6148,30 @@ function closeTiketModal() {
 
 function handleSaveTiket(e) {
   e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang memiliki wewenang untuk menyimpan atau mengubah perolehan tiket.', 'danger');
+    return;
+  }
   const u = state.currentUser;
   if (!u) return;
 
   const id = UI.formTiketId ? UI.formTiketId.value : '';
-  const ticketNumber = UI.formTiketNumber ? UI.formTiketNumber.value : `INC-${Date.now()}`;
-  const customerName = (UI.formTiketCustomer ? UI.formTiketCustomer.value.trim() : '');
+  const date = (UI.formTiketDate ? UI.formTiketDate.value : '').trim();
+  const userFullName = (UI.formTiketUserSelect ? UI.formTiketUserSelect.value : '').trim();
   const department = (UI.formTiketDept ? UI.formTiketDept.value : 'CSO INBOUND');
-  const category = (UI.formTiketCategory ? UI.formTiketCategory.value : 'Gangguan Koneksi Internet');
-  const priority = (UI.formTiketPriorityVal ? UI.formTiketPriorityVal.value : 'Medium');
-  const status = (UI.formTiketStatusVal ? UI.formTiketStatusVal.value : 'Open');
-  const handler = (UI.formTiketHandler ? UI.formTiketHandler.value.trim() : '') || u.fullName;
-  const desc = (UI.formTiketDesc ? UI.formTiketDesc.value.trim() : '');
+  const ticketCount = parseInt(UI.formTiketCount ? UI.formTiketCount.value : '60', 10) || 0;
+  const notes = (UI.formTiketNotes ? UI.formTiketNotes.value : '').trim();
 
-  if (!customerName) {
-    showToast('Form Belum Lengkap', 'Nama Pelanggan & ID wajib diisi.', 'warning');
+  if (!date) {
+    showToast('Form Belum Lengkap', 'Tanggal input harian wajib diisi.', 'warning');
+    return;
+  }
+  if (!userFullName) {
+    showToast('Form Belum Lengkap', 'Pilih petugas CSO yang memperoleh tiket.', 'warning');
+    return;
+  }
+  if (ticketCount <= 0) {
+    showToast('Jumlah Tidak Valid', 'Jumlah perolehan tiket harus lebih dari 0.', 'warning');
     return;
   }
 
@@ -5696,71 +6185,142 @@ function handleSaveTiket(e) {
     if (idx !== -1) {
       tikets[idx] = {
         ...tikets[idx],
-        customerName,
+        date,
+        userFullName,
         department,
-        category,
-        priority,
-        status,
-        handler,
-        desc
+        ticketCount,
+        notes
       };
       state.saveTikets(tikets);
-      state.addLog('UPDATE_TIKET', 'Ubah Tiket', `${u.fullName} memperbarui tiket ${ticketNumber} (${customerName}).`);
-      showToast('Tiket Diperbarui', `Tiket <strong>${ticketNumber}</strong> berhasil diperbarui.`, 'success');
+      state.addLog('UPDATE_TIKET', 'Ubah Perolehan Tiket', `Admin ${u.fullName} memperbarui perolehan tiket harian ${userFullName} (${date}): ${ticketCount} tiket (Target bulanan 1.320).`);
+      showToast('Perolehan Tiket Diperbarui', `Perolehan tiket <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${ticketCount} tiket</strong>.`, 'success');
     }
   } else {
     // NEW
     const newEntry = {
       id: 'tkt_' + Date.now(),
-      ticketNumber,
-      reportTime: timeStr,
-      customerName,
+      date,
+      userFullName,
       department,
-      category,
-      priority,
-      status,
-      handler,
-      desc,
+      ticketCount,
+      notes,
       createdAt: timeStr
     };
     tikets.unshift(newEntry);
     state.saveTikets(tikets);
-    state.addLog('CREATE_TIKET', 'Buat Tiket', `${u.fullName} membuat tiket baru: ${ticketNumber} (${category}).`);
-    showToast('Tiket Dibuat', `Tiket <strong>${ticketNumber}</strong> berhasil didaftarkan.`, 'success');
+    state.addLog('CREATE_TIKET', 'Input Perolehan Tiket', `Admin ${u.fullName} mencatat perolehan tiket harian untuk ${userFullName}: ${ticketCount} tiket (Target bulanan 1.320).`);
+    showToast('Perolehan Tiket Disimpan', `Perolehan tiket <strong>${ticketCount} tiket</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
   }
 
   closeTiketModal();
   renderTiketPage();
 }
 
-window.quickCycleTiketStatus = function(id) {
-  const tikets = state.getTikets();
-  const item = tikets.find(t => t.id === id);
-  if (!item) return;
-
-  const cycle = ['Open', 'In Progress', 'Pending Vendor', 'Closed'];
-  const curIdx = cycle.indexOf(item.status);
-  const nextIdx = (curIdx + 1) % cycle.length;
-  item.status = cycle[nextIdx];
-
-  state.saveTikets(tikets);
-  showToast('Status Tiket Berubah', `Status tiket <strong>${item.ticketNumber}</strong> kini: <strong>${item.status}</strong>.`, 'info');
-  renderTiketPage();
-};
-
 window.promptEditTiket = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mengedit perolehan tiket.', 'warning');
+    return;
+  }
   const tikets = state.getTikets();
   const item = tikets.find(t => t.id === id);
   if (!item) return;
   openEditTiketModal(item);
 };
 
-window.promptDeleteTiket = function(id, ticketNumber) {
-  state.pendingDelete = { type: 'tiket', id, name: ticketNumber };
-  UI.confirmDeleteTitle.textContent = 'Hapus Tiket?';
-  UI.confirmDeleteMessage.innerHTML = `Tiket nomor <strong>${ticketNumber}</strong> akan dihapus permanen dari sistem.`;
+window.promptDeleteTiket = function(id, name) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki hak izin untuk menghapus perolehan tiket.', 'warning');
+    return;
+  }
+  state.pendingDelete = { type: 'tiket', id, name };
+  UI.confirmDeleteTitle.textContent = 'Hapus Perolehan Tiket?';
+  UI.confirmDeleteMessage.innerHTML = `Data perolehan tiket harian <strong>${name}</strong> akan dihapus permanen dari sistem. Target akumulasi bulanan user akan disesuaikan.`;
   UI.modalConfirmDelete.classList.remove('hidden');
 };
+
+window.filterTiketByUser = function(userFullName) {
+  if (UI.filterTiketUserSelect) {
+    UI.filterTiketUserSelect.value = userFullName;
+  }
+  renderTiketPage();
+  if (UI.tableTiketLogs) {
+    UI.tableTiketLogs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+};
+
+function promptDeleteAllTiketMonth() {
+  if (!state.isAdmin()) return;
+  const month = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
+  const monthLabels = {
+    '2026-09': 'September 2026',
+    '2026-08': 'Agustus 2026',
+    '2026-07': 'Juli 2026'
+  };
+  const monthText = monthLabels[month] || month;
+  const count = state.getTikets().filter(l => (l.date || '').startsWith(month)).length;
+  if (count === 0) {
+    showToast('Tidak Ada Data', `Tidak ada data perolehan tiket di bulan ${monthText} untuk dihapus.`, 'warning');
+    return;
+  }
+  state.pendingDelete = { type: 'tiket_month', id: month, name: monthText };
+  UI.confirmDeleteTitle.textContent = 'Hapus Seluruh Data Perolehan Tiket Bulan Ini?';
+  UI.confirmDeleteMessage.innerHTML = `Anda akan menghapus <strong>${count} data perolehan tiket</strong> pada periode <strong>${monthText}</strong> secara permanen.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+}
+
+function promptDeleteSelectedTiket() {
+  if (!state.isAdmin()) return;
+  const selectedList = Array.from(state.selectedTiketIds || []);
+  if (selectedList.length === 0) {
+    showToast('Belum Ada Data Ditandai', 'Silakan tandai minimal satu data perolehan tiket yang ingin dihapus.', 'warning');
+    return;
+  }
+  state.pendingDelete = { type: 'tiket_batch', id: 'batch', name: `${selectedList.length} data perolehan tiket`, ids: selectedList };
+  UI.confirmDeleteTitle.textContent = 'Hapus Data Perolehan Tiket yang Ditandai?';
+  UI.confirmDeleteMessage.innerHTML = `Anda akan menghapus <strong>${selectedList.length} data perolehan tiket</strong> yang telah ditandai secara permanen.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+}
+
+function toggleSelectAllTiket(selectAll) {
+  if (!state.isAdmin()) return;
+  const selectedMonth = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
+  const monthLogs = state.getTikets().filter(l => (l.date || '').startsWith(selectedMonth));
+  const searchQ = (UI.searchTiketInput ? UI.searchTiketInput.value.trim().toLowerCase() : '');
+  const filterUser = (UI.filterTiketUserSelect ? UI.filterTiketUserSelect.value : 'ALL');
+  const filterService = (UI.filterTiketService ? UI.filterTiketService.value : 'ALL');
+  const filterGrade = (UI.filterTiketGrade ? UI.filterTiketGrade.value : 'ALL');
+
+  const filtered = monthLogs.filter(item => {
+    const tCount = Number(item.ticketCount) || 0;
+    if (searchQ) {
+      const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
+                    (item.date || '').toLowerCase().includes(searchQ) ||
+                    (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.notes || '').toLowerCase().includes(searchQ) ||
+                    String(tCount).includes(searchQ);
+      if (!match) return false;
+    }
+    if (filterUser !== 'ALL' && item.userFullName !== filterUser) return false;
+    if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterGrade === 'Tercapai' && tCount < 60) return false;
+    if (filterGrade === 'Di Bawah Target' && tCount >= 60) return false;
+    return true;
+  });
+
+  const shouldSelect = (selectAll !== undefined) ? selectAll : (state.selectedTiketIds.size < filtered.length);
+  if (shouldSelect) {
+    filtered.forEach(item => state.selectedTiketIds.add(item.id));
+  } else {
+    filtered.forEach(item => state.selectedTiketIds.delete(item.id));
+  }
+  renderTiketPage();
+}
+
+function deselectAllTiket() {
+  state.selectedTiketIds.clear();
+  renderTiketPage();
+}
+
 
 // ==========================================
 // 12.7 AHT (AVERAGE HANDLING TIME)
@@ -6610,11 +7170,16 @@ function initEvents() {
   }
 
   // Tiket Event Listeners
+  if (UI.filterTiketMonth) UI.filterTiketMonth.addEventListener('change', renderTiketPage);
+  if (UI.filterSummaryTiketUser) UI.filterSummaryTiketUser.addEventListener('change', renderTiketPage);
+  if (UI.filterSummaryTiketService) UI.filterSummaryTiketService.addEventListener('change', renderTiketPage);
+  if (UI.filterTiketSummarySort) UI.filterTiketSummarySort.addEventListener('change', renderTiketPage);
+  if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.addEventListener('click', promptDeleteAllTiketMonth);
   if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.addEventListener('click', openAddTiketModal);
   if (UI.btnRefreshTiket) {
     UI.btnRefreshTiket.addEventListener('click', () => {
       renderTiketPage();
-      showToast('Data Diperbarui', 'Daftar tiket layanan disinkronkan.', 'info');
+      showToast('Data Diperbarui', 'Data rekapitulasi perolehan tiket harian disinkronkan.', 'info');
     });
   }
   if (UI.btnCloseTiketModal) UI.btnCloseTiketModal.addEventListener('click', closeTiketModal);
@@ -6627,19 +7192,83 @@ function initEvents() {
       renderTiketPage();
     });
   }
+  if (UI.filterTiketUserSelect) UI.filterTiketUserSelect.addEventListener('change', renderTiketPage);
   if (UI.filterTiketService) UI.filterTiketService.addEventListener('change', renderTiketPage);
-  if (UI.filterTiketStatus) UI.filterTiketStatus.addEventListener('change', renderTiketPage);
-  if (UI.filterTiketPriority) UI.filterTiketPriority.addEventListener('change', renderTiketPage);
+  if (UI.filterTiketGrade) UI.filterTiketGrade.addEventListener('change', renderTiketPage);
+  if (UI.filterTiketScoreSort) UI.filterTiketScoreSort.addEventListener('change', renderTiketPage);
   if (UI.btnResetTiketFilters) {
     UI.btnResetTiketFilters.addEventListener('click', () => {
+      if (UI.filterTiketMonth) UI.filterTiketMonth.value = '2026-09';
+      if (UI.filterSummaryTiketUser) UI.filterSummaryTiketUser.value = 'ALL';
+      if (UI.filterSummaryTiketService) UI.filterSummaryTiketService.value = 'ALL';
+      if (UI.filterTiketUserSelect) UI.filterTiketUserSelect.value = 'ALL';
       if (UI.searchTiketInput) UI.searchTiketInput.value = '';
       if (UI.filterTiketService) UI.filterTiketService.value = 'ALL';
-      if (UI.filterTiketStatus) UI.filterTiketStatus.value = 'ALL';
-      if (UI.filterTiketPriority) UI.filterTiketPriority.value = 'ALL';
+      if (UI.filterTiketGrade) UI.filterTiketGrade.value = 'ALL';
+      if (UI.filterTiketSummarySort) UI.filterTiketSummarySort.value = 'DESC';
+      if (UI.filterTiketScoreSort) UI.filterTiketScoreSort.value = 'DATE_DESC';
+      state.selectedTiketIds.clear();
       renderTiketPage();
-      showToast('Filter Direset', 'Semua filter tiket telah dikembalikan.', 'info');
+      showToast('Filter Direset', 'Semua filter perolehan tiket telah dikembalikan.', 'info');
     });
   }
+
+  // Tiket Selection & Batch Listeners (Admin Only)
+  if (UI.tiketSelectAllCheckbox) {
+    UI.tiketSelectAllCheckbox.addEventListener('change', (e) => {
+      toggleSelectAllTiket(e.target.checked);
+    });
+  }
+  if (UI.btnTiketSelectAll) {
+    UI.btnTiketSelectAll.addEventListener('click', () => toggleSelectAllTiket(true));
+  }
+  if (UI.btnTiketDeselectAll) {
+    UI.btnTiketDeselectAll.addEventListener('click', deselectAllTiket);
+  }
+  if (UI.btnTiketDeleteSelected) {
+    UI.btnTiketDeleteSelected.addEventListener('click', promptDeleteSelectedTiket);
+  }
+
+  // Row Checkbox change delegation for Tiket
+  if (UI.tiketTableBody) {
+    UI.tiketTableBody.addEventListener('change', (e) => {
+      if (!state.isAdmin()) return;
+      if (e.target && e.target.classList.contains('tiket-row-checkbox')) {
+        const id = e.target.getAttribute('data-id');
+        if (e.target.checked) {
+          state.selectedTiketIds.add(id);
+        } else {
+          state.selectedTiketIds.delete(id);
+        }
+        // Sync header checkbox
+        const allCheckboxes = UI.tiketTableBody.querySelectorAll('.tiket-row-checkbox');
+        const checkedCount = UI.tiketTableBody.querySelectorAll('.tiket-row-checkbox:checked').length;
+        if (UI.tiketSelectAllCheckbox) {
+          UI.tiketSelectAllCheckbox.checked = allCheckboxes.length > 0 && checkedCount === allCheckboxes.length;
+          UI.tiketSelectAllCheckbox.indeterminate = checkedCount > 0 && checkedCount < allCheckboxes.length;
+        }
+        // Sync batch bar
+        if (UI.tiketBatchBar) {
+          const hasSelected = state.selectedTiketIds.size > 0;
+          UI.tiketBatchBar.classList.toggle('hidden', !hasSelected);
+          if (UI.tiketSelectedCount) {
+            UI.tiketSelectedCount.textContent = state.selectedTiketIds.size;
+          }
+        }
+      }
+    });
+  }
+
+  if (UI.formTiketUserSelect) {
+    UI.formTiketUserSelect.addEventListener('change', (e) => {
+      const selectedOpt = e.target.options[e.target.selectedIndex];
+      const dept = selectedOpt ? selectedOpt.getAttribute('data-dept') : '';
+      if (dept && UI.formTiketDept) {
+        UI.formTiketDept.value = dept;
+      }
+    });
+  }
+
 
   // AHT Event Listeners
   if (UI.btnRefreshAht) {

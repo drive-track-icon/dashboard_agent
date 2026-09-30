@@ -4249,8 +4249,9 @@ body.theme-light .setting-desc {
   color: #64748b;
 }
 
-/* CA Table Checkbox & Batch Toolbar */
-.ca-table-checkbox {
+/* CA & Tiket Table Checkbox & Batch Toolbar */
+.ca-table-checkbox,
+.tiket-table-checkbox {
   width: 17px;
   height: 17px;
   accent-color: var(--primary, #e62e44);
@@ -4258,7 +4259,8 @@ body.theme-light .setting-desc {
   margin: 0;
   vertical-align: middle;
 }
-.ca-batch-bar {
+.ca-batch-bar,
+.tiket-batch-bar {
   transition: all var(--transition-normal);
 }
 
