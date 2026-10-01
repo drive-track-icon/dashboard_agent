@@ -1,0 +1,63 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+
+console.log('--- TEST 1: Verifying HTML Elements for CA Google Spreadsheet ---');
+const htmlContent = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+assert(htmlContent.includes('id="btnOpenCaGoogleSheetsModal"'), 'index.html must contain #btnOpenCaGoogleSheetsModal');
+assert(htmlContent.includes('id="caGSheetHeaderBadge"'), 'index.html must contain #caGSheetHeaderBadge');
+assert(htmlContent.includes('id="caGSheetSyncBar"'), 'index.html must contain #caGSheetSyncBar');
+assert(htmlContent.includes('id="caGSheetStatusBadge"'), 'index.html must contain #caGSheetStatusBadge');
+assert(htmlContent.includes('id="caGSheetStatusInfo"'), 'index.html must contain #caGSheetStatusInfo');
+assert(htmlContent.includes('id="btnCaGSheetOpenLink"'), 'index.html must contain #btnCaGSheetOpenLink');
+assert(htmlContent.includes('id="btnCaGSheetPull"'), 'index.html must contain #btnCaGSheetPull');
+assert(htmlContent.includes('id="btnCaGSheetPush"'), 'index.html must contain #btnCaGSheetPush');
+assert(htmlContent.includes('id="btnCaGSheetConfig"'), 'index.html must contain #btnCaGSheetConfig');
+assert(htmlContent.includes('id="modalCaGoogleSheets"'), 'index.html must contain #modalCaGoogleSheets');
+assert(htmlContent.includes('id="inputCaGSheetWebAppUrl"'), 'index.html must contain #inputCaGSheetWebAppUrl');
+assert(htmlContent.includes('id="inputCaGSheetUrl"'), 'index.html must contain #inputCaGSheetUrl');
+assert(htmlContent.includes('id="checkCaGSheetAutoSync"'), 'index.html must contain #checkCaGSheetAutoSync');
+assert(htmlContent.includes('id="btnCopyCaAppsScript"'), 'index.html must contain #btnCopyCaAppsScript');
+console.log('✔ HTML elements verified successfully.');
+
+console.log('--- TEST 2: Verifying CSS Styling ---');
+const cssContent = fs.readFileSync(path.join(__dirname, '..', 'css', 'style.css'), 'utf8');
+assert(cssContent.includes('.btn-outline-cyan'), 'css/style.css must define .btn-outline-cyan');
+assert(cssContent.includes('.gsheet-integration-bar'), 'css/style.css must define .gsheet-integration-bar');
+assert(cssContent.includes('.gsheet-tabs-nav'), 'css/style.css must define .gsheet-tabs-nav');
+assert(cssContent.includes('.gsheet-tab-btn'), 'css/style.css must define .gsheet-tab-btn');
+assert(cssContent.includes('.code-preview-box'), 'css/style.css must define .code-preview-box');
+assert(cssContent.includes('.sync-spinning'), 'css/style.css must define .sync-spinning');
+console.log('✔ CSS styles verified successfully.');
+
+console.log('--- TEST 3: Verifying Standalone Google Apps Script File ---');
+const gasPath = path.join(__dirname, '..', 'google_apps_script_ca.js');
+assert(fs.existsSync(gasPath), 'google_apps_script_ca.js must exist in root');
+const gasContent = fs.readFileSync(gasPath, 'utf8');
+assert(gasContent.includes('function doGet(e)'), 'Apps Script must contain doGet');
+assert(gasContent.includes('function doPost(e)'), 'Apps Script must contain doPost');
+assert(gasContent.includes('action === \'sync_all\''), 'Apps Script must handle sync_all');
+assert(gasContent.includes('action === \'save\''), 'Apps Script must handle save');
+assert(gasContent.includes('action === \'delete\''), 'Apps Script must handle delete');
+assert(gasContent.includes('action === \'delete_month\''), 'Apps Script must handle delete_month');
+console.log('✔ Google Apps Script file verified successfully.');
+
+console.log('--- TEST 4: Verifying js/app.js Implementation ---');
+const appContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+assert(appContent.includes('getCaGSheetConfig()'), 'State must have getCaGSheetConfig');
+assert(appContent.includes('saveCaGSheetConfig(cfg)'), 'State must have saveCaGSheetConfig');
+assert(appContent.includes('btnOpenCaGoogleSheetsModal: document.getElementById(\'btnOpenCaGoogleSheetsModal\')'), 'UI must cache btnOpenCaGoogleSheetsModal');
+assert(appContent.includes('function renderCaGSheetBar()'), 'renderCaGSheetBar function must exist');
+assert(appContent.includes('function openCaGSheetModal()'), 'openCaGSheetModal function must exist');
+assert(appContent.includes('function pushCaToGoogleSheets()'), 'pushCaToGoogleSheets function must exist');
+assert(appContent.includes('function pullCaFromGoogleSheets()'), 'pullCaFromGoogleSheets function must exist');
+assert(appContent.includes('function autoSyncCaAction('), 'autoSyncCaAction function must exist');
+assert(appContent.includes('autoSyncCaAction(\'save\''), 'handleSaveCa must call autoSyncCaAction save');
+assert(appContent.includes('autoSyncCaAction(\'delete\''), 'promptConfirmDelete must call autoSyncCaAction delete');
+assert(appContent.includes('autoSyncCaAction(\'delete_month\''), 'promptConfirmDelete must call autoSyncCaAction delete_month');
+assert(appContent.includes('autoSyncCaAction(\'delete_batch\''), 'promptConfirmDelete must call autoSyncCaAction delete_batch');
+console.log('✔ js/app.js functions, state, and event bindings verified successfully.');
+
+console.log('\n========================================');
+console.log('🎉 ALL CA GOOGLE SPREADSHEET TESTS PASSED!');
+console.log('========================================');

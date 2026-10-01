@@ -248,7 +248,7 @@ const DEFAULT_TIMERS = [
     userFullName: 'Siti Rahma',
     userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     name: 'Pemeriksaan Fisik Barang Masuk',
-    category: 'Operasional Gudang',
+    category: 'CSO INBOUND',
     desc: 'Verifikasi kesesuaian dokumen faktur dengan kondisi fisik stok.',
     totalSeconds: 2700, // 45 Menit (Waktu Ditentukan)
     remainingSeconds: 1940,
@@ -262,7 +262,7 @@ const DEFAULT_TIMERS = [
     userFullName: 'Siti Rahma',
     userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     name: 'Penyusunan Laporan Logistik Harian',
-    category: 'Tugas Rutin',
+    category: 'CSO DIGILIVE CHAT - WA',
     desc: 'Rekapitulasi berkas pengiriman dan surat jalan operasional.',
     totalSeconds: 5400, // 1 Jam 30 Menit
     remainingSeconds: 5400,
@@ -277,7 +277,7 @@ const DEFAULT_TIMERS = [
     userFullName: 'Ahmad Fauzi',
     userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     name: 'Audit Stok Rak Elektronik A-12',
-    category: 'Audit & Keamanan',
+    category: 'CSO BACK OFFICE',
     desc: 'Pengecekan nomor seri dan label segel garansi.',
     totalSeconds: 7200, // 2 Jam
     remainingSeconds: 4350,
@@ -292,7 +292,7 @@ const DEFAULT_TIMERS = [
     userFullName: 'Budi Santoso, S.Kom',
     userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     name: 'Batas Waktu Backup Server Cloud',
-    category: 'TI & Server',
+    category: 'CSO DIGILIVE CHAT - MY ICON+',
     desc: 'Sinkronisasi mirror database ke data center cadangan secara terenkripsi.',
     totalSeconds: 9000, // 2 Jam 30 Menit
     remainingSeconds: 6840,
@@ -306,7 +306,7 @@ const DEFAULT_TIMERS = [
     userFullName: 'Budi Santoso, S.Kom',
     userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     name: 'Tenggat Waktu Respons SLA Tiket',
-    category: 'Darurat & SLA',
+    category: 'CSO OUTBOUND',
     desc: 'Batas eskalasi penyelesaian kendala infrastruktur level kritis.',
     totalSeconds: 3600, // 1 Jam
     remainingSeconds: 2415,
@@ -324,7 +324,7 @@ const DEFAULT_STOPWATCHES = [
     userFullName: 'Siti Rahma',
     userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     name: 'Waktu Proses Packing & Labeling',
-    dept: 'Logistik & Operasional Gudang',
+    dept: 'CSO INBOUND',
     elapsedSeconds: 1250,
     isRunning: true,
     lastTick: Date.now()
@@ -337,7 +337,7 @@ const DEFAULT_STOPWATCHES = [
     userFullName: 'Ahmad Fauzi',
     userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     name: 'Pencatatan Waktu Pengecekan Barcode',
-    dept: 'Staf Audit Inventaris',
+    dept: 'CSO BACK OFFICE',
     elapsedSeconds: 640,
     isRunning: false,
     lastTick: null
@@ -350,7 +350,7 @@ const DEFAULT_STOPWATCHES = [
     userFullName: 'Budi Santoso, S.Kom',
     userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     name: 'Stopwatch Uji Ketahanan Bandwidth 10G',
-    dept: 'IT Infrastructure & Security',
+    dept: 'CSO DIGILIVE CHAT - DM',
     elapsedSeconds: 874,
     isRunning: true,
     lastTick: Date.now()
@@ -1293,7 +1293,7 @@ const DEFAULT_QUIZ_QUESTIONS = [
     id: 'QZ-008',
     category: 'Keluhan',
     isMarked: true,
-    prompt: 'Berapakah batas nilai minimum kelulusan (passing grade standard) pada evaluasi penilaian mutu Customer Assessment (CA)?',
+    prompt: 'Berapakah batas nilai minimum kelulusan (passing grade standard) pada evaluasi penilaian mutu Customer Attributes (CA)?',
     options: {
       A: '70.0',
       B: '75.0',
@@ -1589,6 +1589,28 @@ class AppState {
 
   saveCaLogs(logs) {
     localStorage.setItem('vortex_ca_logs', JSON.stringify(logs));
+  }
+
+  getCaGSheetConfig() {
+    const defaults = {
+      webAppUrl: '',
+      sheetId: '',
+      sheetName: 'CA_Data',
+      autoSync: true,
+      lastSyncTime: null,
+      lastSyncStatus: 'none',
+      lastSyncMessage: ''
+    };
+    try {
+      const raw = localStorage.getItem('vortex_ca_gsheet_config');
+      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+    } catch (e) {
+      return defaults;
+    }
+  }
+
+  saveCaGSheetConfig(cfg) {
+    localStorage.setItem('vortex_ca_gsheet_config', JSON.stringify(cfg));
   }
 
   getTikets() {
@@ -2214,6 +2236,7 @@ const UI = {
   tableCaUserSummary: document.getElementById('tableCaUserSummary'),
   caUserSummaryBody: document.getElementById('caUserSummaryBody'),
   btnRefreshCa: document.getElementById('btnRefreshCa'),
+  btnExportCaExcel: document.getElementById('btnExportCaExcel'),
   btnDeleteAllCaMonth: document.getElementById('btnDeleteAllCaMonth'),
   btnOpenAddCaModal: document.getElementById('btnOpenAddCaModal'),
   caCardAvgScore: document.getElementById('caCardAvgScore'),
@@ -2265,6 +2288,38 @@ const UI = {
   btnSubmitCa: document.getElementById('btnSubmitCa'),
   btnSubmitCaText: document.getElementById('btnSubmitCaText'),
 
+  // CA Google Spreadsheet Elements
+  btnOpenCaGoogleSheetsModal: document.getElementById('btnOpenCaGoogleSheetsModal'),
+  caGSheetHeaderBadge: document.getElementById('caGSheetHeaderBadge'),
+  caGSheetSyncBar: document.getElementById('caGSheetSyncBar'),
+  caGSheetStatusBadge: document.getElementById('caGSheetStatusBadge'),
+  caGSheetStatusInfo: document.getElementById('caGSheetStatusInfo'),
+  btnCaGSheetOpenLink: document.getElementById('btnCaGSheetOpenLink'),
+  btnCaGSheetPull: document.getElementById('btnCaGSheetPull'),
+  btnCaGSheetPush: document.getElementById('btnCaGSheetPush'),
+  btnCaGSheetConfig: document.getElementById('btnCaGSheetConfig'),
+
+  modalCaGoogleSheets: document.getElementById('modalCaGoogleSheets'),
+  btnCloseCaGSheetModal: document.getElementById('btnCloseCaGSheetModal'),
+  tabBtnCaGSheetConfig: document.getElementById('tabBtnCaGSheetConfig'),
+  tabBtnCaGSheetGuide: document.getElementById('tabBtnCaGSheetGuide'),
+  tabContentCaGSheetConfig: document.getElementById('tabContentCaGSheetConfig'),
+  tabContentCaGSheetGuide: document.getElementById('tabContentCaGSheetGuide'),
+  inputCaGSheetWebAppUrl: document.getElementById('inputCaGSheetWebAppUrl'),
+  inputCaGSheetUrl: document.getElementById('inputCaGSheetUrl'),
+  inputCaGSheetTabName: document.getElementById('inputCaGSheetTabName'),
+  checkCaGSheetAutoSync: document.getElementById('checkCaGSheetAutoSync'),
+  labelCaGSheetModalStatus: document.getElementById('labelCaGSheetModalStatus'),
+  labelCaGSheetModalLastSync: document.getElementById('labelCaGSheetModalLastSync'),
+  labelCaGSheetModalTotalCount: document.getElementById('labelCaGSheetModalTotalCount'),
+  btnCaGSheetTest: document.getElementById('btnCaGSheetTest'),
+  btnCaGSheetModalOpenLink: document.getElementById('btnCaGSheetModalOpenLink'),
+  btnCaGSheetModalPull: document.getElementById('btnCaGSheetModalPull'),
+  btnCaGSheetModalPush: document.getElementById('btnCaGSheetModalPush'),
+  btnCaGSheetSaveConfig: document.getElementById('btnCaGSheetSaveConfig'),
+  btnCopyCaAppsScript: document.getElementById('btnCopyCaAppsScript'),
+  caAppsScriptCodePreview: document.getElementById('caAppsScriptCodePreview'),
+
   // Tiket Elements
   navTiket: document.getElementById('navTiket'),
   pageTiket: document.getElementById('pageTiket'),
@@ -2273,6 +2328,7 @@ const UI = {
   tiketBannerRoleDesc: document.getElementById('tiketBannerRoleDesc'),
   tiketBannerBadgePrivilege: document.getElementById('tiketBannerBadgePrivilege'),
   btnRefreshTiket: document.getElementById('btnRefreshTiket'),
+  btnExportTiketExcel: document.getElementById('btnExportTiketExcel'),
   btnDeleteAllTiketMonth: document.getElementById('btnDeleteAllTiketMonth'),
   btnOpenAddTiketModal: document.getElementById('btnOpenAddTiketModal'),
   filterTiketMonth: document.getElementById('filterTiketMonth'),
@@ -2937,7 +2993,8 @@ function renderAppView() {
     if (UI.stopwatchHeaderTitle) UI.stopwatchHeaderTitle.textContent = 'Stopwatch Admin';
     if (UI.timerBannerRoleLabel) {
       UI.timerBannerRoleLabel.textContent = 'Otoritas Akses Timer: Administrator & Live Monitor';
-      UI.timerBannerRoleDesc.textContent = 'Admin dapat memantau seluruh waktu yang diambil oleh setiap user secara real-time melalui panel pemantau di bawah, serta mengelola timer & stopwatch pribadi.';
+      UI.timerBannerRoleDesc.textContent = '';
+      UI.timerBannerRoleDesc.classList.add('hidden');
       UI.timerBannerBadge.className = 'badge badge-admin';
       UI.timerBannerBadge.textContent = 'Live Monitor & Kontrol';
     }
@@ -2949,7 +3006,8 @@ function renderAppView() {
     if (UI.stopwatchHeaderTitle) UI.stopwatchHeaderTitle.textContent = 'Stopwatch Saya';
     if (UI.timerBannerRoleLabel) {
       UI.timerBannerRoleLabel.textContent = 'Otoritas Akses Timer: Pengguna Mandiri';
-      UI.timerBannerRoleDesc.textContent = 'Anda memiliki kontrol penuh atas timer pribadi Anda: tentukan waktu, mulai, jeda, reset, dan edit waktu kapan saja. Data waktu Anda tersimpan mandiri dan tidak berpengaruh pada pengguna lain.';
+      UI.timerBannerRoleDesc.textContent = '';
+      UI.timerBannerRoleDesc.classList.add('hidden');
       UI.timerBannerBadge.className = 'badge badge-user';
       UI.timerBannerBadge.textContent = 'Kontrol Pribadi Penuh';
     }
@@ -2973,19 +3031,21 @@ function renderAppView() {
     }
   }
 
-  // CA (Customer Assessment) permission and banner info
+  // CA (Customer Attributes) permission and banner info
   const caBannerRoleLabel = document.getElementById('caBannerRoleLabel');
   const caBannerRoleDesc = document.getElementById('caBannerRoleDesc');
   const caBannerBadgePrivilege = document.getElementById('caBannerBadgePrivilege');
   if (caBannerRoleLabel && caBannerRoleDesc && caBannerBadgePrivilege) {
     if (isAdmin) {
       caBannerRoleLabel.textContent = 'Otoritas Akses CA: Administrator Penuh';
-      caBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> nilai CA harian seluruh pengguna. Pengguna biasa hanya dapat melihat.';
+      caBannerRoleDesc.textContent = '';
+      caBannerRoleDesc.classList.add('hidden');
       caBannerBadgePrivilege.className = 'badge badge-admin';
       caBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
     } else {
       caBannerRoleLabel.textContent = 'Otoritas Akses CA: Pengguna (Hanya Lihat)';
-      caBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi penilaian mutu 1 bulan seluruh user dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Penambahan, pengubahan, atau penghapusan nilai dilakukan oleh Admin.';
+      caBannerRoleDesc.textContent = '';
+      caBannerRoleDesc.classList.add('hidden');
       caBannerBadgePrivilege.className = 'badge badge-user';
       caBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
     }
@@ -3029,13 +3089,15 @@ function renderAppView() {
   const tiketBannerBadgePrivilege = document.getElementById('tiketBannerBadgePrivilege');
   if (tiketBannerRoleLabel && tiketBannerRoleDesc && tiketBannerBadgePrivilege) {
     if (isAdmin) {
-      tiketBannerRoleLabel.textContent = 'Otoritas Akses Nilai Tiket: Administrator Penuh';
-      tiketBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> nilai tiket harian seluruh pengguna. Pengguna biasa hanya dapat melihat.';
+      tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket';
+      tiketBannerRoleDesc.textContent = '';
+      tiketBannerRoleDesc.classList.add('hidden');
       tiketBannerBadgePrivilege.className = 'badge badge-admin';
       tiketBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
     } else {
-      tiketBannerRoleLabel.textContent = 'Otoritas Akses Nilai Tiket: Pengguna (Hanya Lihat)';
-      tiketBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi nilai tiket 1 bulan seluruh user dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Penambahan, pengubahan, atau penghapusan nilai dilakukan oleh Admin.';
+      tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket';
+      tiketBannerRoleDesc.textContent = '';
+      tiketBannerRoleDesc.classList.add('hidden');
       tiketBannerBadgePrivilege.className = 'badge badge-user';
       tiketBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
     }
@@ -3062,13 +3124,15 @@ function renderAppView() {
   const ahtBannerBadgePrivilege = document.getElementById('ahtBannerBadgePrivilege');
   if (ahtBannerRoleLabel && ahtBannerRoleDesc && ahtBannerBadgePrivilege) {
     if (isAdmin) {
-      ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Administrator Penuh';
-      ahtBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> data handling time harian seluruh pengguna. Pengguna biasa hanya dapat melihat.';
+      ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT)';
+      ahtBannerRoleDesc.textContent = '';
+      ahtBannerRoleDesc.classList.add('hidden');
       ahtBannerBadgePrivilege.className = 'badge badge-admin';
       ahtBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
     } else {
-      ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Pengguna (Hanya Lihat)';
-      ahtBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi Average Handling Time 1 bulan dengan interval input per hari dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Penambahan, pengubahan, atau penghapusan data dikelola oleh Admin.';
+      ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT)';
+      ahtBannerRoleDesc.textContent = '';
+      ahtBannerRoleDesc.classList.add('hidden');
       ahtBannerBadgePrivilege.className = 'badge badge-user';
       ahtBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
     }
@@ -3095,13 +3159,15 @@ function renderAppView() {
   const artBannerBadgePrivilege = document.getElementById('artBannerBadgePrivilege');
   if (artBannerRoleLabel && artBannerRoleDesc && artBannerBadgePrivilege) {
     if (isAdmin) {
-      artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Administrator Penuh';
-      artBannerRoleDesc.innerHTML = 'Admin memiliki hak wewenang untuk <strong>menambah</strong>, <strong>mengubah</strong>, dan <strong>menghapus</strong> data response time harian seluruh pengguna. Standar SLA &lt; 30 detik. Pengguna biasa hanya dapat melihat.';
+      artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
+      artBannerRoleDesc.textContent = '';
+      artBannerRoleDesc.classList.add('hidden');
       artBannerBadgePrivilege.className = 'badge badge-admin';
       artBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
     } else {
-      artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Pengguna (Hanya Lihat)';
-      artBannerRoleDesc.innerHTML = 'Anda sedang melihat rekapitulasi Average Response Time 1 bulan dengan interval input per hari dalam mode <strong>Hanya Lihat (Read-Only)</strong>. Standar SLA &lt; 30 detik. Penambahan, pengubahan, atau penghapusan data dikelola oleh Admin.';
+      artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
+      artBannerRoleDesc.textContent = '';
+      artBannerRoleDesc.classList.add('hidden');
       artBannerBadgePrivilege.className = 'badge badge-user';
       artBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
     }
@@ -3838,6 +3904,7 @@ function executePendingDelete() {
     const logs = state.getCaLogs().filter(p => p.id !== id);
     state.saveCaLogs(logs);
     if (state.selectedCaIds) state.selectedCaIds.delete(id);
+    autoSyncCaAction('delete', { id });
     state.addLog('DELETE_CA', 'Hapus Nilai CA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus evaluasi CA: ${name}.`);
     showToast('Evaluasi CA Dihapus', `Data penilaian mutu CA berhasil dihapus.`, 'danger');
     renderCaPage();
@@ -3848,6 +3915,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveCaLogs(remainingLogs);
     if (state.selectedCaIds) state.selectedCaIds.clear();
+    autoSyncCaAction('delete_month', { month });
     state.addLog('DELETE_CA_MONTH', 'Hapus Data CA Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data CA periode ${name} (${countBefore} catatan).`);
     showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data evaluasi CA</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderCaPage();
@@ -3857,6 +3925,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveCaLogs(remainingLogs);
     if (state.selectedCaIds) state.selectedCaIds.clear();
+    autoSyncCaAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_CA_BATCH', 'Hapus Data CA Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data evaluasi CA yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data evaluasi</strong> berhasil dihapus.`, 'danger');
     renderCaPage();
@@ -4959,6 +5028,19 @@ function openAddTimerModal() {
   UI.formTimerHours.value = 1;
   UI.formTimerMinutes.value = 0;
   UI.formTimerSeconds.value = 0;
+  const userDept = (state.currentUser.department || '').trim();
+  const validTimerCats = [
+    'CSO INBOUND',
+    'CSO DIGILIVE CHAT - DM',
+    'CSO DIGILIVE CHAT - MY ICON+',
+    'CSO DIGILIVE CHAT - WA',
+    'CSO BACK OFFICE',
+    'CSO OUTBOUND',
+    'CSO EMAIL'
+  ];
+  if (UI.formTimerCategory) {
+    UI.formTimerCategory.value = validTimerCats.includes(userDept) ? userDept : 'CSO INBOUND';
+  }
   UI.modalTimerForm.classList.remove('hidden');
 }
 
@@ -4980,7 +5062,16 @@ window.openEditTimerModal = function(id) {
 
   UI.formTimerId.value = timer.id;
   UI.formTimerName.value = timer.name;
-  UI.formTimerCategory.value = timer.category || 'TI & Server';
+  const validTimerCats = [
+    'CSO INBOUND',
+    'CSO DIGILIVE CHAT - DM',
+    'CSO DIGILIVE CHAT - MY ICON+',
+    'CSO DIGILIVE CHAT - WA',
+    'CSO BACK OFFICE',
+    'CSO OUTBOUND',
+    'CSO EMAIL'
+  ];
+  UI.formTimerCategory.value = validTimerCats.includes(timer.category) ? timer.category : 'CSO INBOUND';
   UI.formTimerAutoStart.value = timer.isRunning ? 'running' : 'paused';
   UI.formTimerDesc.value = timer.desc || '';
 
@@ -5147,6 +5238,19 @@ window.promptDeleteTimer = function(id, name) {
 function openAddStopwatchModal() {
   if (!state.currentUser) return;
   UI.stopwatchForm.reset();
+  const userDept = (state.currentUser.department || '').trim();
+  const validDepts = [
+    'CSO INBOUND',
+    'CSO DIGILIVE CHAT - DM',
+    'CSO DIGILIVE CHAT - MY ICON+',
+    'CSO DIGILIVE CHAT - WA',
+    'CSO BACK OFFICE',
+    'CSO OUTBOUND',
+    'CSO EMAIL'
+  ];
+  if (UI.formStopwatchDept) {
+    UI.formStopwatchDept.value = validDepts.includes(userDept) ? userDept : 'CSO INBOUND';
+  }
   UI.modalStopwatchForm.classList.remove('hidden');
 }
 
@@ -5159,7 +5263,7 @@ function handleSaveStopwatch(e) {
   if (!state.currentUser) return;
 
   const name = UI.formStopwatchName.value.trim();
-  const dept = UI.formStopwatchDept.value.trim();
+  const dept = (UI.formStopwatchDept ? UI.formStopwatchDept.value.trim() : '') || 'CSO INBOUND';
   const autoStart = UI.formStopwatchAutoStart.value === 'running';
 
   if (!name) {
@@ -5175,7 +5279,7 @@ function handleSaveStopwatch(e) {
     userFullName: state.currentUser.fullName,
     userAvatar: state.currentUser.avatar || 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     name,
-    dept: dept || (state.currentUser.department ? state.currentUser.department.split('&')[0].trim() : 'Operasional'),
+    dept: dept,
     elapsedSeconds: 0,
     isRunning: autoStart,
     lastTick: Date.now()
@@ -5782,7 +5886,7 @@ function exportPaCSV() {
 }
 
 // ==========================================
-// 12.5 CA (CUSTOMER ASSESSMENT)
+// 12.5 CA (CUSTOMER ATTRIBUTES)
 // ==========================================
 
 function formatCaScore(val) {
@@ -5815,6 +5919,9 @@ function renderCaPage() {
     UI.caUserCountBadge.textContent = `${users.length} User Terdaftar`;
   }
 
+  // Update Google Spreadsheet Integration Status Bar
+  renderCaGSheetBar();
+
   // Toggle Section 1 visibility based on role
   if (UI.caUserSummarySection) {
     UI.caUserSummarySection.classList.toggle('hidden', !isAdmin);
@@ -5846,9 +5953,8 @@ function renderCaPage() {
 
   // Subtitle for Section 2
   if (UI.caDailySubtitle) {
-    UI.caDailySubtitle.textContent = isAdmin
-      ? 'Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.'
-      : 'Daftar riwayat evaluasi mutu harian Anda dalam bulan terpilih.';
+    UI.caDailySubtitle.textContent = '';
+    UI.caDailySubtitle.classList.add('hidden');
   }
 
   // Filter logs for the selected 1-month period
@@ -6171,7 +6277,10 @@ function openAddCaModal() {
   if (UI.formCa) UI.formCa.reset();
   if (UI.formCaId) UI.formCaId.value = '';
   if (UI.modalCaTitle) UI.modalCaTitle.textContent = 'Input Penilaian CA Harian';
-  if (UI.modalCaSubtitle) UI.modalCaSubtitle.textContent = 'Pencatatan evaluasi mutu interaksi agen CSO per hari dalam 1 bulan (Format Desimal)';
+  if (UI.modalCaSubtitle) {
+    UI.modalCaSubtitle.textContent = '';
+    UI.modalCaSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitCaText) UI.btnSubmitCaText.textContent = 'Simpan Nilai CA';
 
   // Set default date to today or selected month
@@ -6211,7 +6320,10 @@ window.promptEditCa = function(id) {
   if (UI.formCa) UI.formCa.reset();
   if (UI.formCaId) UI.formCaId.value = item.id;
   if (UI.modalCaTitle) UI.modalCaTitle.textContent = 'Edit Penilaian CA Harian';
-  if (UI.modalCaSubtitle) UI.modalCaSubtitle.textContent = `Mengubah evaluasi harian untuk ${item.userFullName} (${item.date})`;
+  if (UI.modalCaSubtitle) {
+    UI.modalCaSubtitle.textContent = '';
+    UI.modalCaSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitCaText) UI.btnSubmitCaText.textContent = 'Perbarui Nilai CA';
 
   if (UI.formCaDate) UI.formCaDate.value = item.date;
@@ -6276,6 +6388,7 @@ function handleSaveCa(e) {
       logs[idx].updatedBy = u.fullName;
     }
     state.saveCaLogs(logs);
+    if (idx !== -1) autoSyncCaAction('save', { log: logs[idx] });
     state.addLog('UPDATE_CA', 'Ubah Nilai CA', `Admin ${u.fullName} memperbarui nilai CA harian ${userFullName} (${date}): ${formatCaScore(score)} (${grade}).`);
     showToast('Nilai CA Diperbarui', `Penilaian harian <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${formatCaScore(score)}</strong>.`, 'success');
   } else {
@@ -6296,6 +6409,7 @@ function handleSaveCa(e) {
     };
     logs.unshift(newEntry);
     state.saveCaLogs(logs);
+    autoSyncCaAction('save', { log: newEntry });
     state.addLog('CREATE_CA', 'Input Nilai CA', `Admin ${u.fullName} mencatat penilaian mutu CA harian untuk ${userFullName}: ${formatCaScore(score)} (${grade}).`);
     showToast('Nilai CA Disimpan', `Skor evaluasi harian <strong>${formatCaScore(score)}</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
   }
@@ -6427,6 +6541,758 @@ window.filterCaByUser = function(userName) {
   }
 };
 
+function exportCaExcel() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+  const selMonth = (UI.filterCaMonth ? UI.filterCaMonth.value : '2026-09') || '2026-09';
+  const allLogs = state.getCaLogs();
+  const users = state.getUsers();
+
+  let exportLogs;
+  if (state.selectedCaIds && state.selectedCaIds.size > 0) {
+    exportLogs = allLogs.filter(l => state.selectedCaIds.has(l.id));
+  } else {
+    let monthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth));
+    if (!isAdmin) {
+      monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    }
+    exportLogs = monthLogs;
+  }
+
+  if (exportLogs.length === 0) {
+    showToast('Data Kosong', 'Tidak ada data Customer Attributes (CA) untuk diekspor.', 'warning');
+    return;
+  }
+
+  const sheet1Data = [
+    ['No', 'ID Evaluasi', 'Tanggal Evaluasi', 'Nama Petugas CSO', 'Layanan CSO', 'Channel Interaksi', 'Skor Nilai CA', 'Kategori Mutu', 'Parameter Fokus Evaluasi', 'Status', 'Catatan Evaluasi']
+  ];
+  exportLogs.forEach((l, idx) => {
+    sheet1Data.push([
+      idx + 1,
+      l.id,
+      l.date,
+      l.userFullName,
+      l.department,
+      l.channel || '-',
+      parseFloat(l.score) || 0,
+      l.grade || '-',
+      l.focusParam || '-',
+      l.status || 'Terverifikasi',
+      l.notes || '-'
+    ]);
+  });
+
+  const sheet2Data = [
+    ['No', 'Nama Petugas CSO', 'Layanan CSO', 'Hari Dinilai', 'Rata-rata Skor', 'Predikat Mutu', 'Skor Terendah', 'Skor Tertinggi', 'Status Kelulusan']
+  ];
+  const targetUsers = isAdmin ? users : users.filter(u => u.fullName === currentFullName);
+  targetUsers.forEach((u, idx) => {
+    const userMonthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth) && l.userFullName === u.fullName);
+    const count = userMonthLogs.length;
+    let avg = 0, min = 0, max = 0, grade = 'Belum Ada Nilai', passStatus = 'Belum Dinilai';
+    if (count > 0) {
+      const scores = userMonthLogs.map(l => parseFloat(l.score) || 0);
+      const sum = scores.reduce((a, b) => a + b, 0);
+      avg = parseFloat((sum / count).toFixed(2));
+      min = Math.min(...scores);
+      max = Math.max(...scores);
+      if (avg >= 95.00) grade = 'Sangat Baik';
+      else if (avg >= 85.00) grade = 'Baik';
+      else grade = 'Perlu Coaching';
+      passStatus = avg >= 85.00 ? 'Lulus Passing Grade' : 'Di Bawah Standar';
+    }
+    sheet2Data.push([
+      idx + 1,
+      u.fullName,
+      u.department || 'CSO INBOUND',
+      count,
+      count > 0 ? avg : '-',
+      grade,
+      count > 0 ? min : '-',
+      count > 0 ? max : '-',
+      passStatus
+    ]);
+  });
+
+  const filename = `DRIVE_Customer_Attributes_CA_${selMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  if (typeof XLSX !== 'undefined' && XLSX.utils) {
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+    const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+    ws1['!cols'] = [
+      { wch: 6 }, { wch: 14 }, { wch: 16 }, { wch: 22 }, { wch: 26 },
+      { wch: 18 }, { wch: 14 }, { wch: 16 }, { wch: 40 }, { wch: 16 }, { wch: 50 }
+    ];
+    ws2['!cols'] = [
+      { wch: 6 }, { wch: 22 }, { wch: 26 }, { wch: 14 }, { wch: 16 },
+      { wch: 18 }, { wch: 16 }, { wch: 16 }, { wch: 22 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Log Harian CA');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Rekapitulasi Agent');
+    XLSX.writeFile(wb, filename);
+  } else {
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + sheet1Data.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csvContent));
+    link.setAttribute('download', filename.replace('.xlsx', '.csv'));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  showToast('Download Berhasil', `Data Customer Attributes (${exportLogs.length} baris) berhasil diunduh menjadi Excel.`, 'success');
+}
+
+// ==========================================
+// 12.5.1 CA GOOGLE SPREADSHEET INTEGRATION
+// ==========================================
+
+const CA_APPS_SCRIPT_TEMPLATE = `/**
+ * =====================================================================
+ * GOOGLE APPS SCRIPT: INTEGRASI DATA CUSTOMER ATTRIBUTES (CA)
+ * Dashboard Agent CSO - Iconnet
+ * =====================================================================
+ * Petunjuk Pemasangan:
+ * 1. Buka Google Spreadsheet baru di browser Anda (https://sheets.new).
+ * 2. Klik menu 'Ekstensi' (Extensions) > 'Apps Script'.
+ * 3. Hapus semua kode default dan tempel seluruh isi script ini.
+ * 4. Klik ikon Disket (Simpan / Ctrl+S).
+ * 5. Klik tombol 'Deploy' (Terapkan) > 'New deployment' (Penerapan baru).
+ * 6. Klik ikon gear di sebelah kiri 'Select type', pilih 'Web app'.
+ * 7. Isi keterangan: 'Integrasi Dashboard CA'.
+ * 8. Atur 'Execute as' (Jalankan sebagai) -> 'Me' (Email Anda).
+ * 9. Atur 'Who has access' (Siapa yang memiliki akses) -> 'Anyone' (Siapa saja).
+ * 10. Klik 'Deploy', berikan izin akun (Authorize Access), lalu salin URL Web App yang muncul.
+ * 11. Tempel URL Web App ke Pengaturan Google Spreadsheet di Dashboard!
+ * =====================================================================
+ */
+
+const SHEET_NAME = 'CA_Data';
+const HEADERS = [
+  'ID Evaluasi',
+  'Tanggal Evaluasi',
+  'Nama Petugas CSO',
+  'Layanan CSO',
+  'Channel Interaksi',
+  'Skor Nilai CA',
+  'Kategori Mutu',
+  'Parameter Fokus Evaluasi',
+  'Status',
+  'Catatan Evaluasi',
+  'Waktu Dibuat',
+  'Dibuat Oleh'
+];
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+  if (sheet.getLastRow() < 1) {
+    sheet.appendRow(HEADERS);
+    const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+    headerRange.setBackground('#10b981');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    for (let c = 1; c <= HEADERS.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  try {
+    const action = (e && e.parameter && e.parameter.action) || 'get_all';
+    if (action === 'ping') {
+      return createJsonResponse({ success: true, message: 'Google Apps Script CA siap terhubung!', time: new Date() });
+    }
+
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return createJsonResponse({ success: true, count: 0, data: [] });
+    }
+
+    const rows = [];
+    for (let i = 1; i < data.length; i++) {
+      const r = data[i];
+      if (!r[0]) continue;
+      rows.push({
+        id: String(r[0]),
+        date: r[1] instanceof Date ? Utilities.formatDate(r[1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(r[1]),
+        userFullName: String(r[2] || ''),
+        department: String(r[3] || ''),
+        channel: String(r[4] || ''),
+        score: parseFloat(r[5]) || 0,
+        grade: String(r[6] || ''),
+        focusParam: String(r[7] || ''),
+        status: String(r[8] || 'Terverifikasi'),
+        notes: String(r[9] || ''),
+        createdAt: String(r[10] || ''),
+        createdBy: String(r[11] || '')
+      });
+    }
+
+    return createJsonResponse({ success: true, count: rows.length, data: rows });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    let payload;
+    if (e && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    } else {
+      payload = {};
+    }
+
+    const action = payload.action || 'sync_all';
+    const sheet = getOrCreateSheet();
+
+    if (action === 'sync_all') {
+      const logs = payload.logs || [];
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
+      }
+      if (logs.length > 0) {
+        const rowsToAppend = logs.map(l => [
+          l.id,
+          l.date,
+          l.userFullName,
+          l.department,
+          l.channel || '-',
+          parseFloat(l.score) || 0,
+          l.grade || '-',
+          l.focusParam || '-',
+          l.status || 'Terverifikasi',
+          l.notes || '-',
+          l.createdAt || '',
+          l.createdBy || ''
+        ]);
+        sheet.getRange(2, 1, rowsToAppend.length, HEADERS.length).setValues(rowsToAppend);
+      }
+      return createJsonResponse({ success: true, message: 'Sync all berhasil', count: logs.length });
+    }
+
+    if (action === 'save') {
+      const l = payload.log;
+      if (!l || !l.id) return createJsonResponse({ success: false, error: 'Data log tidak valid' });
+
+      const data = sheet.getDataRange().getValues();
+      let foundRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(l.id)) {
+          foundRow = i + 1;
+          break;
+        }
+      }
+
+      const rowData = [
+        l.id,
+        l.date,
+        l.userFullName,
+        l.department,
+        l.channel || '-',
+        parseFloat(l.score) || 0,
+        l.grade || '-',
+        l.focusParam || '-',
+        l.status || 'Terverifikasi',
+        l.notes || '-',
+        l.createdAt || '',
+        l.createdBy || ''
+      ];
+
+      if (foundRow > 0) {
+        sheet.getRange(foundRow, 1, 1, HEADERS.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+      return createJsonResponse({ success: true, message: 'Data CA berhasil disimpan ke Google Sheets' });
+    }
+
+    if (action === 'delete') {
+      const id = payload.id;
+      const data = sheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(id)) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({ success: true, message: 'Data CA berhasil dihapus dari Google Sheets' });
+        }
+      }
+      return createJsonResponse({ success: true, message: 'ID tidak ditemukan di sheet' });
+    }
+
+    if (action === 'delete_month') {
+      const month = payload.month;
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        const rowDate = String(data[i][1]);
+        if (rowDate.indexOf(month) === 0) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Data bulan berhasil dibersihkan dari Google Sheets' });
+    }
+
+    if (action === 'delete_batch') {
+      const ids = payload.ids || [];
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (ids.indexOf(String(data[i][0])) !== -1) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Batch baris berhasil dihapus dari Google Sheets' });
+    }
+
+    return createJsonResponse({ success: false, error: 'Aksi tidak dikenal: ' + action });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+function extractGoogleSpreadsheetId(input) {
+  if (!input) return '';
+  const str = input.trim();
+  const match = str.match(/\/spreadsheets\/d\/([a-zA-Z0-9-_]+)/);
+  if (match) return match[1];
+  return str;
+}
+
+function renderCaGSheetBar() {
+  const config = state.getCaGSheetConfig();
+  const isConfigured = Boolean(config.webAppUrl && config.webAppUrl.trim());
+  const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+  const openUrl = cleanId ? `https://docs.google.com/spreadsheets/d/${cleanId}` : config.webAppUrl;
+
+  // Header Badge
+  if (UI.caGSheetHeaderBadge) {
+    if (isConfigured) {
+      UI.caGSheetHeaderBadge.textContent = 'Terhubung';
+      UI.caGSheetHeaderBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.caGSheetHeaderBadge.style.color = '#10b981';
+      UI.caGSheetHeaderBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.caGSheetHeaderBadge.textContent = 'Belum Terhubung';
+      UI.caGSheetHeaderBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+      UI.caGSheetHeaderBadge.style.color = 'var(--gray-300)';
+      UI.caGSheetHeaderBadge.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  // Status Badge inside Bar
+  if (UI.caGSheetStatusBadge) {
+    if (isConfigured) {
+      UI.caGSheetStatusBadge.textContent = 'Terhubung';
+      UI.caGSheetStatusBadge.className = 'badge badge-green';
+      UI.caGSheetStatusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.caGSheetStatusBadge.style.color = '#10b981';
+      UI.caGSheetStatusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.caGSheetStatusBadge.textContent = 'Belum Dikonfigurasi';
+      UI.caGSheetStatusBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+      UI.caGSheetStatusBadge.style.color = '#94a3b8';
+      UI.caGSheetStatusBadge.style.border = '1px solid rgba(100, 116, 139, 0.3)';
+    }
+  }
+
+  // Status Info inside Bar
+  if (UI.caGSheetStatusInfo) {
+    if (isConfigured) {
+      const syncTime = config.lastSyncTime ? `Terakhir sinkron: ${config.lastSyncTime}` : 'Belum pernah disinkronkan';
+      const autoText = config.autoSync ? ' (Auto-Sync Aktif)' : ' (Sinkronisasi Manual)';
+      UI.caGSheetStatusInfo.innerHTML = `<span style="color:#10b981;"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>${syncTime}${autoText}</span>`;
+    } else {
+      UI.caGSheetStatusInfo.textContent = 'Klik tombol "Pengaturan & Script" untuk menghubungkan data CA dengan Google Spreadsheet Anda.';
+    }
+  }
+
+  // Open Link buttons
+  if (UI.btnCaGSheetOpenLink) {
+    if (openUrl) {
+      UI.btnCaGSheetOpenLink.href = openUrl;
+      UI.btnCaGSheetOpenLink.classList.remove('hidden');
+      UI.btnCaGSheetOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnCaGSheetOpenLink.classList.add('hidden');
+      UI.btnCaGSheetOpenLink.style.display = 'none';
+    }
+  }
+  if (UI.btnCaGSheetModalOpenLink) {
+    if (openUrl) {
+      UI.btnCaGSheetModalOpenLink.href = openUrl;
+      UI.btnCaGSheetModalOpenLink.classList.remove('hidden');
+      UI.btnCaGSheetModalOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnCaGSheetModalOpenLink.classList.add('hidden');
+      UI.btnCaGSheetModalOpenLink.style.display = 'none';
+    }
+  }
+}
+
+function openCaGSheetModal() {
+  const config = state.getCaGSheetConfig();
+  if (UI.inputCaGSheetWebAppUrl) UI.inputCaGSheetWebAppUrl.value = config.webAppUrl || '';
+  if (UI.inputCaGSheetUrl) UI.inputCaGSheetUrl.value = config.sheetId || '';
+  if (UI.inputCaGSheetTabName) UI.inputCaGSheetTabName.value = config.sheetName || 'CA_Data';
+  if (UI.checkCaGSheetAutoSync) UI.checkCaGSheetAutoSync.checked = config.autoSync !== false;
+
+  const logs = state.getCaLogs();
+  if (UI.labelCaGSheetModalTotalCount) UI.labelCaGSheetModalTotalCount.textContent = `${logs.length} Baris`;
+  if (UI.labelCaGSheetModalLastSync) UI.labelCaGSheetModalLastSync.textContent = config.lastSyncTime || 'Belum pernah';
+
+  if (UI.labelCaGSheetModalStatus) {
+    if (config.webAppUrl) {
+      UI.labelCaGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelCaGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  if (UI.caAppsScriptCodePreview) {
+    UI.caAppsScriptCodePreview.textContent = CA_APPS_SCRIPT_TEMPLATE;
+  }
+
+  switchCaGSheetTab('config');
+  renderCaGSheetBar();
+  if (UI.modalCaGoogleSheets) UI.modalCaGoogleSheets.classList.remove('hidden');
+}
+
+function closeCaGSheetModal() {
+  if (UI.modalCaGoogleSheets) UI.modalCaGoogleSheets.classList.add('hidden');
+}
+
+function switchCaGSheetTab(tab) {
+  if (tab === 'config') {
+    if (UI.tabBtnCaGSheetConfig) UI.tabBtnCaGSheetConfig.classList.add('active');
+    if (UI.tabBtnCaGSheetGuide) UI.tabBtnCaGSheetGuide.classList.remove('active');
+    if (UI.tabContentCaGSheetConfig) UI.tabContentCaGSheetConfig.classList.remove('hidden');
+    if (UI.tabContentCaGSheetGuide) UI.tabContentCaGSheetGuide.classList.add('hidden');
+  } else {
+    if (UI.tabBtnCaGSheetConfig) UI.tabBtnCaGSheetConfig.classList.remove('active');
+    if (UI.tabBtnCaGSheetGuide) UI.tabBtnCaGSheetGuide.classList.add('active');
+    if (UI.tabContentCaGSheetConfig) UI.tabContentCaGSheetConfig.classList.add('hidden');
+    if (UI.tabContentCaGSheetGuide) UI.tabContentCaGSheetGuide.classList.remove('hidden');
+  }
+}
+
+function saveCaGSheetConfigHandler() {
+  const current = state.getCaGSheetConfig();
+  const webAppUrl = (UI.inputCaGSheetWebAppUrl ? UI.inputCaGSheetWebAppUrl.value.trim() : '');
+  const sheetInput = (UI.inputCaGSheetUrl ? UI.inputCaGSheetUrl.value.trim() : '');
+  const sheetName = (UI.inputCaGSheetTabName ? UI.inputCaGSheetTabName.value.trim() : '') || 'CA_Data';
+  const autoSync = UI.checkCaGSheetAutoSync ? UI.checkCaGSheetAutoSync.checked : true;
+
+  const cleanId = extractGoogleSpreadsheetId(sheetInput);
+
+  const updated = {
+    ...current,
+    webAppUrl,
+    sheetId: cleanId || sheetInput,
+    sheetName,
+    autoSync
+  };
+
+  state.saveCaGSheetConfig(updated);
+  renderCaGSheetBar();
+
+  if (UI.labelCaGSheetModalStatus) {
+    if (webAppUrl) {
+      UI.labelCaGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelCaGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  showToast('Pengaturan Disimpan', 'Konfigurasi Google Spreadsheet berhasil disimpan.', 'success');
+}
+
+async function testCaGSheetConnection() {
+  const webAppUrl = (UI.inputCaGSheetWebAppUrl ? UI.inputCaGSheetWebAppUrl.value.trim() : '') || state.getCaGSheetConfig().webAppUrl;
+  if (!webAppUrl) {
+    showToast('URL Kosong', 'Harap masukkan URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    return;
+  }
+
+  const btn = UI.btnCaGSheetTest;
+  const originalText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menghubungkan...</span>';
+  }
+
+  try {
+    const pingUrl = webAppUrl + (webAppUrl.includes('?') ? '&' : '?') + 'action=ping';
+    const resp = await fetch(pingUrl, {
+      method: 'GET',
+      mode: 'cors'
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Koneksi Berhasil', 'Google Apps Script berhasil merespons dan terhubung ke spreadsheet!', 'success');
+      } else {
+        showToast('Terhubung', 'Respons diterima dari Google Apps Script Web App.', 'info');
+      }
+    } else {
+      showToast('Koneksi Selesai', `Status HTTP: ${resp.status}. URL dapat diakses.`, 'info');
+    }
+  } catch (err) {
+    showToast('Pengujian Selesai', 'Request terkirim. Jika URL Web App valid dengan izin "Anyone", koneksi siap digunakan.', 'info');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+}
+
+async function pushCaToGoogleSheets() {
+  const config = state.getCaGSheetConfig();
+  if (!config.webAppUrl) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    openCaGSheetModal();
+    return;
+  }
+
+  const logs = state.getCaLogs();
+  const pushBtn = UI.btnCaGSheetPush;
+  const modalPushBtn = UI.btnCaGSheetModalPush;
+
+  const setPushing = (isPushing) => {
+    if (pushBtn) {
+      pushBtn.disabled = isPushing;
+      pushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+    if (modalPushBtn) {
+      modalPushBtn.disabled = isPushing;
+      modalPushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+  };
+
+  setPushing(true);
+
+  try {
+    const payload = {
+      action: 'sync_all',
+      logs: logs
+    };
+
+    // Use text/plain to avoid preflight CORS restrictions from Google Apps Script Web App
+    await fetch(config.webAppUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      }
+    });
+
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    config.lastSyncTime = formatted;
+    config.lastSyncStatus = 'success';
+    state.saveCaGSheetConfig(config);
+    renderCaGSheetBar();
+
+    if (UI.labelCaGSheetModalLastSync) UI.labelCaGSheetModalLastSync.textContent = formatted;
+
+    showToast('Sinkronisasi Sukses', `Sebanyak <strong>${logs.length} data CA</strong> berhasil dikirim ke Google Spreadsheet.`, 'success');
+  } catch (err) {
+    console.error('Error pushing CA to Google Sheets:', err);
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    config.lastSyncTime = formatted;
+    state.saveCaGSheetConfig(config);
+    renderCaGSheetBar();
+    showToast('Data Dikirim', `Permintaan sinkronisasi (${logs.length} data) telah dikirim ke Google Spreadsheet.`, 'info');
+  } finally {
+    setPushing(false);
+  }
+}
+
+async function pullCaFromGoogleSheets() {
+  const config = state.getCaGSheetConfig();
+  if (!config.webAppUrl && !config.sheetId) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App atau ID Spreadsheet terlebih dahulu.', 'warning');
+    openCaGSheetModal();
+    return;
+  }
+
+  const pullBtn = UI.btnCaGSheetPull;
+  const modalPullBtn = UI.btnCaGSheetModalPull;
+
+  const setPulling = (isPulling) => {
+    if (pullBtn) {
+      pullBtn.disabled = isPulling;
+      pullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+    if (modalPullBtn) {
+      modalPullBtn.disabled = isPulling;
+      modalPullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+  };
+
+  setPulling(true);
+
+  try {
+    let pulledRows = null;
+
+    if (config.webAppUrl) {
+      const getUrl = config.webAppUrl + (config.webAppUrl.includes('?') ? '&' : '?') + 'action=get_all';
+      const resp = await fetch(getUrl, { method: 'GET', mode: 'cors' });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json && json.success && Array.isArray(json.data)) {
+          pulledRows = json.data;
+        }
+      }
+    }
+
+    // Fallback to public sheet CSV export if Web App did not return JSON or if only sheetId is present
+    if (!pulledRows && config.sheetId) {
+      const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${cleanId}/export?format=csv&sheet=${encodeURIComponent(config.sheetName || 'CA_Data')}`;
+      const resp = await fetch(csvUrl);
+      if (resp.ok) {
+        const csvText = await resp.text();
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+        if (lines.length > 1) {
+          pulledRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = parseCsvRow(lines[i]);
+            if (cols[0]) {
+              pulledRows.push({
+                id: cols[0],
+                date: cols[1] || '',
+                userFullName: cols[2] || '',
+                department: cols[3] || 'CSO INBOUND',
+                channel: cols[4] || 'Live Chat WA',
+                score: parseFloat(cols[5]) || 0,
+                grade: cols[6] || 'Baik',
+                focusParam: cols[7] || '',
+                status: cols[8] || 'Terverifikasi',
+                notes: cols[9] || '',
+                createdAt: cols[10] || '',
+                createdBy: cols[11] || ''
+              });
+            }
+          }
+        }
+      }
+    }
+
+    if (pulledRows && pulledRows.length > 0) {
+      state.saveCaLogs(pulledRows);
+      const now = new Date();
+      const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      config.lastSyncTime = formatted;
+      state.saveCaGSheetConfig(config);
+      renderCaPage();
+      showToast('Tarik Data Berhasil', `Berhasil mengambil <strong>${pulledRows.length} data CA</strong> dari Google Spreadsheet.`, 'success');
+    } else {
+      showToast('Data Kosong / Tidak Terbaca', 'Tidak ada data CA yang ditemukan pada Google Spreadsheet atau sheet masih kosong.', 'info');
+    }
+  } catch (err) {
+    console.error('Error pulling from Google Sheets:', err);
+    showToast('Gagal Menarik Data', 'Pastikan Google Apps Script sudah dideploy dengan akses "Anyone" atau sheet publik.', 'danger');
+  } finally {
+    setPulling(false);
+  }
+}
+
+function parseCsvRow(rowStr) {
+  const result = [];
+  let cur = '';
+  let inQuotes = false;
+  for (let i = 0; i < rowStr.length; i++) {
+    const c = rowStr[i];
+    if (c === '"') {
+      if (inQuotes && rowStr[i + 1] === '"') {
+        cur += '"';
+        i++;
+      } else {
+        inQuotes = !inQuotes;
+      }
+    } else if (c === ',' && !inQuotes) {
+      result.push(cur.trim());
+      cur = '';
+    } else {
+      cur += c;
+    }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function autoSyncCaAction(action, payload) {
+  const config = state.getCaGSheetConfig();
+  if (!config.webAppUrl || config.autoSync === false) return;
+
+  const bodyData = {
+    action,
+    ...payload
+  };
+
+  fetch(config.webAppUrl, {
+    method: 'POST',
+    body: JSON.stringify(bodyData),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    }
+  }).then(() => {
+    const now = new Date();
+    config.lastSyncTime = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    state.saveCaGSheetConfig(config);
+    renderCaGSheetBar();
+  }).catch(err => {
+    console.warn('Auto-sync CA to Google Sheets notification:', err);
+  });
+}
+
+function copyCaAppsScriptCode() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(CA_APPS_SCRIPT_TEMPLATE).then(() => {
+      showToast('Tersalin!', 'Kode Google Apps Script berhasil disalin ke clipboard.', 'success');
+    }).catch(() => {
+      fallbackCopyText(CA_APPS_SCRIPT_TEMPLATE);
+    });
+  } else {
+    fallbackCopyText(CA_APPS_SCRIPT_TEMPLATE);
+  }
+}
+
+function fallbackCopyText(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  document.body.appendChild(ta);
+  ta.select();
+  try {
+    document.execCommand('copy');
+    showToast('Tersalin!', 'Kode Google Apps Script berhasil disalin.', 'success');
+  } catch (e) {
+    showToast('Salin Manual', 'Silakan pilih dan salin kode dari kotak teks.', 'info');
+  }
+  document.body.removeChild(ta);
+}
+
 /// ==========================================
 // 12.6 TIKET (JUMLAH PEROLEHAN TIKET HARIAN & TARGET BULANAN 1.320)
 // ==========================================
@@ -6460,18 +7326,20 @@ function renderTiketPage() {
   const pageTitle = document.querySelector('#pageTiket .page-title');
   const pageDesc = document.querySelector('#pageTiket .page-desc');
   if (pageTitle) {
-    pageTitle.textContent = isAdmin ? 'Perolehan Tiket User (Target: 1.320 / Bulan)' : 'Perolehan Tiket Saya (Target: 1.320 / Bulan)';
+    pageTitle.textContent = isAdmin ? 'Perolehan Tiket Agent' : 'Perolehan Tiket Saya';
   }
   if (pageDesc) {
-    pageDesc.textContent = isAdmin
-      ? 'Informasi akumulasi jumlah perolehan tiket seluruh user dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket. Admin dapat menambah, mengubah, dan menghapus perolehan tiket. Pengguna biasa hanya dapat melihat.'
-      : 'Informasi akumulasi jumlah perolehan tiket untuk akun Anda dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket.';
+    pageDesc.textContent = '';
+    pageDesc.classList.add('hidden');
   }
 
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
-    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Administrator Penuh (CRUD)';
-    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh agent. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat perolehan tiket miliknya sendiri.';
+    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket';
+    if (UI.tiketBannerRoleDesc) {
+      UI.tiketBannerRoleDesc.textContent = '';
+      UI.tiketBannerRoleDesc.classList.add('hidden');
+    }
     if (UI.tiketBannerBadgePrivilege) {
       UI.tiketBannerBadgePrivilege.className = 'badge badge-admin';
       UI.tiketBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
@@ -6480,8 +7348,11 @@ function renderTiketPage() {
     if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.remove('hidden');
     if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.remove('hidden');
   } else {
-    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket: Data Pribadi (Hanya Lihat)';
-    if (UI.tiketBannerRoleDesc) UI.tiketBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi akumulasi dan rincian perolehan tiket untuk diri Anda sendiri (target 1.320 tiket/bulan). Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket';
+    if (UI.tiketBannerRoleDesc) {
+      UI.tiketBannerRoleDesc.textContent = '';
+      UI.tiketBannerRoleDesc.classList.add('hidden');
+    }
     if (UI.tiketBannerBadgePrivilege) {
       UI.tiketBannerBadgePrivilege.className = 'badge badge-user';
       UI.tiketBannerBadgePrivilege.textContent = 'Hanya Lihat Pribadi';
@@ -6546,11 +7417,8 @@ function renderTiketPage() {
     }
   }
   if (summaryDescEl) {
-    if (isAdmin) {
-      summaryDescEl.textContent = 'Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.';
-    } else {
-      summaryDescEl.textContent = 'Monitoring akumulasi perolehan tiket harian pribadi Anda terhadap target bulanan 1.320 tiket.';
-    }
+    summaryDescEl.textContent = '';
+    summaryDescEl.classList.add('hidden');
   }
 
   const summaryFilterUser = isAdmin ? (UI.filterSummaryTiketUser ? UI.filterSummaryTiketUser.value : 'ALL') : currentFullName;
@@ -6844,11 +7712,8 @@ function renderTiketPage() {
   // (Untuk user: Hanya data perolehan dirinya sendiri yang tampil)
   // ========================================================
   if (UI.tiketDailySubtitle) {
-    if (isAdmin) {
-      UI.tiketDailySubtitle.textContent = 'Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.';
-    } else {
-      UI.tiketDailySubtitle.textContent = 'Daftar riwayat perolehan tiket per hari untuk diri Anda sendiri dalam bulan terpilih.';
-    }
+    UI.tiketDailySubtitle.textContent = '';
+    UI.tiketDailySubtitle.classList.add('hidden');
   }
 
   const searchQ = (UI.searchTiketInput ? UI.searchTiketInput.value.trim().toLowerCase() : '');
@@ -7003,6 +7868,10 @@ function openAddTiketModal() {
   }
 
   if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Input Perolehan Tiket Harian';
+  if (UI.modalTiketSubtitle) {
+    UI.modalTiketSubtitle.textContent = '';
+    UI.modalTiketSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitTiketText) UI.btnSubmitTiketText.textContent = 'Simpan Perolehan Tiket';
   if (UI.formTiket) UI.formTiket.reset();
   if (UI.formTiketId) UI.formTiketId.value = '';
@@ -7049,6 +7918,10 @@ function openEditTiketModal(item) {
   if (UI.formTiketNotes) UI.formTiketNotes.value = item.notes || '';
 
   if (UI.modalTiketTitle) UI.modalTiketTitle.textContent = 'Edit Perolehan Tiket Harian';
+  if (UI.modalTiketSubtitle) {
+    UI.modalTiketSubtitle.textContent = '';
+    UI.modalTiketSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitTiketText) UI.btnSubmitTiketText.textContent = 'Perbarui Perolehan Tiket';
 
   if (UI.modalTiketForm) UI.modalTiketForm.classList.remove('hidden');
@@ -7238,6 +8111,103 @@ function deselectAllTiket() {
   renderTiketPage();
 }
 
+function exportTiketExcel() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+  const selectedMonth = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
+  const allTikets = state.getTikets();
+  const users = state.getUsers();
+
+  let exportLogs;
+  if (state.selectedTiketIds && state.selectedTiketIds.size > 0) {
+    exportLogs = allTikets.filter(l => state.selectedTiketIds.has(l.id));
+  } else {
+    let monthLogs = allTikets.filter(l => (l.date || '').startsWith(selectedMonth));
+    if (!isAdmin) {
+      monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    }
+    exportLogs = monthLogs;
+  }
+
+  if (exportLogs.length === 0) {
+    showToast('Data Kosong', 'Tidak ada data Perolehan Tiket untuk diekspor.', 'warning');
+    return;
+  }
+
+  const sheet1Data = [
+    ['No', 'ID Tiket', 'Tanggal Input', 'Nama Petugas CSO', 'Layanan CSO', 'Kategori Tiket', 'Jumlah Tiket Harian', 'Tiket Terselesaikan', 'Kepatuhan SLA (%)', 'Catatan Kinerja']
+  ];
+  exportLogs.forEach((l, idx) => {
+    sheet1Data.push([
+      idx + 1,
+      l.id,
+      l.date,
+      l.userFullName,
+      l.department,
+      l.category || '-',
+      Number(l.ticketCount) || 0,
+      Number(l.solvedTickets) || Number(l.ticketCount) || 0,
+      parseFloat(l.slaRate) || 100,
+      l.notes || '-'
+    ]);
+  });
+
+  const sheet2Data = [
+    ['No', 'Nama Petugas CSO', 'Layanan CSO', 'Hari Kerja Input', 'Total Tiket Diperoleh', 'Rata-rata Tiket / Hari', 'Target Bulanan', 'Persentase Capaian (%)', 'Status Target']
+  ];
+  const targetUsers = isAdmin ? users : users.filter(u => u.fullName === currentFullName);
+  targetUsers.forEach((u, idx) => {
+    const userMonthLogs = allTikets.filter(l => (l.date || '').startsWith(selectedMonth) && l.userFullName === u.fullName);
+    const days = userMonthLogs.length;
+    const total = userMonthLogs.reduce((acc, curr) => acc + (Number(curr.ticketCount) || 0), 0);
+    const avg = days > 0 ? parseFloat((total / days).toFixed(1)) : 0;
+    const pct = parseFloat(((total / 1320) * 100).toFixed(1));
+    const status = total >= 1320 ? 'Mencapai Target' : 'Belum Mencapai Target';
+
+    sheet2Data.push([
+      idx + 1,
+      u.fullName,
+      u.department || 'CSO INBOUND',
+      days,
+      total,
+      avg,
+      1320,
+      `${pct}%`,
+      status
+    ]);
+  });
+
+  const filename = `DRIVE_Perolehan_Tiket_Agent_${selectedMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  if (typeof XLSX !== 'undefined' && XLSX.utils) {
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+    const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+    ws1['!cols'] = [
+      { wch: 6 }, { wch: 18 }, { wch: 16 }, { wch: 22 }, { wch: 26 },
+      { wch: 30 }, { wch: 18 }, { wch: 20 }, { wch: 20 }, { wch: 50 }
+    ];
+    ws2['!cols'] = [
+      { wch: 6 }, { wch: 22 }, { wch: 26 }, { wch: 18 }, { wch: 22 },
+      { wch: 22 }, { wch: 16 }, { wch: 24 }, { wch: 24 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Log Tiket Harian');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Rekapitulasi Target Bulanan');
+    XLSX.writeFile(wb, filename);
+  } else {
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + sheet1Data.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csvContent));
+    link.setAttribute('download', filename.replace('.xlsx', '.csv'));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  showToast('Download Berhasil', `Data Perolehan Tiket (${exportLogs.length} baris) berhasil diunduh menjadi Excel.`, 'success');
+}
+
 
 // ==========================================
 // 12.7 AHT (AVERAGE HANDLING TIME) - 1 BULAN & INTERVAL INPUT PER HARI
@@ -7287,15 +8257,17 @@ function renderAhtPage() {
     pageTitle.textContent = isAdmin ? 'Average Handling Time (AHT)' : 'Average Handling Time (AHT) - Performa Saya';
   }
   if (pageDesc) {
-    pageDesc.textContent = isAdmin
-      ? 'Informasi Average Handling Time (AHT) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik. Admin dapat menambah, mengubah, dan menghapus handling time user. Pengguna biasa hanya dapat melihat.'
-      : 'Informasi Average Handling Time (AHT) akun Anda dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik.';
+    pageDesc.textContent = '';
+    pageDesc.classList.add('hidden');
   }
 
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
-    if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Administrator Penuh (CRUD)';
-    if (UI.ahtBannerRoleDesc) UI.ahtBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus handling time harian seluruh user. Standar SLA < 300 detik (05:00 menit). Pengguna biasa hanya dapat melihat.';
+    if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT)';
+    if (UI.ahtBannerRoleDesc) {
+      UI.ahtBannerRoleDesc.textContent = '';
+      UI.ahtBannerRoleDesc.classList.add('hidden');
+    }
     if (UI.ahtBannerBadgePrivilege) {
       UI.ahtBannerBadgePrivilege.className = 'badge badge-admin';
       UI.ahtBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
@@ -7304,8 +8276,11 @@ function renderAhtPage() {
     if (UI.btnDeleteAllAhtMonth) UI.btnDeleteAllAhtMonth.classList.remove('hidden');
     if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.remove('hidden');
   } else {
-    if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT): Data Pribadi (Hanya Lihat)';
-    if (UI.ahtBannerRoleDesc) UI.ahtBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi dan rincian Average Handling Time untuk diri Anda sendiri dalam mode Hanya Lihat. Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT)';
+    if (UI.ahtBannerRoleDesc) {
+      UI.ahtBannerRoleDesc.textContent = '';
+      UI.ahtBannerRoleDesc.classList.add('hidden');
+    }
     if (UI.ahtBannerBadgePrivilege) {
       UI.ahtBannerBadgePrivilege.className = 'badge badge-user';
       UI.ahtBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
@@ -7367,11 +8342,8 @@ function renderAhtPage() {
     }
   }
   if (summaryDescEl) {
-    if (isAdmin) {
-      summaryDescEl.textContent = 'Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.';
-    } else {
-      summaryDescEl.textContent = 'Monitoring performa durasi rata-rata penanganan interaksi akun pribadi Anda dalam 1 bulan terhadap batas SLA 300 detik.';
-    }
+    summaryDescEl.textContent = '';
+    summaryDescEl.classList.add('hidden');
   }
 
   const summaryFilterUser = isAdmin ? (UI.filterSummaryAhtUser ? UI.filterSummaryAhtUser.value : 'ALL') : currentFullName;
@@ -7622,11 +8594,8 @@ function renderAhtPage() {
   // Section 2: Log Handling Time Harian (Interval Input Per Hari)
   // ========================================================
   if (UI.ahtDailySubtitle) {
-    if (isAdmin) {
-      UI.ahtDailySubtitle.textContent = 'Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.';
-    } else {
-      UI.ahtDailySubtitle.textContent = 'Daftar riwayat durasi penanganan per hari untuk akun Anda dalam bulan terpilih (Hanya Lihat).';
-    }
+    UI.ahtDailySubtitle.textContent = '';
+    UI.ahtDailySubtitle.classList.add('hidden');
   }
 
   const searchQ = (UI.searchAhtInput ? UI.searchAhtInput.value.trim().toLowerCase() : '');
@@ -7798,6 +8767,10 @@ function openAddAhtModal() {
   }
 
   if (UI.modalAhtTitle) UI.modalAhtTitle.textContent = 'Input Handling Time Harian (AHT)';
+  if (UI.modalAhtSubtitle) {
+    UI.modalAhtSubtitle.textContent = '';
+    UI.modalAhtSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitAhtText) UI.btnSubmitAhtText.textContent = 'Simpan Handling Time';
   if (UI.formAht) UI.formAht.reset();
   if (UI.formAhtId) UI.formAhtId.value = '';
@@ -7855,6 +8828,10 @@ function openEditAhtModal(item) {
   if (UI.formAhtNotes) UI.formAhtNotes.value = item.notes || '';
 
   if (UI.modalAhtTitle) UI.modalAhtTitle.textContent = 'Edit Handling Time Harian (AHT)';
+  if (UI.modalAhtSubtitle) {
+    UI.modalAhtSubtitle.textContent = '';
+    UI.modalAhtSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitAhtText) UI.btnSubmitAhtText.textContent = 'Perbarui Handling Time';
 
   updateAhtModalDurationPreview();
@@ -8061,15 +9038,17 @@ function renderArtPage() {
     pageTitle.textContent = isAdmin ? 'Average Response Time (ART)' : 'Average Response Time (ART) - Performa Saya';
   }
   if (pageDesc) {
-    pageDesc.textContent = isAdmin
-      ? 'Informasi Average Response Time (ART) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik. Admin dapat menambah, mengubah, dan menghapus response time user. Pengguna biasa hanya dapat melihat.'
-      : 'Informasi Average Response Time (ART) akun Anda dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik (Hanya Lihat).';
+    pageDesc.textContent = '';
+    pageDesc.classList.add('hidden');
   }
 
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
-    if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Administrator Penuh (CRUD)';
-    if (UI.artBannerRoleDesc) UI.artBannerRoleDesc.textContent = 'Admin dapat menambah, mengedit, dan menghapus response time harian seluruh user. Standar SLA < 30 detik. Pengguna biasa hanya dapat melihat.';
+    if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
+    if (UI.artBannerRoleDesc) {
+      UI.artBannerRoleDesc.textContent = '';
+      UI.artBannerRoleDesc.classList.add('hidden');
+    }
     if (UI.artBannerBadgePrivilege) {
       UI.artBannerBadgePrivilege.className = 'badge badge-admin';
       UI.artBannerBadgePrivilege.textContent = 'Akses Penuh (CRUD)';
@@ -8078,8 +9057,11 @@ function renderArtPage() {
     if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.remove('hidden');
     if (UI.artThSelectAll) UI.artThSelectAll.classList.remove('hidden');
   } else {
-    if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART): Data Pribadi (Hanya Lihat)';
-    if (UI.artBannerRoleDesc) UI.artBannerRoleDesc.textContent = 'Anda masuk sebagai Pengguna Biasa. Anda hanya dapat melihat informasi dan rincian Average Response Time untuk diri Anda sendiri dalam mode Hanya Lihat. Penambahan, pengeditan, dan penghapusan data dikelola oleh Administrator.';
+    if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
+    if (UI.artBannerRoleDesc) {
+      UI.artBannerRoleDesc.textContent = '';
+      UI.artBannerRoleDesc.classList.add('hidden');
+    }
     if (UI.artBannerBadgePrivilege) {
       UI.artBannerBadgePrivilege.className = 'badge badge-user';
       UI.artBannerBadgePrivilege.textContent = 'Hanya Lihat (Read-Only)';
@@ -8141,11 +9123,8 @@ function renderArtPage() {
     }
   }
   if (summaryDescEl) {
-    if (isAdmin) {
-      summaryDescEl.textContent = 'Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.';
-    } else {
-      summaryDescEl.textContent = 'Monitoring kecepatan rata-rata respon interaksi akun pribadi Anda dalam 1 bulan terhadap batas standar SLA 30 detik.';
-    }
+    summaryDescEl.textContent = '';
+    summaryDescEl.classList.add('hidden');
   }
 
   const summaryFilterUser = isAdmin ? (UI.filterSummaryArtUser ? UI.filterSummaryArtUser.value : 'ALL') : currentFullName;
@@ -8414,11 +9393,8 @@ function renderArtPage() {
   // Section 2: Log Response Time Harian (Interval Input Per Hari)
   // ========================================================
   if (UI.artDailySubtitle) {
-    if (isAdmin) {
-      UI.artDailySubtitle.textContent = 'Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.';
-    } else {
-      UI.artDailySubtitle.textContent = 'Daftar riwayat kecepatan respon per hari untuk akun Anda dalam bulan terpilih (Hanya Lihat).';
-    }
+    UI.artDailySubtitle.textContent = '';
+    UI.artDailySubtitle.classList.add('hidden');
   }
 
   const searchQ = (UI.searchArtInput ? UI.searchArtInput.value.trim().toLowerCase() : '');
@@ -8586,6 +9562,10 @@ function openAddArtModal() {
   }
 
   if (UI.modalArtTitle) UI.modalArtTitle.textContent = 'Input Response Time Harian (ART)';
+  if (UI.modalArtSubtitle) {
+    UI.modalArtSubtitle.textContent = '';
+    UI.modalArtSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitArtText) UI.btnSubmitArtText.textContent = 'Simpan Response Time';
   if (UI.formArt) UI.formArt.reset();
   if (UI.formArtId) UI.formArtId.value = '';
@@ -8641,6 +9621,10 @@ function openEditArtModal(item) {
   if (UI.formArtNotes) UI.formArtNotes.value = item.notes || '';
 
   if (UI.modalArtTitle) UI.modalArtTitle.textContent = 'Edit Response Time Harian (ART)';
+  if (UI.modalArtSubtitle) {
+    UI.modalArtSubtitle.textContent = '';
+    UI.modalArtSubtitle.classList.add('hidden');
+  }
   if (UI.btnSubmitArtText) UI.btnSubmitArtText.textContent = 'Perbarui Response Time';
 
   updateArtModalResponsePreview();
@@ -9444,6 +10428,22 @@ function initEvents() {
   // CA Event Listeners
   if (UI.btnOpenAddCaModal) UI.btnOpenAddCaModal.addEventListener('click', openAddCaModal);
   if (UI.btnDeleteAllCaMonth) UI.btnDeleteAllCaMonth.addEventListener('click', promptDeleteCaMonth);
+  if (UI.btnExportCaExcel) UI.btnExportCaExcel.addEventListener('click', exportCaExcel);
+
+  // CA Google Spreadsheet Listeners
+  if (UI.btnOpenCaGoogleSheetsModal) UI.btnOpenCaGoogleSheetsModal.addEventListener('click', openCaGSheetModal);
+  if (UI.btnCaGSheetConfig) UI.btnCaGSheetConfig.addEventListener('click', openCaGSheetModal);
+  if (UI.btnCloseCaGSheetModal) UI.btnCloseCaGSheetModal.addEventListener('click', closeCaGSheetModal);
+  if (UI.tabBtnCaGSheetConfig) UI.tabBtnCaGSheetConfig.addEventListener('click', () => switchCaGSheetTab('config'));
+  if (UI.tabBtnCaGSheetGuide) UI.tabBtnCaGSheetGuide.addEventListener('click', () => switchCaGSheetTab('guide'));
+  if (UI.btnCaGSheetSaveConfig) UI.btnCaGSheetSaveConfig.addEventListener('click', saveCaGSheetConfigHandler);
+  if (UI.btnCaGSheetTest) UI.btnCaGSheetTest.addEventListener('click', testCaGSheetConnection);
+  if (UI.btnCaGSheetPush) UI.btnCaGSheetPush.addEventListener('click', pushCaToGoogleSheets);
+  if (UI.btnCaGSheetModalPush) UI.btnCaGSheetModalPush.addEventListener('click', pushCaToGoogleSheets);
+  if (UI.btnCaGSheetPull) UI.btnCaGSheetPull.addEventListener('click', pullCaFromGoogleSheets);
+  if (UI.btnCaGSheetModalPull) UI.btnCaGSheetModalPull.addEventListener('click', pullCaFromGoogleSheets);
+  if (UI.btnCopyCaAppsScript) UI.btnCopyCaAppsScript.addEventListener('click', copyCaAppsScriptCode);
+
   if (UI.btnRefreshCa) {
     UI.btnRefreshCa.addEventListener('click', () => {
       renderCaPage();
@@ -9561,6 +10561,7 @@ function initEvents() {
   if (UI.filterTiketSummarySort) UI.filterTiketSummarySort.addEventListener('change', renderTiketPage);
   if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.addEventListener('click', promptDeleteAllTiketMonth);
   if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.addEventListener('click', openAddTiketModal);
+  if (UI.btnExportTiketExcel) UI.btnExportTiketExcel.addEventListener('click', exportTiketExcel);
   if (UI.btnRefreshTiket) {
     UI.btnRefreshTiket.addEventListener('click', () => {
       renderTiketPage();

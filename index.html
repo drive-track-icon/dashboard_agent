@@ -18,6 +18,9 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
+  <!-- SheetJS Library for Excel (.xlsx) Export -->
+  <script src="js/xlsx.full.min.js"></script>
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -786,16 +789,16 @@
 
         </section>
 
-        <!-- ==================== PAGE CA: CUSTOMER ASSESSMENT ==================== -->
+        <!-- ==================== PAGE CA: CUSTOMER ATTRIBUTES ==================== -->
         <section class="page-section" id="pageCa">
           <div class="page-title-bar">
             <div>
               <div class="badge-title-group">
-                <h2 class="page-title">Customer Assessment (CA)</h2>
+                <h2 class="page-title">Customer Attributes (CA)</h2>
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-star"></i> Rekapitulasi Nilai 1 Bulan</span>
                 <span class="badge badge-gray" id="caIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Informasi rekapitulasi penilaian mutu layanan seluruh pengguna dalam 1 bulan dengan pencatatan interval harian. Admin dapat menambah, mengubah, dan menghapus nilai.</p>
+              <p class="page-desc hidden">Informasi rekapitulasi penilaian mutu layanan seluruh pengguna dalam 1 bulan dengan pencatatan interval harian. Admin dapat menambah, mengubah, dan menghapus nilai.</p>
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
@@ -809,6 +812,15 @@
               <button class="btn btn-outline-gray" id="btnRefreshCa">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
+              </button>
+              <button class="btn btn-outline-green" id="btnExportCaExcel" title="Download data Customer Attributes ke Excel (.xlsx)">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Download Excel</span>
+              </button>
+              <button class="btn btn-outline-cyan" id="btnOpenCaGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+                <i class="fa-solid fa-table-cells text-green"></i>
+                <span>Google Spreadsheet</span>
+                <span class="badge badge-sm" id="caGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllCaMonth" title="Hapus seluruh data penilaian CA di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -827,11 +839,47 @@
               <i class="fa-solid fa-shield-halved text-red"></i>
               <div>
                 <strong id="caBannerRoleLabel">Otoritas Akses CA: Administrator Penuh</strong>
-                <p id="caBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus nilai CA harian seluruh user. Pengguna biasa hanya dapat melihat rekapitulasi nilai 1 bulan.</p>
+                <p id="caBannerRoleDesc" class="hidden">Admin dapat menambah, mengedit, dan menghapus nilai CA harian seluruh user. Pengguna biasa hanya dapat melihat rekapitulasi nilai 1 bulan.</p>
               </div>
             </div>
             <div class="status-banner-right">
               <span class="badge badge-admin" id="caBannerBadgePrivilege">Akses Penuh (CRUD)</span>
+            </div>
+          </div>
+
+          <!-- Google Spreadsheet Integration Bar for CA -->
+          <div class="glass-subpanel gsheet-integration-bar" id="caGSheetSyncBar">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="caGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="caGSheetStatusInfo">
+                  Data Customer Attributes dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnCaGSheetOpenLink" title="Buka Google Spreadsheet di Tab Baru">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+              <button class="btn btn-outline-cyan btn-sm" id="btnCaGSheetPull" title="Tarik data terbaru dari Google Spreadsheet ke Dashboard">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button class="btn btn-outline-green btn-sm" id="btnCaGSheetPush" title="Kirim seluruh data CA saat ini ke Google Spreadsheet">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button class="btn btn-outline-gray btn-sm" id="btnCaGSheetConfig" title="Buka pengaturan koneksi dan panduan script">
+                <i class="fa-solid fa-gear"></i>
+                <span>Pengaturan &amp; Script</span>
+              </button>
             </div>
           </div>
 
@@ -902,7 +950,7 @@
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Nilai Seluruh Agent Periode <span id="caMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Perbandingan performa, akumulasi hari dinilai, dan rata-rata skor bulanan per anggota CSO.</p>
+                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Perbandingan performa, akumulasi hari dinilai, dan rata-rata skor bulanan per anggota CSO.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <div style="display:inline-flex; align-items:center; gap:6px;">
@@ -945,7 +993,7 @@
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Penilaian Harian (Interval Per Hari)</span>
               </h3>
-              <p style="font-size: 0.8rem; color: var(--gray-400);" id="caDailySubtitle">Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="caDailySubtitle">Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1045,11 +1093,11 @@
           <div class="page-title-bar">
             <div>
               <div class="badge-title-group">
-                <h2 class="page-title">Perolehan Tiket User (Target: 1.320 / Bulan)</h2>
+                <h2 class="page-title">Perolehan Tiket Agent</h2>
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-bullseye"></i> Target: 1.320 Tiket/Bulan</span>
                 <span class="badge badge-gray" id="tiketIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Informasi akumulasi jumlah perolehan tiket seluruh user dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket. Admin dapat menambah, mengubah, dan menghapus perolehan tiket. Pengguna biasa hanya dapat melihat.</p>
+              <p class="page-desc hidden">Informasi akumulasi jumlah perolehan tiket seluruh user dalam 1 bulan dengan pencatatan interval input per hari terhadap target bulanan 1.320 tiket. Admin dapat menambah, mengubah, dan menghapus perolehan tiket. Pengguna biasa hanya dapat melihat.</p>
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
@@ -1063,6 +1111,10 @@
               <button class="btn btn-outline-gray" id="btnRefreshTiket">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
+              </button>
+              <button class="btn btn-outline-green" id="btnExportTiketExcel" title="Download data Perolehan Tiket ke Excel (.xlsx)">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Download Excel</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllTiketMonth" title="Hapus seluruh data perolehan tiket di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -1080,8 +1132,8 @@
             <div class="status-banner-left">
               <i class="fa-solid fa-shield-halved text-red"></i>
               <div>
-                <strong id="tiketBannerRoleLabel">Otoritas Akses Perolehan Tiket: Administrator Penuh</strong>
-                <p id="tiketBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh user. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat.</p>
+                <strong id="tiketBannerRoleLabel">Otoritas Akses Perolehan Tiket</strong>
+                <p id="tiketBannerRoleDesc" class="hidden">Admin dapat menambah, mengedit, dan menghapus jumlah perolehan tiket harian seluruh user. Target bulanan per user adalah 1.320 tiket. Pengguna biasa hanya dapat melihat.</p>
               </div>
             </div>
             <div class="status-banner-right">
@@ -1156,7 +1208,7 @@
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Perolehan Tiket Seluruh Agent Periode <span id="tiketMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.</p>
+                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <!-- Filter Nama User / Agent -->
@@ -1231,7 +1283,7 @@
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Perolehan Tiket Harian (Interval Per Hari)</span>
               </h3>
-              <p style="font-size: 0.8rem; color: var(--gray-400);" id="tiketDailySubtitle">Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="tiketDailySubtitle">Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1333,7 +1385,7 @@
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-stopwatch"></i> SLA Target: &lt; 300 Detik</span>
                 <span class="badge badge-gray" id="ahtIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Informasi Average Handling Time (AHT) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik. Admin dapat menambah, mengubah, dan menghapus handling time user. Pengguna biasa hanya dapat melihat.</p>
+              <p class="page-desc hidden">Informasi Average Handling Time (AHT) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik. Admin dapat menambah, mengubah, dan menghapus handling time user. Pengguna biasa hanya dapat melihat.</p>
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
@@ -1364,8 +1416,8 @@
             <div class="status-banner-left">
               <i class="fa-solid fa-stopwatch text-red"></i>
               <div>
-                <strong id="ahtBannerRoleLabel">Otoritas Akses Handling Time (AHT): Administrator Penuh</strong>
-                <p id="ahtBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus handling time harian seluruh user. Standar SLA &lt; 300 detik (05:00 menit). Pengguna biasa hanya dapat melihat.</p>
+                <strong id="ahtBannerRoleLabel">Otoritas Akses Handling Time (AHT)</strong>
+                <p id="ahtBannerRoleDesc" class="hidden">Admin dapat menambah, mengedit, dan menghapus handling time harian seluruh user. Standar SLA &lt; 300 detik (05:00 menit). Pengguna biasa hanya dapat melihat.</p>
               </div>
             </div>
             <div class="status-banner-right">
@@ -1440,7 +1492,7 @@
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Average Handling Time Seluruh Agent Periode <span id="ahtMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.</p>
+                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <!-- Filter Nama User / Agent -->
@@ -1516,7 +1568,7 @@
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Handling Time Harian (Interval Per Hari)</span>
               </h3>
-              <p style="font-size: 0.8rem; color: var(--gray-400);" id="ahtDailySubtitle">Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="ahtDailySubtitle">Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1621,7 +1673,7 @@
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-bolt-lightning"></i> SLA Target: &lt; 30 Detik</span>
                 <span class="badge badge-gray" id="artIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
-              <p class="page-desc">Informasi Average Response Time (ART) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik. Admin dapat menambah, mengubah, dan menghapus response time user. Pengguna biasa hanya dapat melihat.</p>
+              <p class="page-desc hidden">Informasi Average Response Time (ART) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 30 detik. Admin dapat menambah, mengubah, dan menghapus response time user. Pengguna biasa hanya dapat melihat.</p>
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
@@ -1652,8 +1704,8 @@
             <div class="status-banner-left">
               <i class="fa-solid fa-bolt-lightning text-red"></i>
               <div>
-                <strong id="artBannerRoleLabel">Otoritas Akses Response Time (ART): Administrator Penuh</strong>
-                <p id="artBannerRoleDesc">Admin dapat menambah, mengedit, dan menghapus response time harian seluruh user. Standar SLA &lt; 30 detik. Pengguna biasa hanya dapat melihat.</p>
+                <strong id="artBannerRoleLabel">Otoritas Akses Response Time (ART)</strong>
+                <p id="artBannerRoleDesc" class="hidden">Admin dapat menambah, mengedit, dan menghapus response time harian seluruh user. Standar SLA &lt; 30 detik. Pengguna biasa hanya dapat melihat.</p>
               </div>
             </div>
             <div class="status-banner-right">
@@ -1728,7 +1780,7 @@
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Average Response Time Seluruh Agent Periode <span id="artMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.</p>
+                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <!-- Filter Nama User / Agent -->
@@ -1805,7 +1857,7 @@
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Response Time Harian (Interval Per Hari)</span>
               </h3>
-              <p style="font-size: 0.8rem; color: var(--gray-400);" id="artDailySubtitle">Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="artDailySubtitle">Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -2056,7 +2108,7 @@
                 <h2 class="page-title">Pusat Timer &amp; Stopwatch</h2>
                 <span class="badge badge-red-outline" id="timerLiveBadge"><i class="fa-solid fa-circle-dot text-red pulse-dot"></i> Live Real-time</span>
               </div>
-              <p class="page-desc">Pengaturan waktu mandiri per pengguna (edit waktu ditentukan, play, pause, reset) dan pemantauan aktivitas waktu terpusat oleh Admin.</p>
+              <p class="page-desc hidden">Pengaturan waktu mandiri per pengguna (edit waktu ditentukan, play, pause, reset) dan pemantauan aktivitas waktu terpusat oleh Admin.</p>
             </div>
             
             <div class="page-title-actions">
@@ -2077,7 +2129,7 @@
               <i class="fa-solid fa-stopwatch-20 text-red"></i>
               <div>
                 <strong id="timerBannerRoleLabel">Otoritas Akses Timer: Administrator</strong>
-                <p id="timerBannerRoleDesc">Admin dapat mengelola timer pribadi sekaligus memantau seluruh waktu yang diambil oleh setiap user secara real-time.</p>
+                <p id="timerBannerRoleDesc" class="hidden">Admin dapat mengelola timer pribadi sekaligus memantau seluruh waktu yang diambil oleh setiap user secara real-time.</p>
               </div>
             </div>
             <div class="status-banner-right">
@@ -2097,7 +2149,7 @@
                     <h3 class="section-title">Pemantau Waktu Seluruh Pengguna (Live Monitor)</h3>
                     <span class="badge badge-admin-exclusive"><i class="fa-solid fa-eye"></i> Khusus Admin</span>
                   </div>
-                  <p class="section-subtitle">Pantau waktu mundur dan stopwatch yang diambil oleh tiap-tiap user secara langsung dan real-time</p>
+                  <p class="section-subtitle hidden">Pantau waktu mundur dan stopwatch yang diambil oleh tiap-tiap user secara langsung dan real-time</p>
                 </div>
               </div>
               <div class="monitor-summary-badges">
@@ -2166,7 +2218,7 @@
                   </div>
                   <div>
                     <h3 class="section-title" id="countdownHeaderTitle">Timer Waktu Mundur Saya</h3>
-                    <p class="section-subtitle">Waktu ditentukan dapat Anda edit kapan saja. Dilengkapi tombol <strong>Play, Pause, Reset,</strong> dan <strong>Edit Waktu</strong>.</p>
+                    <p class="section-subtitle hidden">Waktu ditentukan dapat Anda edit kapan saja. Dilengkapi tombol <strong>Play, Pause, Reset,</strong> dan <strong>Edit Waktu</strong>.</p>
                   </div>
                 </div>
                 <div class="section-stat-pill" id="activeCountdownCountBadge">
@@ -2189,7 +2241,7 @@
                   </div>
                   <div>
                     <h3 class="section-title" id="stopwatchHeaderTitle">Stopwatch Saya</h3>
-                    <p class="section-subtitle">Pencatatan waktu progresif bertambah pribadi Anda (Play, Pause, dan Reset).</p>
+                    <p class="section-subtitle hidden">Pencatatan waktu progresif bertambah pribadi Anda (Play, Pause, dan Reset).</p>
                   </div>
                 </div>
                 <div class="section-stat-pill" id="activeStopwatchCountBadge">
@@ -3832,7 +3884,7 @@
           </div>
           <div>
             <h3 class="modal-title" id="modalTimerTitle">Tambah Timer Waktu Mundur</h3>
-            <p class="modal-subtitle">Atur nama timer di sisi kiri dan tentukan jumlah durasi waktu (jam, menit, detik)</p>
+            <p class="modal-subtitle hidden">Atur nama timer di sisi kiri dan tentukan jumlah durasi waktu (jam, menit, detik)</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseTimerModal" aria-label="Tutup">
@@ -3857,13 +3909,15 @@
 
           <div class="form-row">
             <div class="form-group flex-1">
-              <label for="formTimerCategory" class="form-label">Kategori / Divisi</label>
+              <label for="formTimerCategory" class="form-label">Layanan</label>
               <select id="formTimerCategory" class="form-control">
-                <option value="TI & Server">TI &amp; Server</option>
-                <option value="Operasional Gudang">Operasional Gudang</option>
-                <option value="Audit & Keamanan">Audit &amp; Keamanan</option>
-                <option value="Tugas Rutin">Tugas Rutin</option>
-                <option value="Darurat & SLA">Darurat &amp; SLA</option>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
               </select>
             </div>
 
@@ -3936,7 +3990,7 @@
           </div>
           <div>
             <h3 class="modal-title">Tambah Stopwatch Baru</h3>
-            <p class="modal-subtitle">Pencatatan waktu bertambah progresif</p>
+            <p class="modal-subtitle hidden">Pencatatan waktu bertambah progresif</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseStopwatchModal" aria-label="Tutup">
@@ -3957,8 +4011,16 @@
           </div>
 
           <div class="form-group">
-            <label for="formStopwatchDept" class="form-label">Departemen / Keterangan</label>
-            <input type="text" id="formStopwatchDept" class="form-control" placeholder="Contoh: Divisi Logistik & Pengiriman">
+            <label for="formStopwatchDept" class="form-label">Layanan</label>
+            <select id="formStopwatchDept" class="form-control">
+              <option value="CSO INBOUND">CSO INBOUND</option>
+              <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+              <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+              <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+              <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+              <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+              <option value="CSO EMAIL">CSO EMAIL</option>
+            </select>
           </div>
 
           <div class="form-group">
@@ -4290,6 +4352,146 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: GOOGLE SPREADSHEET INTEGRASI (CA) ==================== -->
+  <div class="modal-backdrop hidden" id="modalCaGoogleSheets">
+    <div class="modal-dialog glass-panel" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff;">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Customer Attributes (CA) dengan Google Sheets</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseCaGSheetModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top:14px;">
+        <!-- Tabs Navigation -->
+        <div class="gsheet-tabs-nav">
+          <button type="button" class="gsheet-tab-btn active" id="tabBtnCaGSheetConfig">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Pengaturan Koneksi</span>
+          </button>
+          <button type="button" class="gsheet-tab-btn" id="tabBtnCaGSheetGuide">
+            <i class="fa-solid fa-code"></i>
+            <span>Panduan &amp; Script Apps Script</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Config Content -->
+        <div id="tabContentCaGSheetConfig">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputCaGSheetWebAppUrl" class="form-label" style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+              <span>URL Web App Google Apps Script <span class="required">*</span></span>
+              <small style="color:#10b981; font-weight:normal;"><i class="fa-solid fa-bolt"></i> Endpoint 2-Arah</small>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-link input-icon"></i>
+              <input type="url" id="inputCaGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputCaGSheetUrl" class="form-label" style="font-weight:600;">URL / ID Google Spreadsheet</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-file-excel input-icon text-green"></i>
+              <input type="text" id="inputCaGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+          </div>
+
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group flex-1">
+              <label for="inputCaGSheetTabName" class="form-label" style="font-weight:600;">Nama Tab / Sheet</label>
+              <input type="text" id="inputCaGSheetTabName" class="form-control" value="CA_Data" placeholder="CA_Data">
+            </div>
+            <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
+              <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+                <input type="checkbox" id="checkCaGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
+                <span>Auto-Sync saat input / edit / hapus nilai CA</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status Callout -->
+          <div id="boxCaGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Status Koneksi:</span>
+              <strong id="labelCaGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
+              <span id="labelCaGSheetModalLastSync" style="color:var(--gray-300);">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+              <span style="color:var(--gray-400);">Total Data CA di Dashboard:</span>
+              <span id="labelCaGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnCaGSheetTest">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>Test Koneksi</span>
+              </button>
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnCaGSheetModalOpenLink">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-cyan btn-sm" id="btnCaGSheetModalPull">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button type="button" class="btn btn-outline-green btn-sm" id="btnCaGSheetModalPush">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btnCaGSheetSaveConfig" style="background:#10b981; border-color:#059669;">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Guide & Apps Script -->
+        <div id="tabContentCaGSheetGuide" class="hidden">
+          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+            Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
+          </div>
+
+          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+            <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
+            <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
+            <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
+            <li>Klik <strong>Deploy</strong> &gt; <strong>New deployment</strong> &gt; pilih tipe <strong>Web app</strong>. Atur <em>Execute as: <strong>Me</strong></em> dan <em>Who has access: <strong>Anyone</strong></em>. Klik <strong>Deploy</strong> lalu salin URL Web App yang didapat ke tab <em>Pengaturan Koneksi</em>.</li>
+          </ol>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyCaAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+              <i class="fa-regular fa-copy"></i>
+              <span>Salin Script</span>
+            </button>
+          </div>
+
+          <div class="code-preview-box" id="caAppsScriptCodePreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== MODAL 10: FORM INPUT / EDIT NILAI CA ==================== -->
   <div class="modal-backdrop hidden" id="modalCaForm">
     <div class="modal-dialog glass-panel">
@@ -4300,7 +4502,7 @@
           </div>
           <div>
             <h3 class="modal-title" id="modalCaTitle">Input Penilaian CA Harian</h3>
-            <p class="modal-subtitle" id="modalCaSubtitle">Pencatatan evaluasi mutu interaksi agen CSO per hari dalam 1 bulan</p>
+            <p class="modal-subtitle hidden" id="modalCaSubtitle">Pencatatan evaluasi mutu interaksi agen CSO per hari dalam 1 bulan</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseCaModal" aria-label="Tutup Modal">
@@ -4376,7 +4578,7 @@
                 <i class="fa-solid fa-arrow-trend-up input-icon"></i>
                 <input type="number" id="formCaScore" class="form-control" min="0" max="100" step="0.01" value="95.00" required>
               </div>
-              <small class="form-hint">&ge;95,00 Sangat Baik, 85,00 - 94,99 Baik, &lt;85,00 Perlu Coaching</small>
+              <small class="form-hint hidden">&ge;95,00 Sangat Baik, 85,00 - 94,99 Baik, &lt;85,00 Perlu Coaching</small>
             </div>
 
             <div class="form-group flex-1">
@@ -4421,7 +4623,7 @@
           </div>
           <div>
             <h3 class="modal-title" id="modalTiketTitle">Input Perolehan Tiket Harian</h3>
-            <p class="modal-subtitle" id="modalTiketSubtitle">Pencatatan perolehan tiket harian seluruh user terhadap target bulanan 1.320 tiket</p>
+            <p class="modal-subtitle hidden" id="modalTiketSubtitle">Pencatatan perolehan tiket harian seluruh user terhadap target bulanan 1.320 tiket</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseTiketModal" aria-label="Tutup Modal">
@@ -4434,7 +4636,7 @@
 
         <div class="modal-body">
           <!-- Information Callout regarding 1.320 Monthly Target -->
-          <div class="form-info-callout" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <strong class="text-white"><i class="fa-solid fa-bullseye text-red" style="margin-right:6px;"></i>Target Bulanan Per User: 1.320 Tiket</strong>
               <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Standar ritme harian: ~60 tiket per hari kerja (estimasi 22 hari kerja per bulan).</div>
@@ -4492,7 +4694,7 @@
                 <i class="fa-solid fa-ticket input-icon"></i>
                 <input type="number" id="formTiketCount" class="form-control" min="1" max="500" value="60" required>
               </div>
-              <small class="form-hint" id="formTiketCountHint">Standar harian ~60 tiket menuju target 1.320 tiket/bulan</small>
+              <small class="form-hint hidden" id="formTiketCountHint">Standar harian ~60 tiket menuju target 1.320 tiket/bulan</small>
             </div>
           </div>
 
@@ -4523,7 +4725,7 @@
           </div>
           <div>
             <h3 class="modal-title" id="modalAhtTitle">Input Handling Time Harian (AHT)</h3>
-            <p class="modal-subtitle" id="modalAhtSubtitle">Pencatatan durasi rata-rata penanganan interaksi user harian terhadap target SLA 300 detik</p>
+            <p class="modal-subtitle hidden" id="modalAhtSubtitle">Pencatatan durasi rata-rata penanganan interaksi user harian terhadap target SLA 300 detik</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseAhtModal" aria-label="Tutup Modal">
@@ -4536,7 +4738,7 @@
 
         <div class="modal-body">
           <!-- Information Callout regarding SLA Standard -->
-          <div class="form-info-callout" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <strong class="text-white"><i class="fa-solid fa-stopwatch text-red" style="margin-right:6px;"></i>Standar SLA AHT: &lt; 300 Detik (05:00 Menit)</strong>
               <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Durasi penanganan &le; 300 detik dinyatakan Sesuai SLA, di atas 300 detik Over SLA.</div>
@@ -4596,7 +4798,7 @@
                 <i class="fa-solid fa-comments input-icon"></i>
                 <input type="number" id="formAhtInteractionCount" class="form-control" min="1" max="500" value="45" required>
               </div>
-              <small class="form-hint">Jumlah panggilan/chat/tiket yang ditangani pada hari ini</small>
+              <small class="form-hint hidden">Jumlah panggilan/chat/tiket yang ditangani pada hari ini</small>
             </div>
           </div>
 
@@ -4658,7 +4860,7 @@
           </div>
           <div>
             <h3 class="modal-title" id="modalArtTitle">Input Response Time Harian (ART)</h3>
-            <p class="modal-subtitle" id="modalArtSubtitle">Pencatatan kecepatan rata-rata respon interaksi user harian terhadap target SLA 30 detik</p>
+            <p class="modal-subtitle hidden" id="modalArtSubtitle">Pencatatan kecepatan rata-rata respon interaksi user harian terhadap target SLA 30 detik</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseArtModal" aria-label="Tutup Modal">
@@ -4671,7 +4873,7 @@
 
         <div class="modal-body">
           <!-- Information Callout regarding SLA Standard -->
-          <div class="form-info-callout" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <strong class="text-white"><i class="fa-solid fa-bolt-lightning text-red" style="margin-right:6px;"></i>Standar SLA ART: &lt; 30 Detik</strong>
               <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Waktu respon rata-rata &le; 30 detik dinyatakan Sesuai SLA, di atas 30 detik Over SLA.</div>
@@ -4731,7 +4933,7 @@
                 <i class="fa-solid fa-comments input-icon"></i>
                 <input type="number" id="formArtInteractionCount" class="form-control" min="1" max="500" value="50" required>
               </div>
-              <small class="form-hint">Jumlah interaksi/chat yang ditangani pada hari ini</small>
+              <small class="form-hint hidden">Jumlah interaksi/chat yang ditangani pada hari ini</small>
             </div>
           </div>
 
@@ -4744,7 +4946,7 @@
                 <i class="fa-solid fa-hourglass-start input-icon"></i>
                 <input type="number" step="0.1" id="formArtQueueSecs" class="form-control" min="0" max="300" value="5.5" required>
               </div>
-              <small class="form-hint">Rata-rata waktu tunggu pelanggan dalam antrian (detik)</small>
+              <small class="form-hint hidden">Rata-rata waktu tunggu pelanggan dalam antrian (detik)</small>
             </div>
 
             <div class="form-group flex-1">
@@ -4755,7 +4957,7 @@
                 <i class="fa-solid fa-reply input-icon"></i>
                 <input type="number" step="0.1" id="formArtFrtSecs" class="form-control" min="0" max="300" value="8.2" required>
               </div>
-              <small class="form-hint">Kecepatan waktu sapaan pertama agen (detik)</small>
+              <small class="form-hint hidden">Kecepatan waktu sapaan pertama agen (detik)</small>
             </div>
           </div>
 
