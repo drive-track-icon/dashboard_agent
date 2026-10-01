@@ -1621,6 +1621,28 @@ class AppState {
     localStorage.setItem('vortex_tikets', JSON.stringify(tikets));
   }
 
+  getTiketGSheetConfig() {
+    const defaults = {
+      webAppUrl: '',
+      sheetId: '',
+      sheetName: 'Tiket_Data',
+      autoSync: true,
+      lastSyncTime: null,
+      lastSyncStatus: 'none',
+      lastSyncMessage: ''
+    };
+    try {
+      const raw = localStorage.getItem('vortex_tiket_gsheet_config');
+      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+    } catch (e) {
+      return defaults;
+    }
+  }
+
+  saveTiketGSheetConfig(cfg) {
+    localStorage.setItem('vortex_tiket_gsheet_config', JSON.stringify(cfg));
+  }
+
   getAhtLogs() {
     return JSON.parse(localStorage.getItem('vortex_aht_logs') || '[]');
   }
@@ -2380,6 +2402,39 @@ const UI = {
   btnCancelTiketModal: document.getElementById('btnCancelTiketModal'),
   btnSubmitTiket: document.getElementById('btnSubmitTiket'),
   btnSubmitTiketText: document.getElementById('btnSubmitTiketText'),
+
+  // Tiket Google Spreadsheet Elements
+  btnOpenTiketGoogleSheetsModal: document.getElementById('btnOpenTiketGoogleSheetsModal'),
+  tiketGSheetHeaderBadge: document.getElementById('tiketGSheetHeaderBadge'),
+  tiketGSheetSyncBar: document.getElementById('tiketGSheetSyncBar'),
+  tiketGSheetStatusBadge: document.getElementById('tiketGSheetStatusBadge'),
+  tiketGSheetStatusInfo: document.getElementById('tiketGSheetStatusInfo'),
+  btnTiketGSheetOpenLink: document.getElementById('btnTiketGSheetOpenLink'),
+  btnTiketGSheetPull: document.getElementById('btnTiketGSheetPull'),
+  btnTiketGSheetPush: document.getElementById('btnTiketGSheetPush'),
+  btnTiketGSheetConfig: document.getElementById('btnTiketGSheetConfig'),
+
+  modalTiketGoogleSheets: document.getElementById('modalTiketGoogleSheets'),
+  btnCloseTiketGSheetModal: document.getElementById('btnCloseTiketGSheetModal'),
+  tabBtnTiketGSheetConfig: document.getElementById('tabBtnTiketGSheetConfig'),
+  tabBtnTiketGSheetGuide: document.getElementById('tabBtnTiketGSheetGuide'),
+  tabContentTiketGSheetConfig: document.getElementById('tabContentTiketGSheetConfig'),
+  tabContentTiketGSheetGuide: document.getElementById('tabContentTiketGSheetGuide'),
+  inputTiketGSheetWebAppUrl: document.getElementById('inputTiketGSheetWebAppUrl'),
+  inputTiketGSheetUrl: document.getElementById('inputTiketGSheetUrl'),
+  inputTiketGSheetTabName: document.getElementById('inputTiketGSheetTabName'),
+  checkTiketGSheetAutoSync: document.getElementById('checkTiketGSheetAutoSync'),
+  labelTiketGSheetModalStatus: document.getElementById('labelTiketGSheetModalStatus'),
+  labelTiketGSheetModalLastSync: document.getElementById('labelTiketGSheetModalLastSync'),
+  labelTiketGSheetModalTotalCount: document.getElementById('labelTiketGSheetModalTotalCount'),
+  btnTiketGSheetTest: document.getElementById('btnTiketGSheetTest'),
+  btnTiketGSheetModalOpenLink: document.getElementById('btnTiketGSheetModalOpenLink'),
+  btnTiketGSheetModalPull: document.getElementById('btnTiketGSheetModalPull'),
+  btnTiketGSheetModalPush: document.getElementById('btnTiketGSheetModalPush'),
+  btnTiketGSheetSaveConfig: document.getElementById('btnTiketGSheetSaveConfig'),
+  btnCopyTiketAppsScript: document.getElementById('btnCopyTiketAppsScript'),
+  tiketAppsScriptCodePreview: document.getElementById('tiketAppsScriptCodePreview'),
+
   // AHT Elements
   navAht: document.getElementById('navAht'),
   pageAht: document.getElementById('pageAht'),
@@ -3933,6 +3988,7 @@ function executePendingDelete() {
     const tikets = state.getTikets().filter(t => t.id !== id);
     state.saveTikets(tikets);
     if (state.selectedTiketIds) state.selectedTiketIds.delete(id);
+    autoSyncTiketAction('delete', { id });
     state.addLog('DELETE_TIKET', 'Hapus Perolehan Tiket', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus nilai tiket harian: ${name}.`);
     showToast('Perolehan Tiket Dihapus', `Data perolehan tiket harian berhasil dihapus.`, 'danger');
     renderTiketPage();
@@ -3943,6 +3999,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveTikets(remainingLogs);
     if (state.selectedTiketIds) state.selectedTiketIds.clear();
+    autoSyncTiketAction('delete_month', { month });
     state.addLog('DELETE_TIKET_MONTH', 'Hapus Perolehan Tiket Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh nilai tiket periode ${name} (${countBefore} catatan).`);
     showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data perolehan tiket</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderTiketPage();
@@ -3952,6 +4009,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveTikets(remainingLogs);
     if (state.selectedTiketIds) state.selectedTiketIds.clear();
+    autoSyncTiketAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_TIKET_BATCH', 'Hapus Data Tiket Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data nilai tiket yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data perolehan tiket</strong> berhasil dihapus.`, 'danger');
     renderTiketPage();
@@ -7333,6 +7391,9 @@ function renderTiketPage() {
     pageDesc.classList.add('hidden');
   }
 
+  // Update Google Spreadsheet Integration Status Bar
+  renderTiketGSheetBar();
+
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
     if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket';
@@ -7977,6 +8038,7 @@ function handleSaveTiket(e) {
         notes
       };
       state.saveTikets(tikets);
+      autoSyncTiketAction('save', { log: tikets[idx] });
       state.addLog('UPDATE_TIKET', 'Ubah Perolehan Tiket', `Admin ${u.fullName} memperbarui perolehan tiket harian ${userFullName} (${date}): ${ticketCount} tiket (Target bulanan 1.320).`);
       showToast('Perolehan Tiket Diperbarui', `Perolehan tiket <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${ticketCount} tiket</strong>.`, 'success');
     }
@@ -7993,6 +8055,7 @@ function handleSaveTiket(e) {
     };
     tikets.unshift(newEntry);
     state.saveTikets(tikets);
+    autoSyncTiketAction('save', { log: newEntry });
     state.addLog('CREATE_TIKET', 'Input Perolehan Tiket', `Admin ${u.fullName} mencatat perolehan tiket harian untuk ${userFullName}: ${ticketCount} tiket (Target bulanan 1.320).`);
     showToast('Perolehan Tiket Disimpan', `Perolehan tiket <strong>${ticketCount} tiket</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
   }
@@ -8206,6 +8269,597 @@ function exportTiketExcel() {
   }
 
   showToast('Download Berhasil', `Data Perolehan Tiket (${exportLogs.length} baris) berhasil diunduh menjadi Excel.`, 'success');
+}
+
+// ==========================================
+// 12.6.1 TIKET GOOGLE SPREADSHEET INTEGRATION
+// ==========================================
+
+const TIKET_APPS_SCRIPT_TEMPLATE = `/**
+ * =====================================================================
+ * GOOGLE APPS SCRIPT: INTEGRASI DATA PEROLEHAN TIKET AGENT
+ * Dashboard Agent CSO - Iconnet
+ * =====================================================================
+ * Petunjuk Pemasangan:
+ * 1. Buka Google Spreadsheet baru di browser Anda (https://sheets.new).
+ * 2. Klik menu 'Ekstensi' (Extensions) > 'Apps Script'.
+ * 3. Hapus semua kode default dan tempel seluruh isi script ini.
+ * 4. Klik ikon Disket (Simpan / Ctrl+S).
+ * 5. Klik tombol 'Deploy' (Terapkan) > 'New deployment' (Penerapan baru).
+ * 6. Klik ikon gear di sebelah kiri 'Select type', pilih 'Web app'.
+ * 7. Isi keterangan: 'Integrasi Dashboard Tiket'.
+ * 8. Atur 'Execute as' (Jalankan sebagai) -> 'Me' (Email Anda).
+ * 9. Atur 'Who has access' (Siapa yang memiliki akses) -> 'Anyone' (Siapa saja).
+ * 10. Klik 'Deploy', berikan izin akun (Authorize Access), lalu salin URL Web App yang muncul.
+ * 11. Tempel URL Web App ke Pengaturan Google Spreadsheet di menu Tiket!
+ * =====================================================================
+ */
+
+const SHEET_NAME = 'Tiket_Data';
+const HEADERS = [
+  'ID Tiket',
+  'Tanggal Input',
+  'Nama Petugas CSO',
+  'Layanan CSO',
+  'Kategori Tiket',
+  'Jumlah Tiket Harian',
+  'Tiket Terselesaikan',
+  'Kepatuhan SLA (%)',
+  'Catatan Kinerja',
+  'Waktu Dibuat'
+];
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+  if (sheet.getLastRow() < 1) {
+    sheet.appendRow(HEADERS);
+    const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+    headerRange.setBackground('#10b981');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    for (let c = 1; c <= HEADERS.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  try {
+    const action = (e && e.parameter && e.parameter.action) || 'get_all';
+    if (action === 'ping') {
+      return createJsonResponse({ success: true, message: 'Google Apps Script Tiket siap terhubung!', time: new Date() });
+    }
+
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return createJsonResponse({ success: true, count: 0, data: [] });
+    }
+
+    const rows = [];
+    for (let i = 1; i < data.length; i++) {
+      const r = data[i];
+      if (!r[0]) continue;
+      rows.push({
+        id: String(r[0]),
+        date: r[1] instanceof Date ? Utilities.formatDate(r[1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(r[1]),
+        userFullName: String(r[2] || ''),
+        department: String(r[3] || ''),
+        category: String(r[4] || '-'),
+        ticketCount: parseInt(r[5], 10) || 0,
+        solvedTickets: parseInt(r[6], 10) || parseInt(r[5], 10) || 0,
+        slaRate: parseFloat(r[7]) || 100,
+        notes: String(r[8] || ''),
+        createdAt: String(r[9] || '')
+      });
+    }
+
+    return createJsonResponse({ success: true, count: rows.length, data: rows });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    let payload;
+    if (e && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    } else {
+      payload = {};
+    }
+
+    const action = payload.action || 'sync_all';
+    const sheet = getOrCreateSheet();
+
+    if (action === 'sync_all') {
+      const logs = payload.logs || [];
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
+      }
+      if (logs.length > 0) {
+        const rowsToAppend = logs.map(l => [
+          l.id,
+          l.date,
+          l.userFullName,
+          l.department,
+          l.category || '-',
+          parseInt(l.ticketCount, 10) || 0,
+          parseInt(l.solvedTickets, 10) || parseInt(l.ticketCount, 10) || 0,
+          parseFloat(l.slaRate) || 100,
+          l.notes || '-',
+          l.createdAt || ''
+        ]);
+        sheet.getRange(2, 1, rowsToAppend.length, HEADERS.length).setValues(rowsToAppend);
+      }
+      return createJsonResponse({ success: true, message: 'Sync all tiket berhasil', count: logs.length });
+    }
+
+    if (action === 'save') {
+      const l = payload.log;
+      if (!l || !l.id) return createJsonResponse({ success: false, error: 'Data tiket tidak valid' });
+
+      const data = sheet.getDataRange().getValues();
+      let foundRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(l.id)) {
+          foundRow = i + 1;
+          break;
+        }
+      }
+
+      const rowData = [
+        l.id,
+        l.date,
+        l.userFullName,
+        l.department,
+        l.category || '-',
+        parseInt(l.ticketCount, 10) || 0,
+        parseInt(l.solvedTickets, 10) || parseInt(l.ticketCount, 10) || 0,
+        parseFloat(l.slaRate) || 100,
+        l.notes || '-',
+        l.createdAt || ''
+      ];
+
+      if (foundRow > 0) {
+        sheet.getRange(foundRow, 1, 1, HEADERS.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+      return createJsonResponse({ success: true, message: 'Data tiket berhasil disimpan ke Google Sheets' });
+    }
+
+    if (action === 'delete') {
+      const id = payload.id;
+      const data = sheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(id)) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({ success: true, message: 'Data tiket berhasil dihapus dari Google Sheets' });
+        }
+      }
+      return createJsonResponse({ success: true, message: 'ID tiket tidak ditemukan di sheet' });
+    }
+
+    if (action === 'delete_month') {
+      const month = payload.month;
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        const rowDate = String(data[i][1]);
+        if (rowDate.indexOf(month) === 0) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Data tiket bulanan berhasil dibersihkan dari Google Sheets' });
+    }
+
+    if (action === 'delete_batch') {
+      const ids = payload.ids || [];
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (ids.indexOf(String(data[i][0])) !== -1) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Batch baris tiket berhasil dihapus dari Google Sheets' });
+    }
+
+    return createJsonResponse({ success: false, error: 'Aksi tidak dikenal: ' + action });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}`;
+
+function renderTiketGSheetBar() {
+  const config = state.getTiketGSheetConfig();
+  const isConfigured = Boolean(config.webAppUrl && config.webAppUrl.trim());
+  const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+  const openUrl = cleanId ? `https://docs.google.com/spreadsheets/d/${cleanId}` : config.webAppUrl;
+
+  // Header Badge
+  if (UI.tiketGSheetHeaderBadge) {
+    if (isConfigured) {
+      UI.tiketGSheetHeaderBadge.textContent = 'Terhubung';
+      UI.tiketGSheetHeaderBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.tiketGSheetHeaderBadge.style.color = '#10b981';
+      UI.tiketGSheetHeaderBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.tiketGSheetHeaderBadge.textContent = 'Belum Terhubung';
+      UI.tiketGSheetHeaderBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+      UI.tiketGSheetHeaderBadge.style.color = 'var(--gray-300)';
+      UI.tiketGSheetHeaderBadge.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  // Status Badge inside Bar
+  if (UI.tiketGSheetStatusBadge) {
+    if (isConfigured) {
+      UI.tiketGSheetStatusBadge.textContent = 'Terhubung';
+      UI.tiketGSheetStatusBadge.className = 'badge badge-green';
+      UI.tiketGSheetStatusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.tiketGSheetStatusBadge.style.color = '#10b981';
+      UI.tiketGSheetStatusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.tiketGSheetStatusBadge.textContent = 'Belum Dikonfigurasi';
+      UI.tiketGSheetStatusBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+      UI.tiketGSheetStatusBadge.style.color = '#94a3b8';
+      UI.tiketGSheetStatusBadge.style.border = '1px solid rgba(100, 116, 139, 0.3)';
+    }
+  }
+
+  // Status Info inside Bar
+  if (UI.tiketGSheetStatusInfo) {
+    if (isConfigured) {
+      const syncTime = config.lastSyncTime ? `Terakhir sinkron: ${config.lastSyncTime}` : 'Belum pernah disinkronkan';
+      const autoText = config.autoSync ? ' (Auto-Sync Aktif)' : ' (Sinkronisasi Manual)';
+      UI.tiketGSheetStatusInfo.innerHTML = `<span style="color:#10b981;"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>${syncTime}${autoText}</span>`;
+    } else {
+      UI.tiketGSheetStatusInfo.textContent = 'Klik tombol "Pengaturan & Script" untuk menghubungkan data perolehan tiket dengan Google Spreadsheet Anda.';
+    }
+  }
+
+  // Open Link buttons
+  if (UI.btnTiketGSheetOpenLink) {
+    if (openUrl) {
+      UI.btnTiketGSheetOpenLink.href = openUrl;
+      UI.btnTiketGSheetOpenLink.classList.remove('hidden');
+      UI.btnTiketGSheetOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnTiketGSheetOpenLink.classList.add('hidden');
+      UI.btnTiketGSheetOpenLink.style.display = 'none';
+    }
+  }
+  if (UI.btnTiketGSheetModalOpenLink) {
+    if (openUrl) {
+      UI.btnTiketGSheetModalOpenLink.href = openUrl;
+      UI.btnTiketGSheetModalOpenLink.classList.remove('hidden');
+      UI.btnTiketGSheetModalOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnTiketGSheetModalOpenLink.classList.add('hidden');
+      UI.btnTiketGSheetModalOpenLink.style.display = 'none';
+    }
+  }
+}
+
+function openTiketGSheetModal() {
+  const config = state.getTiketGSheetConfig();
+  if (UI.inputTiketGSheetWebAppUrl) UI.inputTiketGSheetWebAppUrl.value = config.webAppUrl || '';
+  if (UI.inputTiketGSheetUrl) UI.inputTiketGSheetUrl.value = config.sheetId || '';
+  if (UI.inputTiketGSheetTabName) UI.inputTiketGSheetTabName.value = config.sheetName || 'Tiket_Data';
+  if (UI.checkTiketGSheetAutoSync) UI.checkTiketGSheetAutoSync.checked = config.autoSync !== false;
+
+  const logs = state.getTikets();
+  if (UI.labelTiketGSheetModalTotalCount) UI.labelTiketGSheetModalTotalCount.textContent = `${logs.length} Baris`;
+  if (UI.labelTiketGSheetModalLastSync) UI.labelTiketGSheetModalLastSync.textContent = config.lastSyncTime || 'Belum pernah';
+
+  if (UI.labelTiketGSheetModalStatus) {
+    if (config.webAppUrl) {
+      UI.labelTiketGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelTiketGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  if (UI.tiketAppsScriptCodePreview) {
+    UI.tiketAppsScriptCodePreview.textContent = TIKET_APPS_SCRIPT_TEMPLATE;
+  }
+
+  switchTiketGSheetTab('config');
+  renderTiketGSheetBar();
+  if (UI.modalTiketGoogleSheets) UI.modalTiketGoogleSheets.classList.remove('hidden');
+}
+
+function closeTiketGSheetModal() {
+  if (UI.modalTiketGoogleSheets) UI.modalTiketGoogleSheets.classList.add('hidden');
+}
+
+function switchTiketGSheetTab(tab) {
+  if (tab === 'config') {
+    if (UI.tabBtnTiketGSheetConfig) UI.tabBtnTiketGSheetConfig.classList.add('active');
+    if (UI.tabBtnTiketGSheetGuide) UI.tabBtnTiketGSheetGuide.classList.remove('active');
+    if (UI.tabContentTiketGSheetConfig) UI.tabContentTiketGSheetConfig.classList.remove('hidden');
+    if (UI.tabContentTiketGSheetGuide) UI.tabContentTiketGSheetGuide.classList.add('hidden');
+  } else {
+    if (UI.tabBtnTiketGSheetConfig) UI.tabBtnTiketGSheetConfig.classList.remove('active');
+    if (UI.tabBtnTiketGSheetGuide) UI.tabBtnTiketGSheetGuide.classList.add('active');
+    if (UI.tabContentTiketGSheetConfig) UI.tabContentTiketGSheetConfig.classList.add('hidden');
+    if (UI.tabContentTiketGSheetGuide) UI.tabContentTiketGSheetGuide.classList.remove('hidden');
+  }
+}
+
+function saveTiketGSheetConfigHandler() {
+  const current = state.getTiketGSheetConfig();
+  const webAppUrl = (UI.inputTiketGSheetWebAppUrl ? UI.inputTiketGSheetWebAppUrl.value.trim() : '');
+  const sheetInput = (UI.inputTiketGSheetUrl ? UI.inputTiketGSheetUrl.value.trim() : '');
+  const sheetName = (UI.inputTiketGSheetTabName ? UI.inputTiketGSheetTabName.value.trim() : '') || 'Tiket_Data';
+  const autoSync = UI.checkTiketGSheetAutoSync ? UI.checkTiketGSheetAutoSync.checked : true;
+
+  const cleanId = extractGoogleSpreadsheetId(sheetInput);
+
+  const updated = {
+    ...current,
+    webAppUrl,
+    sheetId: cleanId || sheetInput,
+    sheetName,
+    autoSync
+  };
+
+  state.saveTiketGSheetConfig(updated);
+  renderTiketGSheetBar();
+
+  if (UI.labelTiketGSheetModalStatus) {
+    if (webAppUrl) {
+      UI.labelTiketGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelTiketGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  showToast('Pengaturan Disimpan', 'Konfigurasi Google Spreadsheet untuk tiket berhasil disimpan.', 'success');
+}
+
+async function testTiketGSheetConnection() {
+  const webAppUrl = (UI.inputTiketGSheetWebAppUrl ? UI.inputTiketGSheetWebAppUrl.value.trim() : '') || state.getTiketGSheetConfig().webAppUrl;
+  if (!webAppUrl) {
+    showToast('URL Kosong', 'Harap masukkan URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    return;
+  }
+
+  const btn = UI.btnTiketGSheetTest;
+  const originalText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menghubungkan...</span>';
+  }
+
+  try {
+    const pingUrl = webAppUrl + (webAppUrl.includes('?') ? '&' : '?') + 'action=ping';
+    const resp = await fetch(pingUrl, {
+      method: 'GET',
+      mode: 'cors'
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Koneksi Berhasil', 'Google Apps Script berhasil merespons dan terhubung ke spreadsheet!', 'success');
+      } else {
+        showToast('Terhubung', 'Respons diterima dari Google Apps Script Web App.', 'info');
+      }
+    } else {
+      showToast('Koneksi Selesai', `Status HTTP: ${resp.status}. URL dapat diakses.`, 'info');
+    }
+  } catch (err) {
+    showToast('Pengujian Selesai', 'Request terkirim. Jika URL Web App valid dengan izin "Anyone", koneksi siap digunakan.', 'info');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+}
+
+async function pushTiketToGoogleSheets() {
+  const config = state.getTiketGSheetConfig();
+  if (!config.webAppUrl) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    openTiketGSheetModal();
+    return;
+  }
+
+  const logs = state.getTikets();
+  const pushBtn = UI.btnTiketGSheetPush;
+  const modalPushBtn = UI.btnTiketGSheetModalPush;
+
+  const setPushing = (isPushing) => {
+    if (pushBtn) {
+      pushBtn.disabled = isPushing;
+      pushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+    if (modalPushBtn) {
+      modalPushBtn.disabled = isPushing;
+      modalPushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+  };
+
+  setPushing(true);
+
+  try {
+    const payload = {
+      action: 'sync_all',
+      logs: logs
+    };
+
+    // Use text/plain to avoid preflight CORS restrictions from Google Apps Script Web App
+    await fetch(config.webAppUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      }
+    });
+
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    config.lastSyncTime = formatted;
+    config.lastSyncStatus = 'success';
+    state.saveTiketGSheetConfig(config);
+    renderTiketGSheetBar();
+
+    if (UI.labelTiketGSheetModalLastSync) UI.labelTiketGSheetModalLastSync.textContent = formatted;
+
+    showToast('Sinkronisasi Sukses', `Sebanyak <strong>${logs.length} data tiket</strong> berhasil dikirim ke Google Spreadsheet.`, 'success');
+  } catch (err) {
+    console.error('Error pushing Tiket to Google Sheets:', err);
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    config.lastSyncTime = formatted;
+    state.saveTiketGSheetConfig(config);
+    renderTiketGSheetBar();
+    showToast('Data Dikirim', `Permintaan sinkronisasi (${logs.length} data tiket) telah dikirim ke Google Spreadsheet.`, 'info');
+  } finally {
+    setPushing(false);
+  }
+}
+
+async function pullTiketFromGoogleSheets() {
+  const config = state.getTiketGSheetConfig();
+  if (!config.webAppUrl && !config.sheetId) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App atau ID Spreadsheet terlebih dahulu.', 'warning');
+    openTiketGSheetModal();
+    return;
+  }
+
+  const pullBtn = UI.btnTiketGSheetPull;
+  const modalPullBtn = UI.btnTiketGSheetModalPull;
+
+  const setPulling = (isPulling) => {
+    if (pullBtn) {
+      pullBtn.disabled = isPulling;
+      pullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+    if (modalPullBtn) {
+      modalPullBtn.disabled = isPulling;
+      modalPullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+  };
+
+  setPulling(true);
+
+  try {
+    let pulledRows = null;
+
+    if (config.webAppUrl) {
+      const getUrl = config.webAppUrl + (config.webAppUrl.includes('?') ? '&' : '?') + 'action=get_all';
+      const resp = await fetch(getUrl, { method: 'GET', mode: 'cors' });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json && json.success && Array.isArray(json.data)) {
+          pulledRows = json.data;
+        }
+      }
+    }
+
+    // Fallback to public sheet CSV export if Web App did not return JSON or if only sheetId is present
+    if (!pulledRows && config.sheetId) {
+      const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${cleanId}/export?format=csv&sheet=${encodeURIComponent(config.sheetName || 'Tiket_Data')}`;
+      const resp = await fetch(csvUrl);
+      if (resp.ok) {
+        const csvText = await resp.text();
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+        if (lines.length > 1) {
+          pulledRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = parseCsvRow(lines[i]);
+            if (cols[0]) {
+              pulledRows.push({
+                id: cols[0],
+                date: cols[1] || '',
+                userFullName: cols[2] || '',
+                department: cols[3] || 'CSO INBOUND',
+                category: cols[4] || '-',
+                ticketCount: parseInt(cols[5], 10) || 0,
+                solvedTickets: parseInt(cols[6], 10) || parseInt(cols[5], 10) || 0,
+                slaRate: parseFloat(cols[7]) || 100,
+                notes: cols[8] || '',
+                createdAt: cols[9] || ''
+              });
+            }
+          }
+        }
+      }
+    }
+
+    if (pulledRows && pulledRows.length > 0) {
+      state.saveTikets(pulledRows);
+      const now = new Date();
+      const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      config.lastSyncTime = formatted;
+      state.saveTiketGSheetConfig(config);
+      renderTiketPage();
+      showToast('Tarik Data Berhasil', `Berhasil mengambil <strong>${pulledRows.length} data tiket</strong> dari Google Spreadsheet.`, 'success');
+    } else {
+      showToast('Data Kosong / Tidak Terbaca', 'Tidak ada data tiket yang ditemukan pada Google Spreadsheet atau sheet masih kosong.', 'info');
+    }
+  } catch (err) {
+    console.error('Error pulling Tiket from Google Sheets:', err);
+    showToast('Gagal Menarik Data', 'Pastikan Google Apps Script sudah dideploy dengan akses "Anyone" atau sheet publik.', 'danger');
+  } finally {
+    setPulling(false);
+  }
+}
+
+function autoSyncTiketAction(action, payload) {
+  const config = state.getTiketGSheetConfig();
+  if (!config.webAppUrl || config.autoSync === false) return;
+
+  const bodyData = {
+    action,
+    ...payload
+  };
+
+  fetch(config.webAppUrl, {
+    method: 'POST',
+    body: JSON.stringify(bodyData),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    }
+  }).then(() => {
+    const now = new Date();
+    config.lastSyncTime = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    state.saveTiketGSheetConfig(config);
+    renderTiketGSheetBar();
+  }).catch(err => {
+    console.warn('Auto-sync Tiket to Google Sheets notification:', err);
+  });
+}
+
+function copyTiketAppsScriptCode() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(TIKET_APPS_SCRIPT_TEMPLATE).then(() => {
+      showToast('Tersalin!', 'Kode Google Apps Script berhasil disalin ke clipboard.', 'success');
+    }).catch(() => {
+      fallbackCopyText(TIKET_APPS_SCRIPT_TEMPLATE);
+    });
+  } else {
+    fallbackCopyText(TIKET_APPS_SCRIPT_TEMPLATE);
+  }
 }
 
 
@@ -10562,6 +11216,21 @@ function initEvents() {
   if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.addEventListener('click', promptDeleteAllTiketMonth);
   if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.addEventListener('click', openAddTiketModal);
   if (UI.btnExportTiketExcel) UI.btnExportTiketExcel.addEventListener('click', exportTiketExcel);
+
+  // Tiket Google Spreadsheet Listeners
+  if (UI.btnOpenTiketGoogleSheetsModal) UI.btnOpenTiketGoogleSheetsModal.addEventListener('click', openTiketGSheetModal);
+  if (UI.btnTiketGSheetConfig) UI.btnTiketGSheetConfig.addEventListener('click', openTiketGSheetModal);
+  if (UI.btnCloseTiketGSheetModal) UI.btnCloseTiketGSheetModal.addEventListener('click', closeTiketGSheetModal);
+  if (UI.tabBtnTiketGSheetConfig) UI.tabBtnTiketGSheetConfig.addEventListener('click', () => switchTiketGSheetTab('config'));
+  if (UI.tabBtnTiketGSheetGuide) UI.tabBtnTiketGSheetGuide.addEventListener('click', () => switchTiketGSheetTab('guide'));
+  if (UI.btnTiketGSheetSaveConfig) UI.btnTiketGSheetSaveConfig.addEventListener('click', saveTiketGSheetConfigHandler);
+  if (UI.btnTiketGSheetTest) UI.btnTiketGSheetTest.addEventListener('click', testTiketGSheetConnection);
+  if (UI.btnTiketGSheetPush) UI.btnTiketGSheetPush.addEventListener('click', pushTiketToGoogleSheets);
+  if (UI.btnTiketGSheetModalPush) UI.btnTiketGSheetModalPush.addEventListener('click', pushTiketToGoogleSheets);
+  if (UI.btnTiketGSheetPull) UI.btnTiketGSheetPull.addEventListener('click', pullTiketFromGoogleSheets);
+  if (UI.btnTiketGSheetModalPull) UI.btnTiketGSheetModalPull.addEventListener('click', pullTiketFromGoogleSheets);
+  if (UI.btnCopyTiketAppsScript) UI.btnCopyTiketAppsScript.addEventListener('click', copyTiketAppsScriptCode);
+
   if (UI.btnRefreshTiket) {
     UI.btnRefreshTiket.addEventListener('click', () => {
       renderTiketPage();

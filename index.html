@@ -1116,6 +1116,11 @@
                 <i class="fa-solid fa-file-excel"></i>
                 <span>Download Excel</span>
               </button>
+              <button class="btn btn-outline-cyan" id="btnOpenTiketGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+                <i class="fa-solid fa-table-cells text-green"></i>
+                <span>Google Spreadsheet</span>
+                <span class="badge badge-sm" id="tiketGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+              </button>
               <button class="btn btn-outline-red" id="btnDeleteAllTiketMonth" title="Hapus seluruh data perolehan tiket di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
                 <span>Hapus Data Bulan Ini</span>
@@ -1138,6 +1143,42 @@
             </div>
             <div class="status-banner-right">
               <span class="badge badge-admin" id="tiketBannerBadgePrivilege">Akses Penuh (CRUD)</span>
+            </div>
+          </div>
+
+          <!-- Google Spreadsheet Integration Bar for Tiket -->
+          <div class="glass-subpanel gsheet-integration-bar" id="tiketGSheetSyncBar">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="tiketGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="tiketGSheetStatusInfo">
+                  Data Perolehan Tiket dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnTiketGSheetOpenLink" title="Buka Google Spreadsheet di Tab Baru">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+              <button class="btn btn-outline-cyan btn-sm" id="btnTiketGSheetPull" title="Tarik data terbaru dari Google Spreadsheet ke Dashboard">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button class="btn btn-outline-green btn-sm" id="btnTiketGSheetPush" title="Kirim seluruh data tiket saat ini ke Google Spreadsheet">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button class="btn btn-outline-gray btn-sm" id="btnTiketGSheetConfig" title="Buka pengaturan koneksi dan panduan script">
+                <i class="fa-solid fa-gear"></i>
+                <span>Pengaturan &amp; Script</span>
+              </button>
             </div>
           </div>
 
@@ -4610,6 +4651,146 @@
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: GOOGLE SPREADSHEET INTEGRASI (TIKET) ==================== -->
+  <div class="modal-backdrop hidden" id="modalTiketGoogleSheets">
+    <div class="modal-dialog glass-panel" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff;">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Perolehan Tiket Agent dengan Google Sheets</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseTiketGSheetModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top:14px;">
+        <!-- Tabs Navigation -->
+        <div class="gsheet-tabs-nav">
+          <button type="button" class="gsheet-tab-btn active" id="tabBtnTiketGSheetConfig">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Pengaturan Koneksi</span>
+          </button>
+          <button type="button" class="gsheet-tab-btn" id="tabBtnTiketGSheetGuide">
+            <i class="fa-solid fa-code"></i>
+            <span>Panduan &amp; Script Apps Script</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Config Content -->
+        <div id="tabContentTiketGSheetConfig">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputTiketGSheetWebAppUrl" class="form-label" style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+              <span>URL Web App Google Apps Script <span class="required">*</span></span>
+              <small style="color:#10b981; font-weight:normal;"><i class="fa-solid fa-bolt"></i> Endpoint 2-Arah</small>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-link input-icon"></i>
+              <input type="url" id="inputTiketGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputTiketGSheetUrl" class="form-label" style="font-weight:600;">URL / ID Google Spreadsheet</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-file-excel input-icon text-green"></i>
+              <input type="text" id="inputTiketGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+          </div>
+
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group flex-1">
+              <label for="inputTiketGSheetTabName" class="form-label" style="font-weight:600;">Nama Tab / Sheet</label>
+              <input type="text" id="inputTiketGSheetTabName" class="form-control" value="Tiket_Data" placeholder="Tiket_Data">
+            </div>
+            <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
+              <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+                <input type="checkbox" id="checkTiketGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
+                <span>Auto-Sync saat input / edit / hapus perolehan tiket</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status Callout -->
+          <div id="boxTiketGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Status Koneksi:</span>
+              <strong id="labelTiketGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
+              <span id="labelTiketGSheetModalLastSync" style="color:var(--gray-300);">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+              <span style="color:var(--gray-400);">Total Data Tiket di Dashboard:</span>
+              <span id="labelTiketGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnTiketGSheetTest">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>Test Koneksi</span>
+              </button>
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnTiketGSheetModalOpenLink">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-cyan btn-sm" id="btnTiketGSheetModalPull">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button type="button" class="btn btn-outline-green btn-sm" id="btnTiketGSheetModalPush">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btnTiketGSheetSaveConfig" style="background:#10b981; border-color:#059669;">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Guide & Apps Script -->
+        <div id="tabContentTiketGSheetGuide" class="hidden">
+          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+            Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
+          </div>
+
+          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+            <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
+            <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
+            <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
+            <li>Klik <strong>Deploy</strong> &gt; <strong>New deployment</strong> &gt; pilih tipe <strong>Web app</strong>. Atur <em>Execute as: <strong>Me</strong></em> dan <em>Who has access: <strong>Anyone</strong></em>. Klik <strong>Deploy</strong> lalu salin URL Web App yang didapat ke tab <em>Pengaturan Koneksi</em>.</li>
+          </ol>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyTiketAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+              <i class="fa-regular fa-copy"></i>
+              <span>Salin Script</span>
+            </button>
+          </div>
+
+          <div class="code-preview-box" id="tiketAppsScriptCodePreview"></div>
+        </div>
+      </div>
     </div>
   </div>
 

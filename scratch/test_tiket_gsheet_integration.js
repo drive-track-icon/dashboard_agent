@@ -1,0 +1,54 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+
+console.log('--- TEST 1: Verifying HTML Elements for Tiket Google Spreadsheet ---');
+const htmlContent = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+assert(htmlContent.includes('id="btnOpenTiketGoogleSheetsModal"'), 'index.html must contain #btnOpenTiketGoogleSheetsModal');
+assert(htmlContent.includes('id="tiketGSheetHeaderBadge"'), 'index.html must contain #tiketGSheetHeaderBadge');
+assert(htmlContent.includes('id="tiketGSheetSyncBar"'), 'index.html must contain #tiketGSheetSyncBar');
+assert(htmlContent.includes('id="tiketGSheetStatusBadge"'), 'index.html must contain #tiketGSheetStatusBadge');
+assert(htmlContent.includes('id="tiketGSheetStatusInfo"'), 'index.html must contain #tiketGSheetStatusInfo');
+assert(htmlContent.includes('id="btnTiketGSheetOpenLink"'), 'index.html must contain #btnTiketGSheetOpenLink');
+assert(htmlContent.includes('id="btnTiketGSheetPull"'), 'index.html must contain #btnTiketGSheetPull');
+assert(htmlContent.includes('id="btnTiketGSheetPush"'), 'index.html must contain #btnTiketGSheetPush');
+assert(htmlContent.includes('id="btnTiketGSheetConfig"'), 'index.html must contain #btnTiketGSheetConfig');
+assert(htmlContent.includes('id="modalTiketGoogleSheets"'), 'index.html must contain #modalTiketGoogleSheets');
+assert(htmlContent.includes('id="inputTiketGSheetWebAppUrl"'), 'index.html must contain #inputTiketGSheetWebAppUrl');
+assert(htmlContent.includes('id="inputTiketGSheetUrl"'), 'index.html must contain #inputTiketGSheetUrl');
+assert(htmlContent.includes('id="checkTiketGSheetAutoSync"'), 'index.html must contain #checkTiketGSheetAutoSync');
+assert(htmlContent.includes('id="btnCopyTiketAppsScript"'), 'index.html must contain #btnCopyTiketAppsScript');
+console.log('✔ HTML elements verified successfully.');
+
+console.log('--- TEST 2: Verifying Standalone Google Apps Script File for Tiket ---');
+const gasPath = path.join(__dirname, '..', 'google_apps_script_tiket.js');
+assert(fs.existsSync(gasPath), 'google_apps_script_tiket.js must exist in root');
+const gasContent = fs.readFileSync(gasPath, 'utf8');
+assert(gasContent.includes('function doGet(e)'), 'Apps Script must contain doGet');
+assert(gasContent.includes('function doPost(e)'), 'Apps Script must contain doPost');
+assert(gasContent.includes('action === \'sync_all\''), 'Apps Script must handle sync_all');
+assert(gasContent.includes('action === \'save\''), 'Apps Script must handle save');
+assert(gasContent.includes('action === \'delete\''), 'Apps Script must handle delete');
+assert(gasContent.includes('action === \'delete_month\''), 'Apps Script must handle delete_month');
+console.log('✔ Google Apps Script file for Tiket verified successfully.');
+
+console.log('--- TEST 3: Verifying js/app.js Implementation for Tiket GSheet ---');
+const appContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+assert(appContent.includes('getTiketGSheetConfig()'), 'State must have getTiketGSheetConfig');
+assert(appContent.includes('saveTiketGSheetConfig(cfg)'), 'State must have saveTiketGSheetConfig');
+assert(appContent.includes('btnOpenTiketGoogleSheetsModal: document.getElementById(\'btnOpenTiketGoogleSheetsModal\')'), 'UI must cache btnOpenTiketGoogleSheetsModal');
+assert(appContent.includes('function renderTiketGSheetBar()'), 'renderTiketGSheetBar function must exist');
+assert(appContent.includes('function openTiketGSheetModal()'), 'openTiketGSheetModal function must exist');
+assert(appContent.includes('function pushTiketToGoogleSheets()'), 'pushTiketToGoogleSheets function must exist');
+assert(appContent.includes('function pullTiketFromGoogleSheets()'), 'pullTiketFromGoogleSheets function must exist');
+assert(appContent.includes('function autoSyncTiketAction('), 'autoSyncTiketAction function must exist');
+assert(appContent.includes('autoSyncTiketAction(\'save\''), 'handleSaveTiket must call autoSyncTiketAction save');
+assert(appContent.includes('autoSyncTiketAction(\'delete\''), 'promptConfirmDelete must call autoSyncTiketAction delete for tiket');
+assert(appContent.includes('autoSyncTiketAction(\'delete_month\''), 'promptConfirmDelete must call autoSyncTiketAction delete_month for tiket');
+assert(appContent.includes('autoSyncTiketAction(\'delete_batch\''), 'promptConfirmDelete must call autoSyncTiketAction delete_batch for tiket');
+assert(appContent.includes('renderTiketGSheetBar()'), 'renderTiketPage must call renderTiketGSheetBar');
+console.log('✔ js/app.js functions, state, and event bindings verified successfully.');
+
+console.log('\n========================================');
+console.log('🎉 ALL TIKET GOOGLE SPREADSHEET TESTS PASSED!');
+console.log('========================================');
