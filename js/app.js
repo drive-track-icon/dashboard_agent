@@ -2758,6 +2758,11 @@ function handleLogin(username, password) {
     return false;
   }
 
+  // Save previous quiz user session if in progress
+  if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
+    saveActiveUserQuizSession();
+  }
+
   // Set session
   state.setSession(user);
   state.addLog('LOGIN', 'Login', `Pengguna ${user.fullName} berhasil masuk dengan peran ${user.role.toUpperCase()}.`);
@@ -2775,6 +2780,17 @@ function handleLogin(username, password) {
 function handleLogout() {
   if (state.currentUser) {
     state.addLog('LOGIN', 'Keluar', `Pengguna ${state.currentUser.fullName} mengakhiri sesi dashboard.`);
+    if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
+      saveActiveUserQuizSession();
+    }
+  }
+  if (typeof quizState !== 'undefined') {
+    quizState.activeUserId = null;
+    if (typeof dismissSpecialOutcomeAnimation === 'function') {
+      dismissSpecialOutcomeAnimation();
+    }
+    const modal = document.getElementById('modalQuizResult');
+    if (modal) modal.classList.add('hidden');
   }
   state.clearSession();
   showToast('Sesi Berakhir', 'Anda telah keluar dari sistem secara aman.', 'info');
@@ -2785,6 +2801,9 @@ function switchUserRole(targetRole) {
   const users = state.getUsers();
   const targetUser = users.find(u => u.role === targetRole && u.status === 'active');
   if (targetUser) {
+    if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
+      saveActiveUserQuizSession();
+    }
     state.setSession(targetUser);
     state.addLog('LOGIN', 'Ganti Peran', `Beralih peran secara instan ke ${targetUser.fullName} (${targetUser.role.toUpperCase()}).`);
     showToast('Peran Diperbarui', `Beralih ke akun <strong>${targetUser.fullName}</strong> (${targetUser.role.toUpperCase()}).`, 'success');
@@ -12727,6 +12746,8 @@ const MONSTER_ROSTER = [
 
 const quizState = {
   activeTab: 'battle', // 'battle' | 'leaderboard' | 'adminBank'
+  activeUserId: null,
+  isFinished: false,
   selectedHeroId: 'iconnet',
   selectedHero: null,
   currentMonster: null,
@@ -12754,56 +12775,258 @@ const quizState = {
   specialAnimCallback: null
 };
 
-function getSelectedQuizHero() {
+function getQuizCurrentUserId() {
+  if (typeof state !== 'undefined' && state.currentUser) {
+    return state.currentUser.id || state.currentUser.username || 'guest';
+  }
+  return 'guest';
+}
+
+function getQuizUserKey(user) {
+  const target = user || (typeof state !== 'undefined' ? state.currentUser : null);
+  if (!target) return 'guest';
+  return (target.id || target.username || 'guest').toString();
+}
+
+function getSelectedQuizHero(targetUserId) {
+  const uKey = targetUserId || getQuizUserKey();
   const savedId = (function() {
     try {
-      return localStorage.getItem('quiz_selected_hero');
+      const perUser = localStorage.getItem('quiz_selected_hero_' + uKey);
+      if (perUser) return perUser;
+      if (uKey === 'guest') {
+        const legacy = localStorage.getItem('quiz_selected_hero');
+        if (legacy) return legacy;
+      }
+      return null;
     } catch(e) {
       return null;
     }
-  })() || quizState.selectedHeroId || 'iconnet';
+  })() || (quizState.activeUserId === uKey ? quizState.selectedHeroId : null) || 'iconnet';
   const found = ULTRAMAN_ROSTER.find(h => h.id === savedId);
   return found || ULTRAMAN_ROSTER[0];
 }
 
-function selectQuizHero(heroId, isSilent = false) {
+function selectQuizHero(heroId, isSilent = false, targetUserId = null) {
+  const uKey = targetUserId || getQuizUserKey();
   const hero = ULTRAMAN_ROSTER.find(h => h.id === heroId) || ULTRAMAN_ROSTER[0];
-  quizState.selectedHeroId = hero.id;
-  quizState.selectedHero = hero;
   try {
+    localStorage.setItem('quiz_selected_hero_' + uKey, hero.id);
     localStorage.setItem('quiz_selected_hero', hero.id);
   } catch (e) {}
 
-  // Update Dropdown Element
-  const dropdown = document.getElementById('selectQuizHero');
-  if (dropdown && dropdown.value !== hero.id) {
-    dropdown.value = hero.id;
-  }
+  if (uKey === getQuizUserKey()) {
+    quizState.selectedHeroId = hero.id;
+    quizState.selectedHero = hero;
+    if (typeof saveActiveUserQuizSession === 'function' && !quizState.isFinished) {
+      saveActiveUserQuizSession();
+    }
 
-  const heroImg = document.getElementById('avatarUltraman');
-  if (heroImg) {
-    heroImg.src = hero.image;
-    heroImg.alt = hero.name;
-  }
+    // Update Dropdown Element
+    const dropdown = document.getElementById('selectQuizHero');
+    if (dropdown && dropdown.value !== hero.id) {
+      dropdown.value = hero.id;
+    }
 
-  const heroNameEl = document.querySelector('#cardUltramanHero .fighter-name');
-  if (heroNameEl) heroNameEl.textContent = hero.name;
+    const heroImg = document.getElementById('avatarUltraman');
+    if (heroImg) {
+      heroImg.src = hero.image;
+      heroImg.alt = hero.name;
+    }
 
-  const heroTitleEl = document.querySelector('#cardUltramanHero .fighter-title');
-  if (heroTitleEl) heroTitleEl.textContent = hero.title;
+    const heroNameEl = document.querySelector('#cardUltramanHero .fighter-name');
+    if (heroNameEl) heroNameEl.textContent = hero.name;
 
-  const heroTagEl = document.querySelector('#cardUltramanHero .fighter-type-tag');
-  if (heroTagEl) heroTagEl.textContent = hero.tag;
+    const heroTitleEl = document.querySelector('#cardUltramanHero .fighter-title');
+    if (heroTitleEl) heroTitleEl.textContent = hero.title;
 
-  // Outcome cutscene hero actor
-  const animHeroImg = document.getElementById('animHeroImg');
-  if (animHeroImg) {
-    animHeroImg.src = hero.image;
-    animHeroImg.alt = hero.name;
+    const heroTagEl = document.querySelector('#cardUltramanHero .fighter-type-tag');
+    if (heroTagEl) heroTagEl.textContent = hero.tag;
+
+    // Outcome cutscene hero actor
+    const animHeroImg = document.getElementById('animHeroImg');
+    if (animHeroImg) {
+      animHeroImg.src = hero.image;
+      animHeroImg.alt = hero.name;
+    }
   }
 
   if (!isSilent) {
     showToast('Karakter Ultraman Dipilih', `${hero.name} siap bertarung!`, 'info');
+  }
+}
+
+function updateBattleMonsterDisplay(randomMonster) {
+  if (!randomMonster) return;
+  const monsterImg = document.getElementById('avatarMonster');
+  if (monsterImg) {
+    monsterImg.src = randomMonster.image;
+    monsterImg.alt = randomMonster.name;
+  }
+  const monsterNameEl = document.querySelector('#cardMonsterEnemy .fighter-name');
+  if (monsterNameEl) monsterNameEl.textContent = randomMonster.name;
+  const monsterTitleEl = document.querySelector('#cardMonsterEnemy .fighter-title');
+  if (monsterTitleEl) monsterTitleEl.textContent = randomMonster.title;
+  const monsterTagEl = document.querySelector('#cardMonsterEnemy .fighter-type-tag');
+  if (monsterTagEl) monsterTagEl.textContent = randomMonster.tag;
+
+  const animMonsterImg = document.getElementById('animMonsterImg');
+  if (animMonsterImg) {
+    animMonsterImg.src = randomMonster.image;
+    animMonsterImg.alt = randomMonster.name;
+  }
+}
+
+function updateBattleArenaUserHeader() {
+  const label = document.getElementById('quizBattleActiveUserLabel');
+  if (!label) return;
+  const u = (typeof state !== 'undefined' && state.currentUser) ? state.currentUser : null;
+  if (u) {
+    label.innerHTML = `Misi Perlindungan Jaringan &bull; Akun: <strong>${escapeQuizHtml(u.fullName || u.username)}</strong>`;
+  } else {
+    label.textContent = 'Misi Perlindungan Jaringan';
+  }
+}
+
+function applyAnsweredFeedbackUi(choice, q) {
+  if (!q) return;
+  const isCorrect = (choice === q.correctAnswer);
+  const total = quizState.questions.length || 1;
+  const curr = quizState.currentIndex;
+  const choices = ['A', 'B', 'C', 'D', 'E'];
+  choices.forEach(ch => {
+    const btn = document.getElementById('btnOption' + ch);
+    if (btn) {
+      btn.disabled = true;
+      const icon = btn.querySelector('.option-feedback-icon');
+      if (ch === q.correctAnswer) {
+        btn.classList.add('selected-correct');
+        if (icon) icon.className = 'option-feedback-icon fa-solid fa-circle-check text-green';
+      } else if (ch === choice && !isCorrect) {
+        btn.classList.add('selected-wrong');
+        if (icon) icon.className = 'option-feedback-icon fa-solid fa-circle-xmark text-red';
+      }
+    }
+  });
+
+  const feedbackBox = document.getElementById('quizFeedbackBox');
+  const btnNext = document.getElementById('btnNextQuestion');
+  if (btnNext) {
+    const isLast = (curr + 1 >= total);
+    btnNext.innerHTML = isLast ? 
+      '<span>Lihat Animasi &amp; Nilai Akhir</span> <i class="fa-solid fa-trophy text-yellow"></i>' : 
+      '<span>Lanjut ke Soal Berikutnya</span> <i class="fa-solid fa-arrow-right"></i>';
+  }
+  if (feedbackBox) feedbackBox.classList.remove('hidden');
+}
+
+function saveActiveUserQuizSession() {
+  const uKey = quizState.activeUserId || getQuizUserKey();
+  if (!uKey || uKey === 'guest') return;
+
+  if (quizState.isFinished) {
+    try {
+      localStorage.removeItem('quiz_active_session_' + uKey);
+    } catch (e) {}
+    return;
+  }
+
+  if (!quizState.questions || quizState.questions.length === 0) return;
+
+  const sessionData = {
+    userId: uKey,
+    selectedHeroId: quizState.selectedHeroId || 'iconnet',
+    currentMonster: quizState.currentMonster,
+    questions: quizState.questions,
+    currentIndex: quizState.currentIndex,
+    score: quizState.score,
+    correctCount: quizState.correctCount,
+    wrongCount: quizState.wrongCount,
+    streak: quizState.streak,
+    maxStreak: quizState.maxStreak,
+    ultramanHp: quizState.ultramanHp,
+    monsterHp: quizState.monsterHp,
+    answered: quizState.answered,
+    userAnswers: quizState.userAnswers,
+    startTime: quizState.startTime,
+    endTime: quizState.endTime,
+    isFinished: false,
+    savedAt: Date.now()
+  };
+
+  try {
+    localStorage.setItem('quiz_active_session_' + uKey, JSON.stringify(sessionData));
+  } catch (e) {
+    console.warn('Failed to save quiz active session:', e);
+  }
+}
+
+function loadUserQuizSession(targetUserId) {
+  const uKey = targetUserId || getQuizUserKey();
+  quizState.activeUserId = uKey;
+
+  dismissSpecialOutcomeAnimation();
+  const modal = document.getElementById('modalQuizResult');
+  if (modal) modal.classList.add('hidden');
+
+  let savedSession = null;
+  try {
+    const raw = localStorage.getItem('quiz_active_session_' + uKey);
+    if (raw) {
+      savedSession = JSON.parse(raw);
+    }
+  } catch (e) {
+    savedSession = null;
+  }
+
+  const hero = getSelectedQuizHero(uKey);
+
+  if (savedSession && Array.isArray(savedSession.questions) && savedSession.questions.length > 0 && !savedSession.isFinished && savedSession.currentIndex < savedSession.questions.length) {
+    quizState.selectedHeroId = savedSession.selectedHeroId || hero.id;
+    quizState.selectedHero = ULTRAMAN_ROSTER.find(h => h.id === quizState.selectedHeroId) || hero;
+    quizState.currentMonster = savedSession.currentMonster || MONSTER_ROSTER[0];
+    quizState.questions = savedSession.questions;
+    quizState.currentIndex = savedSession.currentIndex || 0;
+    quizState.score = savedSession.score || 0;
+    quizState.correctCount = savedSession.correctCount || 0;
+    quizState.wrongCount = savedSession.wrongCount || 0;
+    quizState.streak = savedSession.streak || 0;
+    quizState.maxStreak = savedSession.maxStreak || 0;
+    quizState.ultramanHp = (typeof savedSession.ultramanHp === 'number') ? savedSession.ultramanHp : 100;
+    quizState.monsterHp = (typeof savedSession.monsterHp === 'number') ? savedSession.monsterHp : 100;
+    quizState.answered = !!savedSession.answered;
+    quizState.userAnswers = Array.isArray(savedSession.userAnswers) ? savedSession.userAnswers : [];
+    quizState.startTime = savedSession.startTime || Date.now();
+    quizState.endTime = savedSession.endTime || null;
+    quizState.isFinished = false;
+
+    selectQuizHero(quizState.selectedHero.id, true, uKey);
+    updateBattleMonsterDisplay(quizState.currentMonster);
+    updateBattleHpDisplay();
+    updateBattleArenaUserHeader();
+    renderHeroSelector();
+    renderCurrentQuizQuestion();
+
+    if (quizState.answered && quizState.userAnswers.length > quizState.currentIndex) {
+      const lastAns = quizState.userAnswers[quizState.currentIndex];
+      if (lastAns) {
+        applyAnsweredFeedbackUi(lastAns.userChoice, lastAns.question);
+      }
+    }
+    return true;
+  } else {
+    startQuizBattle();
+    return false;
+  }
+}
+
+function syncQuizUserSession() {
+  const currentUserId = getQuizCurrentUserId();
+  if (quizState.activeUserId !== currentUserId) {
+    if (quizState.activeUserId && !quizState.isFinished) {
+      saveActiveUserQuizSession();
+    }
+    loadUserQuizSession(currentUserId);
   }
 }
 
@@ -12866,10 +13089,8 @@ function switchQuizTab(tabName) {
 
 function renderQuizPage() {
   const isAdmin = state.isAdmin();
+  const currentUserId = getQuizCurrentUserId();
   const quizPermissionBanner = document.getElementById('quizPermissionBanner');
-  const quizBannerRoleLabel = document.getElementById('quizBannerRoleLabel');
-  const quizBannerRoleDesc = document.getElementById('quizBannerRoleDesc');
-  const quizBannerBadgePrivilege = document.getElementById('quizBannerBadgePrivilege');
   const btnTabQuizAdminBank = document.getElementById('btnTabQuizAdminBank');
   const btnOpenAdd = document.getElementById('btnOpenAddQuestionModal');
   const quizTitleThemeSuffix = document.getElementById('quizTitleThemeSuffix');
@@ -12904,14 +13125,21 @@ function renderQuizPage() {
 
   switchQuizTab(quizState.activeTab);
 
-  renderHeroSelector();
+  updateBattleArenaUserHeader();
 
-  if (quizState.activeTab === 'battle' && (!quizState.questions || quizState.questions.length === 0)) {
-    startQuizBattle();
+  // Strict User Isolation: Ensure quiz session & hero belong to active user
+  if (quizState.activeUserId !== currentUserId) {
+    loadUserQuizSession(currentUserId);
+  } else {
+    renderHeroSelector();
+    if (quizState.activeTab === 'battle' && (!quizState.questions || quizState.questions.length === 0)) {
+      startQuizBattle();
+    }
   }
 }
 
 function startQuizBattle() {
+  const uKey = getQuizCurrentUserId();
   const bank = state.getQuizQuestions();
   if (!bank || bank.length === 0) {
     state.saveQuizQuestions(DEFAULT_QUIZ_QUESTIONS);
@@ -12920,33 +13148,20 @@ function startQuizBattle() {
     quizState.questions = [...bank];
   }
 
+  quizState.activeUserId = uKey;
+
   // Randomize Monster Kaiju from roster
   const randomMonster = MONSTER_ROSTER[Math.floor(Math.random() * MONSTER_ROSTER.length)];
   quizState.currentMonster = randomMonster;
 
-  // Apply selected Ultraman Hero
-  const hero = getSelectedQuizHero();
-  selectQuizHero(hero.id, true);
+  // Apply selected Ultraman Hero for THIS user
+  const hero = getSelectedQuizHero(uKey);
+  quizState.selectedHeroId = hero.id;
+  quizState.selectedHero = hero;
+  selectQuizHero(hero.id, true, uKey);
 
   // Update monster in arena
-  const monsterImg = document.getElementById('avatarMonster');
-  if (monsterImg) {
-    monsterImg.src = randomMonster.image;
-    monsterImg.alt = randomMonster.name;
-  }
-  const monsterNameEl = document.querySelector('#cardMonsterEnemy .fighter-name');
-  if (monsterNameEl) monsterNameEl.textContent = randomMonster.name;
-  const monsterTitleEl = document.querySelector('#cardMonsterEnemy .fighter-title');
-  if (monsterTitleEl) monsterTitleEl.textContent = randomMonster.title;
-  const monsterTagEl = document.querySelector('#cardMonsterEnemy .fighter-type-tag');
-  if (monsterTagEl) monsterTagEl.textContent = randomMonster.tag;
-
-  // Outcome cutscene monster actor
-  const animMonsterImg = document.getElementById('animMonsterImg');
-  if (animMonsterImg) {
-    animMonsterImg.src = randomMonster.image;
-    animMonsterImg.alt = randomMonster.name;
-  }
+  updateBattleMonsterDisplay(randomMonster);
 
   quizState.currentIndex = 0;
   quizState.score = 0;
@@ -12960,8 +13175,12 @@ function startQuizBattle() {
   quizState.userAnswers = [];
   quizState.startTime = Date.now();
   quizState.endTime = null;
+  quizState.isFinished = false;
+
+  saveActiveUserQuizSession();
 
   updateBattleHpDisplay();
+  updateBattleArenaUserHeader();
 
   // Hidden initially per user request: "Monster Giga Lag terdeteksi mengganggu kestabilan jaringan! Pilih jawaban tepat (A-E) untuk menyerang!"
   const bubble = document.getElementById('battleAnnouncer');
@@ -13183,6 +13402,8 @@ function handleSelectQuizOption(choice) {
     pointsEarned: isCorrect ? pointsPerQuestion : 0
   });
 
+  saveActiveUserQuizSession();
+
   const feedbackBox = document.getElementById('quizFeedbackBox');
   const btnNext = document.getElementById('btnNextQuestion');
 
@@ -13206,6 +13427,8 @@ function nextQuizQuestion() {
     triggerQuizFinishWithSpecialAnim();
   } else {
     quizState.currentIndex++;
+    quizState.answered = false;
+    saveActiveUserQuizSession();
     renderCurrentQuizQuestion();
   }
 }
@@ -13375,6 +13598,8 @@ function dismissSpecialOutcomeAnimation() {
 
 function finishQuizBattle(resolvedOutcome, resolvedScore) {
   quizState.endTime = Date.now();
+  quizState.isFinished = true;
+  saveActiveUserQuizSession();
   const total = quizState.questions.length || 1;
   const rawScore = (quizState.correctCount / total) * 100;
   const finalScore = (resolvedScore !== undefined ? resolvedScore : Math.round(rawScore));
