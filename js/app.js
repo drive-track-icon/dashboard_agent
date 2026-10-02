@@ -2173,6 +2173,92 @@ function toggleDisplayMode(notify = true) {
   setDisplayMode(targetMode, notify);
 }
 
+// ==========================================
+// 2.7 PER-USER SIDEBAR COLLAPSE & ZOOM PREFERENCES
+// ==========================================
+
+function getUserSidebarCollapsed(user) {
+  if (!user) return false;
+  const username = (user.username || user.id || '').toLowerCase();
+  try {
+    const saved = localStorage.getItem('drive_sidebar_collapsed_' + username);
+    if (saved !== null) return saved === 'true';
+    const fallback = localStorage.getItem('sidebar_collapsed');
+    if (fallback !== null) return fallback === 'true';
+  } catch (e) {
+    console.warn('LocalStorage read error for user sidebar collapsed:', e);
+  }
+  if (typeof user.sidebarCollapsed === 'boolean') {
+    return user.sidebarCollapsed;
+  }
+  return false;
+}
+
+function setUserSidebarCollapsed(user, collapsed) {
+  if (!user) return;
+  const username = (user.username || user.id || '').toLowerCase();
+  try {
+    localStorage.setItem('drive_sidebar_collapsed_' + username, collapsed ? 'true' : 'false');
+    user.sidebarCollapsed = collapsed;
+    state.setSession(user);
+
+    const users = state.getUsers();
+    const userIndex = users.findIndex(u => (u.username || '').toLowerCase() === username);
+    if (userIndex !== -1) {
+      users[userIndex].sidebarCollapsed = collapsed;
+      state.saveUsers(users);
+    }
+  } catch (e) {
+    console.warn('Gagal menyimpan preferensi sidebar per-user:', e);
+  }
+}
+
+function getUserDashboardZoom(user) {
+  if (!user) return 100;
+  const username = (user.username || user.id || '').toLowerCase();
+  try {
+    const saved = localStorage.getItem('drive_dashboard_zoom_' + username);
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed) && parsed >= 60 && parsed <= 160) {
+        return parsed;
+      }
+    }
+    const fallback = localStorage.getItem('dashboard_zoom_level');
+    if (fallback) {
+      const parsedFallback = parseInt(fallback, 10);
+      if (!isNaN(parsedFallback) && parsedFallback >= 60 && parsedFallback <= 160) {
+        return parsedFallback;
+      }
+    }
+  } catch (e) {
+    console.warn('LocalStorage read error for user zoom level:', e);
+  }
+  if (typeof user.dashboardZoom === 'number' && user.dashboardZoom >= 60 && user.dashboardZoom <= 160) {
+    return user.dashboardZoom;
+  }
+  return 100;
+}
+
+function setUserDashboardZoom(user, level) {
+  if (!user) return;
+  const username = (user.username || user.id || '').toLowerCase();
+  try {
+    localStorage.setItem('drive_dashboard_zoom_' + username, level.toString());
+    user.dashboardZoom = level;
+    state.setSession(user);
+
+    const users = state.getUsers();
+    const userIndex = users.findIndex(u => (u.username || '').toLowerCase() === username);
+    if (userIndex !== -1) {
+      users[userIndex].dashboardZoom = level;
+      state.saveUsers(users);
+    }
+  } catch (e) {
+    console.warn('Gagal menyimpan preferensi zoom per-user:', e);
+  }
+}
+
 function initTheme() {
   renderThemePaletteUI();
 
@@ -3171,6 +3257,10 @@ function renderAppView() {
     document.body.classList.remove('theme-light');
     document.body.classList.add('theme-dark');
     document.body.setAttribute('data-display-mode', 'dark');
+
+    // Reset preferensi zoom dan sidebar collapse saat di layar login
+    applySidebarCollapse(false, false);
+    applyDashboardZoom(100, false);
     return;
   }
 
@@ -3185,9 +3275,11 @@ function renderAppView() {
   const userTheme = getUserTheme(state.currentUser);
   applyTheme(userTheme, false);
 
-  // Terapkan preferensi sidebar dan zoom khusus pada konten layanan utama
-  applySidebarCollapse(isSidebarCollapsed, false);
-  applyDashboardZoom(currentDashboardZoom, false);
+  // Terapkan preferensi perkecil/perbesar sidebar dan zoom HANYA untuk pengguna yang sedang login saat ini
+  const userSidebarCollapsed = getUserSidebarCollapsed(state.currentUser);
+  applySidebarCollapse(userSidebarCollapsed, false);
+  const userZoom = getUserDashboardZoom(state.currentUser);
+  applyDashboardZoom(userZoom, false);
 
   // Update User Profile details across the UI
   const u = state.currentUser;
@@ -13154,20 +13246,23 @@ let isSidebarCollapsed = false;
 
 function openMobileSidebar() {
   UI.sidebar.classList.add('open');
-  UI.sidebarOverlay.classList.add('active');
+  if (UI.sidebarOverlay) UI.sidebarOverlay.classList.add('active');
+  applySidebarCollapse(false, false);
 }
 
 function closeMobileSidebar() {
   UI.sidebar.classList.remove('open');
-  UI.sidebarOverlay.classList.remove('active');
+  if (UI.sidebarOverlay) UI.sidebarOverlay.classList.remove('active');
+  if (window.innerWidth <= 768) {
+    applySidebarCollapse(true, false);
+  }
 }
 
 function initSidebarCollapse() {
-  const savedState = localStorage.getItem('sidebar_collapsed');
-  if (savedState === 'true') {
-    isSidebarCollapsed = true;
-    applySidebarCollapse(true, false);
-  }
+  const initialCollapsed = state.currentUser
+    ? getUserSidebarCollapsed(state.currentUser)
+    : (window.innerWidth <= 768 ? true : false);
+  applySidebarCollapse(initialCollapsed, false);
 
   if (UI.sidebarCollapseBtn) {
     UI.sidebarCollapseBtn.addEventListener('click', (e) => {
@@ -13178,7 +13273,7 @@ function initSidebarCollapse() {
 
   if (UI.sidebarBrandClickable) {
     UI.sidebarBrandClickable.addEventListener('click', (e) => {
-      if (isSidebarCollapsed) {
+      if (isSidebarCollapsed || window.innerWidth <= 768) {
         e.stopPropagation();
         toggleSidebarCollapse();
       }
@@ -13218,8 +13313,13 @@ function applySidebarCollapse(collapsed, save = true) {
       : 'Perkecil Sidebar (Lebarkan Layanan Utama - Ctrl+B)';
   }
 
-  if (save) {
-    localStorage.setItem('sidebar_collapsed', collapsed ? 'true' : 'false');
+  // Pada mobile/gadget, kelola tampilan overlay jika menu diperbesar
+  if (window.innerWidth <= 768 && UI.sidebarOverlay) {
+    UI.sidebarOverlay.classList.toggle('active', !collapsed);
+  }
+
+  if (save && state.currentUser) {
+    setUserSidebarCollapsed(state.currentUser, collapsed);
   }
 
   // Pemicu resize selama dan sesudah animasi agar seluruh tabel & grafik menyesuaikan layar yang lebih luas
@@ -13239,14 +13339,10 @@ function applySidebarCollapse(collapsed, save = true) {
 let currentDashboardZoom = 100;
 
 function initZoomControls() {
-  const savedZoom = localStorage.getItem('dashboard_zoom_level');
-  if (savedZoom) {
-    const parsed = parseInt(savedZoom, 10);
-    if (!isNaN(parsed) && parsed >= 60 && parsed <= 160) {
-      currentDashboardZoom = parsed;
-    }
-  }
-  applyDashboardZoom(currentDashboardZoom, false);
+  const initialZoom = state.currentUser
+    ? getUserDashboardZoom(state.currentUser)
+    : 100;
+  applyDashboardZoom(initialZoom, false);
 
   if (UI.btnZoomOut) {
     UI.btnZoomOut.addEventListener('click', (e) => {
@@ -13337,19 +13433,34 @@ function applyDashboardZoom(level, save = true) {
   level = Math.max(60, Math.min(160, Math.round(level)));
   currentDashboardZoom = level;
 
-  // Pastikan document.body & documentElement tidak di-zoom agar navbar, sidebar, dan media query tidak terganggu
+  // Pastikan document.body & documentElement tidak di-zoom agar layout navbar, sidebar, dan media query tidak terganggu
   document.body.style.zoom = '';
   document.documentElement.style.zoom = '';
 
-  // Fitur zoom in/out berpengaruh langsung pada KONTEN (tulisan, gambar, kartu, tabel, dan grafik)
+  // Fitur Zoom In/Out HANYA berpengaruh pada TULISAN (font-size typography).
+  // Container pada web TIDAK terpengaruh oleh fitur zoom in/out (selalu 100% fluid mengikuti ukuran layar,
+  // tidak keluar dari layar monitor, dan tidak memicu overflow).
+  const scale = level / 100;
+  document.documentElement.style.setProperty('--content-font-scale', scale.toString());
+
   const mainContent = document.getElementById('mainContent');
   if (mainContent) {
-    mainContent.style.zoom = `${level}%`;
+    // Bersihkan style zoom dan width override agar container selalu dinamis 100% mengikuti layar
+    mainContent.style.removeProperty('zoom');
+    mainContent.style.removeProperty('width');
+    mainContent.style.removeProperty('max-width');
+    mainContent.style.setProperty('--content-font-scale', scale.toString());
+    mainContent.setAttribute('data-zoom', level.toString());
+    mainContent.classList.toggle('zoom-in-active', level > 100);
+    mainContent.classList.toggle('zoom-out-active', level < 100);
   }
 
   const roleAlertBanner = document.getElementById('userRoleAlertBanner');
   if (roleAlertBanner) {
-    roleAlertBanner.style.zoom = `${level}%`;
+    roleAlertBanner.style.removeProperty('zoom');
+    roleAlertBanner.style.removeProperty('width');
+    roleAlertBanner.style.removeProperty('max-width');
+    roleAlertBanner.style.setProperty('--content-font-scale', scale.toString());
   }
 
   if (UI.zoomPercentDisplay) {
@@ -13370,14 +13481,18 @@ function applyDashboardZoom(level, save = true) {
     btn.classList.toggle('active', val === level);
   });
 
-  if (save) {
-    localStorage.setItem('dashboard_zoom_level', level.toString());
+  if (save && state.currentUser) {
+    setUserDashboardZoom(state.currentUser, level);
   }
 
-  // Refit charts
+  // Refit charts dynamically
+  window.dispatchEvent(new Event('resize'));
   setTimeout(() => {
     window.dispatchEvent(new Event('resize'));
-  }, 100);
+  }, 60);
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 180);
 }
 
 // ==========================================

@@ -133,7 +133,7 @@
             <span class="sidebar-brand-sub" title="Dashboard Reporting, Insight &amp; Visibility of Employee">Dashboard Reporting, Insight &amp; Visibility of Employee</span>
           </div>
         </div>
-        <button class="sidebar-collapse-btn hide-mobile" id="sidebarCollapseBtn" aria-label="Perkecil / Perbesar Sidebar" title="Perkecil Sidebar (Lebarkan Layanan Utama - Ctrl+B)">
+        <button class="sidebar-collapse-btn" id="sidebarCollapseBtn" aria-label="Perkecil / Perbesar Sidebar" title="Perkecil Sidebar (Lebarkan Layanan Utama - Ctrl+B)">
           <i class="fa-solid fa-angles-left" id="sidebarCollapseIcon"></i>
         </button>
         <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup Menu">
@@ -838,7 +838,7 @@
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
-                <label for="filterCaMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <label for="filterCaMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterCaMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
@@ -856,7 +856,7 @@
               <button class="btn btn-outline-cyan hidden" id="btnOpenCaGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
-                <span class="badge badge-sm" id="caGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+                <span class="badge badge-sm" id="caGSheetHeaderBadge" style="margin-left:4px; font-size: calc(0.68rem * var(--content-font-scale, 1)); background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllCaMonth" title="Hapus seluruh data penilaian CA di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -886,15 +886,15 @@
           <!-- Google Spreadsheet Integration Bar for CA -->
           <div class="glass-subpanel gsheet-integration-bar" id="caGSheetSyncBar">
             <div style="display:flex; align-items:center; gap:12px;">
-              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size: calc(1.2rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-table-cells"></i>
               </div>
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
-                  <span class="badge" id="caGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                  <strong style="color:#fff; font-size: calc(0.88rem * var(--content-font-scale, 1));">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="caGSheetStatusBadge" style="font-size: calc(0.7rem * var(--content-font-scale, 1)); padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
                 </div>
-                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="caGSheetStatusInfo">
+                <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;" id="caGSheetStatusInfo">
                   Data Customer Attributes dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
                 </div>
               </div>
@@ -958,7 +958,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">User Skor Tertinggi</span>
-                <h3 class="metric-value text-yellow" id="caStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <h3 class="metric-value text-yellow" id="caStatTopUser" style="font-size: calc(1.15rem * var(--content-font-scale, 1)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
                 <span class="metric-subtext" id="caStatTopUserSub">Capaian skor terbaik bulan ini</span>
               </div>
             </div>
@@ -982,18 +982,18 @@
           <div class="table-container glass-panel" id="caUserSummarySection" style="margin-bottom: 24px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:10px;">
               <div>
-                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Nilai Seluruh Agent Periode <span id="caMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Perbandingan performa, akumulasi hari dinilai, dan rata-rata skor bulanan per anggota CSO.</p>
+                <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Perbandingan performa, akumulasi hari dinilai, dan rata-rata skor bulanan per anggota CSO.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterCaSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterCaSummarySort" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Filter Rata-rata:
                   </label>
-                  <select id="filterCaSummarySort" class="filter-select" style="min-width: 175px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterCaSummarySort" class="filter-select" style="min-width: 175px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="DESC" selected>Rata-rata Tertinggi</option>
                     <option value="ASC">Rata-rata Terendah</option>
                   </select>
@@ -1025,11 +1025,11 @@
           <!-- Section 2: Rincian Log Evaluasi Harian (Daily Evaluation Breakdown) -->
           <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
             <div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+              <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Penilaian Harian (Interval Per Hari)</span>
               </h3>
-              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="caDailySubtitle">Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color: var(--gray-400);" id="caDailySubtitle">Daftar riwayat evaluasi per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1078,10 +1078,10 @@
           <!-- Batch Actions Toolbar for CA (Tandai & Hapus Ditandai) -->
           <div class="ca-batch-bar glass-panel hidden" id="caBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
             <div style="display:flex; align-items:center; gap: 10px;">
-              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-check-double text-red"></i> <span id="caSelectedCount">0</span> Data Ditandai
               </span>
-              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data evaluasi harian untuk dikelola atau dihapus massal.</span>
+              <span style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300);">Pilih data evaluasi harian untuk dikelola atau dihapus massal.</span>
             </div>
             <div style="display:flex; align-items:center; gap: 8px;">
               <button type="button" class="btn btn-outline-gray btn-sm" id="btnCaDeselectAll">
@@ -1137,7 +1137,7 @@
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
-                <label for="filterTiketMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <label for="filterTiketMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterTiketMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
@@ -1155,7 +1155,7 @@
               <button class="btn btn-outline-cyan hidden" id="btnOpenTiketGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
-                <span class="badge badge-sm" id="tiketGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+                <span class="badge badge-sm" id="tiketGSheetHeaderBadge" style="margin-left:4px; font-size: calc(0.68rem * var(--content-font-scale, 1)); background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllTiketMonth" title="Hapus seluruh data perolehan tiket di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -1185,15 +1185,15 @@
           <!-- Google Spreadsheet Integration Bar for Tiket -->
           <div class="glass-subpanel gsheet-integration-bar" id="tiketGSheetSyncBar">
             <div style="display:flex; align-items:center; gap:12px;">
-              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size: calc(1.2rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-table-cells"></i>
               </div>
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
-                  <span class="badge" id="tiketGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                  <strong style="color:#fff; font-size: calc(0.88rem * var(--content-font-scale, 1));">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="tiketGSheetStatusBadge" style="font-size: calc(0.7rem * var(--content-font-scale, 1)); padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
                 </div>
-                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="tiketGSheetStatusInfo">
+                <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;" id="tiketGSheetStatusInfo">
                   Data Perolehan Tiket dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
                 </div>
               </div>
@@ -1229,7 +1229,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Total Perolehan Tim Bulan Ini</span>
-                <h3 class="metric-value text-red" id="tiketStatTotalTickets">5.248 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket</small></h3>
+                <h3 class="metric-value text-red" id="tiketStatTotalTickets">5.248 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Tiket</small></h3>
                 <span class="metric-subtext" id="tiketStatTotalTicketsSub">Akumulasi seluruh user di bulan ini</span>
               </div>
             </div>
@@ -1243,7 +1243,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Target Bulanan Per User</span>
-                <h3 class="metric-value text-white" id="tiketStatMonthlyTarget">1.320 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket / User</small></h3>
+                <h3 class="metric-value text-white" id="tiketStatMonthlyTarget">1.320 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Tiket / User</small></h3>
                 <span class="metric-subtext">Standar ~60 tiket per hari kerja</span>
               </div>
             </div>
@@ -1257,7 +1257,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">User Perolehan Terbanyak</span>
-                <h3 class="metric-value text-yellow" id="tiketStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <h3 class="metric-value text-yellow" id="tiketStatTopUser" style="font-size: calc(1.15rem * var(--content-font-scale, 1)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
                 <span class="metric-subtext" id="tiketStatTopUserSub">Capaian tiket tertinggi bulan ini</span>
               </div>
             </div>
@@ -1271,7 +1271,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Rata-rata Perolehan Tim</span>
-                <h3 class="metric-value text-green" id="tiketStatDailyAvg">60,2 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Tiket/Hari</small></h3>
+                <h3 class="metric-value text-green" id="tiketStatDailyAvg">60,2 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Tiket/Hari</small></h3>
                 <span class="metric-subtext" id="tiketStatDailyAvgSub">Performa harian menuju target 1.320</span>
               </div>
             </div>
@@ -1281,19 +1281,19 @@
           <div class="table-container glass-panel" id="tiketUserSummarySection" style="margin-bottom: 24px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
               <div>
-                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Perolehan Tiket Seluruh Agent Periode <span id="tiketMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.</p>
+                <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Monitoring akumulasi perolehan tiket harian seluruh agen CSO terhadap target bulanan 1.320 tiket.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <!-- Filter Nama User / Agent -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterSummaryTiketUser" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterSummaryTiketUser" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-user text-red" style="margin-right:4px;"></i>Nama User:
                   </label>
-                  <select id="filterSummaryTiketUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterSummaryTiketUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="ALL">Semua Nama User</option>
                     <!-- Populated dynamically with users -->
                   </select>
@@ -1301,10 +1301,10 @@
 
                 <!-- Filter Layanan -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterSummaryTiketService" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterSummaryTiketService" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>Layanan:
                   </label>
-                  <select id="filterSummaryTiketService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterSummaryTiketService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="ALL">Semua Layanan</option>
                     <option value="CSO INBOUND">CSO INBOUND</option>
                     <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
@@ -1319,10 +1319,10 @@
 
                 <!-- Urutkan -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterTiketSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterTiketSummarySort" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Urutkan:
                   </label>
-                  <select id="filterTiketSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterTiketSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="DESC" selected>Perolehan Terbanyak</option>
                     <option value="ASC">Perolehan Terendah</option>
                   </select>
@@ -1356,11 +1356,11 @@
           <!-- Section 2: Rincian Log Perolehan Harian (Interval Input Per Hari) -->
           <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
             <div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+              <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Perolehan Tiket Harian (Interval Per Hari)</span>
               </h3>
-              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="tiketDailySubtitle">Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color: var(--gray-400);" id="tiketDailySubtitle">Daftar riwayat perolehan tiket per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1408,10 +1408,10 @@
           <!-- Batch Actions Toolbar for Tiket (Admin Only) -->
           <div class="ca-batch-bar tiket-batch-bar glass-panel hidden" id="tiketBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
             <div style="display:flex; align-items:center; gap: 10px;">
-              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-check-double text-red"></i> <span id="tiketSelectedCount">0</span> Data Ditandai
               </span>
-              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data perolehan tiket harian untuk dikelola atau dihapus massal (Admin).</span>
+              <span style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300);">Pilih data perolehan tiket harian untuk dikelola atau dihapus massal (Admin).</span>
             </div>
             <div style="display:flex; align-items:center; gap: 8px;">
               <button type="button" class="btn btn-outline-gray btn-sm" id="btnTiketDeselectAll">
@@ -1465,7 +1465,7 @@
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
-                <label for="filterAhtMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <label for="filterAhtMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterAhtMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
@@ -1483,7 +1483,7 @@
               <button class="btn btn-outline-cyan hidden" id="btnOpenAhtGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
-                <span class="badge badge-sm" id="ahtGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+                <span class="badge badge-sm" id="ahtGSheetHeaderBadge" style="margin-left:4px; font-size: calc(0.68rem * var(--content-font-scale, 1)); background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllAhtMonth" title="Hapus seluruh data handling time di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -1513,15 +1513,15 @@
           <!-- Google Spreadsheet Integration Bar for AHT -->
           <div class="glass-subpanel gsheet-integration-bar" id="ahtGSheetSyncBar">
             <div style="display:flex; align-items:center; gap:12px;">
-              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size: calc(1.2rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-table-cells"></i>
               </div>
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
-                  <span class="badge" id="ahtGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                  <strong style="color:#fff; font-size: calc(0.88rem * var(--content-font-scale, 1));">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="ahtGSheetStatusBadge" style="font-size: calc(0.7rem * var(--content-font-scale, 1)); padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
                 </div>
-                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="ahtGSheetStatusInfo">
+                <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;" id="ahtGSheetStatusInfo">
                   Data Average Handling Time (AHT) dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
                 </div>
               </div>
@@ -1556,7 +1556,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Rata-rata AHT Tim Bulan Ini</span>
-                <h3 class="metric-value text-red" id="ahtStatAvg">0 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <h3 class="metric-value text-red" id="ahtStatAvg">0 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Detik</small></h3>
                 <span class="metric-subtext" id="ahtStatAvgSub">0 detik rata-rata durasi penanganan</span>
               </div>
             </div>
@@ -1570,7 +1570,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label" id="ahtStatCard2Label">Total Interaksi Ditangani</span>
-                <h3 class="metric-value text-white" id="ahtStatCompliance">0 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Sesi</small></h3>
+                <h3 class="metric-value text-white" id="ahtStatCompliance">0 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Sesi</small></h3>
                 <span class="metric-subtext" id="ahtStatComplianceSub">Akumulasi sesi panggilan &amp; chat</span>
               </div>
             </div>
@@ -1584,7 +1584,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label" id="ahtStatCard3Label">Total Durasi Penanganan</span>
-                <h3 class="metric-value text-yellow" id="ahtStatOver">0 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <h3 class="metric-value text-yellow" id="ahtStatOver">0 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Detik</small></h3>
                 <span class="metric-subtext" id="ahtStatOverSub">Akumulasi waktu pelayanan interaksi</span>
               </div>
             </div>
@@ -1598,7 +1598,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label" id="ahtStatTopUserLabel">Agen Penanganan Tercepat</span>
-                <h3 class="metric-value text-silver" id="ahtStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <h3 class="metric-value text-silver" id="ahtStatTopUser" style="font-size: calc(1.15rem * var(--content-font-scale, 1)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
                 <span class="metric-subtext" id="ahtStatTopUserSub">AHT rata-rata terbaik bulan ini</span>
               </div>
             </div>
@@ -1608,29 +1608,29 @@
           <div class="table-container glass-panel" id="ahtUserSummarySection" style="margin-bottom: 24px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
               <div>
-                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Average Handling Time Seluruh Agent Periode <span id="ahtMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.</p>
+                <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Monitoring performa durasi rata-rata penanganan interaksi seluruh agent dalam 1 bulan terhadap batas SLA 300 detik.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <!-- Filter Nama User / Agent -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterSummaryAhtUser" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterSummaryAhtUser" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-user text-red" style="margin-right:4px;"></i>Nama User:
                   </label>
-                  <select id="filterSummaryAhtUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterSummaryAhtUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="ALL">Semua Nama User</option>
                   </select>
                 </div>
 
                 <!-- Filter Layanan -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterSummaryAhtService" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterSummaryAhtService" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>Layanan:
                   </label>
-                  <select id="filterSummaryAhtService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterSummaryAhtService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="ALL">Semua Layanan</option>
                     <option value="CSO INBOUND">CSO INBOUND</option>
                     <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
@@ -1645,10 +1645,10 @@
 
                 <!-- Urutkan -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterAhtSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterAhtSummarySort" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Urutkan:
                   </label>
-                  <select id="filterAhtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterAhtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="FASTEST" selected>AHT Tercepat</option>
                     <option value="SLOWEST">AHT Tertinggi</option>
                   </select>
@@ -1678,11 +1678,11 @@
           <!-- Section 2: Rincian Log Handling Time Harian (Interval Input Per Hari) -->
           <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
             <div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+              <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Handling Time Harian (Interval Per Hari)</span>
               </h3>
-              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="ahtDailySubtitle">Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color: var(--gray-400);" id="ahtDailySubtitle">Daftar riwayat durasi penanganan per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -1728,10 +1728,10 @@
           <!-- Batch Actions Toolbar for AHT (Admin Only) -->
           <div class="ca-batch-bar aht-batch-bar glass-panel hidden" id="ahtBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
             <div style="display:flex; align-items:center; gap: 10px;">
-              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-check-double text-red"></i> <span id="ahtSelectedCount">0</span> Data Ditandai
               </span>
-              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data handling time harian untuk dikelola atau dihapus massal (Admin).</span>
+              <span style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300);">Pilih data handling time harian untuk dikelola atau dihapus massal (Admin).</span>
             </div>
             <div style="display:flex; align-items:center; gap: 8px;">
               <button type="button" class="btn btn-outline-gray btn-sm" id="btnAhtDeselectAll">
@@ -1785,7 +1785,7 @@
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
-                <label for="filterArtMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <label for="filterArtMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterArtMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
@@ -1803,7 +1803,7 @@
               <button class="btn btn-outline-cyan hidden" id="btnOpenArtGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
-                <span class="badge badge-sm" id="artGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+                <span class="badge badge-sm" id="artGSheetHeaderBadge" style="margin-left:4px; font-size: calc(0.68rem * var(--content-font-scale, 1)); background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllArtMonth" title="Hapus seluruh data response time di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -1833,15 +1833,15 @@
           <!-- Google Spreadsheet Integration Bar for ART -->
           <div class="glass-subpanel gsheet-integration-bar" id="artGSheetSyncBar">
             <div style="display:flex; align-items:center; gap:12px;">
-              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size: calc(1.2rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-table-cells"></i>
               </div>
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
-                  <span class="badge" id="artGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                  <strong style="color:#fff; font-size: calc(0.88rem * var(--content-font-scale, 1));">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="artGSheetStatusBadge" style="font-size: calc(0.7rem * var(--content-font-scale, 1)); padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
                 </div>
-                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="artGSheetStatusInfo">
+                <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;" id="artGSheetStatusInfo">
                   Data Average Response Time (ART) dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
                 </div>
               </div>
@@ -1877,7 +1877,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Rata-rata ART Tim Bulan Ini</span>
-                <h3 class="metric-value text-red" id="artStatAvg">14.8 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <h3 class="metric-value text-red" id="artStatAvg">14.8 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Detik</small></h3>
                 <span class="metric-subtext" id="artStatAvgSub">Kecepatan respon chat aktif</span>
               </div>
             </div>
@@ -1891,7 +1891,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Respon Pertama (FRT)</span>
-                <h3 class="metric-value text-white" id="artStatFrt">8.5 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <h3 class="metric-value text-white" id="artStatFrt">8.5 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400); font-weight:normal;">Detik</small></h3>
                 <span class="metric-subtext" id="artStatFrtSub">Waktu pertama agen menyapa pelanggan</span>
               </div>
             </div>
@@ -1919,7 +1919,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label" id="artStatTopUserLabel">Agen Paling Responsif</span>
-                <h3 class="metric-value text-silver" id="artStatTopUser" style="font-size:1.15rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
+                <h3 class="metric-value text-silver" id="artStatTopUser" style="font-size: calc(1.15rem * var(--content-font-scale, 1)); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">-</h3>
                 <span class="metric-subtext" id="artStatTopUserSub">Respon tercepat bulan ini</span>
               </div>
             </div>
@@ -1929,29 +1929,29 @@
           <div class="table-container glass-panel" id="artUserSummarySection" style="margin-bottom: 24px;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 16px; flex-wrap:wrap; gap:12px;">
               <div>
-                <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
                   <i class="fa-solid fa-users-viewfinder text-red"></i>
                   <span>Rekapitulasi Average Response Time Seluruh Agent Periode <span id="artMonthHeaderLabel" class="text-red">September 2026</span></span>
                 </h3>
-                <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;">Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.</p>
+                <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Monitoring kecepatan rata-rata respon interaksi seluruh agent dalam 1 bulan terhadap batas standar SLA 30 detik.</p>
               </div>
               <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <!-- Filter Nama User / Agent -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterSummaryArtUser" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterSummaryArtUser" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-user text-red" style="margin-right:4px;"></i>Nama User:
                   </label>
-                  <select id="filterSummaryArtUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterSummaryArtUser" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="ALL">Semua Nama User</option>
                   </select>
                 </div>
 
                 <!-- Filter Layanan -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterSummaryArtService" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterSummaryArtService" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>Layanan:
                   </label>
-                  <select id="filterSummaryArtService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterSummaryArtService" class="filter-select" style="min-width: 155px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="ALL">Semua Layanan</option>
                     <option value="CSO INBOUND">CSO INBOUND</option>
                     <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
@@ -1966,10 +1966,10 @@
 
                 <!-- Urutkan -->
                 <div style="display:inline-flex; align-items:center; gap:6px;">
-                  <label for="filterArtSummarySort" style="font-size:0.78rem; color:var(--gray-300); font-weight:600; white-space:nowrap;">
+                  <label for="filterArtSummarySort" style="font-size: calc(0.78rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600; white-space:nowrap;">
                     <i class="fa-solid fa-arrow-down-wide-short text-red" style="margin-right:4px;"></i>Urutkan:
                   </label>
-                  <select id="filterArtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
+                  <select id="filterArtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                     <option value="FASTEST" selected>ART Tercepat</option>
                     <option value="SLOWEST">ART Tertinggi</option>
                     <option value="COMPLIANCE_DESC">Kepatuhan SLA Tertinggi</option>
@@ -2002,11 +2002,11 @@
           <!-- Section 2: Rincian Log Response Time Harian (Interval Input Per Hari) -->
           <div class="section-title-bar" style="margin-bottom: 12px; margin-top: 10px;">
             <div>
-              <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+              <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
                 <i class="fa-solid fa-calendar-check text-red"></i>
                 <span>Log Response Time Harian (Interval Per Hari)</span>
               </h3>
-              <p class="hidden" style="font-size: 0.8rem; color: var(--gray-400);" id="artDailySubtitle">Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.</p>
+              <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color: var(--gray-400);" id="artDailySubtitle">Daftar riwayat kecepatan respon per hari dari seluruh user dalam bulan terpilih.</p>
             </div>
           </div>
 
@@ -2054,10 +2054,10 @@
           <!-- Batch Actions Toolbar for ART (Admin Only) -->
           <div class="ca-batch-bar art-batch-bar glass-panel hidden" id="artBatchBar" style="margin-bottom: 12px; padding: 10px 16px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; border-color: rgba(230,46,68,0.3); background: rgba(230,46,68,0.06);">
             <div style="display:flex; align-items:center; gap: 10px;">
-              <span class="badge badge-red-subtle" style="font-weight:700; font-size:0.8rem;">
+              <span class="badge badge-red-subtle" style="font-weight:700; font-size: calc(0.8rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-check-double text-red"></i> <span id="artSelectedCount">0</span> Data Ditandai
               </span>
-              <span style="font-size:0.8rem; color:var(--gray-300);">Pilih data response time harian untuk dikelola atau dihapus massal (Admin).</span>
+              <span style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300);">Pilih data response time harian untuk dikelola atau dihapus massal (Admin).</span>
             </div>
             <div style="display:flex; align-items:center; gap: 8px;">
               <button type="button" class="btn btn-outline-gray btn-sm" id="btnArtDeselectAll">
@@ -2112,7 +2112,7 @@
             </div>
             <div class="page-title-actions">
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
-                <label for="filterFindingMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <label for="filterFindingMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterFindingMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
                   <option value="ALL">Semua Bulan</option>
                   <option value="2026-10">Oktober 2026</option>
@@ -2132,7 +2132,7 @@
               <button class="btn btn-outline-cyan hidden" id="btnOpenFindingGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
-                <span class="badge badge-sm" id="findingGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+                <span class="badge badge-sm" id="findingGSheetHeaderBadge" style="margin-left:4px; font-size: calc(0.68rem * var(--content-font-scale, 1)); background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllFindingMonth" title="Hapus seluruh data temuan audit QA di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -2148,15 +2148,15 @@
           <!-- Google Spreadsheet Integration Bar for Finding -->
           <div class="glass-subpanel gsheet-integration-bar" id="findingGSheetSyncBar" style="margin-bottom:16px;">
             <div style="display:flex; align-items:center; gap:12px;">
-              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(239, 68, 68, 0.15); display:flex; align-items:center; justify-content:center; color:#ef4444; font-size:1.2rem;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(239, 68, 68, 0.15); display:flex; align-items:center; justify-content:center; color:#ef4444; font-size: calc(1.2rem * var(--content-font-scale, 1));">
                 <i class="fa-solid fa-table-cells"></i>
               </div>
               <div>
                 <div style="display:flex; align-items:center; gap:8px;">
-                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
-                  <span class="badge" id="findingGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                  <strong style="color:#fff; font-size: calc(0.88rem * var(--content-font-scale, 1));">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="findingGSheetStatusBadge" style="font-size: calc(0.7rem * var(--content-font-scale, 1)); padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
                 </div>
-                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="findingGSheetStatusInfo">
+                <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;" id="findingGSheetStatusInfo">
                   Data Temuan Audit QA (Finding) dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
                 </div>
               </div>
@@ -2292,7 +2292,7 @@
           <div class="glass-subpanel batch-action-bar hidden" id="findingBatchBar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 16px; border-left:3px solid var(--accent-red);">
             <div style="display:flex; align-items:center; gap:8px;">
               <i class="fa-solid fa-check-double text-red"></i>
-              <span style="font-size:0.84rem; color:#fff; font-weight:600;"><span id="findingSelectedCount">0</span> Temuan Ditandai</span>
+              <span style="font-size: calc(0.84rem * var(--content-font-scale, 1)); color:#fff; font-weight:600;"><span id="findingSelectedCount">0</span> Temuan Ditandai</span>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
               <button class="btn btn-outline-gray btn-sm" id="btnFindingDeselectAll">
@@ -3332,7 +3332,7 @@
                 </div>
                 <div class="metric-body">
                   <span class="metric-label" id="lblQuizStatCard1Title">Skor Terbaik Saya</span>
-                  <h3 class="metric-value text-red" id="statQuizMyBestScore">0 <small style="font-size:0.85rem; color:var(--gray-400);">/ 100</small></h3>
+                  <h3 class="metric-value text-red" id="statQuizMyBestScore">0 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400);">/ 100</small></h3>
                   <span class="metric-subtext" id="statQuizMyBestStatus">Belum menyelesaikan kuis</span>
                 </div>
               </div>
@@ -3344,7 +3344,7 @@
                 </div>
                 <div class="metric-body">
                   <span class="metric-label" id="lblQuizStatCard2Title">Total Monster Dikalahkan</span>
-                  <h3 class="metric-value text-green" id="statQuizTotalVictories">0 <small style="font-size:0.85rem; color:var(--gray-400);">Kali</small></h3>
+                  <h3 class="metric-value text-green" id="statQuizTotalVictories">0 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400);">Kali</small></h3>
                   <span class="metric-subtext" id="statQuizWinRate">Win Rate: 0%</span>
                 </div>
               </div>
@@ -3356,7 +3356,7 @@
                 </div>
                 <div class="metric-body">
                   <span class="metric-label" id="lblQuizStatCard3Title">Rekor Nilai Sempurna 100</span>
-                  <h3 class="metric-value text-yellow" id="statQuizTotalPerfect">0 <small style="font-size:0.85rem; color:var(--gray-400);">Sempurna</small></h3>
+                  <h3 class="metric-value text-yellow" id="statQuizTotalPerfect">0 <small style="font-size: calc(0.85rem * var(--content-font-scale, 1)); color:var(--gray-400);">Sempurna</small></h3>
                   <span class="metric-subtext">Mengeluarkan Jurus Ultimate</span>
                 </div>
               </div>
@@ -3404,11 +3404,11 @@
             <div class="table-container glass-panel">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; flex-wrap:wrap; gap:10px;">
                 <div>
-                  <h3 style="font-size:1.05rem; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
+                  <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight:700; color:#fff; display:flex; align-items:center; gap:8px;">
                     <i class="fa-solid fa-clock-rotate-left text-red"></i>
                     <span id="quizHistoryTableTitle">Riwayat Pertarungan Quiz Pribadi</span>
                   </h3>
-                  <p class="hidden" style="font-size:0.8rem; color:var(--gray-400); margin-top:2px;" id="quizHistoryTableDesc">Rekapitulasi pencapaian skor dan hasil akhir pertarungan kuis pribadi Anda.</p>
+                  <p class="hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;" id="quizHistoryTableDesc">Rekapitulasi pencapaian skor dan hasil akhir pertarungan kuis pribadi Anda.</p>
                 </div>
                 <div style="display:flex; gap:8px;">
                   <button type="button" class="btn btn-outline-gray btn-sm" id="btnClearMyQuizHistory">
@@ -3442,11 +3442,11 @@
           <div id="quizTabAdminBankSection" class="hidden">
             <div class="section-title-bar" style="margin-bottom: 14px;">
               <div>
-                <h3 style="font-size: 1.05rem; font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
+                <h3 style="font-size: calc(1.05rem * var(--content-font-scale, 1)); font-weight: 700; color: #fff; display:flex; align-items:center; gap: 8px;">
                   <i class="fa-solid fa-database text-red"></i>
                   <span>Bank Soal Latihan &amp; Uji Kompetensi ICONNET</span>
                 </h3>
-                <p class="hidden" id="quizAdminBankDesc" style="font-size: 0.8rem; color: var(--gray-400);">Admin dapat menambah, mengubah, dan menghapus soal kuis. Perubahan soal akan langsung aktif pada arena pertarungan kuis.</p>
+                <p class="hidden" id="quizAdminBankDesc" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color: var(--gray-400);">Admin dapat menambah, mengubah, dan menghapus soal kuis. Perubahan soal akan langsung aktif pada arena pertarungan kuis.</p>
               </div>
               <div>
                 <button type="button" class="btn btn-primary glow-effect-red" id="btnOpenAddQuestionModal">
@@ -4603,7 +4603,7 @@
           </div>
           <div>
             <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
-            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Customer Attributes (CA) dengan Google Sheets</p>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">Sinkronisasi data Customer Attributes (CA) dengan Google Sheets</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseCaGSheetModal" aria-label="Tutup Modal">
@@ -4635,7 +4635,7 @@
               <i class="fa-solid fa-link input-icon"></i>
               <input type="url" id="inputCaGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
@@ -4644,7 +4644,7 @@
               <i class="fa-solid fa-file-excel input-icon text-green"></i>
               <input type="text" id="inputCaGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
           </div>
 
           <div class="form-row" style="margin-bottom:14px;">
@@ -4654,7 +4654,7 @@
             </div>
             <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
               <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
-              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size: calc(0.84rem * var(--content-font-scale, 1)); color:var(--gray-200);">
                 <input type="checkbox" id="checkCaGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
                 <span>Auto-Sync saat input / edit / hapus nilai CA</span>
               </label>
@@ -4663,15 +4663,15 @@
 
           <!-- Status Callout -->
           <div id="boxCaGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Status Koneksi:</span>
               <strong id="labelCaGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
               <span id="labelCaGSheetModalLastSync" style="color:var(--gray-300);">-</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1));">
               <span style="color:var(--gray-400);">Total Data CA di Dashboard:</span>
               <span id="labelCaGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
             </div>
@@ -4708,11 +4708,11 @@
 
         <!-- Tab 2: Guide & Apps Script -->
         <div id="tabContentCaGSheetGuide" class="hidden">
-          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+          <div style="font-size: calc(0.82rem * var(--content-font-scale, 1)); color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
             Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
           </div>
 
-          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+          <ol style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
             <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
             <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
             <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
@@ -4720,8 +4720,8 @@
           </ol>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
-            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyCaAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+            <span style="font-size: calc(0.78rem * var(--content-font-scale, 1)); font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyCaAppsScript" style="padding:2px 10px; font-size: calc(0.74rem * var(--content-font-scale, 1));">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Script</span>
             </button>
@@ -4864,7 +4864,7 @@
           </div>
           <div>
             <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
-            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Perolehan Tiket Agent dengan Google Sheets</p>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">Sinkronisasi data Perolehan Tiket Agent dengan Google Sheets</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseTiketGSheetModal" aria-label="Tutup Modal">
@@ -4896,7 +4896,7 @@
               <i class="fa-solid fa-link input-icon"></i>
               <input type="url" id="inputTiketGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
@@ -4905,7 +4905,7 @@
               <i class="fa-solid fa-file-excel input-icon text-green"></i>
               <input type="text" id="inputTiketGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
           </div>
 
           <div class="form-row" style="margin-bottom:14px;">
@@ -4915,7 +4915,7 @@
             </div>
             <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
               <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
-              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size: calc(0.84rem * var(--content-font-scale, 1)); color:var(--gray-200);">
                 <input type="checkbox" id="checkTiketGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
                 <span>Auto-Sync saat input / edit / hapus perolehan tiket</span>
               </label>
@@ -4924,15 +4924,15 @@
 
           <!-- Status Callout -->
           <div id="boxTiketGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Status Koneksi:</span>
               <strong id="labelTiketGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
               <span id="labelTiketGSheetModalLastSync" style="color:var(--gray-300);">-</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1));">
               <span style="color:var(--gray-400);">Total Data Tiket di Dashboard:</span>
               <span id="labelTiketGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
             </div>
@@ -4969,11 +4969,11 @@
 
         <!-- Tab 2: Guide & Apps Script -->
         <div id="tabContentTiketGSheetGuide" class="hidden">
-          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+          <div style="font-size: calc(0.82rem * var(--content-font-scale, 1)); color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
             Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
           </div>
 
-          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+          <ol style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
             <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
             <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
             <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
@@ -4981,8 +4981,8 @@
           </ol>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
-            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyTiketAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+            <span style="font-size: calc(0.78rem * var(--content-font-scale, 1)); font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyTiketAppsScript" style="padding:2px 10px; font-size: calc(0.74rem * var(--content-font-scale, 1));">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Script</span>
             </button>
@@ -5017,10 +5017,10 @@
 
         <div class="modal-body">
           <!-- Information Callout regarding 1.320 Monthly Target -->
-          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <strong class="text-white"><i class="fa-solid fa-bullseye text-red" style="margin-right:6px;"></i>Target Bulanan Per User: 1.320 Tiket</strong>
-              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Standar ritme harian: ~60 tiket per hari kerja (estimasi 22 hari kerja per bulan).</div>
+              <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Standar ritme harian: ~60 tiket per hari kerja (estimasi 22 hari kerja per bulan).</div>
             </div>
             <span class="badge badge-red-subtle"><i class="fa-solid fa-calendar-check text-red"></i> Interval Input Per Hari</span>
           </div>
@@ -5106,7 +5106,7 @@
           </div>
           <div>
             <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
-            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Average Handling Time (AHT) dengan Google Sheets</p>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">Sinkronisasi data Average Handling Time (AHT) dengan Google Sheets</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseAhtGSheetModal" aria-label="Tutup Modal">
@@ -5138,7 +5138,7 @@
               <i class="fa-solid fa-link input-icon"></i>
               <input type="url" id="inputAhtGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
@@ -5147,7 +5147,7 @@
               <i class="fa-solid fa-file-excel input-icon text-green"></i>
               <input type="text" id="inputAhtGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
           </div>
 
           <div class="form-row" style="margin-bottom:14px;">
@@ -5157,7 +5157,7 @@
             </div>
             <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
               <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
-              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size: calc(0.84rem * var(--content-font-scale, 1)); color:var(--gray-200);">
                 <input type="checkbox" id="checkAhtGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
                 <span>Auto-Sync saat input / edit / hapus handling time</span>
               </label>
@@ -5166,15 +5166,15 @@
 
           <!-- Status Callout -->
           <div id="boxAhtGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Status Koneksi:</span>
               <strong id="labelAhtGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
               <span id="labelAhtGSheetModalLastSync" style="color:var(--gray-300);">-</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1));">
               <span style="color:var(--gray-400);">Total Data AHT di Dashboard:</span>
               <span id="labelAhtGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
             </div>
@@ -5211,11 +5211,11 @@
 
         <!-- Tab 2: Guide & Apps Script -->
         <div id="tabContentAhtGSheetGuide" class="hidden">
-          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+          <div style="font-size: calc(0.82rem * var(--content-font-scale, 1)); color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
             Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
           </div>
 
-          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+          <ol style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
             <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
             <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
             <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
@@ -5223,8 +5223,8 @@
           </ol>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
-            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyAhtAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+            <span style="font-size: calc(0.78rem * var(--content-font-scale, 1)); font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyAhtAppsScript" style="padding:2px 10px; font-size: calc(0.74rem * var(--content-font-scale, 1));">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Script</span>
             </button>
@@ -5246,7 +5246,7 @@
           </div>
           <div>
             <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
-            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Average Response Time (ART) dengan Google Sheets</p>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">Sinkronisasi data Average Response Time (ART) dengan Google Sheets</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseArtGSheetModal" aria-label="Tutup Modal">
@@ -5278,7 +5278,7 @@
               <i class="fa-solid fa-link input-icon"></i>
               <input type="url" id="inputArtGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
@@ -5287,7 +5287,7 @@
               <i class="fa-solid fa-file-excel input-icon text-green"></i>
               <input type="text" id="inputArtGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
           </div>
 
           <div class="form-row" style="margin-bottom:14px;">
@@ -5297,7 +5297,7 @@
             </div>
             <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
               <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
-              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size: calc(0.84rem * var(--content-font-scale, 1)); color:var(--gray-200);">
                 <input type="checkbox" id="checkArtGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
                 <span>Auto-Sync saat input / edit / hapus response time</span>
               </label>
@@ -5306,15 +5306,15 @@
 
           <!-- Status Callout -->
           <div id="boxArtGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Status Koneksi:</span>
               <strong id="labelArtGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
               <span id="labelArtGSheetModalLastSync" style="color:var(--gray-300);">-</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1));">
               <span style="color:var(--gray-400);">Total Data ART di Dashboard:</span>
               <span id="labelArtGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
             </div>
@@ -5351,11 +5351,11 @@
 
         <!-- Tab 2: Guide & Apps Script -->
         <div id="tabContentArtGSheetGuide" class="hidden">
-          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+          <div style="font-size: calc(0.82rem * var(--content-font-scale, 1)); color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
             Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
           </div>
 
-          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+          <ol style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
             <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
             <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
             <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
@@ -5363,8 +5363,8 @@
           </ol>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
-            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyArtAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+            <span style="font-size: calc(0.78rem * var(--content-font-scale, 1)); font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyArtAppsScript" style="padding:2px 10px; font-size: calc(0.74rem * var(--content-font-scale, 1));">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Script</span>
             </button>
@@ -5399,10 +5399,10 @@
 
         <div class="modal-body">
           <!-- Information Callout regarding SLA Standard -->
-          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <strong class="text-white"><i class="fa-solid fa-stopwatch text-red" style="margin-right:6px;"></i>Standar SLA AHT: &lt; 300 Detik (05:00 Menit)</strong>
-              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Durasi penanganan &le; 300 detik dinyatakan Sesuai SLA, di atas 300 detik Over SLA.</div>
+              <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Durasi penanganan &le; 300 detik dinyatakan Sesuai SLA, di atas 300 detik Over SLA.</div>
             </div>
             <span class="badge badge-red-subtle"><i class="fa-regular fa-calendar-check text-red"></i> Interval Input Per Hari</span>
           </div>
@@ -5507,10 +5507,10 @@
 
         <div class="modal-body">
           <!-- Information Callout regarding SLA Standard -->
-          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:0.8rem; color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+          <div class="form-info-callout hidden" style="background:rgba(230,46,68,0.08); border-left:3px solid var(--accent-red); padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
             <div>
               <strong class="text-white"><i class="fa-solid fa-bolt-lightning text-red" style="margin-right:6px;"></i>Standar SLA ART: &lt; 30 Detik</strong>
-              <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;">Waktu respon rata-rata &le; 30 detik dinyatakan Sesuai SLA, di atas 30 detik Over SLA.</div>
+              <div style="font-size: calc(0.75rem * var(--content-font-scale, 1)); color:var(--gray-400); margin-top:2px;">Waktu respon rata-rata &le; 30 detik dinyatakan Sesuai SLA, di atas 30 detik Over SLA.</div>
             </div>
             <span class="badge badge-red-subtle"><i class="fa-regular fa-calendar-check text-red"></i> Interval Input Per Hari</span>
           </div>
@@ -5731,7 +5731,7 @@
           </div>
           <div>
             <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
-            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Temuan Audit QA (Finding) dengan Google Sheets</p>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">Sinkronisasi data Temuan Audit QA (Finding) dengan Google Sheets</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseFindingGSheetModal" aria-label="Tutup Modal">
@@ -5763,7 +5763,7 @@
               <i class="fa-solid fa-link input-icon"></i>
               <input type="url" id="inputFindingGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
           </div>
 
           <div class="form-group" style="margin-bottom:14px;">
@@ -5772,7 +5772,7 @@
               <i class="fa-solid fa-file-excel input-icon text-green"></i>
               <input type="text" id="inputFindingGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
             </div>
-            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+            <small class="form-hint" style="color:var(--gray-400); font-size: calc(0.75rem * var(--content-font-scale, 1));">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
           </div>
 
           <div class="form-row" style="margin-bottom:14px;">
@@ -5782,7 +5782,7 @@
             </div>
             <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
               <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
-              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size: calc(0.84rem * var(--content-font-scale, 1)); color:var(--gray-200);">
                 <input type="checkbox" id="checkFindingGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#ef4444;">
                 <span>Auto-Sync saat catat / edit / hapus temuan QA</span>
               </label>
@@ -5791,15 +5791,15 @@
 
           <!-- Status Callout -->
           <div id="boxFindingGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Status Koneksi:</span>
               <strong id="labelFindingGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-bottom:6px;">
               <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
               <span id="labelFindingGSheetModalLastSync" style="color:var(--gray-300);">-</span>
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size: calc(0.8rem * var(--content-font-scale, 1));">
               <span style="color:var(--gray-400);">Total Data Finding di Dashboard:</span>
               <span id="labelFindingGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
             </div>
@@ -5836,11 +5836,11 @@
 
         <!-- Tab 2: Guide & Apps Script -->
         <div id="tabContentFindingGSheetGuide" class="hidden">
-          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+          <div style="font-size: calc(0.82rem * var(--content-font-scale, 1)); color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
             Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
           </div>
 
-          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+          <ol style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
             <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
             <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
             <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
@@ -5848,8 +5848,8 @@
           </ol>
 
           <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
-            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-red"></i> Kode Script (Code.gs)</span>
-            <button type="button" class="btn btn-outline-red btn-sm" id="btnCopyFindingAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+            <span style="font-size: calc(0.78rem * var(--content-font-scale, 1)); font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-red"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-red btn-sm" id="btnCopyFindingAppsScript" style="padding:2px 10px; font-size: calc(0.74rem * var(--content-font-scale, 1));">
               <i class="fa-regular fa-copy"></i>
               <span>Salin Script</span>
             </button>
