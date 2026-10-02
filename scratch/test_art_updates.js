@@ -54,4 +54,42 @@ console.log('[PASS] Hidden text 8 verified: Queue time hint has class hidden');
 assert(/<small class="form-hint hidden">Kecepatan waktu sapaan pertama agen \(detik\)<\/small>/i.test(html), 'FRT hint must have class hidden in index.html');
 console.log('[PASS] Hidden text 9 verified: First response time hint has class hidden');
 
+// 10. Check 10: "Jumlah Sesi Terlayani" label removed and formArtInteractionCount hidden
+assert(!html.includes('Jumlah Sesi Terlayani'), 'Label "Jumlah Sesi Terlayani" must be removed from index.html');
+assert(/<input type="hidden" id="formArtInteractionCount" value="1">/.test(html), 'formArtInteractionCount must be a hidden input with value="1"');
+console.log('[PASS] Check 10 verified: "Jumlah Sesi Terlayani *" assessment field cleanly removed');
+
+// 11. Check 11: "Waktu Antrian (Queue Time) *" and "Respon Pertama (FRT) *" assessment fields removed from modal
+assert(!html.includes('Waktu Antrian (Queue Time)'), 'Label "Waktu Antrian (Queue Time)" must be removed from index.html');
+assert(!html.includes('Respon Pertama (FRT) <span class="required">*</span>'), 'Label "Respon Pertama (FRT) *" must be removed from modalArtForm');
+assert(/<input type="hidden" id="formArtQueueSecs" value="0">/.test(html), 'formArtQueueSecs must be a hidden input with value="0"');
+assert(/<input type="hidden" id="formArtFrtSecs" value="0">/.test(html), 'formArtFrtSecs must be a hidden input with value="0"');
+console.log('[PASS] Check 11 verified: "Waktu Antrian (Queue Time) *" and "Respon Pertama (FRT) *" assessment fields cleanly removed');
+
+// 12. Check 12: artCardFrt metric card is hidden
+assert(/id="artCardFrt"[^>]*class="[^"]*hidden/i.test(html) || /class="[^"]*hidden[^"]*"[^>]*id="artCardFrt"/i.test(html), 'artCardFrt must have class hidden in index.html');
+assert(js.includes("artCardFrt.classList.add('hidden')"), 'js/app.js must ensure artCardFrt is hidden');
+console.log('[PASS] Check 12 verified: "Respon Pertama (FRT)" metric card is hidden');
+
+// 13. Check 13: Columns removed from tableArtUserSummary and tableArtLogs
+const userSummaryThead = html.slice(html.indexOf('id="tableArtUserSummary"'), html.indexOf('id="artUserSummaryBody"'));
+assert(!userSummaryThead.includes('Total Sesi'), 'tableArtUserSummary must not contain Total Sesi header');
+assert(!userSummaryThead.includes('Rata-rata Antrian (Queue)'), 'tableArtUserSummary must not contain Rata-rata Antrian header');
+assert(!userSummaryThead.includes('Respon Pertama (FRT)'), 'tableArtUserSummary must not contain Respon Pertama header');
+
+const dailyLogsThead = html.slice(html.indexOf('id="tableArtLogs"'), html.indexOf('id="artTableBody"'));
+assert(!dailyLogsThead.includes('Total Sesi'), 'tableArtLogs must not contain Total Sesi header');
+assert(!dailyLogsThead.includes('Antrian (Queue)'), 'tableArtLogs must not contain Antrian (Queue) header');
+assert(!dailyLogsThead.includes('Respon Pertama (FRT)'), 'tableArtLogs must not contain Respon Pertama (FRT) header');
+console.log('[PASS] Check 13 verified: Columns cleanly removed from both ART tables');
+
+// 14. Check 14: "Aksi" column removed from tableArtUserSummary (Rekapitulasi Average Response Time Seluruh Agent)
+assert(!userSummaryThead.includes('>Aksi<'), 'tableArtUserSummary must not contain Aksi header');
+assert(dailyLogsThead.includes('>Aksi<'), 'tableArtLogs must still contain Aksi header');
+assert(js.includes('colspan="8"'), 'js/app.js must use colspan 8 for empty state of artUserSummaryBody');
+assert(!js.includes('filterArtByUser(\'${u.fullName'), 'js/app.js must not render filterArtByUser action button in artUserSummaryBody');
+console.log('[PASS] Check 14 verified: "Aksi" column removed from tableArtUserSummary');
+
 console.log('\n--- ALL ART UPDATES VERIFICATION TESTS PASSED! ---');
+
+

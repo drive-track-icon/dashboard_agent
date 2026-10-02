@@ -1,0 +1,55 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+
+console.log('--- TEST 1: Verifying HTML Elements for AHT Google Spreadsheet ---');
+const htmlContent = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+assert(htmlContent.includes('id="btnOpenAhtGoogleSheetsModal"'), 'index.html must contain #btnOpenAhtGoogleSheetsModal');
+assert(htmlContent.includes('id="ahtGSheetHeaderBadge"'), 'index.html must contain #ahtGSheetHeaderBadge');
+assert(htmlContent.includes('id="ahtGSheetSyncBar"'), 'index.html must contain #ahtGSheetSyncBar');
+assert(htmlContent.includes('id="ahtGSheetStatusBadge"'), 'index.html must contain #ahtGSheetStatusBadge');
+assert(htmlContent.includes('id="ahtGSheetStatusInfo"'), 'index.html must contain #ahtGSheetStatusInfo');
+assert(htmlContent.includes('id="btnAhtGSheetOpenLink"'), 'index.html must contain #btnAhtGSheetOpenLink');
+assert(htmlContent.includes('id="btnAhtGSheetPull"'), 'index.html must contain #btnAhtGSheetPull');
+assert(htmlContent.includes('id="btnAhtGSheetPush"'), 'index.html must contain #btnAhtGSheetPush');
+assert(htmlContent.includes('id="btnAhtGSheetConfig"'), 'index.html must contain #btnAhtGSheetConfig');
+assert(htmlContent.includes('id="modalAhtGoogleSheets"'), 'index.html must contain #modalAhtGoogleSheets');
+assert(htmlContent.includes('id="inputAhtGSheetWebAppUrl"'), 'index.html must contain #inputAhtGSheetWebAppUrl');
+assert(htmlContent.includes('id="inputAhtGSheetUrl"'), 'index.html must contain #inputAhtGSheetUrl');
+assert(htmlContent.includes('id="checkAhtGSheetAutoSync"'), 'index.html must contain #checkAhtGSheetAutoSync');
+assert(htmlContent.includes('id="btnCopyAhtAppsScript"'), 'index.html must contain #btnCopyAhtAppsScript');
+console.log('✔ HTML elements verified successfully.');
+
+console.log('--- TEST 2: Verifying Standalone Google Apps Script File for AHT ---');
+const gasPath = path.join(__dirname, '..', 'google_apps_script_aht.js');
+assert(fs.existsSync(gasPath), 'google_apps_script_aht.js must exist in root');
+const gasContent = fs.readFileSync(gasPath, 'utf8');
+assert(gasContent.includes('function doGet(e)'), 'Apps Script must contain doGet');
+assert(gasContent.includes('function doPost(e)'), 'Apps Script must contain doPost');
+assert(gasContent.includes('action === \'sync_all\''), 'Apps Script must handle sync_all');
+assert(gasContent.includes('action === \'save\''), 'Apps Script must handle save');
+assert(gasContent.includes('action === \'delete\''), 'Apps Script must handle delete');
+assert(gasContent.includes('action === \'delete_month\''), 'Apps Script must handle delete_month');
+assert(gasContent.includes('action === \'delete_batch\''), 'Apps Script must handle delete_batch');
+console.log('✔ Google Apps Script file for AHT verified successfully.');
+
+console.log('--- TEST 3: Verifying js/app.js Implementation for AHT GSheet ---');
+const appContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+assert(appContent.includes('getAhtGSheetConfig()'), 'State must have getAhtGSheetConfig');
+assert(appContent.includes('saveAhtGSheetConfig(cfg)'), 'State must have saveAhtGSheetConfig');
+assert(appContent.includes('btnOpenAhtGoogleSheetsModal: document.getElementById(\'btnOpenAhtGoogleSheetsModal\')'), 'UI must cache btnOpenAhtGoogleSheetsModal');
+assert(appContent.includes('function renderAhtGSheetBar()'), 'renderAhtGSheetBar function must exist');
+assert(appContent.includes('function openAhtGSheetModal()'), 'openAhtGSheetModal function must exist');
+assert(appContent.includes('function pushAhtToGoogleSheets()'), 'pushAhtToGoogleSheets function must exist');
+assert(appContent.includes('function pullAhtFromGoogleSheets()'), 'pullAhtFromGoogleSheets function must exist');
+assert(appContent.includes('function autoSyncAhtAction('), 'autoSyncAhtAction function must exist');
+assert(appContent.includes('autoSyncAhtAction(\'save\''), 'handleSaveAht must call autoSyncAhtAction save');
+assert(appContent.includes('autoSyncAhtAction(\'delete\''), 'promptConfirmDelete must call autoSyncAhtAction delete for aht');
+assert(appContent.includes('autoSyncAhtAction(\'delete_month\''), 'promptConfirmDelete must call autoSyncAhtAction delete_month for aht');
+assert(appContent.includes('autoSyncAhtAction(\'delete_batch\''), 'promptConfirmDelete must call autoSyncAhtAction delete_batch for aht');
+assert(appContent.includes('renderAhtGSheetBar()'), 'renderAhtPage must call renderAhtGSheetBar');
+console.log('✔ js/app.js functions, state, and event bindings verified successfully.');
+
+console.log('\n========================================');
+console.log('🎉 ALL AHT GOOGLE SPREADSHEET TESTS PASSED!');
+console.log('========================================');

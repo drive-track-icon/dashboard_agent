@@ -1138,9 +1138,11 @@ const DEFAULT_FINDINGS = [
     date: '2026-09-27',
     userFullName: 'Ahmad Fauzi',
     department: 'CSO BACK OFFICE',
-    category: 'Input Data Billing & Tiket',
-    deviationLevel: 'Minor',
+    findingType: 'Feedback Negatif',
+    category: 'Informasi',
+    deviationLevel: 'Reminder 1',
     desc: 'Kelalaian penulisan format nomor serial router ONT pada kolom catatan tiket eskalasi.',
+    commitment: 'Memeriksa ulang format nomor serial ONT dan memastikan kelengkapan data sebelum submit tiket.',
     actionPlan: 'Briefing format baku pengisian formulir tiket dan penegasan checklist data teknis.',
     status: 'Closed'
   },
@@ -1149,9 +1151,11 @@ const DEFAULT_FINDINGS = [
     date: '2026-09-28',
     userFullName: 'Siti Rahma',
     department: 'CSO DIGILIVE CHAT - WA',
-    category: 'Greeting & Closing SOP',
-    deviationLevel: 'Minor',
+    findingType: 'Feedback Negatif',
+    category: 'Keluhan',
+    deviationLevel: 'Reminder 2',
     desc: 'Lupa menyertakan kalimat penawaran informasi survei kepuasan pelanggan pada pesan closing.',
+    commitment: 'Menggunakan template closing makro lengkap beserta penawaran survei kepuasan pelanggan.',
     actionPlan: 'Pengingat makro template respon cepat pada sistem live chat agar penutup otomatis terpasang.',
     status: 'Dalam Coaching'
   },
@@ -1160,9 +1164,11 @@ const DEFAULT_FINDINGS = [
     date: '2026-09-26',
     userFullName: 'Budi Santoso, S.Kom',
     department: 'CSO INBOUND',
-    category: 'Kepatuhan SLA Eskalasi',
-    deviationLevel: 'Mayor',
+    findingType: 'Feedback Negatif',
+    category: 'Gangguan',
+    deviationLevel: 'Korektif 1',
     desc: 'Tiket gangguan massal fiber optik terlambat dieskalasi ke grup dispatcher selama 35 menit melewati batas SLA 15 menit.',
+    commitment: 'Segera melakukan eskalasi darurat maksimal 10 menit setelah verifikasi awal insiden massal.',
     actionPlan: 'Coaching 1-on-1 mengenai alur darurat gangguan massal (critical incident) dan aktivasi alarm reminder tiket.',
     status: 'Open'
   },
@@ -1171,11 +1177,26 @@ const DEFAULT_FINDINGS = [
     date: '2026-09-25',
     userFullName: 'Dewi Lestari, M.T.',
     department: 'TEAM LEADER',
-    category: 'Verifikasi Data Pelanggan',
-    deviationLevel: 'Minor',
-    desc: 'Validasi 3 elemen data identitas penelepon kurang lengkap pada saat permohonan reset password portal pelanggan.',
-    actionPlan: 'Penyegaran checklist keamanan akun dan perlindungan data pribadi (PDP).',
+    findingType: 'Feedback Positif',
+    category: 'Informasi',
+    deviationLevel: 'Reminder 1',
+    desc: 'Validasi data identitas penelepon sangat teliti dan penanganan keluhan pelanggan berjalan sangat solutif sesuai PDP.',
+    commitment: 'Mempertahankan standar verifikasi tinggi dan membagikan praktik terbaik kepada seluruh tim.',
+    actionPlan: 'Diberikan apresiasi bulanan dan dijadikan contoh role model.',
     status: 'Closed'
+  },
+  {
+    id: 'FND-2026-005',
+    date: '2026-10-01',
+    userFullName: 'Rian Pratama',
+    department: 'CSO DIGILIVE CHAT - DM',
+    findingType: 'Feedback Negatif',
+    category: 'Keluhan',
+    deviationLevel: 'Reminder 1',
+    desc: 'Informasi tarif paket upgrade yang diberikan kurang detail pada biaya sewa modem ONT.',
+    commitment: 'Menyampaikan rincian tarif paket secara transparan termasuk biaya sewa perangkat ONT.',
+    actionPlan: 'Penyegaran daftar harga resmi layanan Q4 2026.',
+    status: 'Open'
   }
 ];
 
@@ -1367,6 +1388,9 @@ class AppState {
 
     // Selected ART IDs for marking / batch actions
     this.selectedArtIds = new Set();
+
+    // Selected Finding IDs for marking / batch actions
+    this.selectedFindingIds = new Set();
 
     // Chart instances
     this.monthlyChartInstance = null;
@@ -1651,6 +1675,28 @@ class AppState {
     localStorage.setItem('vortex_aht_logs', JSON.stringify(logs));
   }
 
+  getAhtGSheetConfig() {
+    const defaults = {
+      webAppUrl: '',
+      sheetId: '',
+      sheetName: 'AHT_Data',
+      autoSync: true,
+      lastSyncTime: null,
+      lastSyncStatus: 'none',
+      lastSyncMessage: ''
+    };
+    try {
+      const raw = localStorage.getItem('vortex_aht_gsheet_config');
+      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+    } catch (e) {
+      return defaults;
+    }
+  }
+
+  saveAhtGSheetConfig(cfg) {
+    localStorage.setItem('vortex_aht_gsheet_config', JSON.stringify(cfg));
+  }
+
   getArtLogs() {
     return JSON.parse(localStorage.getItem('vortex_art_logs') || '[]');
   }
@@ -1659,12 +1705,67 @@ class AppState {
     localStorage.setItem('vortex_art_logs', JSON.stringify(logs));
   }
 
+  getArtGSheetConfig() {
+    const defaults = {
+      webAppUrl: '',
+      sheetId: '',
+      sheetName: 'ART_Data',
+      autoSync: true,
+      lastSyncTime: null,
+      lastSyncStatus: 'none',
+      lastSyncMessage: ''
+    };
+    try {
+      const raw = localStorage.getItem('vortex_art_gsheet_config');
+      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+    } catch (e) {
+      return defaults;
+    }
+  }
+
+  saveArtGSheetConfig(cfg) {
+    localStorage.setItem('vortex_art_gsheet_config', JSON.stringify(cfg));
+  }
+
   getFindings() {
-    return JSON.parse(localStorage.getItem('vortex_findings') || '[]');
+    const raw = JSON.parse(localStorage.getItem('vortex_findings') || '[]');
+    return raw.map(item => {
+      let level = item.deviationLevel;
+      if (level === 'Minor') level = 'Reminder 1';
+      else if (level === 'Mayor') level = 'Korektif 1';
+      else if (level === 'Fatal') level = 'SP 1';
+      return {
+        ...item,
+        findingType: item.findingType || 'Feedback Negatif',
+        deviationLevel: level || 'Reminder 1',
+        commitment: item.commitment || '-'
+      };
+    });
   }
 
   saveFindings(findings) {
     localStorage.setItem('vortex_findings', JSON.stringify(findings));
+  }
+
+  getFindingGSheetConfig() {
+    const defaults = {
+      webAppUrl: '',
+      sheetId: '',
+      sheetName: 'Finding_Data',
+      autoSync: true,
+      lastSyncTime: null,
+      lastSyncStatus: 'disconnected'
+    };
+    try {
+      const raw = localStorage.getItem('vortex_finding_gsheet_config');
+      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+    } catch (e) {
+      return defaults;
+    }
+  }
+
+  saveFindingGSheetConfig(cfg) {
+    localStorage.setItem('vortex_finding_gsheet_config', JSON.stringify(cfg));
   }
 
   getQuizQuestions() {
@@ -2440,6 +2541,7 @@ const UI = {
   pageAht: document.getElementById('pageAht'),
   filterAhtMonth: document.getElementById('filterAhtMonth'),
   btnRefreshAht: document.getElementById('btnRefreshAht'),
+  btnExportAhtExcel: document.getElementById('btnExportAhtExcel'),
   btnDeleteAllAhtMonth: document.getElementById('btnDeleteAllAhtMonth'),
   btnOpenAddAhtModal: document.getElementById('btnOpenAddAhtModal'),
 
@@ -2505,13 +2607,78 @@ const UI = {
   btnSubmitAht: document.getElementById('btnSubmitAht'),
   btnSubmitAhtText: document.getElementById('btnSubmitAhtText'),
 
+  // AHT Google Spreadsheet Elements
+  btnOpenAhtGoogleSheetsModal: document.getElementById('btnOpenAhtGoogleSheetsModal'),
+  ahtGSheetHeaderBadge: document.getElementById('ahtGSheetHeaderBadge'),
+  ahtGSheetSyncBar: document.getElementById('ahtGSheetSyncBar'),
+  ahtGSheetStatusBadge: document.getElementById('ahtGSheetStatusBadge'),
+  ahtGSheetStatusInfo: document.getElementById('ahtGSheetStatusInfo'),
+  btnAhtGSheetOpenLink: document.getElementById('btnAhtGSheetOpenLink'),
+  btnAhtGSheetPull: document.getElementById('btnAhtGSheetPull'),
+  btnAhtGSheetPush: document.getElementById('btnAhtGSheetPush'),
+  btnAhtGSheetConfig: document.getElementById('btnAhtGSheetConfig'),
+
+  modalAhtGoogleSheets: document.getElementById('modalAhtGoogleSheets'),
+  btnCloseAhtGSheetModal: document.getElementById('btnCloseAhtGSheetModal'),
+  tabBtnAhtGSheetConfig: document.getElementById('tabBtnAhtGSheetConfig'),
+  tabBtnAhtGSheetGuide: document.getElementById('tabBtnAhtGSheetGuide'),
+  tabContentAhtGSheetConfig: document.getElementById('tabContentAhtGSheetConfig'),
+  tabContentAhtGSheetGuide: document.getElementById('tabContentAhtGSheetGuide'),
+  inputAhtGSheetWebAppUrl: document.getElementById('inputAhtGSheetWebAppUrl'),
+  inputAhtGSheetUrl: document.getElementById('inputAhtGSheetUrl'),
+  inputAhtGSheetTabName: document.getElementById('inputAhtGSheetTabName'),
+  checkAhtGSheetAutoSync: document.getElementById('checkAhtGSheetAutoSync'),
+  labelAhtGSheetModalStatus: document.getElementById('labelAhtGSheetModalStatus'),
+  labelAhtGSheetModalLastSync: document.getElementById('labelAhtGSheetModalLastSync'),
+  labelAhtGSheetModalTotalCount: document.getElementById('labelAhtGSheetModalTotalCount'),
+  btnAhtGSheetTest: document.getElementById('btnAhtGSheetTest'),
+  btnAhtGSheetModalOpenLink: document.getElementById('btnAhtGSheetModalOpenLink'),
+  btnAhtGSheetModalPull: document.getElementById('btnAhtGSheetModalPull'),
+  btnAhtGSheetModalPush: document.getElementById('btnAhtGSheetModalPush'),
+  btnAhtGSheetSaveConfig: document.getElementById('btnAhtGSheetSaveConfig'),
+  btnCopyAhtAppsScript: document.getElementById('btnCopyAhtAppsScript'),
+  ahtAppsScriptCodePreview: document.getElementById('ahtAppsScriptCodePreview'),
+
   // ART Elements
   navArt: document.getElementById('navArt'),
   pageArt: document.getElementById('pageArt'),
   filterArtMonth: document.getElementById('filterArtMonth'),
   btnRefreshArt: document.getElementById('btnRefreshArt'),
+  btnExportArtExcel: document.getElementById('btnExportArtExcel'),
   btnDeleteAllArtMonth: document.getElementById('btnDeleteAllArtMonth'),
   btnOpenAddArtModal: document.getElementById('btnOpenAddArtModal'),
+
+  // ART Google Spreadsheet Elements
+  btnOpenArtGoogleSheetsModal: document.getElementById('btnOpenArtGoogleSheetsModal'),
+  artGSheetHeaderBadge: document.getElementById('artGSheetHeaderBadge'),
+  artGSheetSyncBar: document.getElementById('artGSheetSyncBar'),
+  artGSheetStatusBadge: document.getElementById('artGSheetStatusBadge'),
+  artGSheetStatusInfo: document.getElementById('artGSheetStatusInfo'),
+  btnArtGSheetOpenLink: document.getElementById('btnArtGSheetOpenLink'),
+  btnArtGSheetPull: document.getElementById('btnArtGSheetPull'),
+  btnArtGSheetPush: document.getElementById('btnArtGSheetPush'),
+  btnArtGSheetConfig: document.getElementById('btnArtGSheetConfig'),
+
+  modalArtGoogleSheets: document.getElementById('modalArtGoogleSheets'),
+  btnCloseArtGSheetModal: document.getElementById('btnCloseArtGSheetModal'),
+  tabBtnArtGSheetConfig: document.getElementById('tabBtnArtGSheetConfig'),
+  tabBtnArtGSheetGuide: document.getElementById('tabBtnArtGSheetGuide'),
+  tabContentArtGSheetConfig: document.getElementById('tabContentArtGSheetConfig'),
+  tabContentArtGSheetGuide: document.getElementById('tabContentArtGSheetGuide'),
+  inputArtGSheetWebAppUrl: document.getElementById('inputArtGSheetWebAppUrl'),
+  inputArtGSheetUrl: document.getElementById('inputArtGSheetUrl'),
+  inputArtGSheetTabName: document.getElementById('inputArtGSheetTabName'),
+  checkArtGSheetAutoSync: document.getElementById('checkArtGSheetAutoSync'),
+  labelArtGSheetModalStatus: document.getElementById('labelArtGSheetModalStatus'),
+  labelArtGSheetModalLastSync: document.getElementById('labelArtGSheetModalLastSync'),
+  labelArtGSheetModalTotalCount: document.getElementById('labelArtGSheetModalTotalCount'),
+  btnArtGSheetTest: document.getElementById('btnArtGSheetTest'),
+  btnArtGSheetModalOpenLink: document.getElementById('btnArtGSheetModalOpenLink'),
+  btnArtGSheetModalPull: document.getElementById('btnArtGSheetModalPull'),
+  btnArtGSheetModalPush: document.getElementById('btnArtGSheetModalPush'),
+  btnArtGSheetSaveConfig: document.getElementById('btnArtGSheetSaveConfig'),
+  btnCopyArtAppsScript: document.getElementById('btnCopyArtAppsScript'),
+  artAppsScriptCodePreview: document.getElementById('artAppsScriptCodePreview'),
 
   artPermissionBanner: document.getElementById('artPermissionBanner'),
   artBannerRoleLabel: document.getElementById('artBannerRoleLabel'),
@@ -2581,7 +2748,10 @@ const UI = {
   // Finding Elements
   navFinding: document.getElementById('navFinding'),
   pageFinding: document.getElementById('pageFinding'),
+  filterFindingMonth: document.getElementById('filterFindingMonth'),
+  btnDeleteAllFindingMonth: document.getElementById('btnDeleteAllFindingMonth'),
   btnRefreshFinding: document.getElementById('btnRefreshFinding'),
+  btnExportFindingExcel: document.getElementById('btnExportFindingExcel'),
   btnOpenAddFindingModal: document.getElementById('btnOpenAddFindingModal'),
   findingStatTotal: document.getElementById('findingStatTotal'),
   findingStatMinor: document.getElementById('findingStatMinor'),
@@ -2590,22 +2760,72 @@ const UI = {
   searchFindingInput: document.getElementById('searchFindingInput'),
   btnClearSearchFinding: document.getElementById('btnClearSearchFinding'),
   filterFindingService: document.getElementById('filterFindingService'),
+  filterFindingType: document.getElementById('filterFindingType'),
   filterFindingLevel: document.getElementById('filterFindingLevel'),
   filterFindingStatus: document.getElementById('filterFindingStatus'),
   btnResetFindingFilters: document.getElementById('btnResetFindingFilters'),
+  findingBatchBar: document.getElementById('findingBatchBar'),
+  findingSelectedCount: document.getElementById('findingSelectedCount'),
+  btnFindingDeselectAll: document.getElementById('btnFindingDeselectAll'),
+  btnFindingSelectAll: document.getElementById('btnFindingSelectAll'),
+  btnFindingDeleteSelected: document.getElementById('btnFindingDeleteSelected'),
   tableFindingLogs: document.getElementById('tableFindingLogs'),
+  findingThSelectAll: document.getElementById('findingThSelectAll'),
+  findingSelectAllCheckbox: document.getElementById('findingSelectAllCheckbox'),
   findingTableBody: document.getElementById('findingTableBody'),
   modalFindingForm: document.getElementById('modalFindingForm'),
+  modalFindingTitle: document.getElementById('modalFindingTitle'),
   formFinding: document.getElementById('formFinding'),
+  formFindingId: document.getElementById('formFindingId'),
+  formFindingDate: document.getElementById('formFindingDate'),
   formFindingUser: document.getElementById('formFindingUser'),
   formFindingDept: document.getElementById('formFindingDept'),
+  formFindingType: document.getElementById('formFindingType'),
   formFindingCategoryVal: document.getElementById('formFindingCategoryVal'),
   formFindingLevelVal: document.getElementById('formFindingLevelVal'),
   formFindingDesc: document.getElementById('formFindingDesc'),
+  formFindingCommitment: document.getElementById('formFindingCommitment'),
   formFindingActionPlan: document.getElementById('formFindingActionPlan'),
+  formFindingStatus: document.getElementById('formFindingStatus'),
   btnCloseFindingModal: document.getElementById('btnCloseFindingModal'),
   btnCancelFindingModal: document.getElementById('btnCancelFindingModal'),
   btnSubmitFinding: document.getElementById('btnSubmitFinding'),
+  btnSubmitFindingText: document.getElementById('btnSubmitFindingText'),
+
+  // Finding Google Spreadsheet Elements
+  btnOpenFindingGoogleSheetsModal: document.getElementById('btnOpenFindingGoogleSheetsModal'),
+  findingGSheetHeaderBadge: document.getElementById('findingGSheetHeaderBadge'),
+  findingGSheetSyncBar: document.getElementById('findingGSheetSyncBar'),
+  findingGSheetStatusBadge: document.getElementById('findingGSheetStatusBadge'),
+  findingGSheetStatusInfo: document.getElementById('findingGSheetStatusInfo'),
+  btnFindingGSheetOpenLink: document.getElementById('btnFindingGSheetOpenLink'),
+  btnFindingGSheetPull: document.getElementById('btnFindingGSheetPull'),
+  btnFindingGSheetPush: document.getElementById('btnFindingGSheetPush'),
+  btnFindingGSheetConfig: document.getElementById('btnFindingGSheetConfig'),
+
+  // Modal Finding Google Sheets
+  modalFindingGoogleSheets: document.getElementById('modalFindingGoogleSheets'),
+  btnCloseFindingGSheetModal: document.getElementById('btnCloseFindingGSheetModal'),
+  btnCancelFindingGSheetModal: document.getElementById('btnCancelFindingGSheetModal'),
+  tabBtnFindingGSheetConfig: document.getElementById('tabBtnFindingGSheetConfig'),
+  tabBtnFindingGSheetGuide: document.getElementById('tabBtnFindingGSheetGuide'),
+  tabContentFindingGSheetConfig: document.getElementById('tabContentFindingGSheetConfig'),
+  tabContentFindingGSheetGuide: document.getElementById('tabContentFindingGSheetGuide'),
+  inputFindingGSheetWebAppUrl: document.getElementById('inputFindingGSheetWebAppUrl'),
+  inputFindingGSheetUrl: document.getElementById('inputFindingGSheetUrl'),
+  inputFindingGSheetTabName: document.getElementById('inputFindingGSheetTabName'),
+  checkFindingGSheetAutoSync: document.getElementById('checkFindingGSheetAutoSync'),
+  boxFindingGSheetStatusDetail: document.getElementById('boxFindingGSheetStatusDetail'),
+  labelFindingGSheetModalStatus: document.getElementById('labelFindingGSheetModalStatus'),
+  labelFindingGSheetModalLastSync: document.getElementById('labelFindingGSheetModalLastSync'),
+  labelFindingGSheetModalTotalCount: document.getElementById('labelFindingGSheetModalTotalCount'),
+  btnFindingGSheetTest: document.getElementById('btnFindingGSheetTest'),
+  btnFindingGSheetModalOpenLink: document.getElementById('btnFindingGSheetModalOpenLink'),
+  btnFindingGSheetModalPull: document.getElementById('btnFindingGSheetModalPull'),
+  btnFindingGSheetModalPush: document.getElementById('btnFindingGSheetModalPush'),
+  btnFindingGSheetSaveConfig: document.getElementById('btnFindingGSheetSaveConfig'),
+  codeFindingAppsScript: document.getElementById('codeFindingAppsScript'),
+  btnCopyFindingAppsScript: document.getElementById('btnCopyFindingAppsScript'),
 
   // Modals
   modalDataForm: document.getElementById('modalDataForm'),
@@ -4017,6 +4237,7 @@ function executePendingDelete() {
     const ahtLogs = state.getAhtLogs().filter(t => t.id !== id);
     state.saveAhtLogs(ahtLogs);
     if (state.selectedAhtIds) state.selectedAhtIds.delete(id);
+    autoSyncAhtAction('delete', { id });
     state.addLog('DELETE_AHT', 'Hapus Handling Time', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus catatan handling time harian: ${name}.`);
     showToast('Handling Time Dihapus', `Data handling time harian berhasil dihapus.`, 'danger');
     renderAhtPage();
@@ -4027,6 +4248,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveAhtLogs(remainingLogs);
     if (state.selectedAhtIds) state.selectedAhtIds.clear();
+    autoSyncAhtAction('delete_month', { month });
     state.addLog('DELETE_AHT_MONTH', 'Hapus AHT Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data handling time periode ${name} (${countBefore} catatan).`);
     showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data handling time</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderAhtPage();
@@ -4036,6 +4258,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveAhtLogs(remainingLogs);
     if (state.selectedAhtIds) state.selectedAhtIds.clear();
+    autoSyncAhtAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_AHT_BATCH', 'Hapus AHT Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data handling time yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data handling time</strong> berhasil dihapus.`, 'danger');
     renderAhtPage();
@@ -4043,6 +4266,7 @@ function executePendingDelete() {
     const artLogs = state.getArtLogs().filter(t => t.id !== id);
     state.saveArtLogs(artLogs);
     if (state.selectedArtIds) state.selectedArtIds.delete(id);
+    autoSyncArtAction('delete', { id });
     state.addLog('DELETE_ART', 'Hapus Response Time', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus catatan response time harian: ${name}.`);
     showToast('Response Time Dihapus', `Data response time harian berhasil dihapus.`, 'danger');
     renderArtPage();
@@ -4053,6 +4277,7 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveArtLogs(remainingLogs);
     if (state.selectedArtIds) state.selectedArtIds.clear();
+    autoSyncArtAction('delete_month', { month });
     state.addLog('DELETE_ART_MONTH', 'Hapus ART Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data response time periode ${name} (${countBefore} catatan).`);
     showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data response time</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderArtPage();
@@ -4062,14 +4287,38 @@ function executePendingDelete() {
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveArtLogs(remainingLogs);
     if (state.selectedArtIds) state.selectedArtIds.clear();
+    autoSyncArtAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_ART_BATCH', 'Hapus ART Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data response time yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data response time</strong> berhasil dihapus.`, 'danger');
     renderArtPage();
   } else if (type === 'finding') {
     const findings = state.getFindings().filter(f => f.id !== id);
     state.saveFindings(findings);
+    if (state.selectedFindingIds) state.selectedFindingIds.delete(id);
+    autoSyncFindingAction('delete', { id });
     state.addLog('DELETE_FINDING', 'Hapus Temuan QA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus temuan audit QA: ${name}.`);
     showToast('Temuan Dihapus', `Data temuan audit QA berhasil dihapus.`, 'danger');
+    renderFindingPage();
+  } else if (type === 'finding_month') {
+    const monthKey = id;
+    const allFindings = state.getFindings();
+    const countBefore = allFindings.filter(f => (f.date || '').startsWith(monthKey)).length;
+    const remaining = allFindings.filter(f => !(f.date || '').startsWith(monthKey));
+    state.saveFindings(remaining);
+    if (state.selectedFindingIds) state.selectedFindingIds.clear();
+    autoSyncFindingAction('delete_month', { month: monthKey });
+    state.addLog('DELETE_FINDING_MONTH', 'Hapus Temuan Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data temuan QA periode ${name} (${countBefore} data).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data temuan QA</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    renderFindingPage();
+  } else if (type === 'finding_batch') {
+    const idsToDelete = state.pendingDelete.ids || [];
+    const oldFindings = state.getFindings();
+    const remaining = oldFindings.filter(f => !idsToDelete.includes(f.id));
+    state.saveFindings(remaining);
+    if (state.selectedFindingIds) state.selectedFindingIds.clear();
+    autoSyncFindingAction('delete_batch', { ids: idsToDelete });
+    state.addLog('DELETE_FINDING_BATCH', 'Hapus Temuan Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data temuan QA yang ditandai.`);
+    showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data temuan QA</strong> berhasil dihapus.`, 'danger');
     renderFindingPage();
   } else if (type === 'quiz_question') {
     const questions = state.getQuizQuestions().filter(q => q.id !== id);
@@ -8869,21 +9118,12 @@ function copyTiketAppsScriptCode() {
 
 function formatAhtSeconds(sec) {
   const safeSec = Math.max(0, parseInt(sec, 10) || 0);
-  const m = Math.floor(safeSec / 60);
-  const s = safeSec % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${Math.round(safeSec)} Detik`;
 }
 
 function formatAhtDuration(totalSec) {
   const safeSec = Math.max(0, parseInt(totalSec, 10) || 0);
-  if (safeSec >= 3600) {
-    const h = Math.floor(safeSec / 3600);
-    const m = Math.floor((safeSec % 3600) / 60);
-    return `${h}j ${String(m).padStart(2, '0')}m`;
-  }
-  const m = Math.floor(safeSec / 60);
-  const s = safeSec % 60;
-  return `${m}m ${String(s).padStart(2, '0')}s`;
+  return `${safeSec.toLocaleString('id-ID')} Detik`;
 }
 
 function renderAhtPage() {
@@ -8914,6 +9154,15 @@ function renderAhtPage() {
     pageDesc.textContent = '';
     pageDesc.classList.add('hidden');
   }
+
+  // Update Google Spreadsheet Integration Status Bar
+  renderAhtGSheetBar();
+
+  // Ensure Card 2 and Action column remain hidden
+  const ahtCardSlaCompliance = document.getElementById('ahtCardSlaCompliance');
+  if (ahtCardSlaCompliance) ahtCardSlaCompliance.classList.add('hidden');
+  const thAhtAction = document.getElementById('thAhtAction');
+  if (thAhtAction) thAhtAction.classList.add('hidden');
 
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
@@ -9064,12 +9313,10 @@ function renderAhtPage() {
     };
   });
 
-  // Sort summary by Fastest, Slowest, or Compliance
+  // Sort summary by Fastest or Slowest
   const summarySort = (UI.filterAhtSummarySort ? UI.filterAhtSummarySort.value : 'FASTEST');
   if (summarySort === 'SLOWEST') {
     userSummaries.sort((a, b) => b.avgAhtSec - a.avgAhtSec);
-  } else if (summarySort === 'COMPLIANCE_DESC') {
-    userSummaries.sort((a, b) => parseFloat(b.complianceRate) - parseFloat(a.complianceRate));
   } else {
     // FASTEST
     userSummaries.sort((a, b) => {
@@ -9091,24 +9338,11 @@ function renderAhtPage() {
   if (UI.ahtUserSummaryBody) {
     UI.ahtUserSummaryBody.innerHTML = '';
     if (userSummaries.length === 0) {
-      UI.ahtUserSummaryBody.innerHTML = '<tr><td colspan="11" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data handling time yang sesuai dengan filter.</td></tr>';
+      UI.ahtUserSummaryBody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data handling time yang sesuai dengan filter.</td></tr>';
     } else {
       userSummaries.forEach(summary => {
         const u = summary.user;
         const tr = document.createElement('tr');
-
-        let devHtml = '<span style="color:var(--gray-400);">-</span>';
-        if (summary.daysInput > 0) {
-          const isUnder = summary.avgDeviationSec <= 0;
-          const devText = isUnder
-            ? `-${Math.abs(summary.avgDeviationSec)} dtk (Cepat)`
-            : `+${summary.avgDeviationSec} dtk (Over)`;
-          devHtml = `
-            <span class="${isUnder ? 'text-green' : 'text-yellow'}" style="font-size:0.8rem; font-weight:600;">
-              <i class="${isUnder ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${devText}
-            </span>
-          `;
-        }
 
         const avgFormatted = summary.daysInput > 0 ? formatAhtSeconds(summary.avgAhtSec) : '-';
         const durFormatted = summary.daysInput > 0 ? formatAhtDuration(summary.totalDurationSeconds) : '-';
@@ -9128,14 +9362,9 @@ function renderAhtPage() {
           </td>
           <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${u.department || 'CSO Layanan'}</span></td>
           <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200);">${summary.daysInput} Hari</span></td>
-          <td style="text-align: right;"><strong class="text-white font-mono">${summary.daysInput > 0 ? summary.totalInteractions.toLocaleString('id-ID') : '-'}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
           <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${durFormatted}</span></td>
-          <td style="text-align: center;"><strong class="${summary.avgAhtSec <= 300 ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${avgFormatted}</strong> <small style="font-size:0.72rem; color:var(--gray-400);">Menit</small></td>
-          <td style="text-align: center;"><span class="font-mono text-silver" style="font-size:0.85rem;">05:00</span></td>
-          <td style="text-align: center;">${devHtml}</td>
-          <td style="text-align: center;"><span class="badge ${parseFloat(summary.complianceRate) >= 95 ? 'badge-green' : 'badge-yellow'} font-mono" style="font-size:0.75rem;">${summary.daysInput > 0 ? summary.complianceRate + '%' : '-'}</span></td>
-          <td style="text-align: center;"><span class="badge ${summary.statusBadge}" style="font-size:0.75rem;"><i class="${summary.statusIcon}" style="margin-right:4px;"></i>${summary.statusText}</span></td>
-          <td style="text-align: center;">
+          <td style="text-align: center;"><strong class="text-white font-mono" style="font-size:1.05rem;">${avgFormatted}</strong></td>
+          <td style="text-align: center;" class="hidden">
             <button class="btn btn-outline-gray btn-sm" onclick="filterAhtByUser('${u.fullName.replace(/'/g, "\\'")}')" title="Filter Rincian Harian User Ini">
               <i class="fa-solid fa-filter text-red"></i>
               <span>Rincian</span>
@@ -9153,36 +9382,36 @@ function renderAhtPage() {
   if (isAdmin) {
     let teamTotalDur = 0;
     let teamTotalInteractions = 0;
-    let teamCompCount = 0;
 
     monthLogs.forEach(l => {
       const act = Number(l.actualSeconds) || 0;
       const cnt = Number(l.interactionCount) || 1;
       teamTotalDur += (act * cnt);
       teamTotalInteractions += cnt;
-      if (act <= (Number(l.targetSeconds) || 300)) {
-        teamCompCount++;
-      }
     });
 
     const teamAvgSec = teamTotalInteractions > 0 ? Math.round(teamTotalDur / teamTotalInteractions) : 222;
-    const teamAvgFormatted = formatAhtSeconds(teamAvgSec);
-    const teamCompPct = monthLogs.length > 0 ? ((teamCompCount / monthLogs.length) * 100).toFixed(1) : '95.2';
-    const teamOverPct = monthLogs.length > 0 ? (100 - parseFloat(teamCompPct)).toFixed(1) : '4.8';
+    const teamDurationFormatted = `${teamTotalDur.toLocaleString('id-ID')}`;
 
-    if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${teamAvgFormatted} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Menit</small>`;
-    if (UI.ahtStatAvgSub) UI.ahtStatAvgSub.textContent = `${teamAvgSec} detik rata-rata durasi per interaksi`;
-    if (UI.ahtStatCompliance) UI.ahtStatCompliance.textContent = `${teamCompPct}%`;
-    if (UI.ahtStatComplianceSub) UI.ahtStatComplianceSub.textContent = `${teamCompCount} dari ${monthLogs.length} sesi input harian patuh SLA`;
-    if (UI.ahtStatOver) UI.ahtStatOver.textContent = `${teamOverPct}%`;
-    if (UI.ahtStatOverSub) UI.ahtStatOverSub.textContent = `${monthLogs.length - teamCompCount} hari/sesi input melebihi 05:00 menit`;
+    if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${teamAvgSec.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.ahtStatAvgSub) UI.ahtStatAvgSub.textContent = `${teamAvgSec} detik rata-rata durasi penanganan`;
 
-    // Card 4: Top Performer User (Fastest compliant agent)
+    const card2Label = document.getElementById('ahtStatCard2Label');
+    if (card2Label) card2Label.textContent = 'Total Interaksi Ditangani';
+    if (UI.ahtStatCompliance) UI.ahtStatCompliance.innerHTML = `${teamTotalInteractions.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Sesi</small>`;
+    if (UI.ahtStatComplianceSub) UI.ahtStatComplianceSub.textContent = `${monthLogs.length} total sesi input harian bulan ini`;
+
+    const card3Label = document.getElementById('ahtStatCard3Label');
+    if (card3Label) card3Label.textContent = 'Total Durasi Penanganan';
+    if (UI.ahtStatOver) UI.ahtStatOver.innerHTML = `${teamDurationFormatted} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.ahtStatOverSub) UI.ahtStatOverSub.textContent = `${teamDurationFormatted} detik akumulasi penanganan interaksi`;
+
+    // Card 4: Top Performer User (Fastest agent)
     const validAgents = userSummaries.filter(s => s.daysInput > 0);
     if (validAgents.length > 0) {
       const best = validAgents[0]; // Already sorted FASTEST
       if (UI.ahtStatTopUser) UI.ahtStatTopUser.textContent = best.user.fullName;
-      if (UI.ahtStatTopUserSub) UI.ahtStatTopUserSub.textContent = `AHT: ${formatAhtSeconds(best.avgAhtSec)} Menit (${best.complianceRate}% SLA)`;
+      if (UI.ahtStatTopUserSub) UI.ahtStatTopUserSub.textContent = `AHT: ${formatAhtSeconds(best.avgAhtSec)}`;
     } else {
       if (UI.ahtStatTopUser) UI.ahtStatTopUser.textContent = '-';
       if (UI.ahtStatTopUserSub) UI.ahtStatTopUserSub.textContent = 'Belum ada input bulan ini';
@@ -9198,33 +9427,31 @@ function renderAhtPage() {
     const myDaysInput = myLogs.length;
     let myTotalDur = 0;
     let myTotalInteractions = 0;
-    let myCompCount = 0;
 
     myLogs.forEach(l => {
       const act = Number(l.actualSeconds) || 0;
       const cnt = Number(l.interactionCount) || 1;
       myTotalDur += (act * cnt);
       myTotalInteractions += cnt;
-      if (act <= (Number(l.targetSeconds) || 300)) {
-        myCompCount++;
-      }
     });
 
     const myAvgSec = myTotalInteractions > 0 ? Math.round(myTotalDur / myTotalInteractions) : 0;
-    const myAvgFormatted = myDaysInput > 0 ? formatAhtSeconds(myAvgSec) : '-';
-    const myCompPct = myDaysInput > 0 ? ((myCompCount / myDaysInput) * 100).toFixed(1) : '100.0';
-    const myOverPct = myDaysInput > 0 ? (100 - parseFloat(myCompPct)).toFixed(1) : '0.0';
+    const myDurationFormatted = `${myTotalDur.toLocaleString('id-ID')}`;
 
     const card1Label = document.querySelector('#ahtCardMonthlyAvg .metric-label');
     if (card1Label) card1Label.textContent = 'Rata-rata AHT Saya Bulan Ini';
-    if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${myAvgFormatted} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Menit</small>`;
-    if (UI.ahtStatAvgSub) UI.ahtStatAvgSub.textContent = myDaysInput > 0 ? `${myAvgSec} detik per interaksi (${myDaysInput} hari input)` : 'Belum ada data bulan ini';
+    if (UI.ahtStatAvg) UI.ahtStatAvg.innerHTML = `${myDaysInput > 0 ? myAvgSec.toLocaleString('id-ID') : '0'} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.ahtStatAvgSub) UI.ahtStatAvgSub.textContent = myDaysInput > 0 ? `${myAvgSec} detik rata-rata durasi (${myDaysInput} hari input)` : 'Belum ada data bulan ini';
 
-    if (UI.ahtStatCompliance) UI.ahtStatCompliance.textContent = `${myCompPct}%`;
-    if (UI.ahtStatComplianceSub) UI.ahtStatComplianceSub.textContent = myDaysInput > 0 ? `${myCompCount} dari ${myDaysInput} hari memenuhi SLA` : 'Target SLA: < 05:00';
+    const card2Label = document.getElementById('ahtStatCard2Label');
+    if (card2Label) card2Label.textContent = 'Total Interaksi Saya';
+    if (UI.ahtStatCompliance) UI.ahtStatCompliance.innerHTML = `${myTotalInteractions.toLocaleString('id-ID')} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Sesi</small>`;
+    if (UI.ahtStatComplianceSub) UI.ahtStatComplianceSub.textContent = myDaysInput > 0 ? `Total sesi interaksi yang ditangani` : 'Belum ada data bulan ini';
 
-    if (UI.ahtStatOver) UI.ahtStatOver.textContent = `${myOverPct}%`;
-    if (UI.ahtStatOverSub) UI.ahtStatOverSub.textContent = myDaysInput > 0 ? `${myDaysInput - myCompCount} hari melebihi batas SLA` : 'Status durasi terjaga';
+    const card3Label = document.getElementById('ahtStatCard3Label');
+    if (card3Label) card3Label.textContent = 'Total Durasi Saya';
+    if (UI.ahtStatOver) UI.ahtStatOver.innerHTML = `${myDaysInput > 0 ? myDurationFormatted : '0'} <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small>`;
+    if (UI.ahtStatOverSub) UI.ahtStatOverSub.textContent = myDaysInput > 0 ? `${myDurationFormatted} detik akumulasi pelayanan interaksi` : 'Belum ada data bulan ini';
 
     const card4Label = document.getElementById('ahtStatTopUserLabel');
     if (card4Label) card4Label.textContent = 'Status Kecepatan Penanganan';
@@ -9233,14 +9460,12 @@ function renderAhtPage() {
         UI.ahtStatTopUser.textContent = 'Belum Ada Input';
       } else if (myAvgSec <= 240) {
         UI.ahtStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-bolt"></i> Sangat Efisien</span>';
-      } else if (myAvgSec <= 300) {
-        UI.ahtStatTopUser.innerHTML = '<span class="text-green"><i class="fa-solid fa-circle-check"></i> Sesuai SLA</span>';
       } else {
-        UI.ahtStatTopUser.innerHTML = '<span class="text-yellow"><i class="fa-solid fa-triangle-exclamation"></i> Over SLA</span>';
+        UI.ahtStatTopUser.innerHTML = '<span class="text-cyan"><i class="fa-solid fa-circle-check"></i> Normal</span>';
       }
     }
     if (UI.ahtStatTopUserSub) {
-      UI.ahtStatTopUserSub.textContent = myDaysInput > 0 ? `Total ${myTotalInteractions} sesi interaksi ditangani` : 'Pencatatan dikelola oleh Admin';
+      UI.ahtStatTopUserSub.textContent = myDaysInput > 0 ? `Rata-rata: ${formatAhtSeconds(myAvgSec)}` : 'Pencatatan dikelola oleh Admin';
     }
   }
 
@@ -9324,7 +9549,7 @@ function renderAhtPage() {
   if (!UI.ahtTableBody) return;
   UI.ahtTableBody.innerHTML = '';
 
-  const totalCols = isAdmin ? 12 : 11;
+  const totalCols = isAdmin ? 7 : 6;
   if (filteredLogs.length === 0) {
     const tr = document.createElement('tr');
     const emptyMsg = isAdmin
@@ -9339,8 +9564,6 @@ function renderAhtPage() {
     const tr = document.createElement('tr');
     const isChecked = state.selectedAhtIds.has(item.id);
     const actualSec = Number(item.actualSeconds) || 0;
-    const targetSec = Number(item.targetSeconds) || 300;
-    const isSlaMet = actualSec <= targetSec;
     const interactionCount = Number(item.interactionCount) || 1;
     const totalDurationSeconds = Number(item.totalDurationSeconds) || (actualSec * interactionCount);
 
@@ -9354,7 +9577,7 @@ function renderAhtPage() {
     ` : '';
 
     const actionHtml = isAdmin ? `
-      <td style="text-align:center;">
+      <td style="text-align:center;" class="hidden">
         <div style="display:inline-flex; gap:4px;">
           <button class="btn btn-icon btn-sm" onclick="promptEditAht('${item.id}')" title="Edit Handling Time">
             <i class="fa-solid fa-pen-to-square text-silver"></i>
@@ -9365,7 +9588,7 @@ function renderAhtPage() {
         </div>
       </td>
     ` : `
-      <td style="text-align:center;">
+      <td style="text-align:center;" class="hidden">
         <span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-eye" style="margin-right:4px;"></i>Hanya Lihat</span>
       </td>
     `;
@@ -9375,20 +9598,8 @@ function renderAhtPage() {
       <td><span class="font-mono font-bold" style="color:var(--gray-200);">${item.date || '-'}</span></td>
       <td><strong style="color:#fff; font-size:0.875rem;">${item.userFullName || '-'}</strong></td>
       <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department || '-'}</span></td>
-      <td style="text-align: right;"><strong class="text-white font-mono">${interactionCount.toLocaleString('id-ID')}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
       <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.82rem;">${totalDurFormatted}</span></td>
-      <td style="text-align: right;"><strong class="${isSlaMet ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${durFormatted}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Menit</small></td>
-      <td style="text-align: right;"><span class="font-mono text-silver">05:00</span></td>
-      <td>
-        <span class="${isSlaMet ? 'text-green' : 'text-yellow'}" style="font-size:0.78rem; font-weight:600;">
-          <i class="${isSlaMet ? 'fa-solid fa-arrow-down' : 'fa-solid fa-arrow-up'}" style="margin-right:3px;"></i>${item.deviationText || (isSlaMet ? 'Sesuai SLA' : 'Over SLA')}
-        </span>
-      </td>
-      <td>
-        <span class="badge ${isSlaMet ? 'badge-green' : 'badge-yellow'}" style="font-size:0.72rem;">
-          <i class="${isSlaMet ? 'fa-solid fa-circle-check' : 'fa-solid fa-triangle-exclamation'}" style="margin-right:3px;"></i>${item.status || (isSlaMet ? 'Sesuai SLA' : 'Over SLA')}
-        </span>
-      </td>
+      <td style="text-align: right;"><strong class="text-white font-mono" style="font-size:1.05rem;">${durFormatted}</strong></td>
       <td>
         <div style="font-size:0.75rem; color:var(--gray-300); max-width:240px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${(item.notes || '').replace(/"/g, '&quot;')}">
           ${item.notes || '-'}
@@ -9403,14 +9614,9 @@ function renderAhtPage() {
 function updateAhtModalDurationPreview() {
   const mins = parseInt(UI.formAhtDurationMins ? UI.formAhtDurationMins.value : '0', 10) || 0;
   const secs = parseInt(UI.formAhtDurationSecs ? UI.formAhtDurationSecs.value : '0', 10) || 0;
-  const target = parseInt(UI.formAhtTargetSecs ? UI.formAhtTargetSecs.value : '300', 10) || 300;
   const total = mins * 60 + secs;
-  const diff = total - target;
-  const isSla = total <= target;
-  const formattedTime = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  const diffText = isSla ? `-${Math.abs(diff)} dtk (Sesuai SLA)` : `+${diff} dtk (Over SLA)`;
   if (UI.formAhtDurationPreview) {
-    UI.formAhtDurationPreview.innerHTML = `Durasi: <strong style="color:#fff;">${formattedTime}</strong> (${total} detik) • Deviasi: <span class="${isSla ? 'text-green' : 'text-yellow'}"><strong>${diffText}</strong></span>`;
+    UI.formAhtDurationPreview.innerHTML = `Durasi: <strong style="color:#fff;">${total.toLocaleString('id-ID')} detik</strong>`;
   }
 }
 
@@ -9445,9 +9651,9 @@ function openAddAhtModal() {
   const defaultDate = todayStr.startsWith(selectedMonth) ? todayStr : `${selectedMonth}-15`;
 
   if (UI.formAhtDate) UI.formAhtDate.value = defaultDate;
-  if (UI.formAhtInteractionCount) UI.formAhtInteractionCount.value = '45';
-  if (UI.formAhtDurationMins) UI.formAhtDurationMins.value = '3';
-  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.value = '40';
+  if (UI.formAhtInteractionCount) UI.formAhtInteractionCount.value = '1';
+  if (UI.formAhtDurationMins) UI.formAhtDurationMins.value = '0';
+  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.value = '220';
   if (UI.formAhtTargetSecs) UI.formAhtTargetSecs.value = '300';
   if (UI.formAhtNotes) UI.formAhtNotes.value = '';
 
@@ -9469,15 +9675,13 @@ function openEditAhtModal(item) {
   }
 
   const actualSec = Number(item.actualSeconds) || 220;
-  const mins = Math.floor(actualSec / 60);
-  const secs = actualSec % 60;
 
   if (UI.formAhtId) UI.formAhtId.value = item.id;
   if (UI.formAhtDate) UI.formAhtDate.value = item.date;
   if (UI.formAhtDept) UI.formAhtDept.value = item.department || 'CSO INBOUND';
-  if (UI.formAhtInteractionCount) UI.formAhtInteractionCount.value = item.interactionCount || 45;
-  if (UI.formAhtDurationMins) UI.formAhtDurationMins.value = mins;
-  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.value = secs;
+  if (UI.formAhtInteractionCount) UI.formAhtInteractionCount.value = item.interactionCount || '1';
+  if (UI.formAhtDurationMins) UI.formAhtDurationMins.value = '0';
+  if (UI.formAhtDurationSecs) UI.formAhtDurationSecs.value = actualSec;
   if (UI.formAhtTargetSecs) UI.formAhtTargetSecs.value = item.targetSeconds || 300;
   if (UI.formAhtNotes) UI.formAhtNotes.value = item.notes || '';
 
@@ -9527,11 +9731,7 @@ function handleSaveAht(e) {
     return;
   }
   if (actualSeconds <= 0) {
-    showToast('Durasi Tidak Valid', 'Rata-rata durasi AHT harus lebih dari 0 detik.', 'warning');
-    return;
-  }
-  if (interactionCount <= 0) {
-    showToast('Jumlah Tidak Valid', 'Jumlah interaksi yang ditangani harus lebih dari 0.', 'warning');
+    showToast('Durasi Tidak Valid', 'Rata-rata AHT harian harus lebih dari 0 detik.', 'warning');
     return;
   }
 
@@ -9564,8 +9764,9 @@ function handleSaveAht(e) {
         notes
       };
       state.saveAhtLogs(ahtLogs);
+      autoSyncAhtAction('save', { log: ahtLogs[idx] });
       state.addLog('UPDATE_AHT', 'Ubah Handling Time', `Admin ${u.fullName} memperbarui handling time harian ${userFullName} (${date}): ${formatAhtSeconds(actualSeconds)} (${status}).`);
-      showToast('Handling Time Diperbarui', `Handling time <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${formatAhtSeconds(actualSeconds)} Menit</strong> (${status}).`, 'success');
+      showToast('Handling Time Diperbarui', `Handling time <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${formatAhtSeconds(actualSeconds)}</strong> (${status}).`, 'success');
     }
   } else {
     // NEW
@@ -9586,8 +9787,9 @@ function handleSaveAht(e) {
     };
     ahtLogs.unshift(newEntry);
     state.saveAhtLogs(ahtLogs);
-    state.addLog('CREATE_AHT', 'Input Handling Time', `Admin ${u.fullName} mencatat handling time harian untuk ${userFullName}: ${formatAhtSeconds(actualSeconds)} (${interactionCount} sesi).`);
-    showToast('Handling Time Disimpan', `Handling time <strong>${formatAhtSeconds(actualSeconds)} Menit</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
+    autoSyncAhtAction('save', { log: newEntry });
+    state.addLog('CREATE_AHT', 'Input Handling Time', `Admin ${u.fullName} mencatat handling time harian untuk ${userFullName}: ${formatAhtSeconds(actualSeconds)}.`);
+    showToast('Handling Time Disimpan', `Handling time <strong>${formatAhtSeconds(actualSeconds)}</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
   }
 
   closeAhtModal();
@@ -9663,6 +9865,1304 @@ window.filterAhtByUser = function(userName) {
   }
 };
 
+function exportAhtExcel() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+  const selMonth = (UI.filterAhtMonth ? UI.filterAhtMonth.value : '2026-09') || '2026-09';
+  const allLogs = state.getAhtLogs();
+  const users = state.getUsers();
+
+  let exportLogs;
+  if (state.selectedAhtIds && state.selectedAhtIds.size > 0) {
+    exportLogs = allLogs.filter(l => state.selectedAhtIds.has(l.id));
+  } else {
+    let monthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth));
+    if (!isAdmin) {
+      monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    }
+    exportLogs = monthLogs;
+  }
+
+  if (exportLogs.length === 0) {
+    showToast('Data Kosong', 'Tidak ada data Average Handling Time (AHT) untuk diekspor.', 'warning');
+    return;
+  }
+
+  const sheet1Data = [
+    ['No', 'ID Log AHT', 'Tanggal Input', 'Nama Petugas CSO', 'Layanan CSO', 'AHT Harian (Detik)', 'Target SLA (Detik)', 'Status SLA', 'Catatan Kinerja Harian']
+  ];
+  exportLogs.forEach((l, idx) => {
+    const actSec = Number(l.actualSeconds) || 0;
+    const tgtSec = Number(l.targetSeconds) || 300;
+    sheet1Data.push([
+      idx + 1,
+      l.id,
+      l.date,
+      l.userFullName,
+      l.department,
+      actSec,
+      tgtSec,
+      l.status || (actSec <= tgtSec ? 'Sesuai SLA' : 'Over SLA'),
+      l.notes || '-'
+    ]);
+  });
+
+  const sheet2Data = [
+    ['No', 'Nama Petugas CSO', 'Layanan CSO', 'Hari Kerja Input', 'Rata-rata AHT (Detik)', 'Target Standar SLA (Detik)', 'Status Kepatuhan SLA']
+  ];
+  const targetUsers = isAdmin ? users : users.filter(u => u.fullName === currentFullName);
+  targetUsers.forEach((u, idx) => {
+    const userMonthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth) && l.userFullName === u.fullName);
+    const count = userMonthLogs.length;
+    let avg = 0;
+    let status = 'Belum Ada Data';
+    if (count > 0) {
+      const sum = userMonthLogs.reduce((acc, curr) => acc + (Number(curr.actualSeconds) || 0), 0);
+      avg = Math.round(sum / count);
+      status = avg <= 300 ? 'Sesuai SLA (< 300s)' : 'Over SLA (> 300s)';
+    }
+    sheet2Data.push([
+      idx + 1,
+      u.fullName,
+      u.department || 'CSO INBOUND',
+      count,
+      count > 0 ? avg : '-',
+      300,
+      status
+    ]);
+  });
+
+  const filename = `DRIVE_Average_Handling_Time_AHT_${selMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  if (typeof XLSX !== 'undefined' && XLSX.utils) {
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+    const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+    ws1['!cols'] = [
+      { wch: 6 }, { wch: 18 }, { wch: 16 }, { wch: 24 }, { wch: 26 },
+      { wch: 20 }, { wch: 20 }, { wch: 18 }, { wch: 45 }
+    ];
+    ws2['!cols'] = [
+      { wch: 6 }, { wch: 24 }, { wch: 26 }, { wch: 16 }, { wch: 24 },
+      { wch: 26 }, { wch: 24 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Log Harian AHT');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Rekapitulasi Bulanan');
+    XLSX.writeFile(wb, filename);
+  } else {
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + sheet1Data.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csvContent));
+    link.setAttribute('download', filename.replace('.xlsx', '.csv'));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  showToast('Download Berhasil', `Data Average Handling Time (${exportLogs.length} baris) berhasil diunduh menjadi Excel.`, 'success');
+}
+
+// ==========================================
+// 12.7.1 AHT GOOGLE SPREADSHEET INTEGRATION
+// ==========================================
+
+const AHT_APPS_SCRIPT_TEMPLATE = `/**
+ * =====================================================================
+ * GOOGLE APPS SCRIPT: INTEGRASI DATA AVERAGE HANDLING TIME (AHT)
+ * Dashboard Agent CSO - Iconnet
+ * =====================================================================
+ * Petunjuk Pemasangan:
+ * 1. Buka Google Spreadsheet baru di browser Anda (https://sheets.new).
+ * 2. Klik menu 'Ekstensi' (Extensions) > 'Apps Script'.
+ * 3. Hapus semua kode default dan tempel seluruh isi script ini.
+ * 4. Klik ikon Disket (Simpan / Ctrl+S).
+ * 5. Klik tombol 'Deploy' (Terapkan) > 'New deployment' (Penerapan baru).
+ * 6. Klik ikon gear di sebelah kiri 'Select type', pilih 'Web app'.
+ * 7. Isi keterangan: 'Integrasi Dashboard AHT'.
+ * 8. Atur 'Execute as' (Jalankan sebagai) -> 'Me' (Email Anda).
+ * 9. Atur 'Who has access' (Siapa yang memiliki akses) -> 'Anyone' (Siapa saja).
+ * 10. Klik 'Deploy', berikan izin akun (Authorize Access), lalu salin URL Web App yang muncul.
+ * 11. Tempel URL Web App ke Pengaturan Google Spreadsheet di menu AHT Dashboard!
+ * =====================================================================
+ */
+
+const SHEET_NAME = 'AHT_Data';
+const HEADERS = [
+  'ID AHT',
+  'Tanggal Input',
+  'Nama Petugas CSO',
+  'Layanan CSO',
+  'AHT Harian (Detik)',
+  'Status Penanganan',
+  'Catatan Kinerja',
+  'Waktu Dibuat'
+];
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+  if (sheet.getLastRow() < 1) {
+    sheet.appendRow(HEADERS);
+    const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+    headerRange.setBackground('#10b981');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    for (let c = 1; c <= HEADERS.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  try {
+    const action = (e && e.parameter && e.parameter.action) || 'get_all';
+    if (action === 'ping') {
+      return createJsonResponse({ success: true, message: 'Google Apps Script AHT siap terhubung!', time: new Date() });
+    }
+
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return createJsonResponse({ success: true, count: 0, data: [] });
+    }
+
+    const rows = [];
+    for (let i = 1; i < data.length; i++) {
+      const r = data[i];
+      if (!r[0]) continue;
+      const actualSec = parseInt(r[4], 10) || 0;
+      rows.push({
+        id: String(r[0]),
+        date: r[1] instanceof Date ? Utilities.formatDate(r[1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(r[1]),
+        userFullName: String(r[2] || ''),
+        department: String(r[3] || ''),
+        actualSeconds: actualSec,
+        totalDurationSeconds: actualSec,
+        interactionCount: 1,
+        targetSeconds: 300,
+        deviationSeconds: actualSec - 300,
+        deviationText: actualSec <= 300 ? ('-' + Math.abs(actualSec - 300) + ' dtk (Cepat)') : ('+' + (actualSec - 300) + ' dtk (Over SLA)'),
+        status: String(r[5] || (actualSec <= 300 ? 'Sesuai SLA' : 'Over SLA')),
+        notes: String(r[6] || ''),
+        createdAt: String(r[7] || '')
+      });
+    }
+
+    return createJsonResponse({ success: true, count: rows.length, data: rows });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    let payload;
+    if (e && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    } else {
+      payload = {};
+    }
+
+    const action = payload.action || 'sync_all';
+    const sheet = getOrCreateSheet();
+
+    if (action === 'sync_all') {
+      const logs = payload.logs || [];
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
+      }
+      if (logs.length > 0) {
+        const rowsToAppend = logs.map(l => [
+          l.id,
+          l.date,
+          l.userFullName,
+          l.department,
+          parseInt(l.actualSeconds, 10) || 0,
+          l.status || 'Sesuai SLA',
+          l.notes || '-',
+          l.createdAt || ''
+        ]);
+        sheet.getRange(2, 1, rowsToAppend.length, HEADERS.length).setValues(rowsToAppend);
+      }
+      return createJsonResponse({ success: true, message: 'Sync all AHT berhasil', count: logs.length });
+    }
+
+    if (action === 'save') {
+      const l = payload.log;
+      if (!l || !l.id) return createJsonResponse({ success: false, error: 'Data AHT tidak valid' });
+
+      const data = sheet.getDataRange().getValues();
+      let foundRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(l.id)) {
+          foundRow = i + 1;
+          break;
+        }
+      }
+
+      const rowData = [
+        l.id,
+        l.date,
+        l.userFullName,
+        l.department,
+        parseInt(l.actualSeconds, 10) || 0,
+        l.status || 'Sesuai SLA',
+        l.notes || '-',
+        l.createdAt || ''
+      ];
+
+      if (foundRow > 0) {
+        sheet.getRange(foundRow, 1, 1, HEADERS.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+      return createJsonResponse({ success: true, message: 'Data AHT berhasil disimpan ke Google Sheets' });
+    }
+
+    if (action === 'delete') {
+      const id = payload.id;
+      const data = sheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(id)) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({ success: true, message: 'Data AHT berhasil dihapus dari Google Sheets' });
+        }
+      }
+      return createJsonResponse({ success: true, message: 'ID AHT tidak ditemukan di sheet' });
+    }
+
+    if (action === 'delete_month') {
+      const month = payload.month;
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        const rowDate = String(data[i][1]);
+        if (rowDate.indexOf(month) === 0) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Data AHT bulanan berhasil dibersihkan dari Google Sheets' });
+    }
+
+    if (action === 'delete_batch') {
+      const ids = payload.ids || [];
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (ids.indexOf(String(data[i][0])) !== -1) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Batch baris AHT berhasil dihapus dari Google Sheets' });
+    }
+
+    return createJsonResponse({ success: false, error: 'Aksi tidak dikenal: ' + action });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+`;
+
+function renderAhtGSheetBar() {
+  const config = state.getAhtGSheetConfig();
+  const isConfigured = Boolean(config.webAppUrl && config.webAppUrl.trim());
+  const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+  const openUrl = cleanId ? `https://docs.google.com/spreadsheets/d/${cleanId}` : config.webAppUrl;
+
+  // Header Badge
+  if (UI.ahtGSheetHeaderBadge) {
+    if (isConfigured) {
+      UI.ahtGSheetHeaderBadge.textContent = 'Terhubung';
+      UI.ahtGSheetHeaderBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.ahtGSheetHeaderBadge.style.color = '#10b981';
+      UI.ahtGSheetHeaderBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.ahtGSheetHeaderBadge.textContent = 'Belum Terhubung';
+      UI.ahtGSheetHeaderBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+      UI.ahtGSheetHeaderBadge.style.color = 'var(--gray-300)';
+      UI.ahtGSheetHeaderBadge.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  // Status Badge inside Bar
+  if (UI.ahtGSheetStatusBadge) {
+    if (isConfigured) {
+      UI.ahtGSheetStatusBadge.textContent = 'Terhubung';
+      UI.ahtGSheetStatusBadge.className = 'badge badge-green';
+      UI.ahtGSheetStatusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.ahtGSheetStatusBadge.style.color = '#10b981';
+      UI.ahtGSheetStatusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.ahtGSheetStatusBadge.textContent = 'Belum Dikonfigurasi';
+      UI.ahtGSheetStatusBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+      UI.ahtGSheetStatusBadge.style.color = '#94a3b8';
+      UI.ahtGSheetStatusBadge.style.border = '1px solid rgba(100, 116, 139, 0.3)';
+    }
+  }
+
+  // Status Info inside Bar
+  if (UI.ahtGSheetStatusInfo) {
+    if (isConfigured) {
+      const syncTime = config.lastSyncTime ? `Terakhir sinkron: ${config.lastSyncTime}` : 'Belum pernah disinkronkan';
+      const autoText = config.autoSync ? ' (Auto-Sync Aktif)' : ' (Sinkronisasi Manual)';
+      UI.ahtGSheetStatusInfo.innerHTML = `<span style="color:#10b981;"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>${syncTime}${autoText}</span>`;
+    } else {
+      UI.ahtGSheetStatusInfo.textContent = 'Klik tombol "Pengaturan & Script" untuk menghubungkan data AHT dengan Google Spreadsheet Anda.';
+    }
+  }
+
+  // Open Link buttons
+  if (UI.btnAhtGSheetOpenLink) {
+    if (openUrl) {
+      UI.btnAhtGSheetOpenLink.href = openUrl;
+      UI.btnAhtGSheetOpenLink.classList.remove('hidden');
+      UI.btnAhtGSheetOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnAhtGSheetOpenLink.classList.add('hidden');
+      UI.btnAhtGSheetOpenLink.style.display = 'none';
+    }
+  }
+  if (UI.btnAhtGSheetModalOpenLink) {
+    if (openUrl) {
+      UI.btnAhtGSheetModalOpenLink.href = openUrl;
+      UI.btnAhtGSheetModalOpenLink.classList.remove('hidden');
+      UI.btnAhtGSheetModalOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnAhtGSheetModalOpenLink.classList.add('hidden');
+      UI.btnAhtGSheetModalOpenLink.style.display = 'none';
+    }
+  }
+}
+
+function openAhtGSheetModal() {
+  const config = state.getAhtGSheetConfig();
+  if (UI.inputAhtGSheetWebAppUrl) UI.inputAhtGSheetWebAppUrl.value = config.webAppUrl || '';
+  if (UI.inputAhtGSheetUrl) UI.inputAhtGSheetUrl.value = config.sheetId || '';
+  if (UI.inputAhtGSheetTabName) UI.inputAhtGSheetTabName.value = config.sheetName || 'AHT_Data';
+  if (UI.checkAhtGSheetAutoSync) UI.checkAhtGSheetAutoSync.checked = config.autoSync !== false;
+
+  const logs = state.getAhtLogs();
+  if (UI.labelAhtGSheetModalTotalCount) UI.labelAhtGSheetModalTotalCount.textContent = `${logs.length} Baris`;
+  if (UI.labelAhtGSheetModalLastSync) UI.labelAhtGSheetModalLastSync.textContent = config.lastSyncTime || 'Belum pernah';
+
+  if (UI.labelAhtGSheetModalStatus) {
+    if (config.webAppUrl) {
+      UI.labelAhtGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelAhtGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  if (UI.ahtAppsScriptCodePreview) {
+    UI.ahtAppsScriptCodePreview.textContent = AHT_APPS_SCRIPT_TEMPLATE;
+  }
+
+  switchAhtGSheetTab('config');
+  renderAhtGSheetBar();
+  if (UI.modalAhtGoogleSheets) UI.modalAhtGoogleSheets.classList.remove('hidden');
+}
+
+function closeAhtGSheetModal() {
+  if (UI.modalAhtGoogleSheets) UI.modalAhtGoogleSheets.classList.add('hidden');
+}
+
+function switchAhtGSheetTab(tab) {
+  if (tab === 'config') {
+    if (UI.tabBtnAhtGSheetConfig) UI.tabBtnAhtGSheetConfig.classList.add('active');
+    if (UI.tabBtnAhtGSheetGuide) UI.tabBtnAhtGSheetGuide.classList.remove('active');
+    if (UI.tabContentAhtGSheetConfig) UI.tabContentAhtGSheetConfig.classList.remove('hidden');
+    if (UI.tabContentAhtGSheetGuide) UI.tabContentAhtGSheetGuide.classList.add('hidden');
+  } else {
+    if (UI.tabBtnAhtGSheetConfig) UI.tabBtnAhtGSheetConfig.classList.remove('active');
+    if (UI.tabBtnAhtGSheetGuide) UI.tabBtnAhtGSheetGuide.classList.add('active');
+    if (UI.tabContentAhtGSheetConfig) UI.tabContentAhtGSheetConfig.classList.add('hidden');
+    if (UI.tabContentAhtGSheetGuide) UI.tabContentAhtGSheetGuide.classList.remove('hidden');
+  }
+}
+
+function saveAhtGSheetConfigHandler() {
+  const current = state.getAhtGSheetConfig();
+  const webAppUrl = (UI.inputAhtGSheetWebAppUrl ? UI.inputAhtGSheetWebAppUrl.value.trim() : '');
+  const sheetInput = (UI.inputAhtGSheetUrl ? UI.inputAhtGSheetUrl.value.trim() : '');
+  const sheetName = (UI.inputAhtGSheetTabName ? UI.inputAhtGSheetTabName.value.trim() : '') || 'AHT_Data';
+  const autoSync = UI.checkAhtGSheetAutoSync ? UI.checkAhtGSheetAutoSync.checked : true;
+
+  const cleanId = extractGoogleSpreadsheetId(sheetInput);
+
+  const updated = {
+    ...current,
+    webAppUrl,
+    sheetId: cleanId || sheetInput,
+    sheetName,
+    autoSync
+  };
+
+  state.saveAhtGSheetConfig(updated);
+  renderAhtGSheetBar();
+
+  if (UI.labelAhtGSheetModalStatus) {
+    if (webAppUrl) {
+      UI.labelAhtGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelAhtGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  showToast('Pengaturan Disimpan', 'Konfigurasi Google Spreadsheet untuk AHT berhasil disimpan.', 'success');
+}
+
+async function testAhtGSheetConnection() {
+  const webAppUrl = (UI.inputAhtGSheetWebAppUrl ? UI.inputAhtGSheetWebAppUrl.value.trim() : '') || state.getAhtGSheetConfig().webAppUrl;
+  if (!webAppUrl) {
+    showToast('URL Kosong', 'Harap masukkan URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    return;
+  }
+
+  const btn = UI.btnAhtGSheetTest;
+  const originalText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menghubungkan...</span>';
+  }
+
+  try {
+    const pingUrl = webAppUrl + (webAppUrl.includes('?') ? '&' : '?') + 'action=ping';
+    const resp = await fetch(pingUrl, {
+      method: 'GET',
+      mode: 'cors'
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Koneksi Berhasil', 'Google Apps Script berhasil merespons dan terhubung ke spreadsheet!', 'success');
+      } else {
+        showToast('Terhubung', 'Respons diterima dari Google Apps Script Web App.', 'info');
+      }
+    } else {
+      showToast('Koneksi Selesai', `Status HTTP: ${resp.status}. URL dapat diakses.`, 'info');
+    }
+  } catch (err) {
+    showToast('Pengujian Selesai', 'Request terkirim. Jika URL Web App valid dengan izin "Anyone", koneksi siap digunakan.', 'info');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+}
+
+async function pushAhtToGoogleSheets() {
+  const config = state.getAhtGSheetConfig();
+  if (!config.webAppUrl) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    openAhtGSheetModal();
+    return;
+  }
+
+  const logs = state.getAhtLogs();
+  const pushBtn = UI.btnAhtGSheetPush;
+  const modalPushBtn = UI.btnAhtGSheetModalPush;
+
+  const setPushing = (isPushing) => {
+    if (pushBtn) {
+      pushBtn.disabled = isPushing;
+      pushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+    if (modalPushBtn) {
+      modalPushBtn.disabled = isPushing;
+      modalPushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+  };
+
+  setPushing(true);
+
+  try {
+    const payload = {
+      action: 'sync_all',
+      logs: logs
+    };
+
+    // Use text/plain to avoid preflight CORS restrictions from Google Apps Script Web App
+    await fetch(config.webAppUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      }
+    });
+
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    config.lastSyncTime = formatted;
+    config.lastSyncStatus = 'success';
+    state.saveAhtGSheetConfig(config);
+    renderAhtGSheetBar();
+
+    if (UI.labelAhtGSheetModalLastSync) UI.labelAhtGSheetModalLastSync.textContent = formatted;
+
+    showToast('Sinkronisasi Sukses', `Sebanyak <strong>${logs.length} data AHT</strong> berhasil dikirim ke Google Spreadsheet.`, 'success');
+  } catch (err) {
+    console.error('Error pushing AHT to Google Sheets:', err);
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    config.lastSyncTime = formatted;
+    state.saveAhtGSheetConfig(config);
+    renderAhtGSheetBar();
+    showToast('Data Dikirim', `Permintaan sinkronisasi (${logs.length} data AHT) telah dikirim ke Google Spreadsheet.`, 'info');
+  } finally {
+    setPushing(false);
+  }
+}
+
+async function pullAhtFromGoogleSheets() {
+  const config = state.getAhtGSheetConfig();
+  if (!config.webAppUrl && !config.sheetId) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App atau ID Spreadsheet terlebih dahulu.', 'warning');
+    openAhtGSheetModal();
+    return;
+  }
+
+  const pullBtn = UI.btnAhtGSheetPull;
+  const modalPullBtn = UI.btnAhtGSheetModalPull;
+
+  const setPulling = (isPulling) => {
+    if (pullBtn) {
+      pullBtn.disabled = isPulling;
+      pullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+    if (modalPullBtn) {
+      modalPullBtn.disabled = isPulling;
+      modalPullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+  };
+
+  setPulling(true);
+
+  try {
+    let pulledRows = null;
+
+    if (config.webAppUrl) {
+      const getUrl = config.webAppUrl + (config.webAppUrl.includes('?') ? '&' : '?') + 'action=get_all';
+      const resp = await fetch(getUrl, { method: 'GET', mode: 'cors' });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json && json.success && Array.isArray(json.data)) {
+          pulledRows = json.data;
+        }
+      }
+    }
+
+    // Fallback to public sheet CSV export if Web App did not return JSON or if only sheetId is present
+    if (!pulledRows && config.sheetId) {
+      const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${cleanId}/export?format=csv&sheet=${encodeURIComponent(config.sheetName || 'AHT_Data')}`;
+      const resp = await fetch(csvUrl);
+      if (resp.ok) {
+        const csvText = await resp.text();
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+        if (lines.length > 1) {
+          pulledRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = parseCsvRow(lines[i]);
+            if (cols[0]) {
+              const actualSec = parseInt(cols[4], 10) || 0;
+              pulledRows.push({
+                id: cols[0],
+                date: cols[1] || '',
+                userFullName: cols[2] || '',
+                department: cols[3] || 'CSO INBOUND',
+                actualSeconds: actualSec,
+                totalDurationSeconds: actualSec,
+                interactionCount: 1,
+                targetSeconds: 300,
+                deviationSeconds: actualSec - 300,
+                deviationText: actualSec <= 300 ? ('-' + Math.abs(actualSec - 300) + ' dtk (Cepat)') : ('+' + (actualSec - 300) + ' dtk (Over SLA)'),
+                status: cols[5] || (actualSec <= 300 ? 'Sesuai SLA' : 'Over SLA'),
+                notes: cols[6] || '',
+                createdAt: cols[7] || ''
+              });
+            }
+          }
+        }
+      }
+    }
+
+    if (pulledRows && pulledRows.length > 0) {
+      state.saveAhtLogs(pulledRows);
+      const now = new Date();
+      const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      config.lastSyncTime = formatted;
+      state.saveAhtGSheetConfig(config);
+      renderAhtPage();
+      showToast('Tarik Data Berhasil', `Berhasil mengambil <strong>${pulledRows.length} data AHT</strong> dari Google Spreadsheet.`, 'success');
+    } else {
+      showToast('Data Kosong / Tidak Terbaca', 'Tidak ada data AHT yang ditemukan pada Google Spreadsheet atau sheet masih kosong.', 'info');
+    }
+  } catch (err) {
+    console.error('Error pulling AHT from Google Sheets:', err);
+    showToast('Gagal Menarik Data', 'Pastikan Google Apps Script sudah dideploy dengan akses "Anyone" atau sheet publik.', 'danger');
+  } finally {
+    setPulling(false);
+  }
+}
+
+function autoSyncAhtAction(action, payload) {
+  const config = state.getAhtGSheetConfig();
+  if (!config.webAppUrl || config.autoSync === false) return;
+
+  const bodyData = {
+    action,
+    ...payload
+  };
+
+  fetch(config.webAppUrl, {
+    method: 'POST',
+    body: JSON.stringify(bodyData),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    }
+  }).then(() => {
+    const now = new Date();
+    config.lastSyncTime = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    state.saveAhtGSheetConfig(config);
+    renderAhtGSheetBar();
+  }).catch(err => {
+    console.warn('Auto-sync AHT to Google Sheets notification:', err);
+  });
+}
+
+function copyAhtAppsScriptCode() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(AHT_APPS_SCRIPT_TEMPLATE).then(() => {
+      showToast('Tersalin!', 'Kode Google Apps Script berhasil disalin ke clipboard.', 'success');
+    }).catch(() => {
+      fallbackCopyText(AHT_APPS_SCRIPT_TEMPLATE);
+    });
+  } else {
+    fallbackCopyText(AHT_APPS_SCRIPT_TEMPLATE);
+  }
+}
+
+// ========================================================
+// ART GOOGLE APPS SCRIPT TEMPLATE & INTEGRATION LOGIC
+// ========================================================
+const ART_APPS_SCRIPT_TEMPLATE = `/**
+ * =====================================================================
+ * GOOGLE APPS SCRIPT: INTEGRASI DATA AVERAGE RESPONSE TIME (ART)
+ * Dashboard Agent CSO - Iconnet
+ * =====================================================================
+ * Petunjuk Pemasangan:
+ * 1. Buka Google Spreadsheet baru di browser Anda (https://sheets.new).
+ * 2. Klik menu 'Ekstensi' (Extensions) > 'Apps Script'.
+ * 3. Hapus semua kode default dan tempel seluruh isi script ini.
+ * 4. Klik ikon Disket (Simpan / Ctrl+S).
+ * 5. Klik tombol 'Deploy' (Terapkan) > 'New deployment' (Penerapan baru).
+ * 6. Klik ikon gear di sebelah kiri 'Select type', pilih 'Web app'.
+ * 7. Isi keterangan: 'Integrasi Dashboard ART'.
+ * 8. Atur 'Execute as' (Jalankan sebagai) -> 'Me' (Email Anda).
+ * 9. Atur 'Who has access' (Siapa yang memiliki akses) -> 'Anyone' (Siapa saja).
+ * 10. Klik 'Deploy', berikan izin akun (Authorize Access), lalu salin URL Web App yang muncul.
+ * 11. Tempel URL Web App ke Pengaturan Google Spreadsheet di menu ART Dashboard!
+ * =====================================================================
+ */
+
+const SHEET_NAME = 'ART_Data';
+const HEADERS = [
+  'ID ART',
+  'Tanggal Input',
+  'Nama Petugas CSO',
+  'Layanan CSO',
+  'Average Response Time (Detik)',
+  'Standar SLA (Detik)',
+  'Status SLA',
+  'Catatan Evaluasi',
+  'Waktu Dibuat'
+];
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+  // Cek apakah header sudah ada
+  if (sheet.getLastRow() < 1) {
+    sheet.appendRow(HEADERS);
+    const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+    headerRange.setBackground('#10b981');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    for (let c = 1; c <= HEADERS.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  try {
+    const action = (e && e.parameter && e.parameter.action) || 'get_all';
+    if (action === 'ping') {
+      return createJsonResponse({ success: true, message: 'Google Apps Script ART siap terhubung!', time: new Date() });
+    }
+
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return createJsonResponse({ success: true, count: 0, data: [] });
+    }
+
+    const rows = [];
+    for (let i = 1; i < data.length; i++) {
+      const r = data[i];
+      if (!r[0]) continue;
+      const artSec = parseFloat(r[4]) || 0;
+      const targetSec = parseInt(r[5], 10) || 30;
+      const devSec = artSec - targetSec;
+      const devText = devSec <= 0 ? ('-' + Math.abs(devSec).toFixed(1) + ' dtk (Cepat)') : ('+' + devSec.toFixed(1) + ' dtk (Over SLA)');
+      rows.push({
+        id: String(r[0]),
+        date: r[1] instanceof Date ? Utilities.formatDate(r[1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(r[1]),
+        userFullName: String(r[2] || ''),
+        department: String(r[3] || ''),
+        interactionCount: 1,
+        queueSeconds: 0,
+        frtSeconds: 0,
+        avgResponseSeconds: artSec,
+        targetSeconds: targetSec,
+        deviationSeconds: devSec,
+        deviationText: devText,
+        status: String(r[6] || (artSec <= targetSec ? 'Sesuai SLA' : 'Over SLA')),
+        notes: String(r[7] || ''),
+        createdAt: String(r[8] || '')
+      });
+    }
+
+    return createJsonResponse({ success: true, count: rows.length, data: rows });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    let payload;
+    if (e && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    } else {
+      payload = {};
+    }
+
+    const action = payload.action || 'sync_all';
+    const sheet = getOrCreateSheet();
+
+    if (action === 'sync_all') {
+      const logs = payload.logs || [];
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
+      }
+      if (logs.length > 0) {
+        const rowsToAppend = logs.map(l => [
+          l.id,
+          l.date,
+          l.userFullName,
+          l.department,
+          parseFloat(l.avgResponseSeconds !== undefined ? l.avgResponseSeconds : (l.actualSeconds || 0)),
+          parseInt(l.targetSeconds, 10) || 30,
+          l.status || 'Sesuai SLA',
+          l.notes || '-',
+          l.createdAt || ''
+        ]);
+        sheet.getRange(2, 1, rowsToAppend.length, HEADERS.length).setValues(rowsToAppend);
+      }
+      return createJsonResponse({ success: true, message: 'Sync all ART berhasil', count: logs.length });
+    }
+
+    if (action === 'save') {
+      const l = payload.log;
+      if (!l || !l.id) return createJsonResponse({ success: false, error: 'Data ART tidak valid' });
+
+      const data = sheet.getDataRange().getValues();
+      let foundRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(l.id)) {
+          foundRow = i + 1;
+          break;
+        }
+      }
+
+      const rowData = [
+        l.id,
+        l.date,
+        l.userFullName,
+        l.department,
+        parseFloat(l.avgResponseSeconds !== undefined ? l.avgResponseSeconds : (l.actualSeconds || 0)),
+        parseInt(l.targetSeconds, 10) || 30,
+        l.status || 'Sesuai SLA',
+        l.notes || '-',
+        l.createdAt || ''
+      ];
+
+      if (foundRow > 0) {
+        sheet.getRange(foundRow, 1, 1, HEADERS.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+      return createJsonResponse({ success: true, message: 'Data ART berhasil disimpan ke Google Sheets' });
+    }
+
+    if (action === 'delete') {
+      const id = payload.id;
+      const data = sheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(id)) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({ success: true, message: 'Data ART berhasil dihapus dari Google Sheets' });
+        }
+      }
+      return createJsonResponse({ success: true, message: 'ID ART tidak ditemukan di sheet' });
+    }
+
+    if (action === 'delete_month') {
+      const month = payload.month;
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        const rowDate = String(data[i][1]);
+        if (rowDate.indexOf(month) === 0) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Data ART bulanan berhasil dibersihkan dari Google Sheets' });
+    }
+
+    if (action === 'delete_batch') {
+      const ids = payload.ids || [];
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (ids.indexOf(String(data[i][0])) !== -1) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Batch baris ART berhasil dihapus dari Google Sheets' });
+    }
+
+    return createJsonResponse({ success: false, error: 'Aksi tidak dikenal: ' + action });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+`;
+
+function renderArtGSheetBar() {
+  const config = state.getArtGSheetConfig();
+  const isConfigured = Boolean(config.webAppUrl && config.webAppUrl.trim());
+  const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+  const openUrl = cleanId ? `https://docs.google.com/spreadsheets/d/${cleanId}` : config.webAppUrl;
+
+  // Header Badge
+  if (UI.artGSheetHeaderBadge) {
+    if (isConfigured) {
+      UI.artGSheetHeaderBadge.textContent = 'Terhubung';
+      UI.artGSheetHeaderBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.artGSheetHeaderBadge.style.color = '#10b981';
+      UI.artGSheetHeaderBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.artGSheetHeaderBadge.textContent = 'Belum Terhubung';
+      UI.artGSheetHeaderBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+      UI.artGSheetHeaderBadge.style.color = 'var(--gray-300)';
+      UI.artGSheetHeaderBadge.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  // Status Badge inside Bar
+  if (UI.artGSheetStatusBadge) {
+    if (isConfigured) {
+      UI.artGSheetStatusBadge.textContent = 'Terhubung';
+      UI.artGSheetStatusBadge.className = 'badge badge-green';
+      UI.artGSheetStatusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+      UI.artGSheetStatusBadge.style.color = '#10b981';
+      UI.artGSheetStatusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
+    } else {
+      UI.artGSheetStatusBadge.textContent = 'Belum Dikonfigurasi';
+      UI.artGSheetStatusBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+      UI.artGSheetStatusBadge.style.color = '#94a3b8';
+      UI.artGSheetStatusBadge.style.border = '1px solid rgba(100, 116, 139, 0.3)';
+    }
+  }
+
+  // Status Info inside Bar
+  if (UI.artGSheetStatusInfo) {
+    if (isConfigured) {
+      const syncTime = config.lastSyncTime ? `Terakhir sinkron: ${config.lastSyncTime}` : 'Belum pernah disinkronkan';
+      const autoText = config.autoSync ? ' (Auto-Sync Aktif)' : ' (Sinkronisasi Manual)';
+      UI.artGSheetStatusInfo.innerHTML = `<span style="color:#10b981;"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>${syncTime}${autoText}</span>`;
+    } else {
+      UI.artGSheetStatusInfo.textContent = 'Klik tombol "Pengaturan & Script" untuk menghubungkan data ART dengan Google Spreadsheet Anda.';
+    }
+  }
+
+  // Open Link buttons
+  if (UI.btnArtGSheetOpenLink) {
+    if (openUrl) {
+      UI.btnArtGSheetOpenLink.href = openUrl;
+      UI.btnArtGSheetOpenLink.classList.remove('hidden');
+      UI.btnArtGSheetOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnArtGSheetOpenLink.classList.add('hidden');
+      UI.btnArtGSheetOpenLink.style.display = 'none';
+    }
+  }
+  if (UI.btnArtGSheetModalOpenLink) {
+    if (openUrl) {
+      UI.btnArtGSheetModalOpenLink.href = openUrl;
+      UI.btnArtGSheetModalOpenLink.classList.remove('hidden');
+      UI.btnArtGSheetModalOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnArtGSheetModalOpenLink.classList.add('hidden');
+      UI.btnArtGSheetModalOpenLink.style.display = 'none';
+    }
+  }
+}
+
+function openArtGSheetModal() {
+  const config = state.getArtGSheetConfig();
+  if (UI.inputArtGSheetWebAppUrl) UI.inputArtGSheetWebAppUrl.value = config.webAppUrl || '';
+  if (UI.inputArtGSheetUrl) UI.inputArtGSheetUrl.value = config.sheetId || '';
+  if (UI.inputArtGSheetTabName) UI.inputArtGSheetTabName.value = config.sheetName || 'ART_Data';
+  if (UI.checkArtGSheetAutoSync) UI.checkArtGSheetAutoSync.checked = config.autoSync !== false;
+
+  const logs = state.getArtLogs();
+  if (UI.labelArtGSheetModalTotalCount) UI.labelArtGSheetModalTotalCount.textContent = `${logs.length} Baris`;
+  if (UI.labelArtGSheetModalLastSync) UI.labelArtGSheetModalLastSync.textContent = config.lastSyncTime || 'Belum pernah';
+
+  if (UI.labelArtGSheetModalStatus) {
+    if (config.webAppUrl) {
+      UI.labelArtGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelArtGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  if (UI.artAppsScriptCodePreview) {
+    UI.artAppsScriptCodePreview.textContent = ART_APPS_SCRIPT_TEMPLATE;
+  }
+
+  switchArtGSheetTab('config');
+  renderArtGSheetBar();
+  if (UI.modalArtGoogleSheets) UI.modalArtGoogleSheets.classList.remove('hidden');
+}
+
+function closeArtGSheetModal() {
+  if (UI.modalArtGoogleSheets) UI.modalArtGoogleSheets.classList.add('hidden');
+}
+
+function switchArtGSheetTab(tab) {
+  if (tab === 'config') {
+    if (UI.tabBtnArtGSheetConfig) UI.tabBtnArtGSheetConfig.classList.add('active');
+    if (UI.tabBtnArtGSheetGuide) UI.tabBtnArtGSheetGuide.classList.remove('active');
+    if (UI.tabContentArtGSheetConfig) UI.tabContentArtGSheetConfig.classList.remove('hidden');
+    if (UI.tabContentArtGSheetGuide) UI.tabContentArtGSheetGuide.classList.add('hidden');
+  } else {
+    if (UI.tabBtnArtGSheetConfig) UI.tabBtnArtGSheetConfig.classList.remove('active');
+    if (UI.tabBtnArtGSheetGuide) UI.tabBtnArtGSheetGuide.classList.add('active');
+    if (UI.tabContentArtGSheetConfig) UI.tabContentArtGSheetConfig.classList.add('hidden');
+    if (UI.tabContentArtGSheetGuide) UI.tabContentArtGSheetGuide.classList.remove('hidden');
+  }
+}
+
+function saveArtGSheetConfigHandler() {
+  const current = state.getArtGSheetConfig();
+  const webAppUrl = (UI.inputArtGSheetWebAppUrl ? UI.inputArtGSheetWebAppUrl.value.trim() : '');
+  const sheetInput = (UI.inputArtGSheetUrl ? UI.inputArtGSheetUrl.value.trim() : '');
+  const sheetName = (UI.inputArtGSheetTabName ? UI.inputArtGSheetTabName.value.trim() : '') || 'ART_Data';
+  const autoSync = UI.checkArtGSheetAutoSync ? UI.checkArtGSheetAutoSync.checked : true;
+
+  const cleanId = extractGoogleSpreadsheetId(sheetInput);
+
+  const updated = {
+    ...current,
+    webAppUrl,
+    sheetId: cleanId || sheetInput,
+    sheetName,
+    autoSync
+  };
+
+  state.saveArtGSheetConfig(updated);
+  renderArtGSheetBar();
+
+  if (UI.labelArtGSheetModalStatus) {
+    if (webAppUrl) {
+      UI.labelArtGSheetModalStatus.innerHTML = '<span style="color:#10b981;"><i class="fa-solid fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Terhubung</span>';
+    } else {
+      UI.labelArtGSheetModalStatus.innerHTML = '<span style="color:#94a3b8;"><i class="fa-regular fa-circle" style="font-size:0.6rem; vertical-align:middle; margin-right:4px;"></i>Belum Dikonfigurasi</span>';
+    }
+  }
+
+  showToast('Pengaturan Disimpan', 'Konfigurasi Google Spreadsheet untuk ART berhasil disimpan.', 'success');
+}
+
+async function testArtGSheetConnection() {
+  const webAppUrl = (UI.inputArtGSheetWebAppUrl ? UI.inputArtGSheetWebAppUrl.value.trim() : '') || state.getArtGSheetConfig().webAppUrl;
+  if (!webAppUrl) {
+    showToast('URL Kosong', 'Harap masukkan URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    return;
+  }
+
+  const btn = UI.btnArtGSheetTest;
+  const originalText = btn ? btn.innerHTML : '';
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menghubungkan...</span>';
+  }
+
+  try {
+    const pingUrl = webAppUrl + (webAppUrl.includes('?') ? '&' : '?') + 'action=ping';
+    const resp = await fetch(pingUrl, {
+      method: 'GET',
+      mode: 'cors'
+    });
+
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Koneksi Berhasil', 'Google Apps Script berhasil merespons dan terhubung ke spreadsheet!', 'success');
+      } else {
+        showToast('Terhubung', 'Respons diterima dari Google Apps Script Web App.', 'info');
+      }
+    } else {
+      showToast('Koneksi Selesai', `Status HTTP: ${resp.status}. URL dapat diakses.`, 'info');
+    }
+  } catch (err) {
+    showToast('Pengujian Selesai', 'Request terkirim. Jika URL Web App valid dengan izin "Anyone", koneksi siap digunakan.', 'info');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+  }
+}
+
+async function pushArtToGoogleSheets() {
+  const config = state.getArtGSheetConfig();
+  if (!config.webAppUrl) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    openArtGSheetModal();
+    return;
+  }
+
+  const logs = state.getArtLogs();
+  const pushBtn = UI.btnArtGSheetPush;
+  const modalPushBtn = UI.btnArtGSheetModalPush;
+
+  const setPushing = (isPushing) => {
+    if (pushBtn) {
+      pushBtn.disabled = isPushing;
+      pushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+    if (modalPushBtn) {
+      modalPushBtn.disabled = isPushing;
+      modalPushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+  };
+
+  setPushing(true);
+
+  try {
+    const payload = {
+      action: 'sync_all',
+      logs: logs
+    };
+
+    // Use text/plain to avoid preflight CORS restrictions from Google Apps Script Web App
+    await fetch(config.webAppUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      }
+    });
+
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    config.lastSyncTime = formatted;
+    config.lastSyncStatus = 'success';
+    state.saveArtGSheetConfig(config);
+    renderArtGSheetBar();
+
+    if (UI.labelArtGSheetModalLastSync) UI.labelArtGSheetModalLastSync.textContent = formatted;
+
+    showToast('Sinkronisasi Sukses', `Sebanyak <strong>${logs.length} data ART</strong> berhasil dikirim ke Google Spreadsheet.`, 'success');
+  } catch (err) {
+    console.error('Error pushing ART to Google Sheets:', err);
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    config.lastSyncTime = formatted;
+    state.saveArtGSheetConfig(config);
+    renderArtGSheetBar();
+    showToast('Data Dikirim', `Permintaan sinkronisasi (${logs.length} data ART) telah dikirim ke Google Spreadsheet.`, 'info');
+  } finally {
+    setPushing(false);
+  }
+}
+
+async function pullArtFromGoogleSheets() {
+  const config = state.getArtGSheetConfig();
+  if (!config.webAppUrl && !config.sheetId) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App atau ID Spreadsheet terlebih dahulu.', 'warning');
+    openArtGSheetModal();
+    return;
+  }
+
+  const pullBtn = UI.btnArtGSheetPull;
+  const modalPullBtn = UI.btnArtGSheetModalPull;
+
+  const setPulling = (isPulling) => {
+    if (pullBtn) {
+      pullBtn.disabled = isPulling;
+      pullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+    if (modalPullBtn) {
+      modalPullBtn.disabled = isPulling;
+      modalPullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+  };
+
+  setPulling(true);
+
+  try {
+    let pulledRows = null;
+
+    if (config.webAppUrl) {
+      const getUrl = config.webAppUrl + (config.webAppUrl.includes('?') ? '&' : '?') + 'action=get_all';
+      const resp = await fetch(getUrl, { method: 'GET', mode: 'cors' });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json && json.success && Array.isArray(json.data)) {
+          pulledRows = json.data;
+        }
+      }
+    }
+
+    // Fallback to public sheet CSV export if Web App did not return JSON or if only sheetId is present
+    if (!pulledRows && config.sheetId) {
+      const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${cleanId}/export?format=csv&sheet=${encodeURIComponent(config.sheetName || 'ART_Data')}`;
+      const resp = await fetch(csvUrl);
+      if (resp.ok) {
+        const csvText = await resp.text();
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+        if (lines.length > 1) {
+          pulledRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = parseCsvRow(lines[i]);
+            if (cols[0]) {
+              const artSec = parseFloat(cols[4]) || 0;
+              const targetSec = parseInt(cols[5], 10) || 30;
+              const devSec = artSec - targetSec;
+              const devText = devSec <= 0 ? ('-' + Math.abs(devSec).toFixed(1) + ' dtk (Cepat)') : ('+' + devSec.toFixed(1) + ' dtk (Over SLA)');
+              pulledRows.push({
+                id: cols[0],
+                date: cols[1] || '',
+                userFullName: cols[2] || '',
+                department: cols[3] || 'CSO DIGILIVE CHAT - WA',
+                interactionCount: 1,
+                queueSeconds: 0,
+                frtSeconds: 0,
+                avgResponseSeconds: artSec,
+                targetSeconds: targetSec,
+                deviationSeconds: devSec,
+                deviationText: devText,
+                status: cols[6] || (artSec <= targetSec ? 'Sesuai SLA' : 'Over SLA'),
+                notes: cols[7] || '',
+                createdAt: cols[8] || ''
+              });
+            }
+          }
+        }
+      }
+    }
+
+    if (pulledRows && pulledRows.length > 0) {
+      state.saveArtLogs(pulledRows);
+      const now = new Date();
+      const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      config.lastSyncTime = formatted;
+      state.saveArtGSheetConfig(config);
+      renderArtPage();
+      showToast('Tarik Data Berhasil', `Berhasil mengambil <strong>${pulledRows.length} data ART</strong> dari Google Spreadsheet.`, 'success');
+    } else {
+      showToast('Data Kosong / Tidak Terbaca', 'Tidak ada data ART yang ditemukan pada Google Spreadsheet atau sheet masih kosong.', 'info');
+    }
+  } catch (err) {
+    console.error('Error pulling ART from Google Sheets:', err);
+    showToast('Gagal Menarik Data', 'Pastikan Google Apps Script sudah dideploy dengan akses "Anyone" atau sheet publik.', 'danger');
+  } finally {
+    setPulling(false);
+  }
+}
+
+function autoSyncArtAction(action, payload) {
+  const config = state.getArtGSheetConfig();
+  if (!config.webAppUrl || config.autoSync === false) return;
+
+  const bodyData = {
+    action,
+    ...payload
+  };
+
+  fetch(config.webAppUrl, {
+    method: 'POST',
+    body: JSON.stringify(bodyData),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    }
+  }).then(() => {
+    const now = new Date();
+    config.lastSyncTime = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    state.saveArtGSheetConfig(config);
+    renderArtGSheetBar();
+  }).catch(err => {
+    console.warn('Auto-sync ART to Google Sheets notification:', err);
+  });
+}
+
+function copyArtAppsScriptCode() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(ART_APPS_SCRIPT_TEMPLATE).then(() => {
+      showToast('Tersalin!', 'Kode Google Apps Script berhasil disalin ke clipboard.', 'success');
+    }).catch(() => {
+      fallbackCopyText(ART_APPS_SCRIPT_TEMPLATE);
+    });
+  } else {
+    fallbackCopyText(ART_APPS_SCRIPT_TEMPLATE);
+  }
+}
+
+
 // ==========================================
 // 12.8 ART (AVERAGE RESPONSE TIME)
 // ==========================================
@@ -9696,6 +11196,10 @@ function renderArtPage() {
     pageDesc.classList.add('hidden');
   }
 
+  // Ensure FRT card remains hidden
+  const artCardFrt = document.getElementById('artCardFrt');
+  if (artCardFrt) artCardFrt.classList.add('hidden');
+
   // Update Permission Explanatory Banner & Action Visibility
   if (isAdmin) {
     if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
@@ -9709,6 +11213,8 @@ function renderArtPage() {
     }
     if (UI.btnOpenAddArtModal) UI.btnOpenAddArtModal.classList.remove('hidden');
     if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.remove('hidden');
+    if (UI.btnOpenArtGoogleSheetsModal) UI.btnOpenArtGoogleSheetsModal.classList.add('hidden');
+    if (UI.artGSheetSyncBar) UI.artGSheetSyncBar.classList.remove('hidden');
     if (UI.artThSelectAll) UI.artThSelectAll.classList.remove('hidden');
   } else {
     if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
@@ -9722,10 +11228,14 @@ function renderArtPage() {
     }
     if (UI.btnOpenAddArtModal) UI.btnOpenAddArtModal.classList.add('hidden');
     if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.add('hidden');
+    if (UI.btnOpenArtGoogleSheetsModal) UI.btnOpenArtGoogleSheetsModal.classList.add('hidden');
+    if (UI.artGSheetSyncBar) UI.artGSheetSyncBar.classList.add('hidden');
     if (UI.artThSelectAll) UI.artThSelectAll.classList.add('hidden');
     state.selectedArtIds.clear();
     if (UI.artBatchBar) UI.artBatchBar.classList.add('hidden');
   }
+
+  renderArtGSheetBar();
 
   const allArtLogs = state.getArtLogs();
   const monthLogs = allArtLogs.filter(l => (l.date || '').startsWith(selectedMonth));
@@ -9883,7 +11393,7 @@ function renderArtPage() {
   if (UI.artUserSummaryBody) {
     UI.artUserSummaryBody.innerHTML = '';
     if (userSummaries.length === 0) {
-      UI.artUserSummaryBody.innerHTML = '<tr><td colspan="12" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data response time yang sesuai dengan filter.</td></tr>';
+      UI.artUserSummaryBody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px; color:var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.5rem; display:block; margin-bottom:6px; opacity:0.6;"></i>Tidak ada data response time yang sesuai dengan filter.</td></tr>';
     } else {
       userSummaries.forEach(summary => {
         const u = summary.user;
@@ -9919,20 +11429,11 @@ function renderArtPage() {
           </td>
           <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${u.department || 'CSO Layanan'}</span></td>
           <td style="text-align: center;"><span class="font-mono font-bold" style="color:var(--gray-200);">${summary.daysInput} Hari</span></td>
-          <td style="text-align: right;"><strong class="text-white font-mono">${summary.daysInput > 0 ? summary.totalInteractions.toLocaleString('id-ID') : '-'}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
-          <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${summary.daysInput > 0 ? summary.avgQueueSec + 's' : '-'}</span></td>
-          <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${summary.daysInput > 0 ? summary.avgFrtSec + 's' : '-'}</span></td>
           <td style="text-align: center;"><strong class="${summary.avgArtSec <= 30 ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${avgFormatted}</strong></td>
           <td style="text-align: center;"><span class="font-mono text-silver" style="font-size:0.85rem;">&lt; 30s</span></td>
           <td style="text-align: center;">${devHtml}</td>
           <td style="text-align: center;"><span class="badge ${parseFloat(summary.complianceRate) >= 95 ? 'badge-green' : 'badge-yellow'} font-mono" style="font-size:0.75rem;">${summary.daysInput > 0 ? summary.complianceRate + '%' : '-'}</span></td>
           <td style="text-align: center;"><span class="badge ${summary.statusBadge}" style="font-size:0.75rem;"><i class="${summary.statusIcon}" style="margin-right:4px;"></i>${summary.statusText}</span></td>
-          <td style="text-align: center;">
-            <button class="btn btn-outline-gray btn-sm" onclick="filterArtByUser('${u.fullName.replace(/'/g, "\\'")}')" title="Filter Rincian Harian User Ini">
-              <i class="fa-solid fa-filter text-red"></i>
-              <span>Rincian</span>
-            </button>
-          </td>
         `;
         UI.artUserSummaryBody.appendChild(tr);
       });
@@ -10123,7 +11624,7 @@ function renderArtPage() {
   if (!UI.artTableBody) return;
   UI.artTableBody.innerHTML = '';
 
-  const totalCols = isAdmin ? 13 : 12;
+  const totalCols = isAdmin ? 10 : 9;
   if (filteredLogs.length === 0) {
     const tr = document.createElement('tr');
     const emptyMsg = isAdmin
@@ -10172,9 +11673,6 @@ function renderArtPage() {
       <td><span class="font-mono font-bold" style="color:var(--gray-200);">${item.date || '-'}</span></td>
       <td><strong style="color:#fff; font-size:0.875rem;">${item.userFullName || '-'}</strong></td>
       <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department || '-'}</span></td>
-      <td style="text-align: right;"><strong class="text-white font-mono">${interactionCount.toLocaleString('id-ID')}</strong> <small style="font-size:0.75rem; color:var(--gray-400);">Sesi</small></td>
-      <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${queueSec.toFixed(1)}s</span></td>
-      <td style="text-align: right;"><span class="font-mono text-silver" style="font-size:0.85rem;">${frtSec.toFixed(1)}s</span></td>
       <td style="text-align: right;"><strong class="${isSlaMet ? 'text-green' : 'text-yellow'} font-mono" style="font-size:1.05rem;">${artSec.toFixed(1)}s</strong></td>
       <td style="text-align: right;"><span class="font-mono text-silver">&lt; 30s</span></td>
       <td>
@@ -10240,9 +11738,9 @@ function openAddArtModal() {
   const defaultDate = todayStr.startsWith(selectedMonth) ? todayStr : `${selectedMonth}-15`;
 
   if (UI.formArtDate) UI.formArtDate.value = defaultDate;
-  if (UI.formArtInteractionCount) UI.formArtInteractionCount.value = '50';
-  if (UI.formArtQueueSecs) UI.formArtQueueSecs.value = '4.5';
-  if (UI.formArtFrtSecs) UI.formArtFrtSecs.value = '7.2';
+  if (UI.formArtInteractionCount) UI.formArtInteractionCount.value = '1';
+  if (UI.formArtQueueSecs) UI.formArtQueueSecs.value = '0';
+  if (UI.formArtFrtSecs) UI.formArtFrtSecs.value = '0';
   if (UI.formArtResponseSecs) UI.formArtResponseSecs.value = '13.5';
   if (UI.formArtTargetSecs) UI.formArtTargetSecs.value = '30';
   if (UI.formArtNotes) UI.formArtNotes.value = '';
@@ -10267,9 +11765,9 @@ function openEditArtModal(item) {
   if (UI.formArtId) UI.formArtId.value = item.id;
   if (UI.formArtDate) UI.formArtDate.value = item.date;
   if (UI.formArtDept) UI.formArtDept.value = item.department || 'CSO DIGILIVE CHAT - WA';
-  if (UI.formArtInteractionCount) UI.formArtInteractionCount.value = item.interactionCount || 50;
-  if (UI.formArtQueueSecs) UI.formArtQueueSecs.value = item.queueSeconds !== undefined ? item.queueSeconds : 4.5;
-  if (UI.formArtFrtSecs) UI.formArtFrtSecs.value = item.frtSeconds !== undefined ? item.frtSeconds : 7.2;
+  if (UI.formArtInteractionCount) UI.formArtInteractionCount.value = item.interactionCount || '1';
+  if (UI.formArtQueueSecs) UI.formArtQueueSecs.value = item.queueSeconds !== undefined ? item.queueSeconds : 0;
+  if (UI.formArtFrtSecs) UI.formArtFrtSecs.value = item.frtSeconds !== undefined ? item.frtSeconds : 0;
   if (UI.formArtResponseSecs) UI.formArtResponseSecs.value = item.avgResponseSeconds !== undefined ? item.avgResponseSeconds : 14.8;
   if (UI.formArtTargetSecs) UI.formArtTargetSecs.value = item.targetSeconds || 30;
   if (UI.formArtNotes) UI.formArtNotes.value = item.notes || '';
@@ -10358,6 +11856,7 @@ function handleSaveArt(e) {
       state.saveArtLogs(artLogs);
       state.addLog('UPDATE_ART', 'Ubah Response Time', `Admin ${u.fullName} memperbarui response time harian ${userFullName} (${date}): ${avgResponseSeconds}s (${status}).`);
       showToast('Response Time Diperbarui', `Response time <strong>${userFullName}</strong> (${date}) berhasil diperbarui menjadi <strong>${avgResponseSeconds} Detik</strong> (${status}).`, 'success');
+      autoSyncArtAction('save', { log: artLogs[idx] });
     }
   } else {
     // NEW
@@ -10379,8 +11878,9 @@ function handleSaveArt(e) {
     };
     artLogs.unshift(newEntry);
     state.saveArtLogs(artLogs);
-    state.addLog('CREATE_ART', 'Input Response Time', `Admin ${u.fullName} mencatat response time harian untuk ${userFullName}: ${avgResponseSeconds}s (${interactionCount} sesi).`);
+    state.addLog('CREATE_ART', 'Input Response Time', `Admin ${u.fullName} mencatat response time harian untuk ${userFullName}: ${avgResponseSeconds}s.`);
     showToast('Response Time Disimpan', `Response time <strong>${avgResponseSeconds} Detik</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
+    autoSyncArtAction('save', { log: newEntry });
   }
 
   closeArtModal();
@@ -10456,14 +11956,727 @@ window.filterArtByUser = function(userName) {
   }
 };
 
+function exportArtExcel() {
+  const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+  const currentFullName = currentUser ? currentUser.fullName : '';
+  const selMonth = (UI.filterArtMonth ? UI.filterArtMonth.value : '2026-09') || '2026-09';
+  const allLogs = state.getArtLogs();
+  const users = state.getUsers();
+
+  let exportLogs;
+  if (state.selectedArtIds && state.selectedArtIds.size > 0) {
+    exportLogs = allLogs.filter(l => state.selectedArtIds.has(l.id));
+  } else {
+    let monthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth));
+    if (!isAdmin) {
+      monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
+    }
+    exportLogs = monthLogs;
+  }
+
+  if (exportLogs.length === 0) {
+    showToast('Data Kosong', 'Tidak ada data Average Response Time (ART) untuk diekspor.', 'warning');
+    return;
+  }
+
+  const sheet1Data = [
+    ['No', 'ID Log ART', 'Tanggal Input', 'Nama Petugas CSO', 'Channel Layanan', 'Rata-rata ART Harian (Detik)', 'Target SLA (Detik)', 'Deviasi Waktu (Detik)', 'Status SLA', 'Catatan Kinerja Harian']
+  ];
+  exportLogs.forEach((l, idx) => {
+    const artSec = Number(l.avgResponseSeconds) || 0;
+    const tgtSec = Number(l.targetSeconds) || 30;
+    const devSec = l.deviationSeconds !== undefined ? Number(l.deviationSeconds) : parseFloat((artSec - tgtSec).toFixed(1));
+    sheet1Data.push([
+      idx + 1,
+      l.id,
+      l.date,
+      l.userFullName,
+      l.department,
+      artSec,
+      tgtSec,
+      devSec,
+      l.status || (artSec <= tgtSec ? 'Sesuai SLA' : 'Over SLA'),
+      l.notes || '-'
+    ]);
+  });
+
+  const sheet2Data = [
+    ['No', 'Nama Petugas CSO', 'Layanan CSO', 'Hari Kerja Input', 'Rata-rata ART Bulanan (Detik)', 'Standar Target SLA (Detik)', 'Rata-rata Deviasi (Detik)', 'Kepatuhan SLA (%)', 'Status Performa']
+  ];
+  const targetUsers = isAdmin ? users : users.filter(u => u.fullName === currentFullName);
+  targetUsers.forEach((u, idx) => {
+    const userMonthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth) && l.userFullName === u.fullName);
+    const count = userMonthLogs.length;
+    let avg = 0, avgDev = 0, compliancePct = 0, status = 'Belum Ada Data';
+    if (count > 0) {
+      const sumArt = userMonthLogs.reduce((acc, curr) => acc + (Number(curr.avgResponseSeconds) || 0), 0);
+      const sumDev = userMonthLogs.reduce((acc, curr) => acc + (curr.deviationSeconds !== undefined ? Number(curr.deviationSeconds) : (Number(curr.avgResponseSeconds) || 0) - 30), 0);
+      avg = parseFloat((sumArt / count).toFixed(1));
+      avgDev = parseFloat((sumDev / count).toFixed(1));
+      const slaMetCount = userMonthLogs.filter(l => (Number(l.avgResponseSeconds) || 0) <= (Number(l.targetSeconds) || 30)).length;
+      compliancePct = parseFloat(((slaMetCount / count) * 100).toFixed(1));
+      status = avg <= 30 ? 'Memenuhi Standar (< 30s)' : 'Di Bawah Standar (> 30s)';
+    }
+    sheet2Data.push([
+      idx + 1,
+      u.fullName,
+      u.department || 'CSO INBOUND',
+      count,
+      count > 0 ? avg : '-',
+      30,
+      count > 0 ? avgDev : '-',
+      count > 0 ? `${compliancePct}%` : '-',
+      status
+    ]);
+  });
+
+  const filename = `DRIVE_Average_Response_Time_ART_${selMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  if (typeof XLSX !== 'undefined' && XLSX.utils) {
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+    const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+    ws1['!cols'] = [
+      { wch: 6 }, { wch: 18 }, { wch: 16 }, { wch: 24 }, { wch: 26 },
+      { wch: 26 }, { wch: 20 }, { wch: 22 }, { wch: 18 }, { wch: 45 }
+    ];
+    ws2['!cols'] = [
+      { wch: 6 }, { wch: 24 }, { wch: 26 }, { wch: 16 }, { wch: 26 },
+      { wch: 26 }, { wch: 24 }, { wch: 20 }, { wch: 26 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Log Harian ART');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Rekapitulasi Bulanan');
+    XLSX.writeFile(wb, filename);
+  } else {
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + sheet1Data.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csvContent));
+    link.setAttribute('download', filename.replace('.xlsx', '.csv'));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  showToast('Download Berhasil', `Data Average Response Time (${exportLogs.length} baris) berhasil diunduh menjadi Excel.`, 'success');
+}
+
+// ==========================================
+// 12.8.9 FINDING GOOGLE SPREADSHEET INTEGRATION
+// ==========================================
+
+const FINDING_APPS_SCRIPT_TEMPLATE = `/**
+ * =====================================================================
+ * GOOGLE APPS SCRIPT: INTEGRASI DATA TEMUAN AUDIT QA (FINDING)
+ * Dashboard Agent CSO - Iconnet
+ * =====================================================================
+ * Petunjuk Pemasangan:
+ * 1. Buka Google Spreadsheet baru di browser Anda (https://sheets.new).
+ * 2. Klik menu 'Ekstensi' (Extensions) > 'Apps Script'.
+ * 3. Hapus semua kode default dan tempel seluruh isi script ini.
+ * 4. Klik ikon Disket (Simpan / Ctrl+S).
+ * 5. Klik tombol 'Deploy' (Terapkan) > 'New deployment' (Penerapan baru).
+ * 6. Klik ikon gear di sebelah kiri 'Select type', pilih 'Web app'.
+ * 7. Isi keterangan: 'Integrasi Dashboard Finding'.
+ * 8. Atur 'Execute as' (Jalankan sebagai) -> 'Me' (Email Anda).
+ * 9. Atur 'Who has access' (Siapa yang memiliki akses) -> 'Anyone' (Siapa saja).
+ * 10. Klik 'Deploy', berikan izin akun (Authorize Access), lalu salin URL Web App yang muncul.
+ * 11. Tempel URL Web App ke Pengaturan Google Spreadsheet di menu Finding Dashboard!
+ * =====================================================================
+ */
+
+const SHEET_NAME = 'Finding_Data';
+const HEADERS = [
+  'ID Temuan',
+  'Tanggal',
+  'Nama Petugas CSO',
+  'Layanan CSO',
+  'Jenis',
+  'Kategori Temuan',
+  'Tingkat Deviasi',
+  'Rincian Kendala / Kasus',
+  'Komitmen',
+  'Action Plan',
+  'Status Tindak Lanjut',
+  'Waktu Dibuat'
+];
+
+function getOrCreateSheet() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sheet = ss.getSheetByName(SHEET_NAME);
+  if (!sheet) {
+    sheet = ss.insertSheet(SHEET_NAME);
+  }
+  if (sheet.getLastRow() < 1) {
+    sheet.appendRow(HEADERS);
+    const headerRange = sheet.getRange(1, 1, 1, HEADERS.length);
+    headerRange.setBackground('#ef4444');
+    headerRange.setFontColor('#ffffff');
+    headerRange.setFontWeight('bold');
+    sheet.setFrozenRows(1);
+    for (let c = 1; c <= HEADERS.length; c++) {
+      sheet.autoResizeColumn(c);
+    }
+  }
+  return sheet;
+}
+
+function doGet(e) {
+  try {
+    const action = (e && e.parameter && e.parameter.action) || 'get_all';
+    if (action === 'ping') {
+      return createJsonResponse({ success: true, message: 'Google Apps Script Finding siap terhubung!', time: new Date() });
+    }
+
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return createJsonResponse({ success: true, count: 0, data: [] });
+    }
+
+    const rows = [];
+    for (let i = 1; i < data.length; i++) {
+      const r = data[i];
+      if (!r[0]) continue;
+      rows.push({
+        id: String(r[0] || ''),
+        date: r[1] instanceof Date ? Utilities.formatDate(r[1], Session.getScriptTimeZone(), 'yyyy-MM-dd') : String(r[1] || ''),
+        userFullName: String(r[2] || ''),
+        department: String(r[3] || 'CSO INBOUND'),
+        findingType: String(r[4] || 'Feedback Negatif'),
+        category: String(r[5] || 'Informasi'),
+        deviationLevel: String(r[6] || 'Reminder 1'),
+        desc: String(r[7] || ''),
+        commitment: String(r[8] || '-'),
+        actionPlan: String(r[9] || ''),
+        status: String(r[10] || 'Open'),
+        createdAt: String(r[11] || '')
+      });
+    }
+
+    return createJsonResponse({ success: true, count: rows.length, data: rows });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function doPost(e) {
+  try {
+    let payload;
+    if (e && e.postData && e.postData.contents) {
+      payload = JSON.parse(e.postData.contents);
+    } else if (e && e.parameter) {
+      payload = e.parameter;
+    } else {
+      payload = {};
+    }
+
+    const action = payload.action || 'sync_all';
+    const sheet = getOrCreateSheet();
+
+    if (action === 'sync_all') {
+      const findings = payload.findings || payload.logs || [];
+      const lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        sheet.deleteRows(2, lastRow - 1);
+      }
+      if (findings.length > 0) {
+        const rowsToAppend = findings.map(f => [
+          f.id || '',
+          f.date || '',
+          f.userFullName || '',
+          f.department || 'CSO INBOUND',
+          f.findingType || 'Feedback Negatif',
+          f.category || 'Informasi',
+          f.deviationLevel || 'Reminder 1',
+          f.desc || '',
+          f.commitment || '-',
+          f.actionPlan || '',
+          f.status || 'Open',
+          f.createdAt || new Date().toISOString()
+        ]);
+        sheet.getRange(2, 1, rowsToAppend.length, HEADERS.length).setValues(rowsToAppend);
+      }
+      return createJsonResponse({ success: true, message: 'Sync all Finding berhasil', count: findings.length });
+    }
+
+    if (action === 'save') {
+      const f = payload.finding || payload.log;
+      if (!f || !f.id) return createJsonResponse({ success: false, error: 'Data Finding tidak valid' });
+
+      const data = sheet.getDataRange().getValues();
+      let foundRow = -1;
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(f.id)) {
+          foundRow = i + 1;
+          break;
+        }
+      }
+
+      const rowData = [
+        f.id || '',
+        f.date || '',
+        f.userFullName || '',
+        f.department || 'CSO INBOUND',
+        f.findingType || 'Feedback Negatif',
+        f.category || 'Informasi',
+        f.deviationLevel || 'Reminder 1',
+        f.desc || '',
+        f.commitment || '-',
+        f.actionPlan || '',
+        f.status || 'Open',
+        f.createdAt || new Date().toISOString()
+      ];
+
+      if (foundRow > 0) {
+        sheet.getRange(foundRow, 1, 1, HEADERS.length).setValues([rowData]);
+      } else {
+        sheet.appendRow(rowData);
+      }
+      return createJsonResponse({ success: true, message: 'Data Finding berhasil disimpan ke Google Sheets' });
+    }
+
+    if (action === 'delete') {
+      const id = payload.id;
+      const data = sheet.getDataRange().getValues();
+      for (let i = 1; i < data.length; i++) {
+        if (String(data[i][0]) === String(id)) {
+          sheet.deleteRow(i + 1);
+          return createJsonResponse({ success: true, message: 'Data Finding berhasil dihapus dari Google Sheets' });
+        }
+      }
+      return createJsonResponse({ success: true, message: 'ID Finding tidak ditemukan di sheet' });
+    }
+
+    if (action === 'delete_month') {
+      const month = payload.month;
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        const rowDate = String(data[i][1]);
+        if (rowDate.indexOf(month) === 0) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Data Finding bulanan berhasil dibersihkan dari Google Sheets' });
+    }
+
+    if (action === 'delete_batch') {
+      const ids = payload.ids || [];
+      const data = sheet.getDataRange().getValues();
+      for (let i = data.length - 1; i >= 1; i--) {
+        if (ids.indexOf(String(data[i][0])) !== -1) {
+          sheet.deleteRow(i + 1);
+        }
+      }
+      return createJsonResponse({ success: true, message: 'Batch baris Finding berhasil dihapus dari Google Sheets' });
+    }
+
+    return createJsonResponse({ success: false, error: 'Aksi tidak dikenal: ' + action });
+  } catch (err) {
+    return createJsonResponse({ success: false, error: err.toString() });
+  }
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
+}
+`;
+
+function renderFindingGSheetBar() {
+  const config = state.getFindingGSheetConfig();
+  const isConfigured = Boolean(config.webAppUrl && config.webAppUrl.trim());
+  const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+  const openUrl = cleanId ? `https://docs.google.com/spreadsheets/d/${cleanId}` : config.webAppUrl;
+
+  // Header Badge
+  if (UI.findingGSheetHeaderBadge) {
+    if (isConfigured) {
+      UI.findingGSheetHeaderBadge.textContent = 'Terhubung';
+      UI.findingGSheetHeaderBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+      UI.findingGSheetHeaderBadge.style.color = '#ef4444';
+      UI.findingGSheetHeaderBadge.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+    } else {
+      UI.findingGSheetHeaderBadge.textContent = 'Belum Terhubung';
+      UI.findingGSheetHeaderBadge.style.background = 'rgba(255, 255, 255, 0.08)';
+      UI.findingGSheetHeaderBadge.style.color = 'var(--gray-300)';
+      UI.findingGSheetHeaderBadge.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+    }
+  }
+
+  // Status Badge inside Bar
+  if (UI.findingGSheetStatusBadge) {
+    if (isConfigured) {
+      UI.findingGSheetStatusBadge.textContent = 'Terhubung';
+      UI.findingGSheetStatusBadge.className = 'badge badge-red';
+      UI.findingGSheetStatusBadge.style.background = 'rgba(239, 68, 68, 0.2)';
+      UI.findingGSheetStatusBadge.style.color = '#ef4444';
+      UI.findingGSheetStatusBadge.style.border = '1px solid rgba(239, 68, 68, 0.4)';
+    } else {
+      UI.findingGSheetStatusBadge.textContent = 'Belum Dikonfigurasi';
+      UI.findingGSheetStatusBadge.style.background = 'rgba(100, 116, 139, 0.2)';
+      UI.findingGSheetStatusBadge.style.color = '#94a3b8';
+      UI.findingGSheetStatusBadge.style.border = '1px solid rgba(100, 116, 139, 0.3)';
+    }
+  }
+
+  // Status Info inside Bar
+  if (UI.findingGSheetStatusInfo) {
+    if (isConfigured) {
+      const syncTime = config.lastSyncTime ? `Terakhir sinkron: ${config.lastSyncTime}` : 'Belum pernah disinkronkan';
+      const autoText = config.autoSync ? ' (Auto-Sync Aktif)' : ' (Sinkronisasi Manual)';
+      UI.findingGSheetStatusInfo.innerHTML = `<span style="color:#ef4444;"><i class="fa-solid fa-circle-check" style="margin-right:4px;"></i>${syncTime}${autoText}</span>`;
+    } else {
+      UI.findingGSheetStatusInfo.textContent = 'Klik tombol "Pengaturan & Script" untuk menghubungkan data Finding dengan Google Spreadsheet Anda.';
+    }
+  }
+
+  // Open Link buttons
+  if (UI.btnFindingGSheetOpenLink) {
+    if (openUrl) {
+      UI.btnFindingGSheetOpenLink.href = openUrl;
+      UI.btnFindingGSheetOpenLink.classList.remove('hidden');
+      UI.btnFindingGSheetOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnFindingGSheetOpenLink.classList.add('hidden');
+      UI.btnFindingGSheetOpenLink.style.display = 'none';
+    }
+  }
+  if (UI.btnFindingGSheetModalOpenLink) {
+    if (openUrl) {
+      UI.btnFindingGSheetModalOpenLink.href = openUrl;
+      UI.btnFindingGSheetModalOpenLink.classList.remove('hidden');
+      UI.btnFindingGSheetModalOpenLink.style.display = 'inline-flex';
+    } else {
+      UI.btnFindingGSheetModalOpenLink.classList.add('hidden');
+      UI.btnFindingGSheetModalOpenLink.style.display = 'none';
+    }
+  }
+}
+
+function openFindingGSheetModal() {
+  const config = state.getFindingGSheetConfig();
+  if (UI.inputFindingGSheetWebAppUrl) UI.inputFindingGSheetWebAppUrl.value = config.webAppUrl || '';
+  if (UI.inputFindingGSheetUrl) UI.inputFindingGSheetUrl.value = config.sheetId || '';
+  if (UI.inputFindingGSheetTabName) UI.inputFindingGSheetTabName.value = config.sheetName || 'Finding_Data';
+  if (UI.checkFindingGSheetAutoSync) UI.checkFindingGSheetAutoSync.checked = config.autoSync !== false;
+
+  const findings = state.getFindings();
+  if (UI.labelFindingGSheetModalTotalCount) UI.labelFindingGSheetModalTotalCount.textContent = `${findings.length} Baris`;
+  if (UI.labelFindingGSheetModalLastSync) UI.labelFindingGSheetModalLastSync.textContent = config.lastSyncTime || 'Belum pernah';
+
+  if (UI.labelFindingGSheetModalStatus) {
+    if (config.webAppUrl) {
+      UI.labelFindingGSheetModalStatus.textContent = 'Terkonfigurasi (Siap Sinkron)';
+      UI.labelFindingGSheetModalStatus.style.color = '#ef4444';
+    } else {
+      UI.labelFindingGSheetModalStatus.textContent = 'Belum Dikonfigurasi';
+      UI.labelFindingGSheetModalStatus.style.color = 'var(--gray-400)';
+    }
+  }
+
+  if (UI.codeFindingAppsScript) {
+    UI.codeFindingAppsScript.textContent = FINDING_APPS_SCRIPT_TEMPLATE;
+  }
+
+  switchFindingGSheetTab('config');
+  renderFindingGSheetBar();
+  if (UI.modalFindingGoogleSheets) UI.modalFindingGoogleSheets.classList.remove('hidden');
+}
+
+function closeFindingGSheetModal() {
+  if (UI.modalFindingGoogleSheets) UI.modalFindingGoogleSheets.classList.add('hidden');
+}
+
+function switchFindingGSheetTab(tab) {
+  if (tab === 'config') {
+    if (UI.tabBtnFindingGSheetConfig) UI.tabBtnFindingGSheetConfig.classList.add('active');
+    if (UI.tabBtnFindingGSheetGuide) UI.tabBtnFindingGSheetGuide.classList.remove('active');
+    if (UI.tabContentFindingGSheetConfig) UI.tabContentFindingGSheetConfig.classList.remove('hidden');
+    if (UI.tabContentFindingGSheetGuide) UI.tabContentFindingGSheetGuide.classList.add('hidden');
+  } else {
+    if (UI.tabBtnFindingGSheetConfig) UI.tabBtnFindingGSheetConfig.classList.remove('active');
+    if (UI.tabBtnFindingGSheetGuide) UI.tabBtnFindingGSheetGuide.classList.add('active');
+    if (UI.tabContentFindingGSheetConfig) UI.tabContentFindingGSheetConfig.classList.add('hidden');
+    if (UI.tabContentFindingGSheetGuide) UI.tabContentFindingGSheetGuide.classList.remove('hidden');
+    if (UI.codeFindingAppsScript) {
+      UI.codeFindingAppsScript.textContent = FINDING_APPS_SCRIPT_TEMPLATE;
+    }
+  }
+}
+
+function saveFindingGSheetConfigHandler() {
+  const current = state.getFindingGSheetConfig();
+  const webAppUrl = (UI.inputFindingGSheetWebAppUrl ? UI.inputFindingGSheetWebAppUrl.value.trim() : '');
+  const sheetInput = (UI.inputFindingGSheetUrl ? UI.inputFindingGSheetUrl.value.trim() : '');
+  const sheetName = (UI.inputFindingGSheetTabName ? UI.inputFindingGSheetTabName.value.trim() : '') || 'Finding_Data';
+  const autoSync = UI.checkFindingGSheetAutoSync ? UI.checkFindingGSheetAutoSync.checked : true;
+
+  current.webAppUrl = webAppUrl;
+  current.sheetId = sheetInput;
+  current.sheetName = sheetName;
+  current.autoSync = autoSync;
+  current.lastSyncStatus = webAppUrl ? 'configured' : 'disconnected';
+
+  state.saveFindingGSheetConfig(current);
+  renderFindingGSheetBar();
+
+  if (UI.labelFindingGSheetModalStatus) {
+    if (webAppUrl) {
+      UI.labelFindingGSheetModalStatus.textContent = 'Terkonfigurasi (Siap Sinkron)';
+      UI.labelFindingGSheetModalStatus.style.color = '#ef4444';
+    } else {
+      UI.labelFindingGSheetModalStatus.textContent = 'Belum Dikonfigurasi';
+      UI.labelFindingGSheetModalStatus.style.color = 'var(--gray-400)';
+    }
+  }
+
+  showToast('Pengaturan Disimpan', 'Konfigurasi Google Spreadsheet untuk Finding berhasil diperbarui.', 'success');
+}
+
+async function testFindingGSheetConnection() {
+  const webAppUrl = (UI.inputFindingGSheetWebAppUrl ? UI.inputFindingGSheetWebAppUrl.value.trim() : '') || state.getFindingGSheetConfig().webAppUrl;
+  if (!webAppUrl) {
+    showToast('URL Kosong', 'Harap masukkan URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    return;
+  }
+
+  const testBtn = UI.btnFindingGSheetTest;
+  if (testBtn) {
+    testBtn.disabled = true;
+    testBtn.innerHTML = '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menguji...</span>';
+  }
+
+  try {
+    const testUrl = webAppUrl + (webAppUrl.includes('?') ? '&' : '?') + 'action=ping';
+    const resp = await fetch(testUrl, { method: 'GET', mode: 'cors' });
+    if (resp.ok) {
+      const data = await resp.json();
+      if (data && data.success) {
+        showToast('Koneksi Berhasil!', 'Google Apps Script Finding merespons dengan baik.', 'success');
+        if (UI.labelFindingGSheetModalStatus) {
+          UI.labelFindingGSheetModalStatus.textContent = 'Terhubung Normal';
+          UI.labelFindingGSheetModalStatus.style.color = '#ef4444';
+        }
+      } else {
+        showToast('Koneksi Ditolak', data.error || 'Respon tidak sesuai standar.', 'warning');
+      }
+    } else {
+      showToast('Koneksi Gagal', `HTTP Status: ${resp.status}`, 'danger');
+    }
+  } catch (err) {
+    console.error('Test connection error:', err);
+    showToast('Koneksi Gagal', 'Tidak dapat menghubungi Web App. Pastikan akses disetel ke "Anyone" saat deploy.', 'danger');
+  } finally {
+    if (testBtn) {
+      testBtn.disabled = false;
+      testBtn.innerHTML = '<i class="fa-solid fa-satellite-dish"></i> <span>Test Koneksi</span>';
+    }
+  }
+}
+
+async function pushFindingToGoogleSheets() {
+  const config = state.getFindingGSheetConfig();
+  if (!config.webAppUrl) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App Google Apps Script terlebih dahulu.', 'warning');
+    openFindingGSheetModal();
+    return;
+  }
+
+  const findings = state.getFindings();
+  const pushBtn = UI.btnFindingGSheetPush;
+  const modalPushBtn = UI.btnFindingGSheetModalPush;
+
+  const setPushing = (isPushing) => {
+    if (pushBtn) {
+      pushBtn.disabled = isPushing;
+      pushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+    if (modalPushBtn) {
+      modalPushBtn.disabled = isPushing;
+      modalPushBtn.innerHTML = isPushing ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Mengirim...</span>' : '<i class="fa-solid fa-cloud-arrow-up"></i> <span>Kirim ke Sheets</span>';
+    }
+  };
+
+  setPushing(true);
+
+  try {
+    const payload = {
+      action: 'sync_all',
+      findings: findings
+    };
+
+    await fetch(config.webAppUrl, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8'
+      }
+    });
+
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+    config.lastSyncTime = formatted;
+    config.lastSyncStatus = 'success';
+    state.saveFindingGSheetConfig(config);
+    renderFindingGSheetBar();
+
+    if (UI.labelFindingGSheetModalLastSync) UI.labelFindingGSheetModalLastSync.textContent = formatted;
+
+    showToast('Sinkronisasi Sukses', `Sebanyak <strong>${findings.length} data Finding</strong> berhasil dikirim ke Google Spreadsheet.`, 'success');
+  } catch (err) {
+    console.error('Error pushing Finding to Google Sheets:', err);
+    const now = new Date();
+    const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    config.lastSyncTime = formatted;
+    state.saveFindingGSheetConfig(config);
+    renderFindingGSheetBar();
+    showToast('Data Dikirim', `Permintaan sinkronisasi (${findings.length} data Finding) telah dikirim ke Google Spreadsheet.`, 'info');
+  } finally {
+    setPushing(false);
+  }
+}
+
+async function pullFindingFromGoogleSheets() {
+  const config = state.getFindingGSheetConfig();
+  if (!config.webAppUrl && !config.sheetId) {
+    showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App atau ID Spreadsheet terlebih dahulu.', 'warning');
+    openFindingGSheetModal();
+    return;
+  }
+
+  const pullBtn = UI.btnFindingGSheetPull;
+  const modalPullBtn = UI.btnFindingGSheetModalPull;
+
+  const setPulling = (isPulling) => {
+    if (pullBtn) {
+      pullBtn.disabled = isPulling;
+      pullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+    if (modalPullBtn) {
+      modalPullBtn.disabled = isPulling;
+      modalPullBtn.innerHTML = isPulling ? '<i class="fa-solid fa-arrows-rotate sync-spinning"></i> <span>Menarik...</span>' : '<i class="fa-solid fa-cloud-arrow-down"></i> <span>Tarik Data</span>';
+    }
+  };
+
+  setPulling(true);
+
+  try {
+    let pulledRows = null;
+
+    if (config.webAppUrl) {
+      const getUrl = config.webAppUrl + (config.webAppUrl.includes('?') ? '&' : '?') + 'action=get_all';
+      const resp = await fetch(getUrl, { method: 'GET', mode: 'cors' });
+      if (resp.ok) {
+        const json = await resp.json();
+        if (json && json.success && Array.isArray(json.data)) {
+          pulledRows = json.data;
+        }
+      }
+    }
+
+    // Fallback to public sheet CSV export if Web App did not return JSON or if only sheetId is present
+    if (!pulledRows && config.sheetId) {
+      const cleanId = extractGoogleSpreadsheetId(config.sheetId);
+      const csvUrl = `https://docs.google.com/spreadsheets/d/${cleanId}/export?format=csv&sheet=${encodeURIComponent(config.sheetName || 'Finding_Data')}`;
+      const resp = await fetch(csvUrl);
+      if (resp.ok) {
+        const csvText = await resp.text();
+        const lines = csvText.split(/\r?\n/).filter(l => l.trim().length > 0);
+        if (lines.length > 1) {
+          pulledRows = [];
+          for (let i = 1; i < lines.length; i++) {
+            const cols = parseCsvRow(lines[i]);
+            if (cols[0]) {
+              pulledRows.push({
+                id: cols[0],
+                date: cols[1] || '',
+                userFullName: cols[2] || '',
+                department: cols[3] || 'CSO INBOUND',
+                findingType: cols[4] || 'Feedback Negatif',
+                category: cols[5] || 'Informasi',
+                deviationLevel: cols[6] || 'Reminder 1',
+                desc: cols[7] || '',
+                commitment: cols[8] || '-',
+                actionPlan: cols[9] || '',
+                status: cols[10] || 'Open',
+                createdAt: cols[11] || ''
+              });
+            }
+          }
+        }
+      }
+    }
+
+    if (pulledRows && pulledRows.length > 0) {
+      state.saveFindings(pulledRows);
+      const now = new Date();
+      const formatted = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+      config.lastSyncTime = formatted;
+      state.saveFindingGSheetConfig(config);
+      renderFindingPage();
+      showToast('Tarik Data Berhasil', `Berhasil mengambil <strong>${pulledRows.length} data Finding</strong> dari Google Spreadsheet.`, 'success');
+    } else {
+      showToast('Data Kosong / Tidak Terbaca', 'Tidak ada data Finding yang ditemukan pada Google Spreadsheet atau sheet masih kosong.', 'info');
+    }
+  } catch (err) {
+    console.error('Error pulling Finding from Google Sheets:', err);
+    showToast('Gagal Menarik Data', 'Pastikan Google Apps Script sudah dideploy dengan akses "Anyone" atau sheet publik.', 'danger');
+  } finally {
+    setPulling(false);
+  }
+}
+
+function autoSyncFindingAction(action, payload) {
+  const config = state.getFindingGSheetConfig();
+  if (!config.webAppUrl || config.autoSync === false) return;
+
+  const bodyData = {
+    action,
+    ...payload
+  };
+
+  fetch(config.webAppUrl, {
+    method: 'POST',
+    body: JSON.stringify(bodyData),
+    headers: {
+      'Content-Type': 'text/plain;charset=utf-8'
+    }
+  }).then(() => {
+    const now = new Date();
+    config.lastSyncTime = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    state.saveFindingGSheetConfig(config);
+    renderFindingGSheetBar();
+  }).catch(err => {
+    console.warn('Auto-sync Finding to Google Sheets notification:', err);
+  });
+}
+
+function copyFindingAppsScriptCode() {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(FINDING_APPS_SCRIPT_TEMPLATE).then(() => {
+      showToast('Tersalin!', 'Kode Google Apps Script berhasil disalin ke clipboard.', 'success');
+    }).catch(() => {
+      fallbackCopyText(FINDING_APPS_SCRIPT_TEMPLATE);
+    });
+  } else {
+    fallbackCopyText(FINDING_APPS_SCRIPT_TEMPLATE);
+  }
+}
+
 // ==========================================
 // 12.9 FINDING (QA AUDIT FINDINGS)
 // ==========================================
 
 function renderFindingPage() {
+  if (UI.btnOpenFindingGoogleSheetsModal) UI.btnOpenFindingGoogleSheetsModal.classList.add('hidden');
+  renderFindingGSheetBar();
   const findings = state.getFindings();
+  const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-10') || 'ALL';
   const searchQ = (UI.searchFindingInput ? UI.searchFindingInput.value.trim().toLowerCase() : '');
   const filterService = (UI.filterFindingService ? UI.filterFindingService.value : 'ALL');
+  const filterType = (UI.filterFindingType ? UI.filterFindingType.value : 'ALL');
   const filterLevel = (UI.filterFindingLevel ? UI.filterFindingLevel.value : 'ALL');
   const filterStatus = (UI.filterFindingStatus ? UI.filterFindingStatus.value : 'ALL');
 
@@ -10472,58 +12685,91 @@ function renderFindingPage() {
   }
 
   const filtered = findings.filter(item => {
+    if (selectedMonth !== 'ALL' && !(item.date || '').startsWith(selectedMonth)) return false;
     if (searchQ) {
       const match = (item.id || '').toLowerCase().includes(searchQ) ||
                     (item.userFullName || '').toLowerCase().includes(searchQ) ||
                     (item.department || '').toLowerCase().includes(searchQ) ||
+                    (item.findingType || '').toLowerCase().includes(searchQ) ||
                     (item.category || '').toLowerCase().includes(searchQ) ||
                     (item.desc || '').toLowerCase().includes(searchQ) ||
+                    (item.commitment || '').toLowerCase().includes(searchQ) ||
                     (item.actionPlan || '').toLowerCase().includes(searchQ);
       if (!match) return false;
     }
     if (filterService !== 'ALL' && item.department !== filterService) return false;
+    if (filterType !== 'ALL' && item.findingType !== filterType) return false;
     if (filterLevel !== 'ALL' && item.deviationLevel !== filterLevel) return false;
     if (filterStatus !== 'ALL' && item.status !== filterStatus) return false;
     return true;
   });
 
-  // Calculate metrics
-  const totalCount = findings.length;
-  const minorCount = findings.filter(f => f.deviationLevel === 'Minor').length;
-  const mayorCount = findings.filter(f => f.deviationLevel === 'Mayor').length;
-  const fatalCount = findings.filter(f => f.deviationLevel === 'Fatal').length;
+  // Calculate metrics based on selected month (or all if ALL selected)
+  const monthFindings = selectedMonth === 'ALL' ? findings : findings.filter(f => (f.date || '').startsWith(selectedMonth));
+  const totalCount = monthFindings.length;
+  const reminderCount = monthFindings.filter(f => (f.deviationLevel || '').startsWith('Reminder')).length;
+  const korektifCount = monthFindings.filter(f => (f.deviationLevel || '').startsWith('Korektif')).length;
+  const spCount = monthFindings.filter(f => (f.deviationLevel || '').startsWith('SP')).length;
 
   if (UI.findingStatTotal) UI.findingStatTotal.textContent = totalCount;
-  if (UI.findingStatMinor) UI.findingStatMinor.textContent = minorCount;
-  if (UI.findingStatMayor) UI.findingStatMayor.textContent = mayorCount;
-  if (UI.findingStatFatal) UI.findingStatFatal.textContent = fatalCount;
+  if (UI.findingStatMinor) UI.findingStatMinor.textContent = reminderCount;
+  if (UI.findingStatMayor) UI.findingStatMayor.textContent = korektifCount;
+  if (UI.findingStatFatal) UI.findingStatFatal.textContent = spCount;
+
+  // Batch action bar & Header select-all sync
+  const visibleIds = filtered.map(item => item.id);
+  const selectedVisibleCount = visibleIds.filter(id => state.selectedFindingIds && state.selectedFindingIds.has(id)).length;
+  if (UI.findingSelectAllCheckbox) {
+    UI.findingSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+    UI.findingSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
+  }
+  if (UI.findingBatchBar) {
+    const hasSelected = state.selectedFindingIds && state.selectedFindingIds.size > 0;
+    UI.findingBatchBar.classList.toggle('hidden', !hasSelected);
+    if (UI.findingSelectedCount) {
+      UI.findingSelectedCount.textContent = state.selectedFindingIds ? state.selectedFindingIds.size : 0;
+    }
+  }
 
   if (!UI.findingTableBody) return;
   UI.findingTableBody.innerHTML = '';
 
   if (filtered.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="9" style="text-align: center; padding: 32px; color: var(--gray-400);">Tidak ada catatan temuan audit QA yang sesuai.</td>`;
+    tr.innerHTML = `<td colspan="12" style="text-align: center; padding: 32px; color: var(--gray-400);">Tidak ada catatan temuan audit QA yang sesuai.</td>`;
     UI.findingTableBody.appendChild(tr);
     return;
   }
 
   filtered.forEach(item => {
     const tr = document.createElement('tr');
+    const isChecked = state.selectedFindingIds ? state.selectedFindingIds.has(item.id) : false;
+
+    let typeBadge = 'badge-yellow';
+    if (item.findingType === 'Feedback Positif') {
+      typeBadge = 'badge-green';
+    }
 
     let devBadge = 'badge-yellow';
-    if (item.deviationLevel === 'Mayor') devBadge = 'badge-red';
-    else if (item.deviationLevel === 'Fatal') devBadge = 'badge-red glow-effect-red';
+    if ((item.deviationLevel || '').startsWith('Korektif')) {
+      devBadge = 'badge-blue';
+    } else if ((item.deviationLevel || '').startsWith('SP')) {
+      devBadge = 'badge-red glow-effect-red';
+    }
 
     let statBadge = 'badge-yellow';
     if (item.status === 'Dalam Coaching') statBadge = 'badge-blue';
     else if (item.status === 'Closed') statBadge = 'badge-green';
 
     tr.innerHTML = `
+      <td style="text-align: center;">
+        <input type="checkbox" class="finding-table-checkbox finding-row-checkbox checkbox-custom" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
+      </td>
       <td><span class="text-red font-mono" style="font-weight:700;">${item.id}</span></td>
-      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.date}</span></td>
+      <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.date || '-'}</span></td>
       <td><span style="font-weight:600; color:#fff;">${item.userFullName}</span></td>
       <td><span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right:4px;"></i>${item.department}</span></td>
+      <td><span class="badge ${typeBadge}" style="font-size:0.75rem;">${item.findingType || 'Feedback Negatif'}</span></td>
       <td><span style="font-size:0.8rem; color:var(--gray-200);">${item.category}</span></td>
       <td><span class="badge ${devBadge}" style="font-size:0.75rem;">${item.deviationLevel}</span></td>
       <td>
@@ -10531,11 +12777,17 @@ function renderFindingPage() {
         ${item.actionPlan ? `<div style="font-size:0.72rem; color:var(--gray-400); margin-top:3px;"><i class="fa-solid fa-lightbulb text-yellow" style="margin-right:3px;"></i><strong>Action:</strong> ${item.actionPlan}</div>` : ''}
       </td>
       <td>
+        <span style="font-size:0.8rem; color:var(--gray-200);">${item.commitment || '-'}</span>
+      </td>
+      <td>
         <button class="badge ${statBadge}" style="font-size:0.75rem; cursor:pointer; border:none;" onclick="quickCycleFindingStatus('${item.id}')" title="Klik untuk ubah status tindak lanjut">
           ${item.status}
         </button>
       </td>
-      <td style="text-align:center;">
+      <td style="text-align:center; white-space:nowrap;">
+        <button class="btn btn-icon btn-sm" onclick="openEditFindingModal('${item.id}')" title="Edit Temuan" style="margin-right:4px;">
+          <i class="fa-solid fa-pen-to-square text-blue"></i>
+        </button>
         <button class="btn btn-icon btn-sm" onclick="promptDeleteFinding('${item.id}', '${item.id}')" title="Hapus Temuan">
           <i class="fa-solid fa-trash-can text-red"></i>
         </button>
@@ -10549,16 +12801,50 @@ function openAddFindingModal() {
   const u = state.currentUser;
   if (!u) return;
 
+  if (UI.modalFindingTitle) UI.modalFindingTitle.textContent = 'Catat Temuan Audit QA (Finding)';
+  if (UI.btnSubmitFindingText) UI.btnSubmitFindingText.textContent = 'Simpan Temuan';
+  if (UI.formFindingId) UI.formFindingId.value = '';
+
   if (UI.formFinding) UI.formFinding.reset();
   if (UI.formFindingUser) UI.formFindingUser.value = u.fullName;
   if (UI.formFindingDept) UI.formFindingDept.value = u.department || 'CSO INBOUND';
-  if (UI.formFindingCategoryVal) UI.formFindingCategoryVal.value = 'Greeting & Closing SOP';
-  if (UI.formFindingLevelVal) UI.formFindingLevelVal.value = 'Minor';
+  const todayStr = new Date().toISOString().slice(0, 10);
+  if (UI.formFindingDate) UI.formFindingDate.value = todayStr;
+  if (UI.formFindingType) UI.formFindingType.value = 'Feedback Negatif';
+  if (UI.formFindingCategoryVal) UI.formFindingCategoryVal.value = 'Informasi';
+  if (UI.formFindingLevelVal) UI.formFindingLevelVal.value = 'Reminder 1';
   if (UI.formFindingDesc) UI.formFindingDesc.value = '';
+  if (UI.formFindingCommitment) UI.formFindingCommitment.value = '';
   if (UI.formFindingActionPlan) UI.formFindingActionPlan.value = '';
+  if (UI.formFindingStatus) UI.formFindingStatus.value = 'Open';
 
   if (UI.modalFindingForm) UI.modalFindingForm.classList.remove('hidden');
 }
+
+window.openEditFindingModal = function(id) {
+  const findings = state.getFindings();
+  const item = findings.find(f => f.id === id);
+  if (!item) {
+    showToast('Data Tidak Ditemukan', `Temuan audit ${id} tidak ditemukan.`, 'error');
+    return;
+  }
+
+  if (UI.modalFindingTitle) UI.modalFindingTitle.textContent = 'Edit Temuan Audit QA (Finding)';
+  if (UI.btnSubmitFindingText) UI.btnSubmitFindingText.textContent = 'Perbarui Temuan';
+  if (UI.formFindingId) UI.formFindingId.value = item.id;
+  if (UI.formFindingUser) UI.formFindingUser.value = item.userFullName || '';
+  if (UI.formFindingDept) UI.formFindingDept.value = item.department || 'CSO INBOUND';
+  if (UI.formFindingDate) UI.formFindingDate.value = item.date || new Date().toISOString().slice(0, 10);
+  if (UI.formFindingType) UI.formFindingType.value = item.findingType || 'Feedback Negatif';
+  if (UI.formFindingCategoryVal) UI.formFindingCategoryVal.value = item.category || 'Informasi';
+  if (UI.formFindingLevelVal) UI.formFindingLevelVal.value = item.deviationLevel || 'Reminder 1';
+  if (UI.formFindingDesc) UI.formFindingDesc.value = item.desc || '';
+  if (UI.formFindingCommitment) UI.formFindingCommitment.value = (item.commitment && item.commitment !== '-') ? item.commitment : '';
+  if (UI.formFindingActionPlan) UI.formFindingActionPlan.value = item.actionPlan || '';
+  if (UI.formFindingStatus) UI.formFindingStatus.value = item.status || 'Open';
+
+  if (UI.modalFindingForm) UI.modalFindingForm.classList.remove('hidden');
+};
 
 function closeFindingModal() {
   if (UI.modalFindingForm) UI.modalFindingForm.classList.add('hidden');
@@ -10569,12 +12855,17 @@ function handleSaveFinding(e) {
   const u = state.currentUser;
   if (!u) return;
 
+  const editId = (UI.formFindingId ? UI.formFindingId.value.trim() : '');
   const userFullName = (UI.formFindingUser ? UI.formFindingUser.value.trim() : '') || u.fullName;
   const department = (UI.formFindingDept ? UI.formFindingDept.value : 'CSO INBOUND');
-  const category = (UI.formFindingCategoryVal ? UI.formFindingCategoryVal.value : 'Greeting & Closing SOP');
-  const deviationLevel = (UI.formFindingLevelVal ? UI.formFindingLevelVal.value : 'Minor');
+  const date = (UI.formFindingDate && UI.formFindingDate.value) ? UI.formFindingDate.value : new Date().toISOString().slice(0, 10);
+  const findingType = (UI.formFindingType ? UI.formFindingType.value : 'Feedback Negatif');
+  const category = (UI.formFindingCategoryVal ? UI.formFindingCategoryVal.value : 'Informasi');
+  const deviationLevel = (UI.formFindingLevelVal ? UI.formFindingLevelVal.value : 'Reminder 1');
   const desc = (UI.formFindingDesc ? UI.formFindingDesc.value.trim() : '');
+  const commitment = (UI.formFindingCommitment ? UI.formFindingCommitment.value.trim() : '') || '-';
   const actionPlan = (UI.formFindingActionPlan ? UI.formFindingActionPlan.value.trim() : '');
+  const status = (UI.formFindingStatus ? UI.formFindingStatus.value : 'Open');
 
   if (!desc) {
     showToast('Form Belum Lengkap', 'Rincian ketidaksesuaian/kasus wajib diisi.', 'warning');
@@ -10582,26 +12873,58 @@ function handleSaveFinding(e) {
   }
 
   const findings = state.getFindings();
-  const todayStr = new Date().toISOString().slice(0, 10);
-  const randNum = String(Math.floor(Math.random() * 900) + 100);
-  const newId = `FND-${todayStr.slice(0,4)}-${randNum}`;
 
-  const newEntry = {
-    id: newId,
-    date: todayStr,
-    userFullName,
-    department,
-    category,
-    deviationLevel,
-    desc,
-    actionPlan,
-    status: 'Open'
-  };
+  if (editId) {
+    // Mode Edit: perbarui temuan yang sudah ada
+    const targetIdx = findings.findIndex(f => f.id === editId);
+    if (targetIdx === -1) {
+      showToast('Data Tidak Ditemukan', `Temuan audit ${editId} tidak ditemukan untuk diperbarui.`, 'error');
+      return;
+    }
+    findings[targetIdx] = {
+      ...findings[targetIdx],
+      date,
+      userFullName,
+      department,
+      findingType,
+      category,
+      deviationLevel,
+      desc,
+      commitment,
+      actionPlan,
+      status
+    };
+    state.saveFindings(findings);
+    autoSyncFindingAction('save', { finding: findings[targetIdx] });
+    state.addLog('UPDATE_FINDING', 'Perbarui Temuan QA', `${u.fullName} (${u.role.toUpperCase()}) memperbarui temuan audit QA [${editId}] untuk ${userFullName} (${deviationLevel}).`);
+    showToast('Temuan QA Diperbarui', `Temuan <strong>${editId}</strong> berhasil diperbarui.`, 'success');
+  } else {
+    // Mode Tambah: catat temuan baru
+    const todayStr = date;
+    const randNum = String(Math.floor(Math.random() * 900) + 100);
+    const newId = `FND-${todayStr.slice(0,4)}-${randNum}`;
 
-  findings.unshift(newEntry);
-  state.saveFindings(findings);
-  state.addLog('CREATE_FINDING', 'Temuan QA Baru', `${u.fullName} mencatat temuan audit QA [${newId}] untuk ${userFullName} (${deviationLevel}).`);
-  showToast('Temuan QA Dicatat', `Temuan <strong>${newId}</strong> berhasil didaftarkan.`, 'success');
+    const newEntry = {
+      id: newId,
+      date: todayStr,
+      userFullName,
+      department,
+      findingType,
+      category,
+      deviationLevel,
+      desc,
+      commitment,
+      actionPlan,
+      status,
+      createdAt: new Date().toISOString()
+    };
+
+    findings.unshift(newEntry);
+    state.saveFindings(findings);
+    autoSyncFindingAction('save', { finding: newEntry });
+    state.addLog('CREATE_FINDING', 'Temuan QA Baru', `${u.fullName} mencatat temuan audit QA [${newId}] untuk ${userFullName} (${deviationLevel}).`);
+    showToast('Temuan QA Dicatat', `Temuan <strong>${newId}</strong> berhasil didaftarkan.`, 'success');
+  }
 
   closeFindingModal();
   renderFindingPage();
@@ -10618,6 +12941,7 @@ window.quickCycleFindingStatus = function(id) {
   item.status = cycle[nextIdx];
 
   state.saveFindings(findings);
+  autoSyncFindingAction('save', { finding: item });
   showToast('Status Temuan Berubah', `Status temuan <strong>${item.id}</strong> kini: <strong>${item.status}</strong>.`, 'info');
   renderFindingPage();
 };
@@ -10628,6 +12952,184 @@ window.promptDeleteFinding = function(id, name) {
   UI.confirmDeleteMessage.innerHTML = `Temuan audit QA nomor <strong>${name}</strong> akan dihapus permanen.`;
   UI.modalConfirmDelete.classList.remove('hidden');
 };
+
+window.promptDeleteAllFindingMonth = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat menghapus data temuan bulanan.', 'warning');
+    return;
+  }
+  const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-10') || 'ALL';
+  if (!selectedMonth || selectedMonth === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const allFindings = state.getFindings();
+  const monthLogs = allFindings.filter(f => (f.date || '').startsWith(selectedMonth));
+  if (monthLogs.length === 0) {
+    showToast('Tidak Ada Data', `Tidak ada data temuan QA pada periode <strong>${selectedMonth}</strong> untuk dihapus.`, 'info');
+    return;
+  }
+
+  let monthLabel = selectedMonth;
+  if (UI.filterFindingMonth && UI.filterFindingMonth.selectedOptions && UI.filterFindingMonth.selectedOptions[0]) {
+    monthLabel = UI.filterFindingMonth.selectedOptions[0].textContent;
+  }
+
+  state.pendingDelete = {
+    type: 'finding_month',
+    id: selectedMonth,
+    name: monthLabel
+  };
+  UI.confirmDeleteTitle.textContent = `Hapus Semua Temuan Bulan ${monthLabel}?`;
+  UI.confirmDeleteMessage.innerHTML = `Perhatian! Seluruh <strong>${monthLogs.length} data temuan QA</strong> pada periode <strong>${monthLabel}</strong> akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+window.handleFindingBatchDelete = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Ditolak', 'Hanya Administrator yang dapat melakukan penghapusan massal.', 'warning');
+    return;
+  }
+  const selectedList = state.selectedFindingIds ? Array.from(state.selectedFindingIds) : [];
+  if (selectedList.length === 0) {
+    showToast('Pilih Data', 'Pilih minimal satu data temuan QA yang ingin dihapus.', 'info');
+    return;
+  }
+  state.pendingDelete = {
+    type: 'finding_batch',
+    id: 'batch',
+    name: `${selectedList.length} data temuan QA`,
+    ids: selectedList
+  };
+  UI.confirmDeleteTitle.textContent = `Hapus ${selectedList.length} Data Temuan QA?`;
+  UI.confirmDeleteMessage.innerHTML = `Sebanyak <strong>${selectedList.length} data temuan QA</strong> yang ditandai akan dihapus secara permanen dari sistem.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
+function exportFindingExcel() {
+  const selMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-09') || 'ALL';
+  const allFindings = state.getFindings();
+
+  let exportFindings;
+  if (state.selectedFindingIds && state.selectedFindingIds.size > 0) {
+    exportFindings = allFindings.filter(f => state.selectedFindingIds.has(f.id));
+  } else {
+    exportFindings = allFindings.filter(f => {
+      if (selMonth !== 'ALL' && !(f.date || '').startsWith(selMonth)) return false;
+      return true;
+    });
+  }
+
+  if (exportFindings.length === 0) {
+    showToast('Data Kosong', 'Tidak ada data Temuan Audit QA (Finding) untuk diekspor.', 'warning');
+    return;
+  }
+
+  const sheet1Data = [
+    ['No', 'ID Temuan', 'Tanggal', 'Nama Petugas CSO', 'Layanan CSO', 'Jenis Feedback', 'Kategori Temuan', 'Tingkat Deviasi', 'Rincian Kendala / Kasus', 'Komitmen', 'Action Plan', 'Status Tindak Lanjut']
+  ];
+  exportFindings.forEach((f, idx) => {
+    sheet1Data.push([
+      idx + 1,
+      f.id,
+      f.date,
+      f.userFullName,
+      f.department,
+      f.findingType || 'Feedback Negatif',
+      f.category || 'Informasi',
+      f.deviationLevel || 'Reminder 1',
+      f.desc || '-',
+      f.commitment || '-',
+      f.actionPlan || '-',
+      f.status || 'Open'
+    ]);
+  });
+
+  const sheet2Data = [
+    ['No', 'Nama Petugas CSO', 'Layanan CSO', 'Total Temuan', 'Feedback Positif', 'Feedback Negatif', 'Reminder', 'Korektif', 'SP', 'Status Open', 'Dalam Coaching', 'Closed']
+  ];
+
+  const agentMap = {};
+  exportFindings.forEach(f => {
+    const name = f.userFullName || 'Tidak Diketahui';
+    if (!agentMap[name]) {
+      agentMap[name] = {
+        name,
+        department: f.department || 'CSO INBOUND',
+        total: 0,
+        positif: 0,
+        negatif: 0,
+        reminder: 0,
+        korektif: 0,
+        sp: 0,
+        open: 0,
+        coaching: 0,
+        closed: 0
+      };
+    }
+    const ag = agentMap[name];
+    ag.total++;
+    if (f.findingType === 'Feedback Positif') ag.positif++;
+    else ag.negatif++;
+
+    const level = f.deviationLevel || '';
+    if (level.startsWith('Reminder')) ag.reminder++;
+    else if (level.startsWith('Korektif')) ag.korektif++;
+    else if (level.startsWith('SP')) ag.sp++;
+
+    if (f.status === 'Dalam Coaching') ag.coaching++;
+    else if (f.status === 'Closed') ag.closed++;
+    else ag.open++;
+  });
+
+  Object.values(agentMap).forEach((ag, idx) => {
+    sheet2Data.push([
+      idx + 1,
+      ag.name,
+      ag.department,
+      ag.total,
+      ag.positif,
+      ag.negatif,
+      ag.reminder,
+      ag.korektif,
+      ag.sp,
+      ag.open,
+      ag.coaching,
+      ag.closed
+    ]);
+  });
+
+  const filename = `DRIVE_Temuan_Audit_QA_Finding_${selMonth === 'ALL' ? 'Semua_Bulan' : selMonth}_${new Date().toISOString().slice(0, 10)}.xlsx`;
+
+  if (typeof XLSX !== 'undefined' && XLSX.utils) {
+    const wb = XLSX.utils.book_new();
+    const ws1 = XLSX.utils.aoa_to_sheet(sheet1Data);
+    const ws2 = XLSX.utils.aoa_to_sheet(sheet2Data);
+    ws1['!cols'] = [
+      { wch: 6 }, { wch: 18 }, { wch: 14 }, { wch: 22 }, { wch: 24 },
+      { wch: 18 }, { wch: 18 }, { wch: 16 }, { wch: 45 }, { wch: 40 },
+      { wch: 40 }, { wch: 18 }
+    ];
+    ws2['!cols'] = [
+      { wch: 6 }, { wch: 22 }, { wch: 24 }, { wch: 14 }, { wch: 16 },
+      { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 10 }, { wch: 14 },
+      { wch: 16 }, { wch: 12 }
+    ];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Rekapitulasi Temuan QA');
+    XLSX.utils.book_append_sheet(wb, ws2, 'Ringkasan Per Petugas');
+    XLSX.writeFile(wb, filename);
+  } else {
+    const csvContent = 'data:text/csv;charset=utf-8,\uFEFF' + sheet1Data.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const link = document.createElement('a');
+    link.setAttribute('href', encodeURI(csvContent));
+    link.setAttribute('download', filename.replace('.xlsx', '.csv'));
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  showToast('Download Berhasil', `Data Temuan Audit QA (${exportFindings.length} baris) berhasil diunduh menjadi Excel.`, 'success');
+}
 
 // ==========================================
 // 13. SIDEBAR & MOBILE CONTROLS
@@ -11346,6 +13848,21 @@ function initEvents() {
   if (UI.btnCancelAhtModal) UI.btnCancelAhtModal.addEventListener('click', closeAhtModal);
   if (UI.formAht) UI.formAht.addEventListener('submit', handleSaveAht);
 
+  // AHT Google Spreadsheet Listeners
+  if (UI.btnExportAhtExcel) UI.btnExportAhtExcel.addEventListener('click', exportAhtExcel);
+  if (UI.btnOpenAhtGoogleSheetsModal) UI.btnOpenAhtGoogleSheetsModal.addEventListener('click', openAhtGSheetModal);
+  if (UI.btnAhtGSheetConfig) UI.btnAhtGSheetConfig.addEventListener('click', openAhtGSheetModal);
+  if (UI.btnCloseAhtGSheetModal) UI.btnCloseAhtGSheetModal.addEventListener('click', closeAhtGSheetModal);
+  if (UI.tabBtnAhtGSheetConfig) UI.tabBtnAhtGSheetConfig.addEventListener('click', () => switchAhtGSheetTab('config'));
+  if (UI.tabBtnAhtGSheetGuide) UI.tabBtnAhtGSheetGuide.addEventListener('click', () => switchAhtGSheetTab('guide'));
+  if (UI.btnAhtGSheetSaveConfig) UI.btnAhtGSheetSaveConfig.addEventListener('click', saveAhtGSheetConfigHandler);
+  if (UI.btnAhtGSheetTest) UI.btnAhtGSheetTest.addEventListener('click', testAhtGSheetConnection);
+  if (UI.btnAhtGSheetPush) UI.btnAhtGSheetPush.addEventListener('click', pushAhtToGoogleSheets);
+  if (UI.btnAhtGSheetModalPush) UI.btnAhtGSheetModalPush.addEventListener('click', pushAhtToGoogleSheets);
+  if (UI.btnAhtGSheetPull) UI.btnAhtGSheetPull.addEventListener('click', pullAhtFromGoogleSheets);
+  if (UI.btnAhtGSheetModalPull) UI.btnAhtGSheetModalPull.addEventListener('click', pullAhtFromGoogleSheets);
+  if (UI.btnCopyAhtAppsScript) UI.btnCopyAhtAppsScript.addEventListener('click', copyAhtAppsScriptCode);
+
   if (UI.formAhtUserSelect) {
     UI.formAhtUserSelect.addEventListener('change', () => {
       const selectedOpt = UI.formAhtUserSelect.options[UI.formAhtUserSelect.selectedIndex];
@@ -11480,6 +13997,21 @@ function initEvents() {
   if (UI.btnCancelArtModal) UI.btnCancelArtModal.addEventListener('click', closeArtModal);
   if (UI.formArt) UI.formArt.addEventListener('submit', handleSaveArt);
 
+  // ART Google Spreadsheet Listeners
+  if (UI.btnExportArtExcel) UI.btnExportArtExcel.addEventListener('click', exportArtExcel);
+  if (UI.btnOpenArtGoogleSheetsModal) UI.btnOpenArtGoogleSheetsModal.addEventListener('click', openArtGSheetModal);
+  if (UI.btnArtGSheetConfig) UI.btnArtGSheetConfig.addEventListener('click', openArtGSheetModal);
+  if (UI.btnCloseArtGSheetModal) UI.btnCloseArtGSheetModal.addEventListener('click', closeArtGSheetModal);
+  if (UI.tabBtnArtGSheetConfig) UI.tabBtnArtGSheetConfig.addEventListener('click', () => switchArtGSheetTab('config'));
+  if (UI.tabBtnArtGSheetGuide) UI.tabBtnArtGSheetGuide.addEventListener('click', () => switchArtGSheetTab('guide'));
+  if (UI.btnArtGSheetSaveConfig) UI.btnArtGSheetSaveConfig.addEventListener('click', saveArtGSheetConfigHandler);
+  if (UI.btnArtGSheetTest) UI.btnArtGSheetTest.addEventListener('click', testArtGSheetConnection);
+  if (UI.btnArtGSheetPush) UI.btnArtGSheetPush.addEventListener('click', pushArtToGoogleSheets);
+  if (UI.btnArtGSheetModalPush) UI.btnArtGSheetModalPush.addEventListener('click', pushArtToGoogleSheets);
+  if (UI.btnArtGSheetPull) UI.btnArtGSheetPull.addEventListener('click', pullArtFromGoogleSheets);
+  if (UI.btnArtGSheetModalPull) UI.btnArtGSheetModalPull.addEventListener('click', pullArtFromGoogleSheets);
+  if (UI.btnCopyArtAppsScript) UI.btnCopyArtAppsScript.addEventListener('click', copyArtAppsScriptCode);
+
   if (UI.formArtUserSelect) {
     UI.formArtUserSelect.addEventListener('change', () => {
       const selectedOpt = UI.formArtUserSelect.options[UI.formArtUserSelect.selectedIndex];
@@ -11595,6 +14127,8 @@ function initEvents() {
   }
 
   // Finding Event Listeners
+  if (UI.filterFindingMonth) UI.filterFindingMonth.addEventListener('change', renderFindingPage);
+  if (UI.btnDeleteAllFindingMonth) UI.btnDeleteAllFindingMonth.addEventListener('click', promptDeleteAllFindingMonth);
   if (UI.btnOpenAddFindingModal) UI.btnOpenAddFindingModal.addEventListener('click', openAddFindingModal);
   if (UI.btnRefreshFinding) {
     UI.btnRefreshFinding.addEventListener('click', () => {
@@ -11605,6 +14139,28 @@ function initEvents() {
   if (UI.btnCloseFindingModal) UI.btnCloseFindingModal.addEventListener('click', closeFindingModal);
   if (UI.btnCancelFindingModal) UI.btnCancelFindingModal.addEventListener('click', closeFindingModal);
   if (UI.formFinding) UI.formFinding.addEventListener('submit', handleSaveFinding);
+
+  // Finding Google Spreadsheet Listeners
+  if (UI.btnExportFindingExcel) UI.btnExportFindingExcel.addEventListener('click', exportFindingExcel);
+  if (UI.btnOpenFindingGoogleSheetsModal) UI.btnOpenFindingGoogleSheetsModal.addEventListener('click', openFindingGSheetModal);
+  if (UI.btnFindingGSheetConfig) UI.btnFindingGSheetConfig.addEventListener('click', openFindingGSheetModal);
+  if (UI.btnCloseFindingGSheetModal) UI.btnCloseFindingGSheetModal.addEventListener('click', closeFindingGSheetModal);
+  if (UI.btnCancelFindingGSheetModal) UI.btnCancelFindingGSheetModal.addEventListener('click', closeFindingGSheetModal);
+  if (UI.tabBtnFindingGSheetConfig) UI.tabBtnFindingGSheetConfig.addEventListener('click', () => switchFindingGSheetTab('config'));
+  if (UI.tabBtnFindingGSheetGuide) UI.tabBtnFindingGSheetGuide.addEventListener('click', () => switchFindingGSheetTab('guide'));
+  if (UI.btnFindingGSheetSaveConfig) UI.btnFindingGSheetSaveConfig.addEventListener('click', saveFindingGSheetConfigHandler);
+  if (UI.btnFindingGSheetTest) UI.btnFindingGSheetTest.addEventListener('click', testFindingGSheetConnection);
+  if (UI.btnFindingGSheetPush) UI.btnFindingGSheetPush.addEventListener('click', pushFindingToGoogleSheets);
+  if (UI.btnFindingGSheetModalPush) UI.btnFindingGSheetModalPush.addEventListener('click', pushFindingToGoogleSheets);
+  if (UI.btnFindingGSheetPull) UI.btnFindingGSheetPull.addEventListener('click', pullFindingFromGoogleSheets);
+  if (UI.btnFindingGSheetModalPull) UI.btnFindingGSheetModalPull.addEventListener('click', pullFindingFromGoogleSheets);
+  if (UI.btnCopyFindingAppsScript) UI.btnCopyFindingAppsScript.addEventListener('click', copyFindingAppsScriptCode);
+
+  if (UI.modalFindingGoogleSheets) {
+    UI.modalFindingGoogleSheets.addEventListener('click', (e) => {
+      if (e.target === UI.modalFindingGoogleSheets) closeFindingGSheetModal();
+    });
+  }
   if (UI.searchFindingInput) UI.searchFindingInput.addEventListener('input', renderFindingPage);
   if (UI.btnClearSearchFinding) {
     UI.btnClearSearchFinding.addEventListener('click', () => {
@@ -11613,16 +14169,93 @@ function initEvents() {
     });
   }
   if (UI.filterFindingService) UI.filterFindingService.addEventListener('change', renderFindingPage);
+  if (UI.filterFindingType) UI.filterFindingType.addEventListener('change', renderFindingPage);
   if (UI.filterFindingLevel) UI.filterFindingLevel.addEventListener('change', renderFindingPage);
   if (UI.filterFindingStatus) UI.filterFindingStatus.addEventListener('change', renderFindingPage);
   if (UI.btnResetFindingFilters) {
     UI.btnResetFindingFilters.addEventListener('click', () => {
       if (UI.searchFindingInput) UI.searchFindingInput.value = '';
       if (UI.filterFindingService) UI.filterFindingService.value = 'ALL';
+      if (UI.filterFindingType) UI.filterFindingType.value = 'ALL';
       if (UI.filterFindingLevel) UI.filterFindingLevel.value = 'ALL';
       if (UI.filterFindingStatus) UI.filterFindingStatus.value = 'ALL';
       renderFindingPage();
       showToast('Filter Direset', 'Semua filter temuan audit QA dikembalikan.', 'info');
+    });
+  }
+
+  // Finding Batch Selection & Row Checkbox Delegation
+  if (UI.findingSelectAllCheckbox) {
+    UI.findingSelectAllCheckbox.addEventListener('change', (e) => {
+      const checked = e.target.checked;
+      const rowBoxes = document.querySelectorAll('.finding-row-checkbox');
+      rowBoxes.forEach(box => {
+        const id = box.dataset.id;
+        box.checked = checked;
+        if (checked) {
+          if (state.selectedFindingIds) state.selectedFindingIds.add(id);
+        } else {
+          if (state.selectedFindingIds) state.selectedFindingIds.delete(id);
+        }
+      });
+      if (UI.findingBatchBar) {
+        UI.findingBatchBar.classList.toggle('hidden', !state.selectedFindingIds || state.selectedFindingIds.size === 0);
+        if (UI.findingSelectedCount) UI.findingSelectedCount.textContent = state.selectedFindingIds ? state.selectedFindingIds.size : 0;
+      }
+    });
+  }
+
+  if (UI.btnFindingSelectAll) {
+    UI.btnFindingSelectAll.addEventListener('click', () => {
+      const rowBoxes = document.querySelectorAll('.finding-row-checkbox');
+      rowBoxes.forEach(box => {
+        const id = box.dataset.id;
+        box.checked = true;
+        if (state.selectedFindingIds) state.selectedFindingIds.add(id);
+      });
+      if (UI.findingSelectAllCheckbox) UI.findingSelectAllCheckbox.checked = true;
+      if (UI.findingBatchBar) {
+        UI.findingBatchBar.classList.remove('hidden');
+        if (UI.findingSelectedCount) UI.findingSelectedCount.textContent = state.selectedFindingIds ? state.selectedFindingIds.size : 0;
+      }
+    });
+  }
+
+  if (UI.btnFindingDeselectAll) {
+    UI.btnFindingDeselectAll.addEventListener('click', () => {
+      if (state.selectedFindingIds) state.selectedFindingIds.clear();
+      const rowBoxes = document.querySelectorAll('.finding-row-checkbox');
+      rowBoxes.forEach(box => box.checked = false);
+      if (UI.findingSelectAllCheckbox) UI.findingSelectAllCheckbox.checked = false;
+      if (UI.findingBatchBar) UI.findingBatchBar.classList.add('hidden');
+    });
+  }
+
+  if (UI.btnFindingDeleteSelected) {
+    UI.btnFindingDeleteSelected.addEventListener('click', handleFindingBatchDelete);
+  }
+
+  if (UI.tableFindingLogs) {
+    UI.tableFindingLogs.addEventListener('change', (e) => {
+      if (e.target.classList.contains('finding-row-checkbox')) {
+        const id = e.target.dataset.id;
+        if (e.target.checked) {
+          if (state.selectedFindingIds) state.selectedFindingIds.add(id);
+        } else {
+          if (state.selectedFindingIds) state.selectedFindingIds.delete(id);
+        }
+        const rowBoxes = Array.from(document.querySelectorAll('.finding-row-checkbox'));
+        const allChecked = rowBoxes.length > 0 && rowBoxes.every(b => b.checked);
+        const anyChecked = rowBoxes.some(b => b.checked);
+        if (UI.findingSelectAllCheckbox) {
+          UI.findingSelectAllCheckbox.checked = allChecked;
+          UI.findingSelectAllCheckbox.indeterminate = anyChecked && !allChecked;
+        }
+        if (UI.findingBatchBar) {
+          UI.findingBatchBar.classList.toggle('hidden', !state.selectedFindingIds || state.selectedFindingIds.size === 0);
+          if (UI.findingSelectedCount) UI.findingSelectedCount.textContent = state.selectedFindingIds ? state.selectedFindingIds.size : 0;
+        }
+      }
     });
   }
 }

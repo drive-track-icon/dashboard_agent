@@ -1,0 +1,55 @@
+const fs = require('fs');
+const path = require('path');
+const assert = require('assert');
+
+console.log('--- TEST 1: Verifying HTML Elements for ART Google Spreadsheet ---');
+const htmlContent = fs.readFileSync(path.join(__dirname, '..', 'index.html'), 'utf8');
+assert(htmlContent.includes('id="btnOpenArtGoogleSheetsModal"'), 'index.html must contain #btnOpenArtGoogleSheetsModal');
+assert(htmlContent.includes('id="artGSheetHeaderBadge"'), 'index.html must contain #artGSheetHeaderBadge');
+assert(htmlContent.includes('id="artGSheetSyncBar"'), 'index.html must contain #artGSheetSyncBar');
+assert(htmlContent.includes('id="artGSheetStatusBadge"'), 'index.html must contain #artGSheetStatusBadge');
+assert(htmlContent.includes('id="artGSheetStatusInfo"'), 'index.html must contain #artGSheetStatusInfo');
+assert(htmlContent.includes('id="btnArtGSheetOpenLink"'), 'index.html must contain #btnArtGSheetOpenLink');
+assert(htmlContent.includes('id="btnArtGSheetPull"'), 'index.html must contain #btnArtGSheetPull');
+assert(htmlContent.includes('id="btnArtGSheetPush"'), 'index.html must contain #btnArtGSheetPush');
+assert(htmlContent.includes('id="btnArtGSheetConfig"'), 'index.html must contain #btnArtGSheetConfig');
+assert(htmlContent.includes('id="modalArtGoogleSheets"'), 'index.html must contain #modalArtGoogleSheets');
+assert(htmlContent.includes('id="inputArtGSheetWebAppUrl"'), 'index.html must contain #inputArtGSheetWebAppUrl');
+assert(htmlContent.includes('id="inputArtGSheetUrl"'), 'index.html must contain #inputArtGSheetUrl');
+assert(htmlContent.includes('id="checkArtGSheetAutoSync"'), 'index.html must contain #checkArtGSheetAutoSync');
+assert(htmlContent.includes('id="btnCopyArtAppsScript"'), 'index.html must contain #btnCopyArtAppsScript');
+console.log('✔ HTML elements verified successfully.');
+
+console.log('--- TEST 2: Verifying Standalone Google Apps Script File for ART ---');
+const gasPath = path.join(__dirname, '..', 'google_apps_script_art.js');
+assert(fs.existsSync(gasPath), 'google_apps_script_art.js must exist in root');
+const gasContent = fs.readFileSync(gasPath, 'utf8');
+assert(gasContent.includes('function doGet(e)'), 'Apps Script must contain doGet');
+assert(gasContent.includes('function doPost(e)'), 'Apps Script must contain doPost');
+assert(gasContent.includes('action === \'sync_all\''), 'Apps Script must handle sync_all');
+assert(gasContent.includes('action === \'save\''), 'Apps Script must handle save');
+assert(gasContent.includes('action === \'delete\''), 'Apps Script must handle delete');
+assert(gasContent.includes('action === \'delete_month\''), 'Apps Script must handle delete_month');
+assert(gasContent.includes('action === \'delete_batch\''), 'Apps Script must handle delete_batch');
+console.log('✔ Google Apps Script file for ART verified successfully.');
+
+console.log('--- TEST 3: Verifying js/app.js Implementation for ART GSheet ---');
+const appContent = fs.readFileSync(path.join(__dirname, '..', 'js', 'app.js'), 'utf8');
+assert(appContent.includes('getArtGSheetConfig()'), 'State must have getArtGSheetConfig');
+assert(appContent.includes('saveArtGSheetConfig(cfg)'), 'State must have saveArtGSheetConfig');
+assert(appContent.includes('btnOpenArtGoogleSheetsModal: document.getElementById(\'btnOpenArtGoogleSheetsModal\')'), 'UI must cache btnOpenArtGoogleSheetsModal');
+assert(appContent.includes('function renderArtGSheetBar()'), 'renderArtGSheetBar function must exist');
+assert(appContent.includes('function openArtGSheetModal()'), 'openArtGSheetModal function must exist');
+assert(appContent.includes('function pushArtToGoogleSheets()'), 'pushArtToGoogleSheets function must exist');
+assert(appContent.includes('function pullArtFromGoogleSheets()'), 'pullArtFromGoogleSheets function must exist');
+assert(appContent.includes('function autoSyncArtAction('), 'autoSyncArtAction function must exist');
+assert(appContent.includes('autoSyncArtAction(\'save\''), 'handleSaveArt must call autoSyncArtAction save');
+assert(appContent.includes('autoSyncArtAction(\'delete\''), 'promptConfirmDelete must call autoSyncArtAction delete for art');
+assert(appContent.includes('autoSyncArtAction(\'delete_month\''), 'promptConfirmDelete must call autoSyncArtAction delete_month for art');
+assert(appContent.includes('autoSyncArtAction(\'delete_batch\''), 'promptConfirmDelete must call autoSyncArtAction delete_batch for art');
+assert(appContent.includes('renderArtGSheetBar()'), 'renderArtPage must call renderArtGSheetBar');
+console.log('✔ js/app.js functions, state, and event bindings verified successfully.');
+
+console.log('\n========================================');
+console.log('🎉 ALL ART GOOGLE SPREADSHEET TESTS PASSED!');
+console.log('========================================');

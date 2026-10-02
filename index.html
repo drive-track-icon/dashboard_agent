@@ -817,7 +817,7 @@
                 <i class="fa-solid fa-file-excel"></i>
                 <span>Download Excel</span>
               </button>
-              <button class="btn btn-outline-cyan" id="btnOpenCaGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+              <button class="btn btn-outline-cyan hidden" id="btnOpenCaGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
                 <span class="badge badge-sm" id="caGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
@@ -1116,7 +1116,7 @@
                 <i class="fa-solid fa-file-excel"></i>
                 <span>Download Excel</span>
               </button>
-              <button class="btn btn-outline-cyan" id="btnOpenTiketGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+              <button class="btn btn-outline-cyan hidden" id="btnOpenTiketGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
                 <i class="fa-solid fa-table-cells text-green"></i>
                 <span>Google Spreadsheet</span>
                 <span class="badge badge-sm" id="tiketGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
@@ -1423,7 +1423,6 @@
             <div>
               <div class="badge-title-group">
                 <h2 class="page-title">Average Handling Time (AHT)</h2>
-                <span class="badge badge-red-subtle"><i class="fa-solid fa-stopwatch"></i> SLA Target: &lt; 300 Detik</span>
                 <span class="badge badge-gray" id="ahtIntervalBadge"><i class="fa-regular fa-calendar-check text-red"></i> Input Per Hari</span>
               </div>
               <p class="page-desc hidden">Informasi Average Handling Time (AHT) user dalam 1 bulan dengan pencatatan interval input per hari terhadap batas standar SLA 300 detik. Admin dapat menambah, mengubah, dan menghapus handling time user. Pengguna biasa hanya dapat melihat.</p>
@@ -1440,6 +1439,15 @@
               <button class="btn btn-outline-gray" id="btnRefreshAht">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
+              </button>
+              <button class="btn btn-outline-green" id="btnExportAhtExcel" title="Download data Average Handling Time ke Excel (.xlsx)">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Download Excel</span>
+              </button>
+              <button class="btn btn-outline-cyan hidden" id="btnOpenAhtGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+                <i class="fa-solid fa-table-cells text-green"></i>
+                <span>Google Spreadsheet</span>
+                <span class="badge badge-sm" id="ahtGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
               </button>
               <button class="btn btn-outline-red" id="btnDeleteAllAhtMonth" title="Hapus seluruh data handling time di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
@@ -1466,6 +1474,42 @@
             </div>
           </div>
 
+          <!-- Google Spreadsheet Integration Bar for AHT -->
+          <div class="glass-subpanel gsheet-integration-bar" id="ahtGSheetSyncBar">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="ahtGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="ahtGSheetStatusInfo">
+                  Data Average Handling Time (AHT) dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnAhtGSheetOpenLink" title="Buka Google Spreadsheet di Tab Baru">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+              <button class="btn btn-outline-cyan btn-sm" id="btnAhtGSheetPull" title="Tarik data terbaru dari Google Spreadsheet ke Dashboard">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button class="btn btn-outline-green btn-sm" id="btnAhtGSheetPush" title="Kirim seluruh data AHT saat ini ke Google Spreadsheet">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button class="btn btn-outline-gray btn-sm" id="btnAhtGSheetConfig" title="Buka pengaturan koneksi dan panduan script">
+                <i class="fa-solid fa-gear"></i>
+                <span>Pengaturan &amp; Script</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Metric Cards Grid for AHT -->
           <div class="metrics-grid">
             <div class="metric-card glass-panel card-hover" id="ahtCardMonthlyAvg">
@@ -1473,40 +1517,39 @@
                 <div class="metric-icon-box bg-red-gradient">
                   <i class="fa-solid fa-stopwatch-20 text-white"></i>
                 </div>
-                <span class="metric-tag tag-green">Target: &lt; 05:00</span>
               </div>
               <div class="metric-body">
                 <span class="metric-label">Rata-rata AHT Tim Bulan Ini</span>
-                <h3 class="metric-value text-red" id="ahtStatAvg">03:42 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Menit</small></h3>
-                <span class="metric-subtext" id="ahtStatAvgSub">222 detik per sesi interaksi</span>
+                <h3 class="metric-value text-red" id="ahtStatAvg">0 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <span class="metric-subtext" id="ahtStatAvgSub">0 detik rata-rata durasi penanganan</span>
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover" id="ahtCardSlaCompliance">
+            <div class="metric-card glass-panel card-hover hidden" id="ahtCardSlaCompliance">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-circle-check text-green"></i>
+                  <i class="fa-solid fa-comments text-cyan"></i>
                 </div>
-                <span class="metric-tag tag-green">SLA Compliance</span>
+                <span class="metric-tag tag-cyan">Total Sesi</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Kepatuhan Batas Waktu</span>
-                <h3 class="metric-value text-green" id="ahtStatCompliance">95.2%</h3>
-                <span class="metric-subtext" id="ahtStatComplianceSub">Sesi diselesaikan di bawah 5 menit</span>
+                <span class="metric-label" id="ahtStatCard2Label">Total Interaksi Ditangani</span>
+                <h3 class="metric-value text-white" id="ahtStatCompliance">0 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Sesi</small></h3>
+                <span class="metric-subtext" id="ahtStatComplianceSub">Akumulasi sesi panggilan &amp; chat</span>
               </div>
             </div>
 
             <div class="metric-card glass-panel card-hover" id="ahtCardOverSla">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-triangle-exclamation text-yellow"></i>
+                  <i class="fa-solid fa-clock-rotate-left text-yellow"></i>
                 </div>
-                <span class="metric-tag tag-yellow">Over SLA</span>
+                <span class="metric-tag tag-yellow">Total Waktu</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Interaksi Over AHT</span>
-                <h3 class="metric-value text-yellow" id="ahtStatOver">4.8%</h3>
-                <span class="metric-subtext" id="ahtStatOverSub">Kasus kendala kompleks &amp; eskalasi</span>
+                <span class="metric-label" id="ahtStatCard3Label">Total Durasi Penanganan</span>
+                <h3 class="metric-value text-yellow" id="ahtStatOver">0 <small style="font-size:0.85rem; color:var(--gray-400); font-weight:normal;">Detik</small></h3>
+                <span class="metric-subtext" id="ahtStatOverSub">Akumulasi waktu pelayanan interaksi</span>
               </div>
             </div>
 
@@ -1572,7 +1615,6 @@
                   <select id="filterAhtSummarySort" class="filter-select" style="min-width: 165px; padding: 4px 10px; font-size: 0.8rem;">
                     <option value="FASTEST" selected>AHT Tercepat</option>
                     <option value="SLOWEST">AHT Tertinggi</option>
-                    <option value="COMPLIANCE_DESC">Kepatuhan SLA Tertinggi</option>
                   </select>
                 </div>
                 <span class="badge badge-gray" id="ahtUserCountBadge">4 Agent Terdaftar</span>
@@ -1585,14 +1627,9 @@
                     <th>Petugas CSO</th>
                     <th>Layanan CSO</th>
                     <th style="text-align: center;">Hari Input</th>
-                    <th style="text-align: right;">Total Interaksi</th>
-                    <th style="text-align: right;">Total Durasi</th>
+                    <th style="text-align: right;">AHT Harian</th>
                     <th style="text-align: center;">Rata-rata AHT Bulanan</th>
-                    <th style="text-align: center;">Standar SLA</th>
-                    <th style="text-align: center;">Deviasi Rata-rata</th>
-                    <th style="text-align: center;">Kepatuhan SLA</th>
-                    <th style="text-align: center;">Status Performa</th>
-                    <th style="text-align: center; width: 100px;">Aksi</th>
+                    <th style="text-align: center; width: 100px;" class="hidden">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="ahtUserSummaryBody">
@@ -1637,10 +1674,8 @@
                 <option value="CSO EMAIL">CSO EMAIL</option>
                 <option value="TEAM LEADER">TEAM LEADER</option>
               </select>
-              <select id="filterAhtStatus" class="filter-select">
-                <option value="ALL">Semua Status SLA</option>
-                <option value="Sesuai SLA">Sesuai SLA (&le; 300 Detik)</option>
-                <option value="Over SLA">Over SLA (&gt; 300 Detik)</option>
+              <select id="filterAhtStatus" class="filter-select hidden">
+                <option value="ALL">Semua Status</option>
               </select>
               <select id="filterAhtSort" class="filter-select">
                 <option value="DATE_DESC" selected>Urutan: Tanggal Terbaru</option>
@@ -1687,14 +1722,10 @@
                     <th>Tanggal Input</th>
                     <th>Petugas CSO</th>
                     <th>Layanan CSO</th>
-                    <th style="text-align: right;">Jumlah Interaksi</th>
-                    <th style="text-align: right;">Total Durasi</th>
+                    <th style="text-align: right;">AHT Harian</th>
                     <th style="text-align: right;">Rata-rata AHT Harian</th>
-                    <th style="text-align: right;">Target SLA</th>
-                    <th>Deviasi Waktu</th>
-                    <th>Status SLA</th>
                     <th>Catatan Kinerja Harian</th>
-                    <th style="width: 120px; text-align: center;" id="thAhtAction">Aksi</th>
+                    <th style="width: 120px; text-align: center;" id="thAhtAction" class="hidden">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="ahtTableBody">
@@ -1729,6 +1760,15 @@
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
               </button>
+              <button class="btn btn-outline-green" id="btnExportArtExcel" title="Download data Average Response Time ke Excel (.xlsx)">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Download Excel</span>
+              </button>
+              <button class="btn btn-outline-cyan hidden" id="btnOpenArtGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+                <i class="fa-solid fa-table-cells text-green"></i>
+                <span>Google Spreadsheet</span>
+                <span class="badge badge-sm" id="artGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+              </button>
               <button class="btn btn-outline-red" id="btnDeleteAllArtMonth" title="Hapus seluruh data response time di bulan terpilih">
                 <i class="fa-solid fa-calendar-xmark"></i>
                 <span>Hapus Data Bulan Ini</span>
@@ -1754,6 +1794,42 @@
             </div>
           </div>
 
+          <!-- Google Spreadsheet Integration Bar for ART -->
+          <div class="glass-subpanel gsheet-integration-bar" id="artGSheetSyncBar">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(16, 185, 129, 0.15); display:flex; align-items:center; justify-content:center; color:#10b981; font-size:1.2rem;">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="artGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="artGSheetStatusInfo">
+                  Data Average Response Time (ART) dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnArtGSheetOpenLink" title="Buka Google Spreadsheet di Tab Baru">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+              <button class="btn btn-outline-cyan btn-sm" id="btnArtGSheetPull" title="Tarik data terbaru dari Google Spreadsheet ke Dashboard">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button class="btn btn-outline-green btn-sm" id="btnArtGSheetPush" title="Kirim seluruh data ART saat ini ke Google Spreadsheet">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button class="btn btn-outline-gray btn-sm" id="btnArtGSheetConfig" title="Buka pengaturan koneksi dan panduan script">
+                <i class="fa-solid fa-gear"></i>
+                <span>Pengaturan &amp; Script</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Metric Cards Grid for ART -->
           <div class="metrics-grid">
             <div class="metric-card glass-panel card-hover" id="artCardMonthlyAvg">
@@ -1770,7 +1846,7 @@
               </div>
             </div>
 
-            <div class="metric-card glass-panel card-hover" id="artCardFrt">
+            <div class="metric-card glass-panel card-hover hidden" id="artCardFrt">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
                   <i class="fa-solid fa-reply text-silver"></i>
@@ -1873,15 +1949,11 @@
                     <th>Petugas CSO</th>
                     <th>Layanan CSO</th>
                     <th style="text-align: center;">Hari Input</th>
-                    <th style="text-align: right;">Total Sesi</th>
-                    <th style="text-align: right;">Rata-rata Antrian (Queue)</th>
-                    <th style="text-align: right;">Respon Pertama (FRT)</th>
                     <th style="text-align: center;">Rata-rata ART Bulanan</th>
                     <th style="text-align: center;">Standar SLA</th>
                     <th style="text-align: center;">Deviasi Waktu</th>
                     <th style="text-align: center;">Kepatuhan SLA</th>
                     <th style="text-align: center;">Status Performa</th>
-                    <th style="text-align: center; width: 100px;">Aksi</th>
                   </tr>
                 </thead>
                 <tbody id="artUserSummaryBody">
@@ -1976,9 +2048,6 @@
                     <th>Tanggal Input</th>
                     <th>Petugas CSO</th>
                     <th>Channel Layanan</th>
-                    <th style="text-align: right;">Total Sesi</th>
-                    <th style="text-align: right;">Antrian (Queue)</th>
-                    <th style="text-align: right;">Respon Pertama (FRT)</th>
                     <th style="text-align: right;">Rata-rata ART Harian</th>
                     <th style="text-align: right;">Target SLA</th>
                     <th>Deviasi Waktu</th>
@@ -2003,16 +2072,75 @@
                 <h2 class="page-title">Finding &amp; Rekapitulasi Audit QA</h2>
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-triangle-exclamation"></i> QA Findings</span>
               </div>
-              <p class="page-desc">Rekapitulasi catatan temuan deviasi SOP, ketidaksesuaian data operasional, dan action plan perbaikan mutu pelayanan.</p>
+              <p class="page-desc hidden">Rekapitulasi catatan temuan deviasi SOP, ketidaksesuaian data operasional, dan action plan perbaikan mutu pelayanan.</p>
             </div>
             <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterFindingMonth" style="font-size:0.8rem; color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterFindingMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
               <button class="btn btn-outline-gray" id="btnRefreshFinding">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
               </button>
+              <button class="btn btn-outline-green" id="btnExportFindingExcel" title="Download data Temuan Audit QA ke Excel (.xlsx)">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Download Excel</span>
+              </button>
+              <button class="btn btn-outline-cyan hidden" id="btnOpenFindingGoogleSheetsModal" title="Integrasi Google Spreadsheet (Sinkronisasi Otomatis / Manual)">
+                <i class="fa-solid fa-table-cells text-green"></i>
+                <span>Google Spreadsheet</span>
+                <span class="badge badge-sm" id="findingGSheetHeaderBadge" style="margin-left:4px; font-size:0.68rem; background:rgba(255,255,255,0.08); color:var(--gray-300);">Belum Terhubung</span>
+              </button>
+              <button class="btn btn-outline-red" id="btnDeleteAllFindingMonth" title="Hapus seluruh data temuan audit QA di bulan terpilih">
+                <i class="fa-solid fa-calendar-xmark"></i>
+                <span>Hapus Data Bulan Ini</span>
+              </button>
               <button class="btn btn-primary glow-effect-red" id="btnOpenAddFindingModal">
                 <i class="fa-solid fa-plus"></i>
                 <span>Catat Temuan Baru</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Google Spreadsheet Integration Bar for Finding -->
+          <div class="glass-subpanel gsheet-integration-bar" id="findingGSheetSyncBar" style="margin-bottom:16px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+              <div class="gsheet-icon-bubble" style="width:38px; height:38px; border-radius:8px; background:rgba(239, 68, 68, 0.15); display:flex; align-items:center; justify-content:center; color:#ef4444; font-size:1.2rem;">
+                <i class="fa-solid fa-table-cells"></i>
+              </div>
+              <div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <strong style="color:#fff; font-size:0.88rem;">Integrasi Google Spreadsheet</strong>
+                  <span class="badge" id="findingGSheetStatusBadge" style="font-size:0.7rem; padding:2px 8px; border-radius:4px; background:rgba(100,116,139,0.2); color:#94a3b8; border:1px solid rgba(100,116,139,0.3);">Belum Dikonfigurasi</span>
+                </div>
+                <div style="font-size:0.75rem; color:var(--gray-400); margin-top:2px;" id="findingGSheetStatusInfo">
+                  Data Temuan Audit QA (Finding) dapat disinkronkan otomatis dan dua arah dengan Google Spreadsheet.
+                </div>
+              </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnFindingGSheetOpenLink" title="Buka Google Spreadsheet di Tab Baru">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+              <button class="btn btn-outline-cyan btn-sm" id="btnFindingGSheetPull" title="Tarik data terbaru dari Google Spreadsheet ke Dashboard">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button class="btn btn-outline-green btn-sm" id="btnFindingGSheetPush" title="Kirim seluruh data Finding saat ini ke Google Spreadsheet">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button class="btn btn-outline-gray btn-sm" id="btnFindingGSheetConfig" title="Buka pengaturan koneksi dan panduan script">
+                <i class="fa-solid fa-gear"></i>
+                <span>Pengaturan &amp; Script</span>
               </button>
             </div>
           </div>
@@ -2028,7 +2156,7 @@
               </div>
               <div class="metric-body">
                 <span class="metric-label">Total Temuan Audit</span>
-                <h3 class="metric-value text-red" id="findingStatTotal">7</h3>
+                <h3 class="metric-value text-red" id="findingStatTotal">0</h3>
                 <span class="metric-subtext">Catatan deviasi &amp; evaluasi QA</span>
               </div>
             </div>
@@ -2036,42 +2164,42 @@
             <div class="metric-card glass-panel card-hover">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-triangle-exclamation text-yellow"></i>
+                  <i class="fa-solid fa-bell text-yellow"></i>
                 </div>
-                <span class="metric-tag tag-yellow">Temuan Minor</span>
+                <span class="metric-tag tag-yellow">Reminder</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Deviasi Minor</span>
-                <h3 class="metric-value text-yellow" id="findingStatMinor">5</h3>
-                <span class="metric-subtext">Perlu perbaikan format &amp; greeting</span>
+                <span class="metric-label">Tingkat Reminder</span>
+                <h3 class="metric-value text-yellow" id="findingStatMinor">0</h3>
+                <span class="metric-subtext">Reminder 1 &amp; Reminder 2</span>
               </div>
             </div>
 
             <div class="metric-card glass-panel card-hover">
               <div class="metric-header">
                 <div class="metric-icon-box bg-gray-dark">
-                  <i class="fa-solid fa-circle-exclamation text-red"></i>
+                  <i class="fa-solid fa-triangle-exclamation text-blue"></i>
                 </div>
-                <span class="metric-tag tag-red">Temuan Mayor</span>
+                <span class="metric-tag tag-blue">Korektif</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Deviasi Mayor</span>
-                <h3 class="metric-value text-white" id="findingStatMayor">2</h3>
-                <span class="metric-subtext">Keterlambatan eskalasi tiket darurat</span>
+                <span class="metric-label">Tindakan Korektif</span>
+                <h3 class="metric-value text-white" id="findingStatMayor">0</h3>
+                <span class="metric-subtext">Korektif 1 &amp; Korektif 2</span>
               </div>
             </div>
 
             <div class="metric-card glass-panel card-hover border-red-subtle">
               <div class="metric-header">
                 <div class="metric-icon-box bg-red-subtle">
-                  <i class="fa-solid fa-shield-virus text-green"></i>
+                  <i class="fa-solid fa-circle-exclamation text-red"></i>
                 </div>
-                <span class="metric-tag tag-green">Zero Fatal</span>
+                <span class="metric-tag tag-red">Surat Peringatan</span>
               </div>
               <div class="metric-body">
-                <span class="metric-label">Temuan Fatal</span>
-                <h3 class="metric-value text-green" id="findingStatFatal">0</h3>
-                <span class="metric-subtext">Bebas pelanggaran etika dan keamanan data</span>
+                <span class="metric-label">Peringatan (SP)</span>
+                <h3 class="metric-value text-red" id="findingStatFatal">0</h3>
+                <span class="metric-subtext">SP 1, SP 2, &amp; SP 3</span>
               </div>
             </div>
           </div>
@@ -2080,7 +2208,7 @@
           <div class="table-toolbar glass-panel">
             <div class="toolbar-search">
               <i class="fa-solid fa-magnifying-glass search-icon"></i>
-              <input type="text" id="searchFindingInput" class="search-input" placeholder="Cari ID temuan, nama agen, layanan, atau deskripsi...">
+              <input type="text" id="searchFindingInput" class="search-input" placeholder="Cari ID temuan, nama agen, layanan, jenis, atau deskripsi...">
               <button class="btn-clear-search hidden" id="btnClearSearchFinding" aria-label="Bersihkan pencarian">
                 <i class="fa-solid fa-xmark"></i>
               </button>
@@ -2097,11 +2225,20 @@
                 <option value="CSO EMAIL">CSO EMAIL</option>
                 <option value="TEAM LEADER">TEAM LEADER</option>
               </select>
+              <select id="filterFindingType" class="filter-select">
+                <option value="ALL">Semua Jenis</option>
+                <option value="Feedback Positif">Feedback Positif</option>
+                <option value="Feedback Negatif">Feedback Negatif</option>
+              </select>
               <select id="filterFindingLevel" class="filter-select">
                 <option value="ALL">Semua Tingkat Deviasi</option>
-                <option value="Minor">Minor</option>
-                <option value="Mayor">Mayor</option>
-                <option value="Fatal">Fatal</option>
+                <option value="Reminder 1">Reminder 1</option>
+                <option value="Reminder 2">Reminder 2</option>
+                <option value="Korektif 1">Korektif 1</option>
+                <option value="Korektif 2">Korektif 2</option>
+                <option value="SP 1">SP 1</option>
+                <option value="SP 2">SP 2</option>
+                <option value="SP 3">SP 3</option>
               </select>
               <select id="filterFindingStatus" class="filter-select">
                 <option value="ALL">Semua Status</option>
@@ -2115,19 +2252,46 @@
             </div>
           </div>
 
+          <!-- Finding Batch Action Bar -->
+          <div class="glass-subpanel batch-action-bar hidden" id="findingBatchBar" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; padding:10px 16px; border-left:3px solid var(--accent-red);">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <i class="fa-solid fa-check-double text-red"></i>
+              <span style="font-size:0.84rem; color:#fff; font-weight:600;"><span id="findingSelectedCount">0</span> Temuan Ditandai</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <button class="btn btn-outline-gray btn-sm" id="btnFindingDeselectAll">
+                <i class="fa-solid fa-xmark"></i>
+                <span>Batalkan Pilihan</span>
+              </button>
+              <button class="btn btn-outline-gray btn-sm" id="btnFindingSelectAll">
+                <i class="fa-solid fa-check-double"></i>
+                <span>Pilih Semua</span>
+              </button>
+              <button class="btn btn-outline-red btn-sm" id="btnFindingDeleteSelected">
+                <i class="fa-solid fa-trash-can"></i>
+                <span>Hapus Ditandai</span>
+              </button>
+            </div>
+          </div>
+
           <!-- Table Container -->
           <div class="table-container glass-panel">
             <div class="table-responsive">
               <table class="custom-table" id="tableFindingLogs">
                 <thead>
                   <tr>
+                    <th style="width: 40px; text-align: center;" id="findingThSelectAll">
+                      <input type="checkbox" id="findingSelectAllCheckbox" title="Pilih Semua Temuan">
+                    </th>
                     <th>ID Temuan</th>
                     <th>Tanggal</th>
                     <th>Petugas CSO</th>
                     <th>Layanan CSO</th>
+                    <th>Jenis</th>
                     <th>Kategori Temuan</th>
                     <th>Tingkat Deviasi</th>
                     <th>Deskripsi Kendala</th>
+                    <th>Komitmen</th>
                     <th>Status Tindak Lanjut</th>
                     <th style="width: 100px; text-align: center;">Aksi</th>
                   </tr>
@@ -4896,6 +5060,286 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: GOOGLE SPREADSHEET INTEGRASI (AHT) ==================== -->
+  <div class="modal-backdrop hidden" id="modalAhtGoogleSheets">
+    <div class="modal-dialog glass-panel" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff;">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Average Handling Time (AHT) dengan Google Sheets</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseAhtGSheetModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top:14px;">
+        <!-- Tabs Navigation -->
+        <div class="gsheet-tabs-nav">
+          <button type="button" class="gsheet-tab-btn active" id="tabBtnAhtGSheetConfig">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Pengaturan Koneksi</span>
+          </button>
+          <button type="button" class="gsheet-tab-btn" id="tabBtnAhtGSheetGuide">
+            <i class="fa-solid fa-code"></i>
+            <span>Panduan &amp; Script Apps Script</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Config Content -->
+        <div id="tabContentAhtGSheetConfig">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputAhtGSheetWebAppUrl" class="form-label" style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+              <span>URL Web App Google Apps Script <span class="required">*</span></span>
+              <small style="color:#10b981; font-weight:normal;"><i class="fa-solid fa-bolt"></i> Endpoint 2-Arah</small>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-link input-icon"></i>
+              <input type="url" id="inputAhtGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputAhtGSheetUrl" class="form-label" style="font-weight:600;">URL / ID Google Spreadsheet</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-file-excel input-icon text-green"></i>
+              <input type="text" id="inputAhtGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+          </div>
+
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group flex-1">
+              <label for="inputAhtGSheetTabName" class="form-label" style="font-weight:600;">Nama Tab / Sheet</label>
+              <input type="text" id="inputAhtGSheetTabName" class="form-control" value="AHT_Data" placeholder="AHT_Data">
+            </div>
+            <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
+              <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+                <input type="checkbox" id="checkAhtGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
+                <span>Auto-Sync saat input / edit / hapus handling time</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status Callout -->
+          <div id="boxAhtGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Status Koneksi:</span>
+              <strong id="labelAhtGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
+              <span id="labelAhtGSheetModalLastSync" style="color:var(--gray-300);">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+              <span style="color:var(--gray-400);">Total Data AHT di Dashboard:</span>
+              <span id="labelAhtGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnAhtGSheetTest">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>Test Koneksi</span>
+              </button>
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnAhtGSheetModalOpenLink">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-cyan btn-sm" id="btnAhtGSheetModalPull">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button type="button" class="btn btn-outline-green btn-sm" id="btnAhtGSheetModalPush">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btnAhtGSheetSaveConfig" style="background:#10b981; border-color:#059669;">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Guide & Apps Script -->
+        <div id="tabContentAhtGSheetGuide" class="hidden">
+          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+            Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
+          </div>
+
+          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+            <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
+            <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
+            <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
+            <li>Klik <strong>Deploy</strong> &gt; <strong>New deployment</strong> &gt; pilih tipe <strong>Web app</strong>. Atur <em>Execute as: <strong>Me</strong></em> dan <em>Who has access: <strong>Anyone</strong></em>. Klik <strong>Deploy</strong> lalu salin URL Web App yang didapat ke tab <em>Pengaturan Koneksi</em>.</li>
+          </ol>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyAhtAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+              <i class="fa-regular fa-copy"></i>
+              <span>Salin Script</span>
+            </button>
+          </div>
+
+          <div class="code-preview-box" id="ahtAppsScriptCodePreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: GOOGLE SPREADSHEET INTEGRATION (ART) ==================== -->
+  <div class="modal-backdrop hidden" id="modalArtGoogleSheets">
+    <div class="modal-dialog glass-panel" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color:#ffffff;">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Average Response Time (ART) dengan Google Sheets</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseArtGSheetModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top:14px;">
+        <!-- Tabs Navigation -->
+        <div class="gsheet-tabs-nav">
+          <button type="button" class="gsheet-tab-btn active" id="tabBtnArtGSheetConfig">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Pengaturan Koneksi</span>
+          </button>
+          <button type="button" class="gsheet-tab-btn" id="tabBtnArtGSheetGuide">
+            <i class="fa-solid fa-code"></i>
+            <span>Panduan &amp; Script Apps Script</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Config Content -->
+        <div id="tabContentArtGSheetConfig">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputArtGSheetWebAppUrl" class="form-label" style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+              <span>URL Web App Google Apps Script <span class="required">*</span></span>
+              <small style="color:#10b981; font-weight:normal;"><i class="fa-solid fa-bolt"></i> Endpoint 2-Arah</small>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-link input-icon"></i>
+              <input type="url" id="inputArtGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputArtGSheetUrl" class="form-label" style="font-weight:600;">URL / ID Google Spreadsheet</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-file-excel input-icon text-green"></i>
+              <input type="text" id="inputArtGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+          </div>
+
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group flex-1">
+              <label for="inputArtGSheetTabName" class="form-label" style="font-weight:600;">Nama Tab / Sheet</label>
+              <input type="text" id="inputArtGSheetTabName" class="form-control" value="ART_Data" placeholder="ART_Data">
+            </div>
+            <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
+              <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+                <input type="checkbox" id="checkArtGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#10b981;">
+                <span>Auto-Sync saat input / edit / hapus response time</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status Callout -->
+          <div id="boxArtGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Status Koneksi:</span>
+              <strong id="labelArtGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
+              <span id="labelArtGSheetModalLastSync" style="color:var(--gray-300);">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+              <span style="color:var(--gray-400);">Total Data ART di Dashboard:</span>
+              <span id="labelArtGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnArtGSheetTest">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>Test Koneksi</span>
+              </button>
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnArtGSheetModalOpenLink">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-cyan btn-sm" id="btnArtGSheetModalPull">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button type="button" class="btn btn-outline-green btn-sm" id="btnArtGSheetModalPush">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btnArtGSheetSaveConfig" style="background:#10b981; border-color:#059669;">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Guide & Apps Script -->
+        <div id="tabContentArtGSheetGuide" class="hidden">
+          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+            Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
+          </div>
+
+          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+            <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
+            <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
+            <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
+            <li>Klik <strong>Deploy</strong> &gt; <strong>New deployment</strong> &gt; pilih tipe <strong>Web app</strong>. Atur <em>Execute as: <strong>Me</strong></em> dan <em>Who has access: <strong>Anyone</strong></em>. Klik <strong>Deploy</strong> lalu salin URL Web App yang didapat ke tab <em>Pengaturan Koneksi</em>.</li>
+          </ol>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-green"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-green btn-sm" id="btnCopyArtAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+              <i class="fa-regular fa-copy"></i>
+              <span>Salin Script</span>
+            </button>
+          </div>
+
+          <div class="code-preview-box" id="artAppsScriptCodePreview"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- ==================== MODAL: FORM INPUT / EDIT HANDLING TIME USER (AHT) ==================== -->
   <div class="modal-backdrop hidden" id="modalAhtForm">
     <div class="modal-dialog glass-panel">
@@ -4972,51 +5416,24 @@
             </div>
 
             <div class="form-group flex-1">
-              <label for="formAhtInteractionCount" class="form-label">
-                Jumlah Interaksi Ditangani <span class="required">*</span>
+              <label for="formAhtDurationSecs" class="form-label">
+                Rata-rata AHT Harian <span class="required">*</span>
               </label>
               <div class="input-with-icon">
-                <i class="fa-solid fa-comments input-icon"></i>
-                <input type="number" id="formAhtInteractionCount" class="form-control" min="1" max="500" value="45" required>
+                <i class="fa-solid fa-stopwatch input-icon"></i>
+                <input type="number" id="formAhtDurationSecs" class="form-control" min="1" max="7200" value="220" placeholder="Durasi dalam detik (contoh: 220)" required>
               </div>
+              <input type="hidden" id="formAhtDurationMins" value="0">
+              <input type="hidden" id="formAhtInteractionCount" value="1">
+              <small class="form-hint" id="formAhtDurationPreview">Durasi: 220 detik</small>
               <small class="form-hint hidden">Jumlah panggilan/chat/tiket yang ditangani pada hari ini</small>
             </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label class="form-label">
-                Rata-rata Durasi AHT (Menit &amp; Detik) <span class="required">*</span>
-              </label>
-              <div style="display:flex; gap:8px; align-items:center;">
-                <div class="input-with-icon" style="flex:1;">
-                  <i class="fa-solid fa-clock input-icon"></i>
-                  <input type="number" id="formAhtDurationMins" class="form-control" min="0" max="59" value="3" placeholder="Menit" required>
-                </div>
-                <span style="font-weight:700; color:var(--gray-300);">:</span>
-                <div class="input-with-icon" style="flex:1;">
-                  <i class="fa-solid fa-stopwatch input-icon"></i>
-                  <input type="number" id="formAhtDurationSecs" class="form-control" min="0" max="59" value="40" placeholder="Detik" required>
-                </div>
-              </div>
-              <small class="form-hint" id="formAhtDurationPreview">Durasi: 03:40 (220 detik) • Deviasi: -80 dtk (Sesuai SLA)</small>
-            </div>
-
-            <div class="form-group flex-1">
-              <label for="formAhtTargetSecs" class="form-label">
-                Target Standar SLA (Detik) <span class="required">*</span>
-              </label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-bullseye input-icon"></i>
-                <input type="number" id="formAhtTargetSecs" class="form-control" min="30" max="1800" value="300" required>
-              </div>
-              <small class="form-hint">Standar default: 300 detik (05:00 Menit)</small>
-            </div>
+            <input type="hidden" id="formAhtTargetSecs" value="300">
           </div>
 
           <div class="form-group">
             <label for="formAhtNotes" class="form-label">Catatan &amp; Evaluasi Kinerja Harian</label>
-            <textarea id="formAhtNotes" class="form-control" rows="3" placeholder="Uraian penanganan kendala pelanggan, kompleksitas kendala teknis, atau catatan evaluasi SLA..."></textarea>
+            <textarea id="formAhtNotes" class="form-control" rows="3" placeholder="Uraian penanganan kendala pelanggan, kompleksitas kendala teknis, atau catatan evaluasi penanganan..."></textarea>
           </div>
         </div>
 
@@ -5086,60 +5503,29 @@
             </div>
           </div>
 
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="formArtDept" class="form-label">
-                Channel / Layanan CSO <span class="required">*</span>
-              </label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-headset input-icon"></i>
-                <select id="formArtDept" class="form-control" required>
-                  <option value="CSO INBOUND">CSO INBOUND</option>
-                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
-                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
-                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
-                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
-                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
-                  <option value="CSO EMAIL">CSO EMAIL</option>
-                  <option value="TEAM LEADER">TEAM LEADER</option>
-                </select>
-              </div>
+          <div class="form-group">
+            <label for="formArtDept" class="form-label">
+              Channel / Layanan CSO <span class="required">*</span>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-headset input-icon"></i>
+              <select id="formArtDept" class="form-control" required>
+                <option value="CSO INBOUND">CSO INBOUND</option>
+                <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
+                <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
+                <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
+                <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
+                <option value="CSO OUTBOUND">CSO OUTBOUND</option>
+                <option value="CSO EMAIL">CSO EMAIL</option>
+                <option value="TEAM LEADER">TEAM LEADER</option>
+              </select>
             </div>
-
-            <div class="form-group flex-1">
-              <label for="formArtInteractionCount" class="form-label">
-                Jumlah Sesi Terlayani <span class="required">*</span>
-              </label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-comments input-icon"></i>
-                <input type="number" id="formArtInteractionCount" class="form-control" min="1" max="500" value="50" required>
-              </div>
-              <small class="form-hint hidden">Jumlah interaksi/chat yang ditangani pada hari ini</small>
-            </div>
-          </div>
-
-          <div class="form-row">
-            <div class="form-group flex-1">
-              <label for="formArtQueueSecs" class="form-label">
-                Waktu Antrian (Queue Time) <span class="required">*</span>
-              </label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-hourglass-start input-icon"></i>
-                <input type="number" step="0.1" id="formArtQueueSecs" class="form-control" min="0" max="300" value="5.5" required>
-              </div>
-              <small class="form-hint hidden">Rata-rata waktu tunggu pelanggan dalam antrian (detik)</small>
-            </div>
-
-            <div class="form-group flex-1">
-              <label for="formArtFrtSecs" class="form-label">
-                Respon Pertama (FRT) <span class="required">*</span>
-              </label>
-              <div class="input-with-icon">
-                <i class="fa-solid fa-reply input-icon"></i>
-                <input type="number" step="0.1" id="formArtFrtSecs" class="form-control" min="0" max="300" value="8.2" required>
-              </div>
-              <small class="form-hint hidden">Kecepatan waktu sapaan pertama agen (detik)</small>
-            </div>
+            <input type="hidden" id="formArtInteractionCount" value="1">
+            <small class="form-hint hidden">Jumlah interaksi/chat yang ditangani pada hari ini</small>
+            <input type="hidden" id="formArtQueueSecs" value="0">
+            <small class="form-hint hidden">Rata-rata waktu tunggu pelanggan dalam antrian (detik)</small>
+            <input type="hidden" id="formArtFrtSecs" value="0">
+            <small class="form-hint hidden">Kecepatan waktu sapaan pertama agen (detik)</small>
           </div>
 
           <div class="form-row">
@@ -5192,8 +5578,8 @@
             <i class="fa-solid fa-triangle-exclamation"></i>
           </div>
           <div>
-            <h3 class="modal-title">Catat Temuan Audit QA (Finding)</h3>
-            <p class="modal-subtitle">Pencatatan deviasi SOP pelayanan dan rekomendasi perbaikan kualitas</p>
+            <h3 class="modal-title" id="modalFindingTitle">Catat Temuan Audit QA (Finding)</h3>
+            <p class="modal-subtitle hidden">Pencatatan deviasi SOP pelayanan dan rekomendasi perbaikan kualitas</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseFindingModal" aria-label="Tutup Modal">
@@ -5202,6 +5588,7 @@
       </div>
 
       <form id="formFinding" novalidate>
+        <input type="hidden" id="formFindingId" value="">
         <div class="modal-body">
           <div class="form-row">
             <div class="form-group flex-1">
@@ -5222,26 +5609,41 @@
                 <option value="TEAM LEADER">TEAM LEADER</option>
               </select>
             </div>
+
+            <div class="form-group flex-1">
+              <label for="formFindingDate" class="form-label">Tanggal Temuan <span class="required">*</span></label>
+              <input type="date" id="formFindingDate" class="form-control" required>
+            </div>
           </div>
 
           <div class="form-row">
             <div class="form-group flex-1">
+              <label for="formFindingType" class="form-label">Jenis <span class="required">*</span></label>
+              <select id="formFindingType" class="form-control" required>
+                <option value="Feedback Positif">Feedback Positif</option>
+                <option value="Feedback Negatif" selected>Feedback Negatif</option>
+              </select>
+            </div>
+
+            <div class="form-group flex-1">
               <label for="formFindingCategoryVal" class="form-label">Kategori Temuan <span class="required">*</span></label>
               <select id="formFindingCategoryVal" class="form-control" required>
-                <option value="Verifikasi Data Pelanggan">Verifikasi Data Pelanggan</option>
-                <option value="Greeting &amp; Closing SOP">Greeting &amp; Closing SOP</option>
-                <option value="Kepatuhan SLA Eskalasi">Kepatuhan SLA Eskalasi</option>
-                <option value="Akurasi Jawaban Solusi">Akurasi Jawaban Solusi</option>
-                <option value="Input Data Billing &amp; Tiket">Input Data Billing &amp; Tiket</option>
+                <option value="Informasi">Informasi</option>
+                <option value="Keluhan">Keluhan</option>
+                <option value="Gangguan">Gangguan</option>
               </select>
             </div>
 
             <div class="form-group flex-1">
               <label for="formFindingLevelVal" class="form-label">Tingkat Deviasi <span class="required">*</span></label>
               <select id="formFindingLevelVal" class="form-control" required>
-                <option value="Minor">Minor (Pengingat SOP)</option>
-                <option value="Mayor">Mayor (Perlu Coaching Khusus)</option>
-                <option value="Fatal">Fatal (Pelanggaran Kritis)</option>
+                <option value="Reminder 1">Reminder 1</option>
+                <option value="Reminder 2">Reminder 2</option>
+                <option value="Korektif 1">Korektif 1</option>
+                <option value="Korektif 2">Korektif 2</option>
+                <option value="SP 1">SP 1</option>
+                <option value="SP 2">SP 2</option>
+                <option value="SP 3">SP 3</option>
               </select>
             </div>
           </div>
@@ -5252,8 +5654,23 @@
           </div>
 
           <div class="form-group">
-            <label for="formFindingActionPlan" class="form-label">Rekomendasi Tindak Lanjut (Action Plan)</label>
-            <textarea id="formFindingActionPlan" class="form-control" rows="2" placeholder="Langkah perbaikan, jadwal briefing, atau materi coaching..."></textarea>
+            <label for="formFindingCommitment" class="form-label">Komitmen</label>
+            <textarea id="formFindingCommitment" class="form-control" rows="2" placeholder="Komitmen perbaikan dari agen atau tim (misal: lebih teliti verifikasi email, dll)..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group flex-2">
+              <label for="formFindingActionPlan" class="form-label">Rekomendasi Tindak Lanjut (Action Plan)</label>
+              <textarea id="formFindingActionPlan" class="form-control" rows="2" placeholder="Langkah perbaikan, jadwal briefing, atau materi coaching..."></textarea>
+            </div>
+            <div class="form-group flex-1">
+              <label for="formFindingStatus" class="form-label">Status Tindak Lanjut</label>
+              <select id="formFindingStatus" class="form-control">
+                <option value="Open">Open</option>
+                <option value="Dalam Coaching">Dalam Coaching</option>
+                <option value="Closed">Closed</option>
+              </select>
+            </div>
           </div>
         </div>
 
@@ -5261,10 +5678,153 @@
           <button type="button" class="btn btn-outline-gray" id="btnCancelFindingModal">Batal</button>
           <button type="submit" class="btn btn-primary glow-effect-red" id="btnSubmitFinding">
             <i class="fa-solid fa-floppy-disk"></i>
-            <span>Simpan Temuan</span>
+            <span id="btnSubmitFindingText">Simpan Temuan</span>
           </button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: GOOGLE SPREADSHEET INTEGRATION (FINDING) ==================== -->
+  <div class="modal-backdrop hidden" id="modalFindingGoogleSheets">
+    <div class="modal-dialog glass-panel" style="max-width: 650px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge" style="background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%); color:#ffffff;">
+            <i class="fa-solid fa-table-cells"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Integrasi Google Spreadsheet</h3>
+            <p class="modal-subtitle" style="color:var(--gray-400); font-size:0.8rem; margin-top:2px;">Sinkronisasi data Temuan Audit QA (Finding) dengan Google Sheets</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseFindingGSheetModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" style="padding-top:14px;">
+        <!-- Tabs Navigation -->
+        <div class="gsheet-tabs-nav">
+          <button type="button" class="gsheet-tab-btn active" id="tabBtnFindingGSheetConfig">
+            <i class="fa-solid fa-sliders"></i>
+            <span>Pengaturan Koneksi</span>
+          </button>
+          <button type="button" class="gsheet-tab-btn" id="tabBtnFindingGSheetGuide">
+            <i class="fa-solid fa-code"></i>
+            <span>Panduan &amp; Script Apps Script</span>
+          </button>
+        </div>
+
+        <!-- Tab 1: Config Content -->
+        <div id="tabContentFindingGSheetConfig">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputFindingGSheetWebAppUrl" class="form-label" style="font-weight:600; display:flex; justify-content:space-between; align-items:center;">
+              <span>URL Web App Google Apps Script <span class="required">*</span></span>
+              <small style="color:#ef4444; font-weight:normal;"><i class="fa-solid fa-bolt"></i> Endpoint 2-Arah</small>
+            </label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-link input-icon"></i>
+              <input type="url" id="inputFindingGSheetWebAppUrl" class="form-control" placeholder="https://script.google.com/macros/s/AKfycb.../exec">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">URL deployment Web App dari Apps Script Google Spreadsheet Anda (akses: Anyone).</small>
+          </div>
+
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="inputFindingGSheetUrl" class="form-label" style="font-weight:600;">URL / ID Google Spreadsheet</label>
+            <div class="input-with-icon">
+              <i class="fa-solid fa-file-excel input-icon text-green"></i>
+              <input type="text" id="inputFindingGSheetUrl" class="form-control" placeholder="https://docs.google.com/spreadsheets/d/1BxiMVs.../edit atau ID Spreadsheet">
+            </div>
+            <small class="form-hint" style="color:var(--gray-400); font-size:0.75rem;">Digunakan untuk tombol langsung 'Buka Sheet' dan navigasi langsung ke spreadsheet Anda.</small>
+          </div>
+
+          <div class="form-row" style="margin-bottom:14px;">
+            <div class="form-group flex-1">
+              <label for="inputFindingGSheetTabName" class="form-label" style="font-weight:600;">Nama Tab / Sheet</label>
+              <input type="text" id="inputFindingGSheetTabName" class="form-control" value="Finding_Data" placeholder="Finding_Data">
+            </div>
+            <div class="form-group flex-1" style="display:flex; flex-direction:column; justify-content:center;">
+              <label class="form-label" style="font-weight:600;">Sinkronisasi Otomatis</label>
+              <label style="display:inline-flex; align-items:center; gap:8px; cursor:pointer; margin-top:6px; font-size:0.84rem; color:var(--gray-200);">
+                <input type="checkbox" id="checkFindingGSheetAutoSync" checked style="width:18px; height:18px; accent-color:#ef4444;">
+                <span>Auto-Sync saat catat / edit / hapus temuan QA</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Status Callout -->
+          <div id="boxFindingGSheetStatusDetail" style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:12px 14px; margin-bottom:16px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Status Koneksi:</span>
+              <strong id="labelFindingGSheetModalStatus" style="color:var(--gray-300);">Belum Dikonfigurasi</strong>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem; margin-bottom:6px;">
+              <span style="color:var(--gray-400);">Terakhir Sinkron:</span>
+              <span id="labelFindingGSheetModalLastSync" style="color:var(--gray-300);">-</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.8rem;">
+              <span style="color:var(--gray-400);">Total Data Finding di Dashboard:</span>
+              <span id="labelFindingGSheetModalTotalCount" style="color:var(--gray-300);">0 Baris</span>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-gray btn-sm" id="btnFindingGSheetTest">
+                <i class="fa-solid fa-satellite-dish"></i>
+                <span>Test Koneksi</span>
+              </button>
+              <a href="#" target="_blank" class="btn btn-outline-gray btn-sm hidden" id="btnFindingGSheetModalOpenLink">
+                <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                <span>Buka Sheet</span>
+              </a>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="btn btn-outline-cyan btn-sm" id="btnFindingGSheetModalPull">
+                <i class="fa-solid fa-cloud-arrow-down"></i>
+                <span>Tarik Data</span>
+              </button>
+              <button type="button" class="btn btn-outline-green btn-sm" id="btnFindingGSheetModalPush">
+                <i class="fa-solid fa-cloud-arrow-up"></i>
+                <span>Kirim ke Sheets</span>
+              </button>
+              <button type="button" class="btn btn-primary btn-sm" id="btnFindingGSheetSaveConfig" style="background:#ef4444; border-color:#dc2626;">
+                <i class="fa-solid fa-floppy-disk"></i>
+                <span>Simpan Pengaturan</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab 2: Guide & Apps Script -->
+        <div id="tabContentFindingGSheetGuide" class="hidden">
+          <div style="font-size:0.82rem; color:var(--gray-300); margin-bottom:12px; line-height:1.5;">
+            Ikuti 4 langkah mudah untuk menghubungkan Google Spreadsheet Anda:
+          </div>
+
+          <ol style="font-size:0.8rem; color:var(--gray-300); padding-left:18px; margin-bottom:14px; line-height:1.6;">
+            <li>Buka atau buat Spreadsheet baru di <strong>Google Drive</strong>.</li>
+            <li>Klik menu <strong>Ekstensi (Extensions)</strong> &gt; <strong>Apps Script</strong>.</li>
+            <li>Hapus semua isi file <code>Code.gs</code>, lalu tempel kode script di bawah ini.</li>
+            <li>Klik <strong>Deploy</strong> &gt; <strong>New deployment</strong> &gt; pilih tipe <strong>Web app</strong>. Atur <em>Execute as: <strong>Me</strong></em> dan <em>Who has access: <strong>Anyone</strong></em>. Klik <strong>Deploy</strong> lalu salin URL Web App yang didapat ke tab <em>Pengaturan Koneksi</em>.</li>
+          </ol>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <span style="font-size:0.78rem; font-weight:600; color:var(--gray-300);"><i class="fa-solid fa-code text-red"></i> Kode Script (Code.gs)</span>
+            <button type="button" class="btn btn-outline-red btn-sm" id="btnCopyFindingAppsScript" style="padding:2px 10px; font-size:0.74rem;">
+              <i class="fa-regular fa-copy"></i>
+              <span>Salin Script</span>
+            </button>
+          </div>
+          <pre id="codeFindingAppsScript" class="code-preview-box"></pre>
+        </div>
+      </div>
+
+      <div class="modal-footer" style="padding-top:10px;">
+        <button type="button" class="btn btn-outline-gray" id="btnCancelFindingGSheetModal">Tutup</button>
+      </div>
     </div>
   </div>
 
