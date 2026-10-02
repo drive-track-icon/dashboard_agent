@@ -124,7 +124,7 @@
     <aside class="sidebar" id="sidebar">
       <!-- Sidebar Header -->
       <div class="sidebar-header">
-        <div class="sidebar-brand">
+        <div class="sidebar-brand" id="sidebarBrandClickable" title="DRIVE Dashboard (Klik untuk memperluas jika diperkecil)">
           <div class="brand-icon-wrapper hw-tire-wrapper" title="DRIVE - Hot Wheels Wheel">
             <img src="assets/hotwheels_tire.jpg" alt="Hot Wheels Ban Logo" class="hotwheels-tire-img">
           </div>
@@ -133,6 +133,9 @@
             <span class="sidebar-brand-sub" title="Dashboard Reporting, Insight &amp; Visibility of Employee">Dashboard Reporting, Insight &amp; Visibility of Employee</span>
           </div>
         </div>
+        <button class="sidebar-collapse-btn hide-mobile" id="sidebarCollapseBtn" aria-label="Perkecil / Perbesar Sidebar" title="Perkecil Sidebar (Lebarkan Layanan Utama - Ctrl+B)">
+          <i class="fa-solid fa-angles-left" id="sidebarCollapseIcon"></i>
+        </button>
         <button class="sidebar-close-btn" id="sidebarCloseBtn" aria-label="Tutup Menu">
           <i class="fa-solid fa-xmark"></i>
         </button>
@@ -160,63 +163,63 @@
         <div class="nav-category-title">MENU UTAMA</div>
         <ul class="nav-list">
           <li class="nav-item">
-            <button class="nav-link active" data-page="overview" id="navOverview">
+            <button class="nav-link active" data-page="overview" id="navOverview" data-tooltip="Ringkasan" title="Ringkasan">
               <i class="fa-solid fa-chart-pie nav-icon"></i>
               <span class="nav-label">Ringkasan</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="update-pa" id="navUpdatePa">
+            <button class="nav-link" data-page="update-pa" id="navUpdatePa" data-tooltip="Update PA" title="Update PA">
               <i class="fa-solid fa-clipboard-check nav-icon"></i>
               <span class="nav-label">Update PA</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="ca" id="navCa">
+            <button class="nav-link" data-page="ca" id="navCa" data-tooltip="CA" title="CA">
               <i class="fa-solid fa-user-check nav-icon"></i>
               <span class="nav-label">CA</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="tiket" id="navTiket">
+            <button class="nav-link" data-page="tiket" id="navTiket" data-tooltip="Tiket" title="Tiket">
               <i class="fa-solid fa-ticket nav-icon"></i>
               <span class="nav-label">Tiket</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="aht" id="navAht">
+            <button class="nav-link" data-page="aht" id="navAht" data-tooltip="AHT" title="AHT">
               <i class="fa-solid fa-hourglass-half nav-icon"></i>
               <span class="nav-label">AHT</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="art" id="navArt">
+            <button class="nav-link" data-page="art" id="navArt" data-tooltip="ART" title="ART">
               <i class="fa-solid fa-bolt-lightning nav-icon"></i>
               <span class="nav-label">ART</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="finding" id="navFinding">
+            <button class="nav-link" data-page="finding" id="navFinding" data-tooltip="Finding" title="Finding">
               <i class="fa-solid fa-magnifying-glass-chart nav-icon"></i>
               <span class="nav-label">Finding</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="timer" id="navTimer">
+            <button class="nav-link" data-page="timer" id="navTimer" data-tooltip="Timer" title="Timer">
               <i class="fa-solid fa-stopwatch-20 nav-icon"></i>
               <span class="nav-label">Timer</span>
               <span class="nav-tag" id="navTimerTag">Live</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="typing-test" id="navTypingTest">
+            <button class="nav-link" data-page="typing-test" id="navTypingTest" data-tooltip="Typing Test" title="Typing Test">
               <i class="fa-solid fa-gauge-high nav-icon"></i>
               <span class="nav-label">Typing Test</span>
               <span class="nav-tag nav-tag-game" id="navTypingTag">Game</span>
             </button>
           </li>
           <li class="nav-item">
-            <button class="nav-link" data-page="quiz" id="navQuiz">
+            <button class="nav-link" data-page="quiz" id="navQuiz" data-tooltip="Quiz" title="Quiz">
               <i class="fa-solid fa-shield-halved nav-icon text-red"></i>
               <span class="nav-label">Quiz</span>
               <span class="nav-tag nav-tag-quiz" id="navQuizTag">Battle</span>
@@ -229,7 +232,7 @@
           <ul class="nav-list">
             <li class="nav-item">
               <!-- This menu is admin-only. For user, it's either locked or guarded -->
-              <button class="nav-link" data-page="user-management" id="navUserManagement">
+              <button class="nav-link" data-page="user-management" id="navUserManagement" data-tooltip="Manajemen Team" title="Manajemen Team">
                 <i class="fa-solid fa-users-gear nav-icon"></i>
                 <span class="nav-label">Manajemen Team</span>
                 <span class="nav-badge-lock" id="navUserLockBadge">
@@ -238,7 +241,7 @@
               </button>
             </li>
             <li class="nav-item">
-              <button class="nav-link" data-page="activity-log" id="navActivityLog">
+              <button class="nav-link" data-page="activity-log" id="navActivityLog" data-tooltip="Log Aktivitas" title="Log Aktivitas">
                 <i class="fa-solid fa-clock-rotate-left nav-icon"></i>
                 <span class="nav-label">Log Aktivitas</span>
               </button>
@@ -249,7 +252,7 @@
 
       <!-- Sidebar Footer -->
       <div class="sidebar-footer">
-        <button class="btn btn-logout-sidebar" id="btnLogoutSidebar">
+        <button class="btn btn-logout-sidebar" id="btnLogoutSidebar" data-tooltip="Keluar Sesi" title="Keluar Sesi">
           <i class="fa-solid fa-arrow-right-from-bracket"></i>
           <span>Keluar Sesi</span>
         </button>
@@ -265,7 +268,8 @@
       <!-- TOP NAVIGATION BAR -->
       <header class="topbar glass-panel">
         <div class="topbar-left">
-          <button class="menu-toggle-btn" id="menuToggleBtn" aria-label="Buka Menu">
+          <!-- Tombol di samping tulisan Dashboard disembunyikan sesuai permintaan -->
+          <button class="menu-toggle-btn hidden" id="menuToggleBtn" aria-label="Menu" style="display: none !important;">
             <i class="fa-solid fa-bars"></i>
           </button>
           <div class="breadcrumb-container">
@@ -333,20 +337,52 @@
             </div>
           </div>
 
-          <!-- Notifications Button -->
-          <div class="dropdown-container">
-            <button class="btn-icon-topbar" id="btnNotifications" aria-label="Notifikasi">
-              <i class="fa-regular fa-bell"></i>
-              <span class="notification-badge" id="notifBadge">3</span>
-            </button>
-            <div class="notification-dropdown glass-dropdown hidden" id="notificationDropdown">
-              <div class="dropdown-header">
-                <h6>Notifikasi Sistem</h6>
-                <span class="badge badge-red-subtle">Baru</span>
+          <!-- Zoom In / Out Control -->
+          <div class="dropdown-container navbar-zoom-container" id="navbarZoomContainer">
+            <div class="navbar-zoom-control" id="navbarZoomControl" title="Pengaturan Skala Tampilan (Zoom)">
+              <button type="button" class="btn-zoom-action" id="btnZoomOut" aria-label="Perkecil Tampilan" title="Perkecil Tampilan (Zoom Out: -5% / Ctrl + -)">
+                <i class="fa-solid fa-minus"></i>
+              </button>
+              <button type="button" class="btn-zoom-indicator" id="btnZoomToggleMenu" aria-label="Pilih Skala Zoom" title="Klik untuk Buka Menu Persentase Skala Zoom">
+                <i class="fa-solid fa-magnifying-glass zoom-lens-icon"></i>
+                <span class="zoom-percent-text" id="zoomPercentDisplay">100%</span>
+                <i class="fa-solid fa-chevron-down zoom-caret"></i>
+              </button>
+              <button type="button" class="btn-zoom-action" id="btnZoomIn" aria-label="Perbesar Tampilan" title="Perbesar Tampilan (Zoom In: +5% / Ctrl + +)">
+                <i class="fa-solid fa-plus"></i>
+              </button>
+            </div>
+            <div class="zoom-dropdown-menu glass-dropdown hidden" id="zoomDropdownMenu">
+              <div class="zoom-dropdown-header">
+                <div class="zoom-header-title">
+                  <i class="fa-solid fa-magnifying-glass text-red"></i>
+                  <span>Skala Tampilan</span>
+                </div>
+                <button type="button" class="btn-zoom-reset" id="btnZoomReset" title="Kembalikan ke Skala Normal (100% / Ctrl + 0)">
+                  <i class="fa-solid fa-rotate-left"></i> 100%
+                </button>
               </div>
-              <ul class="notification-list" id="notificationList">
-                <!-- Injected via JS -->
-              </ul>
+              <div class="zoom-preset-grid">
+                <button type="button" class="zoom-preset-btn" data-zoom="75">75%</button>
+                <button type="button" class="zoom-preset-btn" data-zoom="80">80%</button>
+                <button type="button" class="zoom-preset-btn" data-zoom="90">90%</button>
+                <button type="button" class="zoom-preset-btn active" data-zoom="100">100%</button>
+                <button type="button" class="zoom-preset-btn" data-zoom="110">110%</button>
+                <button type="button" class="zoom-preset-btn" data-zoom="125">125%</button>
+                <button type="button" class="zoom-preset-btn" data-zoom="150">150%</button>
+              </div>
+              <div class="zoom-slider-container">
+                <div class="zoom-slider-header">
+                  <span>Atur Bebas:</span>
+                  <strong id="zoomSliderValue">100%</strong>
+                </div>
+                <input type="range" class="zoom-range-slider" id="zoomRangeSlider" min="70" max="150" step="5" value="100">
+                <div class="zoom-slider-labels">
+                  <span>70%</span>
+                  <span>100%</span>
+                  <span>150%</span>
+                </div>
+              </div>
             </div>
           </div>
 

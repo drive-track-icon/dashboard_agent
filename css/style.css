@@ -63,6 +63,7 @@
 
   /* Layout */
   --sidebar-width: 270px;
+  --sidebar-width-collapsed: 68px;
   --topbar-height: 70px;
   --radius-sm: 6px;
   --radius-md: 10px;
@@ -908,7 +909,7 @@ textarea.form-control {
   left: 0;
   bottom: 0;
   z-index: 100;
-  transition: transform var(--transition-smooth);
+  transition: transform var(--transition-smooth), width var(--transition-smooth);
 }
 
 .sidebar-header {
@@ -996,6 +997,30 @@ textarea.form-control {
   color: var(--gray-400);
   font-size: 1.2rem;
   cursor: pointer;
+}
+
+.sidebar-collapse-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--gray-400);
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.sidebar-collapse-btn:hover {
+  background: var(--red-subtle);
+  border-color: var(--red-border);
+  color: #ffffff;
+  box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.35);
+  transform: scale(1.05);
 }
 
 /* Sidebar User Info */
@@ -1195,6 +1220,195 @@ textarea.form-control {
   transition: margin-left var(--transition-smooth);
 }
 
+/* ==========================================================================
+   SIDEBAR COLLAPSED (PERKECIL / PERBESAR SIDEBAR)
+   Memperluas Tampilan Layanan Utama saat Sidebar Diperkecil
+   ========================================================================== */
+.dashboard-shell.sidebar-collapsed .sidebar {
+  width: var(--sidebar-width-collapsed);
+}
+
+.dashboard-shell.sidebar-collapsed .main-wrapper {
+  margin-left: var(--sidebar-width-collapsed);
+  width: calc(100% - var(--sidebar-width-collapsed));
+  max-width: calc(100% - var(--sidebar-width-collapsed));
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-header {
+  padding: 0.75rem 0.35rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  position: relative;
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-brand {
+  justify-content: center;
+  gap: 0;
+  cursor: pointer;
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-brand:hover .hotwheels-tire-img {
+  transform: rotate(180deg) scale(1.08);
+}
+
+.dashboard-shell.sidebar-collapsed .brand-text-block,
+.dashboard-shell.sidebar-collapsed .sidebar-brand-sub,
+.dashboard-shell.sidebar-collapsed .sidebar-user-card .user-info-meta,
+.dashboard-shell.sidebar-collapsed .sidebar-mode-notice,
+.dashboard-shell.sidebar-collapsed .nav-category-title,
+.dashboard-shell.sidebar-collapsed .nav-label,
+.dashboard-shell.sidebar-collapsed .nav-tag,
+.dashboard-shell.sidebar-collapsed .nav-badge-lock,
+.dashboard-shell.sidebar-collapsed .btn-logout-sidebar span {
+  display: none !important;
+}
+
+/* Tombol Perkecil / Perbesar tetap tampil dan mudah ditekan saat sidebar ramping */
+.dashboard-shell.sidebar-collapsed .sidebar-collapse-btn {
+  display: flex !important;
+  width: 38px;
+  height: 32px;
+  align-items: center;
+  justify-content: center;
+  background: rgba(var(--primary-rgb), 0.15);
+  border: 1px solid rgba(var(--primary-rgb), 0.4);
+  border-radius: var(--radius-sm);
+  color: #ff5268;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-collapse-btn:hover {
+  background: var(--red-primary);
+  color: #ffffff;
+  box-shadow: 0 0 14px rgba(var(--primary-rgb), 0.55);
+  transform: scale(1.08);
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-user-card {
+  margin: 0.75rem 0.4rem 0.5rem;
+  padding: 0.5rem 0;
+  justify-content: center;
+}
+
+.dashboard-shell.sidebar-collapsed .user-avatar-container {
+  width: 40px;
+  height: 40px;
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-nav {
+  padding: 0.5rem 0.35rem;
+  overflow-x: visible;
+}
+
+.dashboard-shell.sidebar-collapsed .nav-item {
+  position: relative;
+}
+
+.dashboard-shell.sidebar-collapsed .nav-link {
+  justify-content: center;
+  padding: 0.75rem 0;
+  gap: 0;
+  position: relative;
+}
+
+.dashboard-shell.sidebar-collapsed .nav-link:hover {
+  transform: none;
+}
+
+.dashboard-shell.sidebar-collapsed .nav-icon {
+  font-size: 1.25rem;
+  width: auto;
+  margin: 0 auto;
+}
+
+/* Floating Tooltip saat Sidebar Diperkecil */
+.dashboard-shell.sidebar-collapsed .nav-link::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.92);
+  background: var(--bg-card);
+  color: #ffffff;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid var(--border-mid);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+
+.dashboard-shell.sidebar-collapsed .nav-link:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+.dashboard-shell.sidebar-collapsed .sidebar-footer {
+  padding: 0.75rem 0.35rem;
+}
+
+.dashboard-shell.sidebar-collapsed .btn-logout-sidebar {
+  padding: 0.75rem 0;
+  justify-content: center;
+  position: relative;
+}
+
+.dashboard-shell.sidebar-collapsed .btn-logout-sidebar::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) scale(0.92);
+  background: var(--bg-card);
+  color: #ff6b7e;
+  padding: 0.45rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+  border: 1px solid rgba(var(--primary-rgb), 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.75);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: 1000;
+}
+
+.dashboard-shell.sidebar-collapsed .btn-logout-sidebar:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) scale(1);
+}
+
+/* Tampilan Layanan Utama Otomatis Mengikuti Lebar Penuh Layar Saat Diperkecil */
+.dashboard-shell.sidebar-collapsed .page-content {
+  max-width: 100% !important;
+  width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  padding: 1.75rem 2.25rem !important;
+}
+
+.dashboard-shell.sidebar-collapsed .role-alert-content {
+  max-width: 100% !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  width: 100% !important;
+}
+
+.dashboard-shell.sidebar-collapsed .topbar {
+  padding-left: 2rem !important;
+  padding-right: 2rem !important;
+}
+
 /* TOPBAR */
 .topbar {
   height: var(--topbar-height);
@@ -1218,18 +1432,9 @@ textarea.form-control {
   gap: 1rem;
 }
 
+/* Tombol di samping tulisan Dashboard disembunyikan per permintaan */
 .menu-toggle-btn {
-  display: none;
-  background: var(--gray-800);
-  border: 1px solid var(--border-mid);
-  color: #ffffff;
-  width: 38px;
-  height: 38px;
-  border-radius: var(--radius-md);
-  align-items: center;
-  justify-content: center;
-  font-size: 1.1rem;
-  cursor: pointer;
+  display: none !important;
 }
 
 .breadcrumb-container {
@@ -1343,6 +1548,225 @@ textarea.form-control {
   align-items: center;
   justify-content: center;
   box-shadow: 0 0 6px var(--red-primary);
+}
+
+/* ==========================================================================
+   NAVBAR ZOOM CONTROLLER
+   Pengaturan Ukuran Zoom In/Out dengan Persentase
+   ========================================================================== */
+.navbar-zoom-container {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.navbar-zoom-control {
+  display: flex;
+  align-items: center;
+  background: var(--gray-900);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  height: 38px;
+  padding: 2px;
+  transition: all var(--transition-fast);
+}
+
+.navbar-zoom-control:hover,
+.navbar-zoom-container:focus-within .navbar-zoom-control {
+  border-color: rgba(var(--primary-rgb), 0.45);
+  box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.2);
+}
+
+.btn-zoom-action {
+  background: transparent;
+  border: none;
+  color: var(--gray-400);
+  width: 28px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.btn-zoom-action:hover {
+  background: var(--gray-800);
+  color: #ffffff;
+}
+
+.btn-zoom-action:active {
+  transform: scale(0.9);
+}
+
+.btn-zoom-indicator {
+  background: transparent;
+  border: none;
+  border-left: 1px solid var(--border-subtle);
+  border-right: 1px solid var(--border-subtle);
+  color: #ffffff;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0 0.55rem;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.btn-zoom-indicator:hover {
+  background: rgba(var(--primary-rgb), 0.12);
+  color: var(--red-hover);
+}
+
+.zoom-lens-icon {
+  font-size: 0.72rem;
+  color: var(--gray-400);
+}
+
+.zoom-percent-text {
+  min-width: 40px;
+  text-align: center;
+  letter-spacing: 0.3px;
+}
+
+.zoom-caret {
+  font-size: 0.65rem;
+  color: var(--gray-500);
+  transition: transform var(--transition-fast);
+}
+
+.navbar-zoom-container:hover .zoom-caret {
+  color: var(--gray-300);
+}
+
+/* Zoom Dropdown Menu */
+.zoom-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 270px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.85);
+  z-index: 120;
+}
+
+.zoom-dropdown-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.zoom-header-title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.btn-zoom-reset {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-subtle);
+  color: var(--gray-400);
+  padding: 0.25rem 0.6rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.72rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  transition: all var(--transition-fast);
+}
+
+.btn-zoom-reset:hover {
+  background: var(--red-subtle);
+  border-color: var(--red-border);
+  color: #ffffff;
+}
+
+.zoom-preset-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.4rem;
+  margin-bottom: 0.85rem;
+}
+
+.zoom-preset-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-subtle);
+  color: var(--gray-300);
+  padding: 0.35rem 0.2rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.76rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.zoom-preset-btn:hover {
+  background: var(--bg-hover);
+  color: #ffffff;
+  border-color: var(--border-mid);
+}
+
+.zoom-preset-btn.active {
+  background: var(--red-gradient-subtle);
+  border-color: var(--red-border);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 10px rgba(var(--primary-rgb), 0.3);
+}
+
+.zoom-slider-container {
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.zoom-slider-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.74rem;
+  color: var(--gray-400);
+  margin-bottom: 0.45rem;
+}
+
+.zoom-slider-header strong {
+  color: var(--red-hover);
+  font-weight: 700;
+}
+
+.zoom-range-slider {
+  width: 100%;
+  accent-color: var(--red-primary);
+  height: 5px;
+  background: var(--gray-800);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  outline: none;
+}
+
+.zoom-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.65rem;
+  color: var(--gray-500);
+  margin-top: 0.3rem;
 }
 
 .user-topbar-profile {
@@ -2949,27 +3373,43 @@ textarea.form-control {
    RESPONSIVE DESIGN SYSTEM: PC, LAPTOP & HP (MOBILE)
    ========================================================================== */
 
-/* 1. PC / DESKTOP (Layar Besar >= 1200px)
-   Konten maksimal 1200px dan berada di tengah secara presisi */
+/* 1. PC / DESKTOP (Layar Besar >= 1200px) */
 @media (min-width: 1200px) {
   .page-content {
-    max-width: 1200px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
-    width: 100% !important;
+    max-width: 1380px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
     box-sizing: border-box;
+    transition: max-width var(--transition-smooth), padding var(--transition-smooth);
   }
 
   .role-alert-content {
-    max-width: 1200px !important;
-    margin-left: auto !important;
-    margin-right: auto !important;
+    max-width: 1380px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100%;
+  }
+
+  /* Saat Sidebar Diperkecil: Tampilan Layanan Utama Otomatis Mengikuti Pergerakan Layar Penuh (Widescreen Expansive) */
+  .dashboard-shell.sidebar-collapsed .page-content {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 1.75rem 2.5rem !important;
     width: 100% !important;
   }
 
-  .topbar {
-    padding-left: calc((100% - 1200px) / 2 + 1.75rem) !important;
-    padding-right: calc((100% - 1200px) / 2 + 1.75rem) !important;
+  .dashboard-shell.sidebar-collapsed .role-alert-content {
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .topbar {
+    padding-left: 2rem !important;
+    padding-right: 2rem !important;
   }
 }
 
@@ -3044,6 +3484,84 @@ textarea.form-control {
     display: block;
   }
 
+  .sidebar-collapse-btn {
+    display: none !important;
+  }
+
+  /* Pada mobile, sidebar selalu off-canvas penuh jika dibuka */
+  .dashboard-shell.sidebar-collapsed .sidebar {
+    width: var(--sidebar-width) !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .main-wrapper {
+    margin-left: 0 !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .brand-text-block,
+  .dashboard-shell.sidebar-collapsed .sidebar-brand-sub,
+  .dashboard-shell.sidebar-collapsed .sidebar-user-card .user-info-meta,
+  .dashboard-shell.sidebar-collapsed .sidebar-mode-notice,
+  .dashboard-shell.sidebar-collapsed .nav-category-title,
+  .dashboard-shell.sidebar-collapsed .nav-label,
+  .dashboard-shell.sidebar-collapsed .nav-tag,
+  .dashboard-shell.sidebar-collapsed .nav-badge-lock,
+  .dashboard-shell.sidebar-collapsed .btn-logout-sidebar span {
+    display: initial !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .nav-link {
+    justify-content: flex-start !important;
+    padding: 0.65rem 0.85rem !important;
+    gap: 0.75rem !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .sidebar-header {
+    padding: 0.65rem 1.15rem !important;
+    justify-content: space-between !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .sidebar-brand {
+    justify-content: flex-start !important;
+    gap: 0.75rem !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .sidebar-user-card {
+    margin: 1rem 1rem 0.5rem !important;
+    padding: 0.85rem !important;
+    justify-content: flex-start !important;
+  }
+
+  .dashboard-shell.sidebar-collapsed .btn-logout-sidebar {
+    justify-content: center !important;
+  }
+
+  .navbar-zoom-control {
+    height: 34px;
+  }
+
+  .btn-zoom-action {
+    width: 25px;
+    height: 28px;
+  }
+
+  .btn-zoom-indicator {
+    padding: 0 0.35rem;
+    font-size: 0.76rem;
+  }
+
+  .zoom-lens-icon {
+    display: none;
+  }
+
+  .zoom-percent-text {
+    min-width: 34px;
+  }
+
+  .zoom-dropdown-menu {
+    right: -40px;
+    width: 250px;
+  }
+
   .sidebar-overlay {
     display: none;
     position: fixed;
@@ -3103,7 +3621,7 @@ textarea.form-control {
   }
 
   .menu-toggle-btn {
-    display: inline-flex !important;
+    display: none !important;
   }
 
   .hide-mobile {
@@ -4072,10 +4590,110 @@ body.theme-light .btn-logout-sidebar:hover {
   border-color: var(--red-border);
 }
 
+body.theme-light .sidebar-collapse-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+body.theme-light .sidebar-collapse-btn:hover {
+  background: var(--red-subtle);
+  border-color: var(--red-border);
+  color: var(--red-primary);
+}
+
+body.theme-light .dashboard-shell.sidebar-collapsed .nav-link::after,
+body.theme-light .dashboard-shell.sidebar-collapsed .btn-logout-sidebar::after {
+  background: #ffffff;
+  color: #0f172a;
+  border-color: #cbd5e1;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
 /* Topbar in Light Mode */
 body.theme-light .topbar {
   background: rgba(255, 255, 255, 0.96);
   border-bottom-color: #e2e8f0;
+}
+
+body.theme-light .menu-toggle-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+body.theme-light .menu-toggle-btn:hover {
+  background: #ffffff;
+  border-color: var(--red-primary);
+  color: var(--red-primary);
+}
+
+body.theme-light .navbar-zoom-control {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+}
+
+body.theme-light .btn-zoom-action {
+  color: #64748b;
+}
+
+body.theme-light .btn-zoom-action:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+body.theme-light .btn-zoom-indicator {
+  color: #0f172a;
+  border-left-color: #e2e8f0;
+  border-right-color: #e2e8f0;
+}
+
+body.theme-light .btn-zoom-indicator:hover {
+  background: rgba(var(--primary-rgb), 0.08);
+  color: var(--red-primary);
+}
+
+body.theme-light .zoom-dropdown-menu {
+  background: #ffffff;
+  border-color: #e2e8f0;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
+}
+
+body.theme-light .zoom-header-title {
+  color: #0f172a;
+}
+
+body.theme-light .btn-zoom-reset {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+  color: #64748b;
+}
+
+body.theme-light .btn-zoom-reset:hover {
+  background: var(--red-subtle);
+  border-color: var(--red-border);
+  color: var(--red-primary);
+}
+
+body.theme-light .zoom-preset-btn {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #475569;
+}
+
+body.theme-light .zoom-preset-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+body.theme-light .zoom-preset-btn.active {
+  background: var(--red-subtle);
+  border-color: var(--red-border);
+  color: var(--red-primary);
+}
+
+body.theme-light .zoom-range-slider {
+  background: #e2e8f0;
 }
 
 body.theme-light .btn-icon-topbar {

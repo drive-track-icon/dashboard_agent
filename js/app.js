@@ -2252,6 +2252,16 @@ const UI = {
   btnNotifications: document.getElementById('btnNotifications'),
   notificationDropdown: document.getElementById('notificationDropdown'),
   notificationList: document.getElementById('notificationList'),
+  sidebarCollapseBtn: document.getElementById('sidebarCollapseBtn'),
+  sidebarCollapseIcon: document.getElementById('sidebarCollapseIcon'),
+  sidebarBrandClickable: document.getElementById('sidebarBrandClickable'),
+  btnZoomOut: document.getElementById('btnZoomOut'),
+  btnZoomIn: document.getElementById('btnZoomIn'),
+  btnZoomToggleMenu: document.getElementById('btnZoomToggleMenu'),
+  btnZoomReset: document.getElementById('btnZoomReset'),
+  zoomPercentDisplay: document.getElementById('zoomPercentDisplay'),
+  zoomDropdownMenu: document.getElementById('zoomDropdownMenu'),
+  zoomRangeSlider: document.getElementById('zoomRangeSlider'),
   userRoleAlertBanner: document.getElementById('userRoleAlertBanner'),
   btnBannerSwitchAdmin: document.getElementById('btnBannerSwitchAdmin'),
   realtimeClock: document.getElementById('realtimeClock'),
@@ -3174,6 +3184,10 @@ function renderAppView() {
   setDisplayMode(userMode, false);
   const userTheme = getUserTheme(state.currentUser);
   applyTheme(userTheme, false);
+
+  // Terapkan preferensi sidebar dan zoom khusus pada konten layanan utama
+  applySidebarCollapse(isSidebarCollapsed, false);
+  applyDashboardZoom(currentDashboardZoom, false);
 
   // Update User Profile details across the UI
   const u = state.currentUser;
@@ -4912,6 +4926,7 @@ function exportData(format) {
 // ==========================================
 
 function populateNotifications() {
+  if (!UI.notificationList) return;
   const list = [
     { title: 'Sistem Diperbarui', desc: 'Versi 2.4 telah aktif dengan perlindungan RBAC.', time: '10 menit lalu', icon: 'fa-shield-halved' },
     { title: 'Stok Menipis', desc: 'Kabel UTP Belden sisa 1 roll di gudang B1.', time: '1 jam lalu', icon: 'fa-triangle-exclamation' },
@@ -13132,8 +13147,10 @@ function exportFindingExcel() {
 }
 
 // ==========================================
-// 13. SIDEBAR & MOBILE CONTROLS
+// 13. SIDEBAR & MOBILE CONTROLS & ZOOM SCALING
 // ==========================================
+
+let isSidebarCollapsed = false;
 
 function openMobileSidebar() {
   UI.sidebar.classList.add('open');
@@ -13143,6 +13160,224 @@ function openMobileSidebar() {
 function closeMobileSidebar() {
   UI.sidebar.classList.remove('open');
   UI.sidebarOverlay.classList.remove('active');
+}
+
+function initSidebarCollapse() {
+  const savedState = localStorage.getItem('sidebar_collapsed');
+  if (savedState === 'true') {
+    isSidebarCollapsed = true;
+    applySidebarCollapse(true, false);
+  }
+
+  if (UI.sidebarCollapseBtn) {
+    UI.sidebarCollapseBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleSidebarCollapse();
+    });
+  }
+
+  if (UI.sidebarBrandClickable) {
+    UI.sidebarBrandClickable.addEventListener('click', (e) => {
+      if (isSidebarCollapsed) {
+        e.stopPropagation();
+        toggleSidebarCollapse();
+      }
+    });
+  }
+
+  // Keyboard shortcut Ctrl+B or Cmd+B to toggle sidebar collapse
+  window.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && (e.key === 'b' || e.key === 'B')) {
+      if (['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) return;
+      e.preventDefault();
+      toggleSidebarCollapse();
+    }
+  });
+}
+
+function toggleSidebarCollapse() {
+  isSidebarCollapsed = !isSidebarCollapsed;
+  applySidebarCollapse(isSidebarCollapsed, true);
+}
+
+function applySidebarCollapse(collapsed, save = true) {
+  isSidebarCollapsed = collapsed;
+  if (UI.dashboardView) {
+    UI.dashboardView.classList.toggle('sidebar-collapsed', collapsed);
+  }
+
+  if (UI.sidebarCollapseIcon) {
+    UI.sidebarCollapseIcon.className = collapsed 
+      ? 'fa-solid fa-angles-right' 
+      : 'fa-solid fa-angles-left';
+  }
+
+  if (UI.sidebarCollapseBtn) {
+    UI.sidebarCollapseBtn.title = collapsed 
+      ? 'Perbesar Sidebar (Kembalikan Tampilan Normal - Ctrl+B)' 
+      : 'Perkecil Sidebar (Lebarkan Layanan Utama - Ctrl+B)';
+  }
+
+  if (save) {
+    localStorage.setItem('sidebar_collapsed', collapsed ? 'true' : 'false');
+  }
+
+  // Pemicu resize selama dan sesudah animasi agar seluruh tabel & grafik menyesuaikan layar yang lebih luas
+  window.dispatchEvent(new Event('resize'));
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 180);
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 360);
+}
+
+// ==========================================
+// 13.5 NAVBAR ZOOM CONTROLS
+// ==========================================
+
+let currentDashboardZoom = 100;
+
+function initZoomControls() {
+  const savedZoom = localStorage.getItem('dashboard_zoom_level');
+  if (savedZoom) {
+    const parsed = parseInt(savedZoom, 10);
+    if (!isNaN(parsed) && parsed >= 60 && parsed <= 160) {
+      currentDashboardZoom = parsed;
+    }
+  }
+  applyDashboardZoom(currentDashboardZoom, false);
+
+  if (UI.btnZoomOut) {
+    UI.btnZoomOut.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setZoomStep(-5);
+    });
+  }
+
+  if (UI.btnZoomIn) {
+    UI.btnZoomIn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      setZoomStep(5);
+    });
+  }
+
+  if (UI.btnZoomToggleMenu && UI.zoomDropdownMenu) {
+    UI.btnZoomToggleMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+      UI.zoomDropdownMenu.classList.toggle('hidden');
+      if (UI.userDropdownMenu) UI.userDropdownMenu.classList.add('hidden');
+      if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
+    });
+
+    UI.zoomDropdownMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  if (UI.btnZoomReset) {
+    UI.btnZoomReset.addEventListener('click', (e) => {
+      e.stopPropagation();
+      applyDashboardZoom(100, true);
+    });
+  }
+
+  // Presets
+  document.querySelectorAll('.zoom-preset-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const val = parseInt(btn.getAttribute('data-zoom'), 10);
+      if (!isNaN(val)) {
+        applyDashboardZoom(val, true);
+      }
+    });
+  });
+
+  // Slider
+  if (UI.zoomRangeSlider) {
+    UI.zoomRangeSlider.addEventListener('input', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val)) {
+        applyDashboardZoom(val, false);
+      }
+    });
+
+    UI.zoomRangeSlider.addEventListener('change', (e) => {
+      const val = parseInt(e.target.value, 10);
+      if (!isNaN(val)) {
+        applyDashboardZoom(val, true);
+      }
+    });
+  }
+
+  // Global Keyboard shortcuts: Ctrl/Cmd + Plus, Minus, 0
+  window.addEventListener('keydown', (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      if (e.key === '=' || e.key === '+') {
+        e.preventDefault();
+        setZoomStep(5);
+      } else if (e.key === '-' || e.key === '_') {
+        e.preventDefault();
+        setZoomStep(-5);
+      } else if (e.key === '0') {
+        e.preventDefault();
+        applyDashboardZoom(100, true);
+      }
+    }
+  });
+}
+
+function setZoomStep(delta) {
+  let next = currentDashboardZoom + delta;
+  next = Math.round(next / 5) * 5;
+  applyDashboardZoom(next, true);
+}
+
+function applyDashboardZoom(level, save = true) {
+  level = Math.max(60, Math.min(160, Math.round(level)));
+  currentDashboardZoom = level;
+
+  // Pastikan document.body & documentElement tidak di-zoom agar navbar, sidebar, dan media query tidak terganggu
+  document.body.style.zoom = '';
+  document.documentElement.style.zoom = '';
+
+  // Fitur zoom in/out berpengaruh langsung pada KONTEN (tulisan, gambar, kartu, tabel, dan grafik)
+  const mainContent = document.getElementById('mainContent');
+  if (mainContent) {
+    mainContent.style.zoom = `${level}%`;
+  }
+
+  const roleAlertBanner = document.getElementById('userRoleAlertBanner');
+  if (roleAlertBanner) {
+    roleAlertBanner.style.zoom = `${level}%`;
+  }
+
+  if (UI.zoomPercentDisplay) {
+    UI.zoomPercentDisplay.textContent = `${level}%`;
+  }
+
+  if (UI.zoomRangeSlider) {
+    UI.zoomRangeSlider.value = level;
+  }
+
+  const sliderVal = document.getElementById('zoomSliderValue');
+  if (sliderVal) {
+    sliderVal.textContent = `${level}%`;
+  }
+
+  document.querySelectorAll('.zoom-preset-btn').forEach(btn => {
+    const val = parseInt(btn.getAttribute('data-zoom'), 10);
+    btn.classList.toggle('active', val === level);
+  });
+
+  if (save) {
+    localStorage.setItem('dashboard_zoom_level', level.toString());
+  }
+
+  // Refit charts
+  setTimeout(() => {
+    window.dispatchEvent(new Event('resize'));
+  }, 100);
 }
 
 // ==========================================
@@ -13186,8 +13421,15 @@ function initEvents() {
     });
   });
 
-  // Mobile sidebar toggles
-  UI.menuToggleBtn.addEventListener('click', openMobileSidebar);
+  // Mobile sidebar toggles & Desktop collapse toggle
+  UI.menuToggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (window.innerWidth <= 768) {
+      openMobileSidebar();
+    } else {
+      toggleSidebarCollapse();
+    }
+  });
   UI.sidebarCloseBtn.addEventListener('click', closeMobileSidebar);
   UI.sidebarOverlay.addEventListener('click', closeMobileSidebar);
 
@@ -13199,16 +13441,20 @@ function initEvents() {
   UI.userTopbarBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     UI.userDropdownMenu.classList.toggle('hidden');
-    UI.notificationDropdown.classList.add('hidden');
+    if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
     if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
+    if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
   });
 
-  UI.btnNotifications.addEventListener('click', (e) => {
-    e.stopPropagation();
-    UI.notificationDropdown.classList.toggle('hidden');
-    UI.userDropdownMenu.classList.add('hidden');
-    if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
-  });
+  if (UI.btnNotifications && UI.notificationDropdown) {
+    UI.btnNotifications.addEventListener('click', (e) => {
+      e.stopPropagation();
+      UI.notificationDropdown.classList.toggle('hidden');
+      UI.userDropdownMenu.classList.add('hidden');
+      if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
+      if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
+    });
+  }
 
   // Navbar Dark / Light Mode Toggle Button
   if (UI.btnThemeMode) {
@@ -13238,7 +13484,8 @@ function initEvents() {
       e.stopPropagation();
       UI.themeDropdownMenu.classList.toggle('hidden');
       UI.userDropdownMenu.classList.add('hidden');
-      UI.notificationDropdown.classList.add('hidden');
+      if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
+      if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
     });
 
     UI.themeDropdownMenu.addEventListener('click', (e) => {
@@ -13255,9 +13502,10 @@ function initEvents() {
 
   // Click outside to close dropdowns
   document.addEventListener('click', () => {
-    UI.userDropdownMenu.classList.add('hidden');
-    UI.notificationDropdown.classList.add('hidden');
+    if (UI.userDropdownMenu) UI.userDropdownMenu.classList.add('hidden');
+    if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
     if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
+    if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
   });
 
   if (UI.btnBannerSwitchAdmin) {
@@ -18967,6 +19215,8 @@ function initQuizBattle() {
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initSidebarCollapse();
+  initZoomControls();
   startClock();
   populateNotifications();
   startTimerTicker();
