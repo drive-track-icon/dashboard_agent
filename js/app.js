@@ -442,6 +442,23 @@ const DEFAULT_PA_LOGS = [
     notes: 'Coaching peningkatan FCR (First Contact Resolution) dan evaluasi SLA mingguan.',
     status: 'Terverifikasi',
     createdAt: '2026-09-28 08:30'
+  },
+  {
+    id: 'pa_6',
+    userId: 'usr_admin_2',
+    username: 'dewi_lestari',
+    userFullName: 'Dewi Lestari, M.T.',
+    userAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    department: 'TEAM LEADER',
+    date: '2026-09-28',
+    shift: 'Normal Office (08:00 - 17:00)',
+    activityCategory: 'READY / HANDLING CHAT',
+    interactionCount: 30,
+    targetCount: 30,
+    durationMinutes: 180,
+    notes: 'Monitoring antrian chat eskalasi dan supervisi layanan pelanggan.',
+    status: 'Terverifikasi',
+    createdAt: '2026-09-28 10:00'
   }
 ];
 
@@ -1411,8 +1428,15 @@ class AppState {
     if (!localStorage.getItem('vortex_logs')) {
       localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
     }
-    if (!localStorage.getItem('vortex_pa_logs')) {
-      localStorage.setItem('vortex_pa_logs', JSON.stringify(DEFAULT_PA_LOGS));
+    const existingPa = JSON.parse(localStorage.getItem('vortex_pa_logs') || '[]');
+    if (!existingPa.length || !existingPa.some(p => p.id === 'pa_6')) {
+      const mergedPa = [...existingPa];
+      DEFAULT_PA_LOGS.forEach(def => {
+        if (!mergedPa.some(p => p.id === def.id)) {
+          mergedPa.push(def);
+        }
+      });
+      localStorage.setItem('vortex_pa_logs', JSON.stringify(mergedPa.length ? mergedPa : DEFAULT_PA_LOGS));
     }
     if (!localStorage.getItem('vortex_ca_logs')) {
       localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
@@ -1812,11 +1836,13 @@ class AppState {
   setSession(user) {
     this.currentUser = user;
     localStorage.setItem('vortex_session', JSON.stringify(user));
+    if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
   }
 
   clearSession() {
     this.currentUser = null;
     localStorage.removeItem('vortex_session');
+    if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
   }
 
   isAdmin() {
@@ -2259,6 +2285,280 @@ function setUserDashboardZoom(user, level) {
   }
 }
 
+// ==========================================
+// 2.8 PER-USER ACTIVE MENU & CONTROLS ISOLATION SYSTEM
+// ==========================================
+
+const PAGE_CONTROL_DEFAULTS = {
+  overview: {
+    filterOverviewCategory: 'ALL',
+    searchOverviewCaInput: '',
+    overviewSortOrder: 'DESC',
+    overviewSortMetric: 'AUTO'
+  },
+  'update-pa': {
+    searchPaInput: '',
+    filterPaUser: 'ALL',
+    filterPaService: 'ALL',
+    filterPaShift: 'ALL',
+    filterPaCategory: 'ALL',
+    filterPaStatus: 'ALL'
+  },
+  ca: {
+    filterCaMonth: '2026-09',
+    filterCaSummarySort: 'AVG_DESC',
+    searchCaInput: '',
+    filterCaUserSelect: 'ALL',
+    filterCaService: 'ALL',
+    filterCaGrade: 'ALL',
+    filterCaScoreSort: 'DATE_DESC'
+  },
+  tiket: {
+    filterTiketMonth: '2026-09',
+    filterSummaryTiketUser: 'ALL',
+    filterSummaryTiketService: 'ALL',
+    filterTiketSummarySort: 'COUNT_DESC',
+    searchTiketInput: '',
+    filterTiketUserSelect: 'ALL',
+    filterTiketService: 'ALL',
+    filterTiketGrade: 'ALL',
+    filterTiketScoreSort: 'DATE_DESC'
+  },
+  aht: {
+    filterAhtMonth: '2026-09',
+    filterSummaryAhtUser: 'ALL',
+    filterSummaryAhtService: 'ALL',
+    filterAhtSummarySort: 'FASTEST',
+    searchAhtInput: '',
+    filterAhtUserSelect: 'ALL',
+    filterAhtService: 'ALL',
+    filterAhtStatus: 'ALL',
+    filterAhtSort: 'DATE_DESC'
+  },
+  art: {
+    filterArtMonth: '2026-09',
+    filterSummaryArtUser: 'ALL',
+    filterSummaryArtService: 'ALL',
+    filterArtSummarySort: 'FASTEST',
+    searchArtInput: '',
+    filterArtUserSelect: 'ALL',
+    filterArtService: 'ALL',
+    filterArtStatus: 'ALL',
+    filterArtSort: 'DATE_DESC'
+  },
+  finding: {
+    filterFindingMonth: '2026-10',
+    searchFindingInput: '',
+    filterFindingService: 'ALL',
+    filterFindingType: 'ALL',
+    filterFindingLevel: 'ALL',
+    filterFindingStatus: 'ALL'
+  },
+  'data-management': {
+    searchInput: '',
+    filterCategory: 'ALL',
+    filterStatus: 'ALL',
+    dataSortField: 'code',
+    dataSortOrder: 'asc',
+    dataCurrentPage: 1
+  },
+  timer: {
+    searchMonitorInput: '',
+    filterMonitorUser: 'ALL',
+    filterMonitorStatus: 'ALL'
+  },
+  'typing-test': {
+    selectTypingCar: 'lightning',
+    selectTypingCategory: 'cs-general',
+    searchAdminTypingUser: '',
+    filterAdminTypingRank: 'ALL'
+  },
+  quiz: {
+    selectQuizHero: 'hero_tiga',
+    searchQuizHistoryInput: '',
+    filterQuizHistoryUser: 'ALL',
+    filterQuizHistoryOutcome: 'ALL',
+    searchQuizQuestionInput: '',
+    filterQuizQuestionCategory: 'ALL',
+    quizActiveTab: 'battle'
+  },
+  'user-management': {
+    searchUserInput: '',
+    filterUserRole: 'ALL',
+    filterUserStatus: 'ALL',
+    filterUserService: 'ALL'
+  },
+  'activity-log': {
+    searchLogInput: '',
+    filterLogType: 'ALL'
+  }
+};
+
+const ALL_MANAGED_CONTROL_KEYS = new Set();
+Object.values(PAGE_CONTROL_DEFAULTS).forEach(pageObj => {
+  Object.keys(pageObj).forEach(k => ALL_MANAGED_CONTROL_KEYS.add(k));
+});
+
+function getUserStorageUserKey(user) {
+  const u = user || (typeof state !== 'undefined' ? state.currentUser : null);
+  if (!u) return 'guest';
+  return (u.username || u.id || 'guest').toLowerCase();
+}
+
+function getUserActivePage(user) {
+  if (!user) return 'overview';
+  const username = getUserStorageUserKey(user);
+  try {
+    const saved = localStorage.getItem('drive_user_active_page_' + username);
+    if (saved && (saved === 'overview' || (UI && UI.pages && UI.pages[saved]))) {
+      // Guard RBAC for Admin-only pages
+      if (['user-management', 'activity-log'].includes(saved) && user.role !== 'admin') {
+        return 'overview';
+      }
+      return saved;
+    }
+  } catch (e) {
+    console.warn('LocalStorage read error for user active page:', e);
+  }
+  return 'overview';
+}
+
+function saveUserActivePage(user, pageId) {
+  if (!user || !pageId) return;
+  const username = getUserStorageUserKey(user);
+  try {
+    localStorage.setItem('drive_user_active_page_' + username, pageId);
+  } catch (e) {
+    console.warn('LocalStorage write error for user active page:', e);
+  }
+}
+
+function getUserControls(user) {
+  const username = getUserStorageUserKey(user);
+  try {
+    const raw = localStorage.getItem('drive_user_controls_' + username);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') return parsed;
+    }
+  } catch (e) {}
+  return {};
+}
+
+function saveUserControl(controlId, value, user) {
+  if (!controlId) return;
+  const username = getUserStorageUserKey(user);
+  try {
+    const controls = getUserControls(user);
+    controls[controlId] = value;
+    localStorage.setItem('drive_user_controls_' + username, JSON.stringify(controls));
+  } catch (e) {}
+}
+
+function getUserControlValue(controlId, defaultValue = '', user) {
+  const controls = getUserControls(user);
+  if (controls && Object.prototype.hasOwnProperty.call(controls, controlId)) {
+    return controls[controlId];
+  }
+  return defaultValue;
+}
+
+function resetUserControlsForPage(pageId, user) {
+  const defaults = PAGE_CONTROL_DEFAULTS[pageId];
+  if (!defaults) return;
+  const activeUser = user || (typeof state !== 'undefined' ? state.currentUser : null);
+  Object.entries(defaults).forEach(([k, defaultVal]) => {
+    saveUserControl(k, defaultVal, activeUser);
+  });
+}
+
+function syncUserControlsForPage(pageId, user) {
+  const defaults = PAGE_CONTROL_DEFAULTS[pageId];
+  if (!defaults) return;
+
+  const activeUser = user || (typeof state !== 'undefined' ? state.currentUser : null);
+
+  Object.entries(defaults).forEach(([controlId, defaultVal]) => {
+    const val = getUserControlValue(controlId, defaultVal, activeUser);
+    const el = (UI && UI[controlId]) || document.getElementById(controlId);
+    if (el) {
+      if (el.tagName === 'SELECT' || el.tagName === 'INPUT') {
+        el.value = val;
+      }
+    }
+
+    // Toggle clear search button visibility if applicable
+    const clearBtnMap = {
+      searchPaInput: 'btnClearSearchPa',
+      searchCaInput: 'btnClearSearchCa',
+      searchTiketInput: 'btnClearSearchTiket',
+      searchAhtInput: 'btnClearSearchAht',
+      searchArtInput: 'btnClearSearchArt',
+      searchFindingInput: 'btnClearSearchFinding',
+      searchInput: 'btnClearSearch',
+      searchOverviewCaInput: 'btnClearSearchOverviewCa',
+      searchQuizHistoryInput: 'btnClearSearchQuizHistory',
+      searchQuizQuestionInput: 'btnClearSearchQuizAdmin'
+    };
+    if (clearBtnMap[controlId]) {
+      const btnClear = (UI && UI[clearBtnMap[controlId]]) || document.getElementById(clearBtnMap[controlId]);
+      if (btnClear) {
+        btnClear.classList.toggle('hidden', !val);
+      }
+    }
+  });
+
+  // Page-specific state variables synchronization
+  if (pageId === 'overview') {
+    syncOverviewUserPreferences();
+  } else if (pageId === 'data-management') {
+    if (typeof state !== 'undefined' && state) {
+      state.searchQuery = getUserControlValue('searchInput', '', activeUser);
+      state.selectedCategory = getUserControlValue('filterCategory', 'ALL', activeUser);
+      state.selectedStatus = getUserControlValue('filterStatus', 'ALL', activeUser);
+      state.sortField = getUserControlValue('dataSortField', 'code', activeUser);
+      state.sortOrder = getUserControlValue('dataSortOrder', 'asc', activeUser);
+      state.currentDataPage = Number(getUserControlValue('dataCurrentPage', 1, activeUser)) || 1;
+    }
+  } else if (pageId === 'typing-test') {
+    if (typeof typingState !== 'undefined' && typingState) {
+      typingState.selectedCar = getUserControlValue('selectTypingCar', 'lightning', activeUser);
+      typingState.category = getUserControlValue('selectTypingCategory', 'cs-general', activeUser);
+    }
+  } else if (pageId === 'quiz') {
+    if (typeof quizState !== 'undefined' && quizState) {
+      const savedTab = getUserControlValue('quizActiveTab', 'battle', activeUser);
+      quizState.activeTab = (savedTab === 'adminBank' && (!state || !state.isAdmin())) ? 'battle' : savedTab;
+      quizState.historyFilterUser = getUserControlValue('filterQuizHistoryUser', 'ALL', activeUser);
+      quizState.historyFilterOutcome = getUserControlValue('filterQuizHistoryOutcome', 'ALL', activeUser);
+      quizState.historySearch = getUserControlValue('searchQuizHistoryInput', '', activeUser);
+      quizState.adminCategory = getUserControlValue('filterQuizQuestionCategory', 'ALL', activeUser);
+      quizState.adminSearch = getUserControlValue('searchQuizQuestionInput', '', activeUser);
+    }
+  }
+}
+
+function syncAllUserControls(user) {
+  Object.keys(PAGE_CONTROL_DEFAULTS).forEach(pageId => {
+    syncUserControlsForPage(pageId, user);
+  });
+}
+
+function isManagedUserControl(id) {
+  if (!id) return false;
+  if (id.startsWith('form') || id.startsWith('login') || id.startsWith('changePass')) {
+    return false;
+  }
+  if (ALL_MANAGED_CONTROL_KEYS.has(id)) {
+    return true;
+  }
+  if (id.startsWith('filter') || id.startsWith('search') || id.startsWith('select')) {
+    return true;
+  }
+  return false;
+}
+
+
 function initTheme() {
   renderThemePaletteUI();
 
@@ -2443,6 +2743,55 @@ const UI = {
   paDetailCategory: document.getElementById('paDetailCategory'),
   paDetailNotes: document.getElementById('paDetailNotes'),
   paDetailCreatedAt: document.getElementById('paDetailCreatedAt'),
+  paDetailEmail: document.getElementById('paDetailEmail'),
+  paDetailLayanan: document.getElementById('paDetailLayanan'),
+  paDetailCa: document.getElementById('paDetailCa'),
+  paDetailTiket: document.getElementById('paDetailTiket'),
+  paDetailAht: document.getElementById('paDetailAht'),
+  paDetailArt: document.getElementById('paDetailArt'),
+
+  // PA Format Card & Admin Elements
+  paUserPersonalCardContainer: document.getElementById('paUserPersonalCardContainer'),
+  paUserPersonalCard: document.getElementById('paUserPersonalCard'),
+  paCardUserAvatar: document.getElementById('paCardUserAvatar'),
+  paCardUserName: document.getElementById('paCardUserName'),
+  paCardUserRoleBadge: document.getElementById('paCardUserRoleBadge'),
+  paCardUserEmail: document.getElementById('paCardUserEmail'),
+  paCardUserDept: document.getElementById('paCardUserDept'),
+  paCardUserCa: document.getElementById('paCardUserCa'),
+  paCardUserTiket: document.getElementById('paCardUserTiket'),
+  paCardUserAht: document.getElementById('paCardUserAht'),
+  paCardUserArt: document.getElementById('paCardUserArt'),
+
+  paAdminOverviewSection: document.getElementById('paAdminOverviewSection'),
+  paAdminUserCountBadge: document.getElementById('paAdminUserCountBadge'),
+  paAdminUserGrid: document.getElementById('paAdminUserGrid'),
+  paAdminMetricsLogsSection: document.getElementById('paAdminMetricsLogsSection'),
+  paMetricsGrid: document.getElementById('paMetricsGrid'),
+  paSearchToolbar: document.getElementById('paSearchToolbar'),
+  paTableContainer: document.getElementById('paTableContainer'),
+  filterPaUser: document.getElementById('filterPaUser'),
+
+  modalAdminUserPaDetail: document.getElementById('modalAdminUserPaDetail'),
+  adminUserModalTitle: document.getElementById('adminUserModalTitle'),
+  btnCloseAdminUserPaDetail: document.getElementById('btnCloseAdminUserPaDetail'),
+  btnCloseAdminUserPaDetailBtn: document.getElementById('btnCloseAdminUserPaDetailBtn'),
+  btnFilterMainTableByUser: document.getElementById('btnFilterMainTableByUser'),
+  adminDetailUserAvatar: document.getElementById('adminDetailUserAvatar'),
+  adminDetailUserName: document.getElementById('adminDetailUserName'),
+  adminDetailUserRoleBadge: document.getElementById('adminDetailUserRoleBadge'),
+  adminDetailUserEmail: document.getElementById('adminDetailUserEmail'),
+  adminDetailUserDept: document.getElementById('adminDetailUserDept'),
+  adminDetailUserCa: document.getElementById('adminDetailUserCa'),
+  adminDetailUserTiket: document.getElementById('adminDetailUserTiket'),
+  adminDetailUserAht: document.getElementById('adminDetailUserAht'),
+  adminDetailUserArt: document.getElementById('adminDetailUserArt'),
+  adminDetailUserStatLogs: document.getElementById('adminDetailUserStatLogs'),
+  adminDetailUserStatInteractions: document.getElementById('adminDetailUserStatInteractions'),
+  adminDetailUserStatHours: document.getElementById('adminDetailUserStatHours'),
+  adminDetailUserStatAux: document.getElementById('adminDetailUserStatAux'),
+  adminDetailUserLogsBadge: document.getElementById('adminDetailUserLogsBadge'),
+  adminDetailUserLogsTableBody: document.getElementById('adminDetailUserLogsTableBody'),
 
   // CA Elements
   navCa: document.getElementById('navCa'),
@@ -3078,12 +3427,23 @@ const UI = {
   filterLogType: document.getElementById('filterLogType'),
   btnClearAuditLogs: document.getElementById('btnClearAuditLogs'),
 
-  // Overview Widgets
-  tbodyOverviewRecent: document.getElementById('tbodyOverviewRecent'),
-  overviewActivityTimeline: document.getElementById('overviewActivityTimeline'),
-  btnRefreshStats: document.getElementById('btnRefreshStats'),
-  btnOverviewViewAll: document.getElementById('btnOverviewViewAll'),
-  btnOverviewLogAll: document.getElementById('btnOverviewLogAll'),
+  // Overview Multi-Metric Table Widgets (CA, Tiket, ART)
+  btnRefreshOverviewCa: document.getElementById('btnRefreshOverviewCa'),
+  filterOverviewCategory: document.getElementById('filterOverviewCategory'),
+  searchOverviewCaInput: document.getElementById('searchOverviewCaInput'),
+  btnClearSearchOverviewCa: document.getElementById('btnClearSearchOverviewCa'),
+  btnSortCaDesc: document.getElementById('btnSortCaDesc'),
+  btnSortCaAsc: document.getElementById('btnSortCaAsc'),
+  thSortScore: document.getElementById('thSortScore'),
+  iconThSortScore: document.getElementById('iconThSortScore'),
+  tableOverviewCa: document.getElementById('tableOverviewCa'),
+  theadOverview: document.getElementById('theadOverview'),
+  tbodyOverviewCa: document.getElementById('tbodyOverviewCa'),
+  emptyOverviewCa: document.getElementById('emptyOverviewCa'),
+  overviewColorLegend: document.getElementById('overviewColorLegend'),
+  overviewPageTitle: document.getElementById('overviewPageTitle'),
+  overviewPageBadge: document.getElementById('overviewPageBadge'),
+  overviewPageDesc: document.getElementById('overviewPageDesc'),
 
   // Settings
   settingsRoleBadge: document.getElementById('settingsRoleBadge'),
@@ -3220,6 +3580,8 @@ function handleLogout() {
     if (modal) modal.classList.add('hidden');
   }
   state.clearSession();
+  state.currentPage = 'overview';
+  if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
   showToast('Sesi Berakhir', 'Anda telah keluar dari sistem secara aman.', 'info');
   renderAppView();
 }
@@ -3232,6 +3594,7 @@ function switchUserRole(targetRole) {
       saveActiveUserQuizSession();
     }
     state.setSession(targetUser);
+    if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
     state.addLog('LOGIN', 'Ganti Peran', `Beralih peran secara instan ke ${targetUser.fullName} (${targetUser.role.toUpperCase()}).`);
     showToast('Peran Diperbarui', `Beralih ke akun <strong>${targetUser.fullName}</strong> (${targetUser.role.toUpperCase()}).`, 'success');
     renderAppView();
@@ -3281,9 +3644,13 @@ function renderAppView() {
   const userZoom = getUserDashboardZoom(state.currentUser);
   applyDashboardZoom(userZoom, false);
 
+  // Terapkan seluruh filter & kontrol spesifik HANYA untuk pengguna yang sedang login saat ini
+  syncAllUserControls(state.currentUser);
+
   // Update User Profile details across the UI
   const u = state.currentUser;
   const isAdmin = state.isAdmin();
+  document.body.setAttribute('data-user-role', isAdmin ? 'admin' : 'user');
 
   // Sidebar categories visibility (Admin vs User)
   if (UI.sidebarAdminSection) {
@@ -3621,11 +3988,13 @@ function renderAppView() {
     quizPermissionBanner.classList.add('hidden');
   }
 
-  // Render active section
-  navigateToPage(state.currentPage);
+  // Render active section spesifik untuk pengguna yang sedang login saat ini
+  const userActivePage = getUserActivePage(state.currentUser);
+  state.currentPage = userActivePage;
+  navigateToPage(userActivePage || 'overview', false);
 }
 
-function navigateToPage(pageId) {
+function navigateToPage(pageId, save = true) {
   // Guard check: Team Management and Activity Log are strictly Admin only
   if (['user-management', 'activity-log'].includes(pageId) && !state.isAdmin()) {
     showToast(
@@ -3638,6 +4007,14 @@ function navigateToPage(pageId) {
   }
 
   state.currentPage = pageId;
+  if (save && state.currentUser) {
+    saveUserActivePage(state.currentUser, pageId);
+  }
+
+  // Sinkronisasi kontrol spesifik untuk halaman ini bagi pengguna aktif
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage(pageId, state.currentUser);
+  }
 
   // Update active sidebar nav
   document.querySelectorAll('.nav-link').forEach(link => {
@@ -3710,55 +4087,902 @@ function navigateToPage(pageId) {
 }
 
 // ==========================================
-// 7. OVERVIEW PAGE & CHARTS
+// 7. OVERVIEW PAGE: REKAPITULASI KINERJA USER (CA, TIKET, ART)
 // ==========================================
 
-function renderOverviewPage() {
-  const users = state.getUsers();
-  const logs = state.getLogs();
+let overviewActiveCategory = 'ALL'; // 'ALL' | 'CA' | 'TIKET' | 'ART'
+let overviewSortOrder = 'DESC'; // 'DESC' (Besar ke Kecil) | 'ASC' (Kecil ke Besar)
+let overviewSortMetric = 'AUTO'; // 'AUTO' | 'ca' | 'tiket' | 'art' | 'all'
+let overviewSearchQuery = '';
 
-  // Metrics (Pengguna Terdaftar & Status Akses Sesi)
-  const adminCount = users.filter(u => u.role === 'admin').length;
-  const elTotalUsers = document.getElementById('metricTotalUsers');
-  if (elTotalUsers) elTotalUsers.textContent = users.length;
+// Backward compatibility alias variables
+let overviewCaSortOrder = 'DESC';
+let overviewCaSearchQuery = '';
 
-  const elAdminRatio = document.getElementById('metricAdminRatio');
-  if (elAdminRatio) elAdminRatio.textContent = `${adminCount} Admin`;
+// Per-User Preference Management untuk Menu Ringkasan:
+// Setiap pengguna memiliki kehendak filter & pengurutan (besar ke kecil / kecil ke besar) sendiri,
+// tersimpan secara independen dan tidak saling mempengaruhi.
+let lastOverviewUserKey = null;
 
-  const permLabel = document.getElementById('metricPermissionLabel');
-  const permDesc = document.getElementById('metricPermissionDesc');
-  const permBadge = document.getElementById('metricUserRoleBadge');
-  if (permLabel && permDesc && permBadge) {
-    if (state.isAdmin()) {
-      permLabel.textContent = 'Akses Penuh';
-      permDesc.textContent = 'Bisa Tambah, Ubah, Hapus & User';
-      permBadge.textContent = 'Admin';
-      permBadge.className = 'metric-badge badge-admin';
-    } else {
-      permLabel.textContent = 'Mode Lihat Saja';
-      permDesc.textContent = 'Aksi Edit & Hapus Dinonaktifkan';
-      permBadge.textContent = 'User Biasa';
-      permBadge.className = 'metric-badge badge-user';
+function resetOverviewUserSync() {
+  lastOverviewUserKey = null;
+}
+
+function getOverviewUserStorageKey() {
+  const u = (typeof state !== 'undefined' && state && state.currentUser) ? state.currentUser : null;
+  const userKey = (u && (u.id || u.username)) ? String(u.id || u.username) : 'guest';
+  return 'vortex_overview_user_pref_' + userKey;
+}
+
+function getOverviewUserPref() {
+  try {
+    const raw = localStorage.getItem(getOverviewUserStorageKey());
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed === 'object') {
+        return parsed;
+      }
+    }
+  } catch (e) {}
+  return {
+    category: 'ALL',
+    sortOrder: 'DESC',
+    sortMetric: 'AUTO',
+    searchQuery: ''
+  };
+}
+
+function saveOverviewUserPref(prefUpdate) {
+  try {
+    const current = getOverviewUserPref();
+    const updated = Object.assign({}, current, prefUpdate);
+    localStorage.setItem(getOverviewUserStorageKey(), JSON.stringify(updated));
+  } catch (e) {}
+}
+
+function syncOverviewUserPreferences(force = false) {
+  const currentKey = getOverviewUserStorageKey();
+  if (force || lastOverviewUserKey !== currentKey) {
+    lastOverviewUserKey = currentKey;
+    const pref = getOverviewUserPref();
+    overviewActiveCategory = pref.category || 'ALL';
+    overviewSortOrder = pref.sortOrder || 'DESC';
+    overviewCaSortOrder = overviewSortOrder;
+    overviewSortMetric = pref.sortMetric || 'AUTO';
+    overviewSearchQuery = pref.searchQuery || '';
+    overviewCaSearchQuery = overviewSearchQuery;
+
+    const elCategory = (UI && UI.filterOverviewCategory) || document.getElementById('filterOverviewCategory');
+    if (elCategory) {
+      elCategory.value = overviewActiveCategory;
+    }
+    const searchInput = (UI && UI.searchOverviewCaInput) || document.getElementById('searchOverviewCaInput');
+    if (searchInput) {
+      searchInput.value = overviewSearchQuery;
+    }
+    const btnClearSearch = (UI && UI.btnClearSearchOverviewCa) || document.getElementById('btnClearSearchOverviewCa');
+    if (btnClearSearch) {
+      btnClearSearch.classList.toggle('hidden', !overviewSearchQuery);
+    }
+    const btnDesc = (UI && UI.btnSortCaDesc) || document.getElementById('btnSortCaDesc');
+    const btnAsc = (UI && UI.btnSortCaAsc) || document.getElementById('btnSortCaAsc');
+    if (btnDesc && btnAsc) {
+      btnDesc.classList.toggle('active', overviewSortOrder === 'DESC');
+      btnAsc.classList.toggle('active', overviewSortOrder === 'ASC');
     }
   }
+}
 
-  // Recent Activity Timeline (Log Sesi Terbaru)
-  if (UI.overviewActivityTimeline) {
-    const recentLogs = logs.slice(0, 8);
-    UI.overviewActivityTimeline.innerHTML = recentLogs.map(log => `
-      <div class="timeline-item">
-        <div class="timeline-icon ${log.actionType.includes('DELETE') ? 'icon-red' : ''}">
-          <i class="${getLogIcon(log.actionType)}"></i>
-        </div>
-        <div class="timeline-content">
-          <div class="timeline-text">
-            <strong>${log.user}</strong>: ${log.details}
+function calculateOverviewCombinedData() {
+  const users = (state.getUsers ? state.getUsers() : []);
+  const allCaLogs = (state.getCaLogs ? state.getCaLogs() : []);
+  const allTikets = (state.getTikets ? state.getTikets() : []);
+  const allArtLogs = (state.getArtLogs ? state.getArtLogs() : []);
+
+  const list = users.map(u => {
+    const fullName = u.fullName || u.username;
+    const userId = u.id;
+
+    // --- 1. CA METRICS (Strict 2 Decimals) ---
+    const caLogs = allCaLogs.filter(l => (l.userFullName && l.userFullName === fullName) || (l.userId && l.userId === userId));
+    const caCount = caLogs.length;
+    let caAvg = 0;
+    let caMin = 0;
+    let caMax = 0;
+    if (caCount > 0) {
+      const scores = caLogs.map(l => Number(l.score) || 0);
+      caAvg = parseFloat((scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2));
+      caMin = parseFloat(Math.min(...scores).toFixed(2));
+      caMax = parseFloat(Math.max(...scores).toFixed(2));
+    }
+    const caColor = getCaDynamicColor(caAvg, caCount > 0);
+
+    // --- 2. TIKET METRICS ---
+    const tiketLogs = allTikets.filter(l => (l.userFullName && l.userFullName === fullName) || (l.userId && l.userId === userId));
+    const tiketDays = tiketLogs.length;
+    let tiketCount = 0;
+    if (tiketDays > 0) {
+      tiketCount = tiketLogs.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+    }
+    const tiketTarget = 1320;
+    const tiketPct = parseFloat(((tiketCount / tiketTarget) * 100).toFixed(1));
+    const tiketDiff = tiketCount - tiketTarget;
+    const tiketColor = getTiketDynamicColor(tiketCount, tiketDays > 0);
+
+    // --- 3. ART METRICS ---
+    const artLogs = allArtLogs.filter(l => (l.userFullName && l.userFullName === fullName) || (l.userId && l.userId === userId));
+    const artDays = artLogs.length;
+    let totalInteractions = 0;
+    let avgArtSec = 0;
+    let avgQueueSec = '-';
+    let avgFrtSec = '-';
+    let complianceDays = 0;
+    if (artDays > 0) {
+      totalInteractions = artLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 1), 0);
+      const sumArt = artLogs.reduce((acc, l) => acc + ((Number(l.avgResponseSeconds || l.artSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
+      const sumQueue = artLogs.reduce((acc, l) => acc + ((Number(l.queueSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
+      const sumFrt = artLogs.reduce((acc, l) => acc + ((Number(l.frtSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
+      avgArtSec = totalInteractions > 0 ? parseFloat((sumArt / totalInteractions).toFixed(1)) : 0;
+      avgQueueSec = totalInteractions > 0 ? (sumQueue / totalInteractions).toFixed(1) : '-';
+      avgFrtSec = totalInteractions > 0 ? (sumFrt / totalInteractions).toFixed(1) : '-';
+      complianceDays = artLogs.filter(l => (Number(l.avgResponseSeconds || l.artSeconds) || 0) <= 30).length;
+    }
+    const artColor = getArtDynamicColor(avgArtSec, artDays > 0);
+
+    // Composite score for Overall Rank:
+    // CA (0-100) weight 40%, Tiket (% Capaian) weight 35%, ART (Response Speed) weight 25%
+    let artScoreNorm = 50;
+    if (artDays > 0) {
+      if (avgArtSec <= 15) artScoreNorm = 100;
+      else if (avgArtSec <= 30) artScoreNorm = 100 - ((avgArtSec - 15) / 15) * 25;
+      else artScoreNorm = Math.max(0, 75 - ((avgArtSec - 30) / 15) * 40);
+    }
+    const compositeScore = parseFloat(((caAvg * 0.40) + (Math.min(100, tiketPct) * 0.35) + (artScoreNorm * 0.25)).toFixed(2));
+
+    return {
+      user: u,
+      fullName,
+      email: u.email || `${u.username || 'user'}@drive.internal`,
+      department: u.department || 'CSO INBOUND',
+      avatar: u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      role: u.role || 'user',
+      // CA (strictly 2 decimal places)
+      caCount,
+      caAvg,
+      caMin,
+      caMax,
+      caColor,
+      hasCa: caCount > 0,
+      // Tiket
+      tiketDays,
+      tiketCount,
+      tiketTarget,
+      tiketPct,
+      tiketDiff,
+      tiketColor,
+      hasTiket: tiketDays > 0,
+      // ART
+      artDays,
+      totalInteractions,
+      avgArtSec,
+      avgQueueSec,
+      avgFrtSec,
+      complianceDays,
+      artColor,
+      hasArt: artDays > 0,
+      // Composite
+      compositeScore,
+      // Ranks per category
+      caRank: 0,
+      tiketRank: 0,
+      artRank: 0,
+      allRank: 0
+    };
+  });
+
+  // Calculate Ranks per Category:
+  // 1. CA Rank: Highest caAvg is Rank 1
+  const caSorted = [...list].sort((a, b) => {
+    if (!a.hasCa && b.hasCa) return 1;
+    if (a.hasCa && !b.hasCa) return -1;
+    return b.caAvg - a.caAvg;
+  });
+  caSorted.forEach((item, idx) => {
+    item.caRank = item.hasCa ? idx + 1 : '-';
+  });
+
+  // 2. Tiket Rank: Highest tiketCount is Rank 1
+  const tiketSorted = [...list].sort((a, b) => {
+    if (!a.hasTiket && b.hasTiket) return 1;
+    if (a.hasTiket && !b.hasTiket) return -1;
+    return b.tiketCount - a.tiketCount;
+  });
+  tiketSorted.forEach((item, idx) => {
+    item.tiketRank = item.hasTiket ? idx + 1 : '-';
+  });
+
+  // 3. ART Rank: Lowest avgArtSec (fastest) is Rank 1
+  const artSorted = [...list].sort((a, b) => {
+    if (!a.hasArt && b.hasArt) return 1;
+    if (a.hasArt && !b.hasArt) return -1;
+    return a.avgArtSec - b.avgArtSec;
+  });
+  artSorted.forEach((item, idx) => {
+    item.artRank = item.hasArt ? idx + 1 : '-';
+  });
+
+  // 4. Overall / All Rank: Highest compositeScore is Rank 1
+  const allSorted = [...list].sort((a, b) => b.compositeScore - a.compositeScore);
+  allSorted.forEach((item, idx) => {
+    item.allRank = idx + 1;
+  });
+
+  return list;
+}
+
+function calculateOverviewCaData() {
+  return calculateOverviewCombinedData();
+}
+
+/**
+ * Dynamic color interpolation for CA (Customer Attributes):
+ * Hijau (Bagus, >= 95.00%) -> Kuning (Sedang, 85.00% - 94.99%) -> Merah (Jelek, < 85.00%)
+ */
+function getCaDynamicColor(scoreNum, hasData = true) {
+  if (!hasData || isNaN(scoreNum) || scoreNum <= 0) {
+    return {
+      color: '#94a3b8',
+      bgColor: 'rgba(148, 163, 184, 0.12)',
+      borderColor: 'rgba(148, 163, 184, 0.3)',
+      barColor: 'linear-gradient(90deg, #64748b, #94a3b8)',
+      grade: 'Belum Dinilai',
+      passStatus: 'Belum Dinilai',
+      passClass: 'badge-gray',
+      passIcon: 'fa-regular fa-clock',
+      hue: 0
+    };
+  }
+
+  let hue = 0;
+  if (scoreNum >= 85.0) {
+    const factor = Math.min(1, (scoreNum - 85.0) / 15.0);
+    hue = Math.round(45 + factor * 95); // 45 (yellow) -> 140 (vibrant green)
+  } else if (scoreNum >= 65.0) {
+    const factor = Math.max(0, (scoreNum - 65.0) / 20.0);
+    hue = Math.round(factor * 45); // 0 (red) -> 45 (yellow)
+  } else {
+    hue = 0; // Pure red
+  }
+
+  const color = `hsl(${hue}, 88%, 50%)`;
+  const bgColor = `hsla(${hue}, 88%, 50%, 0.15)`;
+  const borderColor = `hsla(${hue}, 88%, 50%, 0.4)`;
+  const barColor = `linear-gradient(90deg, hsla(${Math.max(0, hue - 20)}, 92%, 48%, 0.85), hsl(${hue}, 88%, 50%))`;
+
+  let grade = 'Perlu Coaching';
+  let passStatus = 'Remedial SOP (<85.00)';
+  let passClass = 'badge-red';
+  let passIcon = 'fa-solid fa-triangle-exclamation';
+
+  if (scoreNum >= 95.0) {
+    grade = 'Sangat Baik (≥95.00)';
+    passStatus = 'Lulus SOP (≥85.00)';
+    passClass = 'badge-green';
+    passIcon = 'fa-solid fa-check';
+  } else if (scoreNum >= 85.0) {
+    grade = 'Baik (Sedang)';
+    passStatus = 'Lulus SOP (≥85.00)';
+    passClass = 'badge-green';
+    passIcon = 'fa-solid fa-check';
+  } else if (scoreNum >= 75.0) {
+    grade = 'Cukup';
+    passStatus = 'Remedial SOP (<85.00)';
+    passClass = 'badge-yellow';
+    passIcon = 'fa-solid fa-triangle-exclamation';
+  }
+
+  return { color, bgColor, borderColor, barColor, grade, passStatus, passClass, passIcon, hue };
+}
+
+/**
+ * Dynamic color interpolation for Tiket:
+ * Hijau (Bagus, >= 1.320 / 100%) -> Kuning (Sedang, 80% - 99%) -> Merah (Jelek, < 80%)
+ */
+function getTiketDynamicColor(countNum, hasData = true) {
+  if (!hasData || isNaN(countNum) || countNum <= 0) {
+    return {
+      color: '#94a3b8',
+      bgColor: 'rgba(148, 163, 184, 0.12)',
+      borderColor: 'rgba(148, 163, 184, 0.3)',
+      barColor: 'linear-gradient(90deg, #64748b, #94a3b8)',
+      grade: 'Belum Ada Data',
+      status: '0 Tiket',
+      badgeClass: 'badge-gray',
+      badgeIcon: 'fa-regular fa-clock',
+      hue: 0
+    };
+  }
+
+  let hue = 0;
+  if (countNum >= 1320) {
+    const factor = Math.min(1, (countNum - 1320) / 150);
+    hue = Math.round(110 + factor * 30); // 110 -> 140
+  } else if (countNum >= 1056) {
+    const factor = (countNum - 1056) / (1320 - 1056);
+    hue = Math.round(45 + factor * 65); // 45 -> 110
+  } else if (countNum >= 660) {
+    const factor = Math.max(0, (countNum - 660) / (1056 - 660));
+    hue = Math.round(factor * 45); // 0 -> 45
+  } else {
+    hue = 0;
+  }
+
+  const color = `hsl(${hue}, 88%, 50%)`;
+  const bgColor = `hsla(${hue}, 88%, 50%, 0.15)`;
+  const borderColor = `hsla(${hue}, 88%, 50%, 0.4)`;
+  const barColor = `linear-gradient(90deg, hsla(${Math.max(0, hue - 20)}, 92%, 48%, 0.85), hsl(${hue}, 88%, 50%))`;
+
+  let grade = 'Kurang Tiket';
+  let status = `Kurang ${(1320 - countNum).toLocaleString('id-ID')} Tiket`;
+  let badgeClass = 'badge-red';
+  let badgeIcon = 'fa-solid fa-triangle-exclamation';
+
+  if (countNum >= 1320) {
+    grade = 'Target Tercapai';
+    const plus = countNum - 1320;
+    status = plus > 0 ? `+${plus.toLocaleString('id-ID')} Tiket` : 'Tuntas Tepat Target';
+    badgeClass = 'badge-green';
+    badgeIcon = 'fa-solid fa-check-double';
+  } else if (countNum >= 1056) {
+    grade = 'Mendekati Target';
+    status = `Kurang ${(1320 - countNum).toLocaleString('id-ID')} Tiket`;
+    badgeClass = 'badge-yellow';
+    badgeIcon = 'fa-solid fa-hourglass-half';
+  }
+
+  return { color, bgColor, borderColor, barColor, grade, status, badgeClass, badgeIcon, hue };
+}
+
+/**
+ * Dynamic color interpolation for ART (Average Response Time in seconds):
+ * Lower is better! Target SLA <= 30.0s, Super responsive <= 15.0s
+ * Hijau (Bagus, <= 15.0s) -> Kuning (Sedang, 15.1 - 30.0s) -> Merah (Jelek, > 30.0s)
+ */
+function getArtDynamicColor(artSec, hasData = true) {
+  if (!hasData || isNaN(artSec) || artSec <= 0) {
+    return {
+      color: '#94a3b8',
+      bgColor: 'rgba(148, 163, 184, 0.12)',
+      borderColor: 'rgba(148, 163, 184, 0.3)',
+      barColor: 'linear-gradient(90deg, #64748b, #94a3b8)',
+      grade: 'Belum Ada Data',
+      status: 'Belum Ada Input',
+      badgeClass: 'badge-gray',
+      badgeIcon: 'fa-regular fa-clock',
+      hue: 0
+    };
+  }
+
+  let hue = 0;
+  if (artSec <= 15.0) {
+    const factor = Math.min(1, Math.max(0, (15.0 - artSec) / 10));
+    hue = Math.round(110 + factor * 30); // 110 -> 140
+  } else if (artSec <= 30.0) {
+    const factor = (30.0 - artSec) / 15.0;
+    hue = Math.round(45 + factor * 65); // 45 -> 110
+  } else if (artSec <= 45.0) {
+    const factor = Math.max(0, (45.0 - artSec) / 15.0);
+    hue = Math.round(factor * 45); // 0 -> 45
+  } else {
+    hue = 0;
+  }
+
+  const color = `hsl(${hue}, 88%, 50%)`;
+  const bgColor = `hsla(${hue}, 88%, 50%, 0.15)`;
+  const borderColor = `hsla(${hue}, 88%, 50%, 0.4)`;
+  const barColor = `linear-gradient(90deg, hsla(${Math.max(0, hue - 20)}, 92%, 48%, 0.85), hsl(${hue}, 88%, 50%))`;
+
+  let grade = 'Over SLA Kritis';
+  let status = `Over SLA (+${(artSec - 30).toFixed(1)}s)`;
+  let badgeClass = 'badge-red';
+  let badgeIcon = 'fa-solid fa-triangle-exclamation';
+
+  if (artSec <= 15.0) {
+    grade = 'Sangat Responsif';
+    status = 'Prima (≤15s)';
+    badgeClass = 'badge-green';
+    badgeIcon = 'fa-solid fa-bolt text-green';
+  } else if (artSec <= 30.0) {
+    grade = 'Sesuai SLA';
+    status = 'Sesuai SLA (≤30s)';
+    badgeClass = 'badge-green';
+    badgeIcon = 'fa-solid fa-circle-check text-green';
+  } else {
+    grade = 'Over SLA';
+    status = `Over SLA (+${(artSec - 30).toFixed(1)}s)`;
+    badgeClass = 'badge-yellow';
+    badgeIcon = 'fa-solid fa-triangle-exclamation text-yellow';
+  }
+
+  return { color, bgColor, borderColor, barColor, grade, status, badgeClass, badgeIcon, hue };
+}
+
+function updateOverviewLegendAndTitles() {
+  const elCategory = (UI && UI.filterOverviewCategory) || document.getElementById('filterOverviewCategory');
+  if (elCategory && elCategory.value) {
+    overviewActiveCategory = elCategory.value;
+  }
+
+  const titleEl = document.getElementById('overviewPageTitle');
+  const badgeEl = document.getElementById('overviewPageBadge');
+  const descEl = document.getElementById('overviewPageDesc');
+  const legendEl = document.getElementById('overviewColorLegend');
+
+  // Sembunyikan elemen indikator sesuai permintaan
+  if (legendEl) {
+    legendEl.innerHTML = '';
+    legendEl.style.display = 'none';
+    legendEl.classList.add('hidden');
+  }
+
+  if (overviewActiveCategory === 'CA') {
+    if (titleEl) titleEl.textContent = 'Ringkasan Perolehan CA User';
+    if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-star"></i> CA (Customer Attributes)';
+    if (descEl) descEl.textContent = 'Peringkat dan pencapaian nilai Customer Attributes (CA) desimal 2 angka di belakang koma seluruh petugas CSO.';
+  } else if (overviewActiveCategory === 'TIKET') {
+    if (titleEl) titleEl.textContent = 'Ringkasan Perolehan Tiket User';
+    if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-ticket"></i> Tiket (Target 1.320)';
+    if (descEl) descEl.textContent = 'Peringkat perolehan tiket dan pencapaian target bulanan baku (1.320 Tiket) seluruh petugas CSO.';
+  } else if (overviewActiveCategory === 'ART') {
+    if (titleEl) titleEl.textContent = 'Ringkasan Average Response Time (ART) User';
+    if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-bolt"></i> ART (SLA ≤30s)';
+    if (descEl) descEl.textContent = 'Peringkat kecepatan respon (Average Response Time) dan kepatuhan SLA (≤30 Detik) seluruh petugas CSO.';
+  } else {
+    // ALL
+    if (titleEl) titleEl.textContent = 'Ringkasan Perolehan Kinerja User';
+    if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-chart-pie"></i> Semua (CA, Tiket, ART)';
+    if (descEl) descEl.textContent = 'Rekapitulasi komprehensif seluruh performa Customer Attributes (CA), Tiket bulanan (Target 1.320), dan Average Response Time (ART) petugas CSO.';
+  }
+}
+
+function renderOverviewPage() {
+  syncOverviewUserPreferences();
+  updateOverviewLegendAndTitles();
+
+  const data = calculateOverviewCombinedData();
+  const searchInput = (UI && UI.searchOverviewCaInput) || document.getElementById('searchOverviewCaInput');
+  const query = (searchInput ? searchInput.value : overviewSearchQuery || overviewCaSearchQuery || '').toLowerCase().trim();
+
+  // Filter based on search query
+  const filtered = data.filter(item => {
+    if (!query) return true;
+    return (item.fullName && item.fullName.toLowerCase().includes(query)) ||
+           (item.department && item.department.toLowerCase().includes(query)) ||
+           (item.email && item.email.toLowerCase().includes(query));
+  });
+
+  // Determine active sort key
+  let sortKey = overviewSortMetric;
+  if (sortKey === 'AUTO') {
+    if (overviewActiveCategory === 'CA') sortKey = 'ca';
+    else if (overviewActiveCategory === 'TIKET') sortKey = 'tiket';
+    else if (overviewActiveCategory === 'ART') sortKey = 'art';
+    else sortKey = 'all';
+  }
+
+  // Sort filtered data:
+  // When active category is CA, TIKET, or ART, sorting aligns with that category's ranking!
+  filtered.sort((a, b) => {
+    let valA = 0;
+    let valB = 0;
+    let hasA = false;
+    let hasB = false;
+
+    if (sortKey === 'ca') {
+      valA = a.caAvg;
+      valB = b.caAvg;
+      hasA = a.hasCa;
+      hasB = b.hasCa;
+    } else if (sortKey === 'tiket') {
+      valA = a.tiketCount;
+      valB = b.tiketCount;
+      hasA = a.hasTiket;
+      hasB = b.hasTiket;
+    } else if (sortKey === 'art') {
+      valA = a.avgArtSec;
+      valB = b.avgArtSec;
+      hasA = a.hasArt;
+      hasB = b.hasArt;
+    } else {
+      // 'all'
+      valA = a.compositeScore;
+      valB = b.compositeScore;
+      hasA = true;
+      hasB = true;
+    }
+
+    if (!hasA && hasB) return 1;
+    if (hasA && !hasB) return -1;
+
+    if (overviewSortOrder === 'ASC') {
+      return valA - valB;
+    } else {
+      return valB - valA;
+    }
+  });
+
+  // Update Sort Button States (Besar ke Kecil / Kecil ke Besar)
+  const btnDesc = (UI && UI.btnSortCaDesc) || document.getElementById('btnSortCaDesc');
+  const btnAsc = (UI && UI.btnSortCaAsc) || document.getElementById('btnSortCaAsc');
+  if (btnDesc && btnAsc) {
+    btnDesc.classList.toggle('active', overviewSortOrder === 'DESC');
+    btnAsc.classList.toggle('active', overviewSortOrder === 'ASC');
+  }
+
+  const btnClear = (UI && UI.btnClearSearchOverviewCa) || document.getElementById('btnClearSearchOverviewCa');
+  if (btnClear) {
+    btnClear.classList.toggle('hidden', !query);
+  }
+
+  // Render Table Header (Peringkat dynamically adapts to category)
+  const thead = document.getElementById('theadOverview');
+  if (thead) {
+    const sortIcon = (columnKey) => {
+      if (sortKey === columnKey) {
+        return overviewSortOrder === 'DESC'
+          ? '<i class="fa-solid fa-arrow-down-wide-short text-green" style="margin-left:6px;"></i>'
+          : '<i class="fa-solid fa-arrow-up-short-wide text-red" style="margin-left:6px;"></i>';
+      }
+      return '<i class="fa-solid fa-sort text-muted" style="margin-left:6px; opacity:0.6;"></i>';
+    };
+
+    if (overviewActiveCategory === 'CA') {
+      thead.innerHTML = `
+        <tr>
+          <th style="width: 80px; text-align: center;">Peringkat (CA)</th>
+          <th>Petugas CSO</th>
+          <th>Layanan CSO</th>
+          <th style="text-align: center;">Jumlah Evaluasi</th>
+          <th style="text-align: center;">Rentang Skor</th>
+          <th class="overview-sortable-th" data-metric="ca" style="width: 250px;" title="Klik untuk mengurutkan nilai CA (Besar ke Kecil / Kecil ke Besar)">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span><i class="fa-solid fa-star text-yellow" style="margin-right:5px;"></i>Skor CA [2 Desimal]</span>
+              ${sortIcon('ca')}
+            </div>
+          </th>
+          <th style="text-align: center;">Predikat Mutu</th>
+          <th style="text-align: center;">Status SOP</th>
+        </tr>
+      `;
+    } else if (overviewActiveCategory === 'TIKET') {
+      thead.innerHTML = `
+        <tr>
+          <th style="width: 80px; text-align: center;">Peringkat (Tiket)</th>
+          <th>Petugas CSO</th>
+          <th>Layanan CSO</th>
+          <th style="text-align: center;">Hari Input</th>
+          <th class="overview-sortable-th" data-metric="tiket" style="width: 230px;" title="Klik untuk mengurutkan Total Tiket (Besar ke Kecil / Kecil ke Besar)">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span><i class="fa-solid fa-ticket text-red" style="margin-right:5px;"></i>Total Tiket</span>
+              ${sortIcon('tiket')}
+            </div>
+          </th>
+          <th style="text-align: center;">Target Baku</th>
+          <th style="text-align: center;">Kekurangan / Selisih</th>
+          <th style="text-align: center; width: 140px;">Capaian (%)</th>
+          <th style="text-align: center;">Status Capaian</th>
+        </tr>
+      `;
+    } else if (overviewActiveCategory === 'ART') {
+      thead.innerHTML = `
+        <tr>
+          <th style="width: 80px; text-align: center;">Peringkat (ART)</th>
+          <th>Petugas CSO</th>
+          <th>Layanan CSO</th>
+          <th style="text-align: center;">Hari Input</th>
+          <th style="text-align: center;">Total Interaksi</th>
+          <th style="text-align: center;">Queue Time</th>
+          <th style="text-align: center;">FRT (Detik)</th>
+          <th class="overview-sortable-th" data-metric="art" style="width: 230px;" title="Klik untuk mengurutkan Waktu ART (Besar ke Kecil / Kecil ke Besar)">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span><i class="fa-solid fa-bolt text-yellow" style="margin-right:5px;"></i>Rata-rata ART</span>
+              ${sortIcon('art')}
+            </div>
+          </th>
+          <th style="text-align: center;">Target SLA</th>
+          <th style="text-align: center;">Status SLA</th>
+        </tr>
+      `;
+    } else {
+      // ALL: Kombinasi CA, Tiket, dan ART
+      thead.innerHTML = `
+        <tr>
+          <th style="width: 75px; text-align: center;">Peringkat</th>
+          <th>Petugas CSO</th>
+          <th>Layanan CSO</th>
+          <th class="overview-sortable-th" data-metric="ca" style="width: 210px;" title="Klik untuk mengurutkan Skor CA">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span><i class="fa-solid fa-star text-yellow" style="margin-right:4px;"></i>Skor CA [2 Desimal]</span>
+              ${sortIcon('ca')}
+            </div>
+          </th>
+          <th class="overview-sortable-th" data-metric="tiket" style="width: 210px;" title="Klik untuk mengurutkan Realisasi Tiket">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span><i class="fa-solid fa-ticket text-red" style="margin-right:4px;"></i>Tiket (Tgt 1.320)</span>
+              ${sortIcon('tiket')}
+            </div>
+          </th>
+          <th class="overview-sortable-th" data-metric="art" style="width: 200px;" title="Klik untuk mengurutkan Kecepatan ART">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:6px;">
+              <span><i class="fa-solid fa-bolt text-yellow" style="margin-right:4px;"></i>ART (SLA ≤30s)</span>
+              ${sortIcon('art')}
+            </div>
+          </th>
+          <th style="text-align: center; width: 130px;">Kinerja</th>
+        </tr>
+      `;
+    }
+
+    // Bind click events on sortable headers
+    thead.querySelectorAll('.overview-sortable-th').forEach(th => {
+      th.onclick = () => {
+        const targetMetric = th.getAttribute('data-metric');
+        if (sortKey === targetMetric) {
+          overviewSortOrder = overviewSortOrder === 'DESC' ? 'ASC' : 'DESC';
+          overviewCaSortOrder = overviewSortOrder;
+        } else {
+          overviewSortMetric = targetMetric;
+          overviewSortOrder = 'DESC';
+          overviewCaSortOrder = 'DESC';
+        }
+        saveOverviewUserPref({ sortOrder: overviewSortOrder, sortMetric: overviewSortMetric });
+        renderOverviewPage();
+      };
+    });
+  }
+
+  // Render Table Body
+  const tbody = (UI && UI.tbodyOverviewCa) || document.getElementById('tbodyOverviewCa');
+  const emptyState = (UI && UI.emptyOverviewCa) || document.getElementById('emptyOverviewCa');
+  if (!tbody) return;
+
+  tbody.innerHTML = '';
+  if (filtered.length === 0) {
+    if (emptyState) emptyState.classList.remove('hidden');
+    return;
+  }
+  if (emptyState) emptyState.classList.add('hidden');
+
+  filtered.forEach((item) => {
+    // Dynamic Rank selection based on category
+    let currentRank = item.allRank;
+    if (overviewActiveCategory === 'CA') currentRank = item.caRank;
+    else if (overviewActiveCategory === 'TIKET') currentRank = item.tiketRank;
+    else if (overviewActiveCategory === 'ART') currentRank = item.artRank;
+
+    let rankBadgeHtml = `<span class="ca-rank-badge ca-rank-other">${currentRank}</span>`;
+    if (currentRank === 1) {
+      rankBadgeHtml = `<span class="ca-rank-badge ca-rank-1" title="Peringkat 1">1</span>`;
+    } else if (currentRank === 2) {
+      rankBadgeHtml = `<span class="ca-rank-badge ca-rank-2" title="Peringkat 2">2</span>`;
+    } else if (currentRank === 3) {
+      rankBadgeHtml = `<span class="ca-rank-badge ca-rank-3" title="Peringkat 3">3</span>`;
+    } else if (currentRank === '-' || !currentRank) {
+      rankBadgeHtml = `<span class="ca-rank-badge ca-rank-other" style="opacity:0.5;">-</span>`;
+    } else {
+      rankBadgeHtml = `<span class="ca-rank-badge ca-rank-other" title="Peringkat ${currentRank}">${currentRank}</span>`;
+    }
+
+    const tr = document.createElement('tr');
+
+    const agentProfileHtml = `
+      <div style="display: flex; align-items: center; gap: 10px;">
+        <img src="${item.avatar}" alt="${item.fullName}" style="width: 36px; height: 36px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255,255,255,0.12);">
+        <div>
+          <div style="font-weight: 700; color: #ffffff; font-size: calc(0.9rem * var(--content-font-scale, 1));">${item.fullName}</div>
+          <div style="display: flex; align-items: center; gap: 6px; margin-top: 2px;">
+            <span class="badge ${item.role === 'admin' ? 'badge-admin' : 'badge-user'}" style="font-size: 0.65rem;">${item.role.toUpperCase()}</span>
+            <span class="font-mono text-muted" style="font-size: 0.72rem;">${item.email}</span>
           </div>
-          <span class="timeline-time">${log.timestamp}</span>
         </div>
       </div>
-    `).join('');
-  }
+    `;
+
+    const deptHtml = `
+      <span style="font-weight: 600; font-size: 0.82rem; color: var(--gray-300);">
+        <i class="fa-solid fa-headset text-red" style="margin-right: 5px;"></i>${item.department}
+      </span>
+    `;
+
+    // Strictly 2 decimal places for CA without percentage:
+    const caScoreFormatted = item.hasCa ? Number(item.caAvg).toFixed(2) : '-';
+    const caRangeFormatted = item.hasCa ? `${Number(item.caMin).toFixed(2)} - ${Number(item.caMax).toFixed(2)}` : '-';
+
+    if (overviewActiveCategory === 'CA') {
+      const colorData = item.caColor;
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: 700;">${rankBadgeHtml}</td>
+        <td>${agentProfileHtml}</td>
+        <td>${deptHtml}</td>
+        <td style="text-align: center;">
+          <span class="badge badge-gray" style="font-family: monospace; font-size: 0.8rem;">
+            ${item.caCount} Hari
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <span class="font-mono" style="font-size: 0.8rem; color: var(--gray-300);">
+            ${caRangeFormatted}
+          </span>
+        </td>
+        <td>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="color: ${colorData.color}; font-size: 1.05rem; font-weight: 800; font-family: monospace; text-shadow: 0 0 10px ${colorData.color}44;">
+              ${caScoreFormatted}
+            </span>
+            <small style="color: var(--gray-400); font-size: 0.7rem;">Target: 85.00</small>
+          </div>
+          <div class="ca-mini-bar-track">
+            <div class="ca-mini-bar-fill" style="width: ${Math.min(100, Math.max(0, item.caAvg))}%; background: ${colorData.barColor}; box-shadow: 0 0 8px ${colorData.color}66;"></div>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <span class="ca-grade-pill" style="background: ${colorData.bgColor}; border: 1px solid ${colorData.borderColor}; color: ${colorData.color};">
+            <i class="fa-solid fa-circle" style="font-size: 0.5rem;"></i> ${colorData.grade}
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <span class="badge ${colorData.passClass}" style="font-size: 0.75rem;">
+            <i class="${colorData.passIcon}" style="margin-right: 4px;"></i>${colorData.passStatus}
+          </span>
+        </td>
+      `;
+    } else if (overviewActiveCategory === 'TIKET') {
+      const colorData = item.tiketColor;
+      const countFormatted = item.hasTiket ? item.tiketCount.toLocaleString('id-ID') : '0';
+      const selisihHtml = item.tiketDiff >= 0
+        ? `<span class="badge badge-green"><i class="fa-solid fa-check"></i> +${item.tiketDiff.toLocaleString('id-ID')}</span>`
+        : `<span class="badge badge-yellow"><i class="fa-solid fa-minus"></i> ${Math.abs(item.tiketDiff).toLocaleString('id-ID')} Tiket</span>`;
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: 700;">${rankBadgeHtml}</td>
+        <td>${agentProfileHtml}</td>
+        <td>${deptHtml}</td>
+        <td style="text-align: center;">
+          <span class="badge badge-gray font-mono">${item.tiketDays} Hari</span>
+        </td>
+        <td>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="color: ${colorData.color}; font-size: 1.05rem; font-weight: 800; font-family: monospace; text-shadow: 0 0 10px ${colorData.color}44;">
+              ${countFormatted} Tiket
+            </span>
+            <small style="color: var(--gray-400); font-size: 0.7rem;">Target: 1.320</small>
+          </div>
+          <div class="ca-mini-bar-track">
+            <div class="ca-mini-bar-fill" style="width: ${Math.min(100, Math.max(0, item.tiketPct))}%; background: ${colorData.barColor}; box-shadow: 0 0 8px ${colorData.color}66;"></div>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <span class="font-mono text-muted">1.320 Tiket</span>
+        </td>
+        <td style="text-align: center;">${selisihHtml}</td>
+        <td style="text-align: center;">
+          <span style="font-weight: 800; font-family: monospace; color: ${colorData.color}; font-size: 0.95rem;">
+            ${item.tiketPct}%
+          </span>
+        </td>
+        <td style="text-align: center;">
+          <span class="badge ${colorData.badgeClass}" style="font-size: 0.75rem;">
+            <i class="${colorData.badgeIcon}" style="margin-right: 4px;"></i>${colorData.grade}
+          </span>
+        </td>
+      `;
+    } else if (overviewActiveCategory === 'ART') {
+      const colorData = item.artColor;
+      const artFormatted = item.hasArt ? `${item.avgArtSec.toFixed(1)} Detik` : '-';
+      const deviasi = item.hasArt ? (item.avgArtSec - 30.0).toFixed(1) : '0.0';
+      const deviasiHtml = Number(deviasi) <= 0
+        ? `<span class="badge badge-green">${deviasi}s</span>`
+        : `<span class="badge badge-red">+${deviasi}s</span>`;
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: 700;">${rankBadgeHtml}</td>
+        <td>${agentProfileHtml}</td>
+        <td>${deptHtml}</td>
+        <td style="text-align: center;">
+          <span class="badge badge-gray font-mono">${item.artDays} Hari</span>
+        </td>
+        <td style="text-align: center;">
+          <span class="font-mono text-white">${item.totalInteractions.toLocaleString('id-ID')}</span>
+        </td>
+        <td style="text-align: center;">
+          <span class="font-mono text-muted">${item.avgQueueSec}s</span>
+        </td>
+        <td style="text-align: center;">
+          <span class="font-mono text-muted">${item.avgFrtSec}s</span>
+        </td>
+        <td>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="color: ${colorData.color}; font-size: 1.05rem; font-weight: 800; font-family: monospace; text-shadow: 0 0 10px ${colorData.color}44;">
+              ${artFormatted}
+            </span>
+            <small style="color: var(--gray-400); font-size: 0.7rem;">SLA: ≤30.0s</small>
+          </div>
+          <div class="ca-mini-bar-track">
+            <div class="ca-mini-bar-fill" style="width: ${Math.min(100, Math.max(0, (item.avgArtSec / 45) * 100))}%; background: ${colorData.barColor}; box-shadow: 0 0 8px ${colorData.color}66;"></div>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          <span class="font-mono text-muted">≤ 30.0s</span>
+        </td>
+        <td style="text-align: center;">
+          <span class="badge ${colorData.badgeClass}" style="font-size: 0.75rem;">
+            <i class="${colorData.badgeIcon}" style="margin-right: 4px;"></i>${colorData.grade}
+          </span>
+        </td>
+      `;
+    } else {
+      // ALL VIEW: Menampilkan ketiga metrik CA, Tiket, dan ART secara harmonis
+      const caColor = item.caColor;
+      const tiketColor = item.tiketColor;
+      const artColor = item.artColor;
+
+      tr.innerHTML = `
+        <td style="text-align: center; font-weight: 700;">${rankBadgeHtml}</td>
+        <td>${agentProfileHtml}</td>
+        <td>${deptHtml}</td>
+        <td>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="color: ${caColor.color}; font-weight: 800; font-family: monospace; font-size: 0.98rem; text-shadow: 0 0 8px ${caColor.color}44;">
+              ${caScoreFormatted}
+            </span>
+            <span class="badge ${caColor.passClass}" style="font-size: 0.65rem; padding: 1px 6px;">
+              ${caColor.passStatus}
+            </span>
+          </div>
+          <div class="ca-mini-bar-track" style="margin-top: 4px;">
+            <div class="ca-mini-bar-fill" style="width: ${Math.min(100, Math.max(0, item.caAvg))}%; background: ${caColor.barColor};"></div>
+          </div>
+        </td>
+        <td>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="color: ${tiketColor.color}; font-weight: 800; font-family: monospace; font-size: 0.98rem; text-shadow: 0 0 8px ${tiketColor.color}44;">
+              ${item.hasTiket ? item.tiketCount.toLocaleString('id-ID') : '0'}
+            </span>
+            <span class="badge ${tiketColor.badgeClass}" style="font-size: 0.65rem; padding: 1px 6px;">
+              ${item.tiketPct}%
+            </span>
+          </div>
+          <div class="ca-mini-bar-track" style="margin-top: 4px;">
+            <div class="ca-mini-bar-fill" style="width: ${Math.min(100, Math.max(0, item.tiketPct))}%; background: ${tiketColor.barColor};"></div>
+          </div>
+        </td>
+        <td>
+          <div style="display: flex; align-items: baseline; justify-content: space-between;">
+            <span style="color: ${artColor.color}; font-weight: 800; font-family: monospace; font-size: 0.98rem; text-shadow: 0 0 8px ${artColor.color}44;">
+              ${item.hasArt ? item.avgArtSec.toFixed(1) + 's' : '-'}
+            </span>
+            <span class="badge ${artColor.badgeClass}" style="font-size: 0.65rem; padding: 1px 6px;">
+              ${artColor.grade}
+            </span>
+          </div>
+          <div class="ca-mini-bar-track" style="margin-top: 4px;">
+            <div class="ca-mini-bar-fill" style="width: ${Math.min(100, Math.max(0, (item.avgArtSec / 45) * 100))}%; background: ${artColor.barColor};"></div>
+          </div>
+        </td>
+        <td style="text-align: center;">
+          ${(item.caAvg >= 85 && item.tiketCount >= 1056 && item.avgArtSec <= 30)
+            ? '<span class="badge badge-green"><i class="fa-solid fa-star"></i> Prima</span>'
+            : (item.caAvg >= 80 || item.tiketCount >= 900)
+              ? '<span class="badge badge-yellow"><i class="fa-solid fa-circle-check"></i> Baik</span>'
+              : '<span class="badge badge-red"><i class="fa-solid fa-circle-exclamation"></i> Evaluasi</span>'
+          }
+        </td>
+      `;
+    }
+
+    tbody.appendChild(tr);
+  });
 }
 
 function getStockBadge(stock) {
@@ -3967,6 +5191,9 @@ function getFilteredData() {
 }
 
 function renderDataTable() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('data-management', state.currentUser);
+  }
   const filtered = getFilteredData();
   const totalItems = filtered.length;
   const totalPages = Math.ceil(totalItems / state.itemsPerPage) || 1;
@@ -4074,6 +5301,9 @@ function renderPagination(totalPages) {
 
 window.changeDataPage = function(page) {
   state.currentDataPage = page;
+  if (typeof saveUserControl === 'function') {
+    saveUserControl('dataCurrentPage', page);
+  }
   renderDataTable();
 };
 
@@ -4474,6 +5704,9 @@ const RANDOM_AVATARS = [
 ];
 
 function renderUserManagementPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('user-management', state.currentUser);
+  }
   if (!state.isAdmin()) {
     navigateToPage('overview');
     return;
@@ -4934,6 +6167,9 @@ function handlePasswordChangeSubmit(e) {
 // ==========================================
 
 function renderAuditLogs() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('activity-log', state.currentUser);
+  }
   const logs = state.getLogs();
   const searchQ = (UI.searchLogInput ? UI.searchLogInput.value : '').toLowerCase().trim();
   const typeFilter = UI.filterLogType ? UI.filterLogType.value : 'ALL';
@@ -5050,6 +6286,9 @@ function formatSecondsToHMS(totalSec) {
 }
 
 function renderTimerPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('timer', state.currentUser);
+  }
   const allTimers = state.getTimers();
   const allStopwatches = state.getStopwatches();
   const isAdmin = state.isAdmin();
@@ -5848,13 +7087,360 @@ function startTimerTicker() {
 // 12.5 UPDATE PA (PRODUCTIVITY & ACTIVITY)
 // ==========================================
 
+function calculateUserPaSummaryMetrics(targetUserOrName) {
+  const users = (state.getUsers ? state.getUsers() : []);
+  let u = null;
+  if (targetUserOrName && typeof targetUserOrName === 'object') {
+    u = users.find(x => x.id === targetUserOrName.id || x.username === targetUserOrName.username || x.fullName === targetUserOrName.fullName) || targetUserOrName;
+  } else if (typeof targetUserOrName === 'string') {
+    u = users.find(x => x.id === targetUserOrName || x.username === targetUserOrName || x.fullName === targetUserOrName) || null;
+  }
+
+  if (!u) {
+    return {
+      user: null,
+      fullName: 'Tidak Diketahui',
+      email: '-',
+      department: '-',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+      role: 'user',
+      caScore: 0,
+      caFormatted: '-',
+      tiketCount: 0,
+      tiketFormatted: '-',
+      ahtSeconds: 0,
+      ahtFormatted: '-',
+      artSeconds: 0,
+      artFormatted: '-'
+    };
+  }
+
+  const fullName = u.fullName || u.username;
+  const email = u.email || `${u.username || 'user'}@drive.internal`;
+  const department = u.department || 'CSO INBOUND';
+  const role = u.role || 'user';
+  const avatar = u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
+
+  // 1. CA (Customer Attributes) - Desimal dua angka di belakang koma tanpa persentase
+  const caLogs = (state.getCaLogs ? state.getCaLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  let caFormatted = '-';
+  let caScore = '0.00';
+  if (caLogs.length > 0) {
+    const scores = caLogs.map(l => Number(l.score) || 0);
+    caScore = (scores.reduce((a, b) => a + b, 0) / scores.length).toFixed(2);
+    caFormatted = caScore;
+  }
+
+  // 2. Tiket
+  const tikets = (state.getTikets ? state.getTikets() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  let tiketCount = 0;
+  let tiketFormatted = '0 Tiket';
+  if (tikets.length > 0) {
+    tiketCount = tikets.reduce((acc, l) => acc + (Number(l.ticketCount) || 0), 0);
+    tiketFormatted = `${tiketCount.toLocaleString('id-ID')} Tiket`;
+  }
+
+  // 3. AHT (Average Handling Time)
+  const ahtLogs = (state.getAhtLogs ? state.getAhtLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  let ahtSeconds = 0;
+  let ahtFormatted = '0 Detik';
+  if (ahtLogs.length > 0) {
+    const totalDuration = ahtLogs.reduce((acc, l) => acc + (Number(l.totalDurationSeconds) || ((Number(l.actualSeconds) || 0) * (Number(l.interactionCount) || 1))), 0);
+    const totalInteractions = ahtLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 1), 0);
+    ahtSeconds = totalInteractions > 0 ? Math.round(totalDuration / totalInteractions) : 0;
+    const mins = Math.floor(ahtSeconds / 60);
+    const secs = ahtSeconds % 60;
+    const mmSs = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    ahtFormatted = `${ahtSeconds} Detik (${mmSs})`;
+  }
+
+  // 4. ART (Average Response Time)
+  const artLogs = (state.getArtLogs ? state.getArtLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  let artSeconds = 0;
+  let artFormatted = '0.0 Detik';
+  if (artLogs.length > 0) {
+    const totalArtSec = artLogs.reduce((acc, l) => acc + ((Number(l.avgResponseSeconds || l.artSeconds) || 0) * (Number(l.interactionCount) || 1)), 0);
+    const totalInteractions = artLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 1), 0);
+    artSeconds = totalInteractions > 0 ? (totalArtSec / totalInteractions).toFixed(1) : '0.0';
+    artFormatted = `${artSeconds} Detik`;
+  }
+
+  return {
+    user: u,
+    fullName,
+    email,
+    department,
+    role,
+    avatar,
+    caScore,
+    caFormatted,
+    tiketCount,
+    tiketFormatted,
+    ahtSeconds,
+    ahtFormatted,
+    artSeconds,
+    artFormatted
+  };
+}
+
+function renderUserPersonalPaCard(currentUser) {
+  if (!currentUser) return;
+  const metrics = calculateUserPaSummaryMetrics(currentUser);
+
+  if (UI.paCardUserAvatar) UI.paCardUserAvatar.src = metrics.avatar;
+  if (UI.paCardUserName) UI.paCardUserName.textContent = metrics.fullName;
+  if (UI.paCardUserRoleBadge) {
+    UI.paCardUserRoleBadge.className = currentUser.role === 'admin' ? 'badge badge-admin' : 'badge badge-user';
+    UI.paCardUserRoleBadge.innerHTML = currentUser.role === 'admin'
+      ? '<i class="fa-solid fa-shield-halved"></i> Administrator'
+      : '<i class="fa-solid fa-user-check"></i> CSO Agent';
+  }
+  if (UI.paCardUserEmail) UI.paCardUserEmail.textContent = metrics.email;
+  if (UI.paCardUserDept) UI.paCardUserDept.textContent = metrics.department;
+  if (UI.paCardUserCa) UI.paCardUserCa.textContent = metrics.caFormatted;
+  if (UI.paCardUserTiket) UI.paCardUserTiket.textContent = metrics.tiketFormatted;
+  if (UI.paCardUserAht) UI.paCardUserAht.textContent = metrics.ahtFormatted;
+  if (UI.paCardUserArt) UI.paCardUserArt.textContent = metrics.artFormatted;
+}
+
+function renderAdminPaUserGrid() {
+  if (!UI.paAdminUserGrid) return;
+  const users = state.getUsers();
+  const allLogs = state.getPaLogs();
+
+  if (UI.paAdminUserCountBadge) {
+    UI.paAdminUserCountBadge.textContent = `${users.length} Pengguna`;
+  }
+
+  UI.paAdminUserGrid.innerHTML = '';
+  users.forEach(usr => {
+    const metrics = calculateUserPaSummaryMetrics(usr);
+    const userPaLogs = allLogs.filter(l => (l.userId && l.userId === usr.id) || (l.username && l.username === usr.username) || (l.userFullName && l.userFullName === usr.fullName));
+    const totalInteractions = userPaLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 0), 0);
+    const totalMinutes = userPaLogs.reduce((acc, l) => acc + (Number(l.durationMinutes) || 0), 0);
+
+    const card = document.createElement('div');
+    card.className = 'pa-admin-agent-card';
+    card.innerHTML = `
+      <div class="pa-agent-card-top">
+        <img src="${metrics.avatar}" alt="${metrics.fullName}" class="pa-agent-card-avatar">
+        <div class="pa-agent-card-info">
+          <h4 class="pa-agent-card-name" title="${metrics.fullName}">${metrics.fullName}</h4>
+          <span class="pa-agent-card-dept"><i class="fa-solid fa-headset text-red"></i> ${metrics.department}</span>
+          <small class="text-muted font-mono" style="font-size:0.73rem;">${metrics.email}</small>
+        </div>
+      </div>
+
+      <div class="pa-agent-card-stats">
+        <div class="pa-agent-stat-item">
+          <span class="pa-agent-stat-label">Total Log PA:</span>
+          <span class="pa-agent-stat-val text-red font-mono">${userPaLogs.length} Entri</span>
+        </div>
+        <div class="pa-agent-stat-item">
+          <span class="pa-agent-stat-label">Interaksi:</span>
+          <span class="pa-agent-stat-val text-white font-mono">${totalInteractions.toLocaleString('id-ID')}</span>
+        </div>
+        <div class="pa-agent-stat-item">
+          <span class="pa-agent-stat-label">Durasi Kerja:</span>
+          <span class="pa-agent-stat-val text-silver font-mono">${(totalMinutes / 60).toFixed(1)} Jam</span>
+        </div>
+        <div class="pa-agent-stat-item">
+          <span class="pa-agent-stat-label">Nilai CA:</span>
+          <span class="pa-agent-stat-val text-green font-mono">${parseFloat(metrics.caScore) > 0 ? metrics.caFormatted : '-'}</span>
+        </div>
+      </div>
+
+      <div class="pa-agent-card-footer">
+        <button type="button" class="btn-detail-agent" onclick="openAdminUserDetailModal('${usr.id}')" title="Lihat Detail Kartu & Riwayat PA ${metrics.fullName}">
+          <i class="fa-solid fa-id-card"></i>
+          <span>Detail</span>
+        </button>
+      </div>
+    `;
+    UI.paAdminUserGrid.appendChild(card);
+  });
+}
+
+let activeDetailUserForFilter = null;
+
+function openAdminUserDetailModal(userIdOrName) {
+  const users = state.getUsers();
+  let u = null;
+  if (typeof userIdOrName === 'string') {
+    u = users.find(x => x.id === userIdOrName || x.username === userIdOrName || x.fullName === userIdOrName) || null;
+  } else if (userIdOrName && typeof userIdOrName === 'object') {
+    u = userIdOrName;
+  }
+  if (!u) {
+    showToast('User Tidak Ditemukan', 'Data profil pengguna tidak tersedia.', 'warning');
+    return;
+  }
+
+  activeDetailUserForFilter = u;
+  const metrics = calculateUserPaSummaryMetrics(u);
+  const allLogs = state.getPaLogs();
+  const userLogs = allLogs.filter(l => (l.userId && l.userId === u.id) || (l.username && l.username === u.username) || (l.userFullName && l.userFullName === u.fullName));
+
+  // Populate Format Card: Foto user, email :, layanan :, CA :, Tiket :, AHT :, ART :
+  if (UI.adminDetailUserAvatar) UI.adminDetailUserAvatar.src = metrics.avatar;
+  if (UI.adminDetailUserName) UI.adminDetailUserName.textContent = metrics.fullName;
+  if (UI.adminDetailUserRoleBadge) {
+    UI.adminDetailUserRoleBadge.className = u.role === 'admin' ? 'badge badge-admin' : 'badge badge-user';
+    UI.adminDetailUserRoleBadge.textContent = u.role === 'admin' ? 'ADMINISTRATOR' : 'CSO AGENT';
+  }
+  if (UI.adminDetailUserEmail) UI.adminDetailUserEmail.textContent = metrics.email;
+  if (UI.adminDetailUserDept) UI.adminDetailUserDept.textContent = metrics.department;
+  if (UI.adminDetailUserCa) UI.adminDetailUserCa.textContent = metrics.caFormatted;
+  if (UI.adminDetailUserTiket) UI.adminDetailUserTiket.textContent = metrics.tiketFormatted;
+  if (UI.adminDetailUserAht) UI.adminDetailUserAht.textContent = metrics.ahtFormatted;
+  if (UI.adminDetailUserArt) UI.adminDetailUserArt.textContent = metrics.artFormatted;
+
+  // Calculate user metrics
+  let totalInteractions = 0;
+  let productiveMins = 0;
+  let auxMins = 0;
+  userLogs.forEach(l => {
+    totalInteractions += Number(l.interactionCount) || 0;
+    const dur = Number(l.durationMinutes) || 0;
+    if ((l.activityCategory || '').startsWith('READY') || !(l.activityCategory || '').startsWith('AUX')) {
+      productiveMins += dur;
+    } else {
+      auxMins += dur;
+    }
+  });
+
+  if (UI.adminDetailUserStatLogs) UI.adminDetailUserStatLogs.textContent = userLogs.length;
+  if (UI.adminDetailUserStatInteractions) UI.adminDetailUserStatInteractions.textContent = totalInteractions.toLocaleString('id-ID');
+  if (UI.adminDetailUserStatHours) UI.adminDetailUserStatHours.textContent = `${(productiveMins / 60).toFixed(1)} Jam`;
+  if (UI.adminDetailUserStatAux) UI.adminDetailUserStatAux.textContent = `${auxMins} Menit`;
+  if (UI.adminDetailUserLogsBadge) UI.adminDetailUserLogsBadge.textContent = `${userLogs.length} Catatan`;
+
+  // Render Table of User Logs
+  if (UI.adminDetailUserLogsTableBody) {
+    UI.adminDetailUserLogsTableBody.innerHTML = '';
+    if (userLogs.length === 0) {
+      UI.adminDetailUserLogsTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--gray-400);">Belum ada catatan Update PA yang tersimpan untuk agen ini.</td></tr>';
+    } else {
+      userLogs.forEach(item => {
+        const tr = document.createElement('tr');
+        let statusBadge = item.status === 'Terverifikasi' ? 'badge-green' : (item.status === 'Selesai' ? 'badge-blue' : 'badge-yellow');
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight:600; color:#fff;">${item.date}</div>
+            <small class="text-muted">${item.createdAt ? (item.createdAt.split(' ')[1] || '') : ''} WIB</small>
+          </td>
+          <td><span style="color:var(--gray-300);">${item.shift || '-'}</span></td>
+          <td>
+            <span class="badge badge-gray" style="font-size:0.74rem;">${item.activityCategory}</span>
+            ${item.notes ? `<div style="font-size:0.7rem; color:var(--gray-400); margin-top:2px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.notes}</div>` : ''}
+          </td>
+          <td style="text-align:right; font-weight:700; color:#fff;">${item.interactionCount || 0}</td>
+          <td style="text-align:right; color:var(--gray-300);">${item.durationMinutes || 0} m</td>
+          <td><span class="badge ${statusBadge}" style="font-size:0.72rem;">${item.status}</span></td>
+        `;
+        UI.adminDetailUserLogsTableBody.appendChild(tr);
+      });
+    }
+  }
+
+  if (UI.modalAdminUserPaDetail) UI.modalAdminUserPaDetail.classList.remove('hidden');
+}
+
+function closeAdminUserDetailModal() {
+  if (UI.modalAdminUserPaDetail) UI.modalAdminUserPaDetail.classList.add('hidden');
+}
+
+function handleFilterMainTableByUser() {
+  if (!activeDetailUserForFilter) return;
+  if (UI.filterPaUser) {
+    UI.filterPaUser.value = activeDetailUserForFilter.fullName;
+  }
+  closeAdminUserDetailModal();
+  renderUpdatePaPage();
+  showToast('Tabel Difilter', `Menampilkan catatan Update PA untuk <strong>${activeDetailUserForFilter.fullName}</strong>.`, 'info');
+  if (UI.tablePaLogs) {
+    UI.tablePaLogs.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+}
+
+window.openAdminUserDetailModal = openAdminUserDetailModal;
+window.closeAdminUserDetailModal = closeAdminUserDetailModal;
+
 function renderUpdatePaPage() {
-  const logs = state.getPaLogs();
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('update-pa', state.currentUser);
+  }
+  const allLogs = state.getPaLogs();
   const u = state.currentUser;
   const isAdmin = state.isAdmin();
 
+  // Role banner adjustment
+  if (UI.paBannerRoleLabel && UI.paBannerRoleDesc && UI.paBannerBadgePrivilege) {
+    if (isAdmin) {
+      UI.paBannerRoleLabel.textContent = 'Otoritas Akses: Supervisor & Monitoring Seluruh User';
+      UI.paBannerRoleDesc.innerHTML = 'Admin dapat memantau seluruh data Update PA user, mengecek detail performa masing-masing agen, dan memverifikasi status.';
+      UI.paBannerBadgePrivilege.className = 'badge badge-admin';
+      UI.paBannerBadgePrivilege.textContent = 'Admin Penuh';
+    } else {
+      UI.paBannerRoleLabel.textContent = `Update PA Saya: ${u?.fullName || 'Agen CSO'}`;
+      UI.paBannerRoleDesc.innerHTML = 'Anda hanya dapat melihat dan mengelola catatan Update PA milik Anda sendiri. Data rekan lain tidak dapat diakses demi privasi dan akurasi mandiri.';
+      UI.paBannerBadgePrivilege.className = 'badge badge-user';
+      UI.paBannerBadgePrivilege.textContent = 'Akses Pribadi';
+    }
+  }
+
+  // 1. Role-based Section Visibility
+  if (isAdmin) {
+    if (UI.paAdminOverviewSection) UI.paAdminOverviewSection.classList.remove('hidden');
+    if (UI.paUserPersonalCardContainer) UI.paUserPersonalCardContainer.classList.add('hidden');
+    if (UI.paAdminMetricsLogsSection) UI.paAdminMetricsLogsSection.classList.remove('hidden');
+    if (UI.paMetricsGrid) UI.paMetricsGrid.classList.remove('hidden');
+    if (UI.paSearchToolbar) UI.paSearchToolbar.classList.remove('hidden');
+    if (UI.paTableContainer) UI.paTableContainer.classList.remove('hidden');
+    renderAdminPaUserGrid();
+
+    // Populate user filter dropdown for Admin
+    if (UI.filterPaUser) {
+      UI.filterPaUser.classList.remove('hidden');
+      const curSelected = UI.filterPaUser.value || 'ALL';
+      const users = state.getUsers();
+      let opts = '<option value="ALL">Semua Petugas CSO</option>';
+      users.forEach(usr => {
+        const isSel = (curSelected === usr.fullName || curSelected === usr.id);
+        opts += `<option value="${usr.fullName}" ${isSel ? 'selected' : ''}>${usr.fullName} (${usr.role.toUpperCase()})</option>`;
+      });
+      UI.filterPaUser.innerHTML = opts;
+    }
+  } else {
+    // Regular User: Hapus/sembunyikan bagian monitoring admin, 4 metrik capaian, card cari, dan card tabel riwayat PA
+    if (UI.paAdminOverviewSection) UI.paAdminOverviewSection.classList.add('hidden');
+    if (UI.paAdminMetricsLogsSection) UI.paAdminMetricsLogsSection.classList.add('hidden');
+    if (UI.paMetricsGrid) UI.paMetricsGrid.classList.add('hidden');
+    if (UI.paSearchToolbar) UI.paSearchToolbar.classList.add('hidden');
+    if (UI.paTableContainer) UI.paTableContainer.classList.add('hidden');
+    if (UI.filterPaUser) UI.filterPaUser.classList.add('hidden');
+
+    // Tampilkan Format Card Mandiri Pengguna
+    if (UI.paUserPersonalCardContainer) UI.paUserPersonalCardContainer.classList.remove('hidden');
+    renderUserPersonalPaCard(u);
+
+    // Pengguna regular tidak melihat metrik agregat maupun tabel riwayat
+    return;
+  }
+
+  // Filter logs strictly:
+  // Non-admin user can ONLY see their own logs!
+  const baseLogs = isAdmin
+    ? allLogs
+    : allLogs.filter(item => {
+        return (item.userId && u && item.userId === u.id) ||
+               (item.username && u && item.username === u.username) ||
+               (item.userFullName && u && item.userFullName === u.fullName);
+      });
+
   // Search & Filters
   const query = (UI.searchPaInput ? UI.searchPaInput.value : '').toLowerCase().trim();
+  const filterUser = (isAdmin && UI.filterPaUser) ? UI.filterPaUser.value : 'ALL';
   const filterService = UI.filterPaService ? UI.filterPaService.value : 'ALL';
   const filterShift = UI.filterPaShift ? UI.filterPaShift.value : 'ALL';
   const filterCategory = UI.filterPaCategory ? UI.filterPaCategory.value : 'ALL';
@@ -5864,7 +7450,14 @@ function renderUpdatePaPage() {
     UI.btnClearSearchPa.classList.toggle('hidden', !query);
   }
 
-  const filteredLogs = logs.filter(item => {
+  const filteredLogs = baseLogs.filter(item => {
+    // Admin specific user filter
+    if (isAdmin && filterUser !== 'ALL') {
+      if (item.userFullName !== filterUser && item.userId !== filterUser && item.username !== filterUser) {
+        return false;
+      }
+    }
+
     // Search query match
     if (query) {
       const matchName = (item.userFullName || '').toLowerCase().includes(query);
@@ -5900,16 +7493,13 @@ function renderUpdatePaPage() {
     return true;
   });
 
-  // Calculate Metrics based on relevant logs (for user: their own logs; for admin: all logs)
-  const metricBaseLogs = isAdmin ? filteredLogs : filteredLogs.filter(l => l.userId === u?.id);
-  const effectiveLogs = metricBaseLogs.length > 0 ? metricBaseLogs : filteredLogs;
-
+  // Calculate Metrics based on relevant filtered logs
   let totalInteractions = 0;
   let targetTotal = 0;
   let productiveMins = 0;
   let auxMins = 0;
 
-  effectiveLogs.forEach(l => {
+  filteredLogs.forEach(l => {
     const inter = Number(l.interactionCount) || 0;
     const targ = Number(l.targetCount) || 0;
     const dur = Number(l.durationMinutes) || 0;
@@ -6008,6 +7598,14 @@ function renderUpdatePaPage() {
         </button>
     `;
 
+    if (isAdmin) {
+      actionsHtml += `
+        <button type="button" class="btn-table-action btn-action-detail-user" onclick="openAdminUserDetailModal('${item.userId || item.username || item.userFullName}')" title="Detail Pengguna (Foto, Email, Layanan, CA, Tiket, AHT, ART)">
+          <i class="fa-solid fa-id-card"></i>
+        </button>
+      `;
+    }
+
     if (canModify) {
       actionsHtml += `
         <button type="button" class="btn-table-action btn-action-edit" onclick="promptEditPa('${item.id}')" title="Edit Update PA">
@@ -6035,7 +7633,7 @@ function renderUpdatePaPage() {
         <small class="text-muted">${item.createdAt ? item.createdAt.split(' ')[1] || '' : ''} WIB</small>
       </td>
       <td>
-        <div class="user-cell-flex">
+        <div class="user-cell-flex"${isAdmin ? ` style="cursor:pointer;" onclick="openAdminUserDetailModal('${item.userId || item.username || item.userFullName}')" title="Klik untuk lihat Detail ${item.userFullName}"` : ''}>
           <img src="${item.userAvatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80'}" alt="${item.userFullName}" class="table-user-avatar">
           <div>
             <div style="font-weight: 600; color: #ffffff;">${item.userFullName}</div>
@@ -6223,6 +7821,15 @@ window.openPaDetail = function(id) {
   if (UI.paDetailNotes) UI.paDetailNotes.textContent = entry.notes || '-';
   if (UI.paDetailCreatedAt) UI.paDetailCreatedAt.textContent = entry.createdAt || '-';
 
+  // Format Card metrics for author: Foto user, email :, layanan :, CA :, Tiket :, AHT :, ART :
+  const authorMetrics = calculateUserPaSummaryMetrics(entry.userId || entry.userFullName || entry.username);
+  if (UI.paDetailEmail) UI.paDetailEmail.textContent = authorMetrics.email;
+  if (UI.paDetailLayanan) UI.paDetailLayanan.textContent = authorMetrics.department;
+  if (UI.paDetailCa) UI.paDetailCa.textContent = authorMetrics.caFormatted;
+  if (UI.paDetailTiket) UI.paDetailTiket.textContent = authorMetrics.tiketFormatted;
+  if (UI.paDetailAht) UI.paDetailAht.textContent = authorMetrics.ahtFormatted;
+  if (UI.paDetailArt) UI.paDetailArt.textContent = authorMetrics.artFormatted;
+
   if (UI.modalPaDetail) UI.modalPaDetail.classList.remove('hidden');
 };
 
@@ -6311,6 +7918,9 @@ function formatCaScore(val) {
 }
 
 function renderCaPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('ca', state.currentUser);
+  }
   const isAdmin = state.isAdmin();
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
@@ -6947,6 +8557,9 @@ window.filterCaByUser = function(userName) {
       UI.filterCaUserSelect.value = 'ALL';
     } else {
       UI.filterCaUserSelect.value = userName;
+    }
+    if (typeof saveUserControl === 'function') {
+      saveUserControl('filterCaUserSelect', UI.filterCaUserSelect.value);
     }
     renderCaPage();
     if (UI.tableCaLogs) {
@@ -7719,6 +9332,9 @@ function formatTicketCount(val) {
 }
 
 function renderTiketPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('tiket', state.currentUser);
+  }
   const isAdmin = state.isAdmin();
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
@@ -8450,6 +10066,9 @@ window.filterTiketByUser = function(userFullName) {
   }
   if (UI.filterTiketUserSelect) {
     UI.filterTiketUserSelect.value = userFullName;
+    if (typeof saveUserControl === 'function') {
+      saveUserControl('filterTiketUserSelect', userFullName);
+    }
   }
   renderTiketPage();
   if (UI.tableTiketLogs) {
@@ -9234,6 +10853,9 @@ function formatAhtDuration(totalSec) {
 }
 
 function renderAhtPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('aht', state.currentUser);
+  }
   const isAdmin = state.isAdmin();
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
@@ -9958,11 +11580,17 @@ window.filterAhtByUser = function(userName) {
   if (UI.filterAhtUserSelect) {
     if (Array.from(UI.filterAhtUserSelect.options).some(o => o.value === userName)) {
       UI.filterAhtUserSelect.value = userName;
+      if (typeof saveUserControl === 'function') {
+        saveUserControl('filterAhtUserSelect', userName);
+      }
     }
   }
   if (UI.filterSummaryAhtUser && state.isAdmin()) {
     if (Array.from(UI.filterSummaryAhtUser.options).some(o => o.value === userName)) {
       UI.filterSummaryAhtUser.value = userName;
+      if (typeof saveUserControl === 'function') {
+        saveUserControl('filterSummaryAhtUser', userName);
+      }
     }
   }
   renderAhtPage();
@@ -11275,6 +12903,9 @@ function copyArtAppsScriptCode() {
 // ==========================================
 
 function renderArtPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('art', state.currentUser);
+  }
   const isAdmin = state.isAdmin();
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
@@ -12049,11 +13680,17 @@ window.filterArtByUser = function(userName) {
   if (UI.filterArtUserSelect) {
     if (Array.from(UI.filterArtUserSelect.options).some(o => o.value === userName)) {
       UI.filterArtUserSelect.value = userName;
+      if (typeof saveUserControl === 'function') {
+        saveUserControl('filterArtUserSelect', userName);
+      }
     }
   }
   if (UI.filterSummaryArtUser && state.isAdmin()) {
     if (Array.from(UI.filterSummaryArtUser.options).some(o => o.value === userName)) {
       UI.filterSummaryArtUser.value = userName;
+      if (typeof saveUserControl === 'function') {
+        saveUserControl('filterSummaryArtUser', userName);
+      }
     }
   }
   renderArtPage();
@@ -12777,6 +14414,9 @@ function copyFindingAppsScriptCode() {
 // ==========================================
 
 function renderFindingPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('finding', state.currentUser);
+  }
   if (UI.btnOpenFindingGoogleSheetsModal) UI.btnOpenFindingGoogleSheetsModal.classList.add('hidden');
   renderFindingGSheetBar();
   const findings = state.getFindings();
@@ -13500,6 +15140,23 @@ function applyDashboardZoom(level, save = true) {
 // ==========================================
 
 function initEvents() {
+  // Global Per-User Controls Auto-Persistence (Capture phase)
+  document.addEventListener('change', (e) => {
+    if (!e.target || !e.target.id) return;
+    const id = e.target.id;
+    if (isManagedUserControl(id)) {
+      saveUserControl(id, e.target.value);
+    }
+  }, true);
+
+  document.addEventListener('input', (e) => {
+    if (!e.target || !e.target.id) return;
+    const id = e.target.id;
+    if (isManagedUserControl(id)) {
+      saveUserControl(id, e.target.value);
+    }
+  }, true);
+
   // Login form submit
   UI.loginForm.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -13775,6 +15432,8 @@ function initEvents() {
   UI.searchInput.addEventListener('input', (e) => {
     state.searchQuery = e.target.value;
     state.currentDataPage = 1;
+    saveUserControl('searchInput', e.target.value);
+    saveUserControl('dataCurrentPage', 1);
     UI.btnClearSearch.classList.toggle('hidden', !state.searchQuery);
     renderDataTable();
   });
@@ -13782,6 +15441,8 @@ function initEvents() {
   UI.btnClearSearch.addEventListener('click', () => {
     UI.searchInput.value = '';
     state.searchQuery = '';
+    saveUserControl('searchInput', '');
+    saveUserControl('dataCurrentPage', 1);
     UI.btnClearSearch.classList.add('hidden');
     state.currentDataPage = 1;
     renderDataTable();
@@ -13790,12 +15451,16 @@ function initEvents() {
   UI.filterCategory.addEventListener('change', (e) => {
     state.selectedCategory = e.target.value;
     state.currentDataPage = 1;
+    saveUserControl('filterCategory', e.target.value);
+    saveUserControl('dataCurrentPage', 1);
     renderDataTable();
   });
 
   UI.filterStatus.addEventListener('change', (e) => {
     state.selectedStatus = e.target.value;
     state.currentDataPage = 1;
+    saveUserControl('filterStatus', e.target.value);
+    saveUserControl('dataCurrentPage', 1);
     renderDataTable();
   });
 
@@ -13806,8 +15471,11 @@ function initEvents() {
     state.selectedCategory = 'ALL';
     UI.filterStatus.value = 'ALL';
     state.selectedStatus = 'ALL';
+    state.sortField = 'code';
+    state.sortOrder = 'asc';
     state.currentDataPage = 1;
-    UI.btnClearSearch.classList.add('hidden');
+    if (UI.btnClearSearch) UI.btnClearSearch.classList.add('hidden');
+    if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('data-management');
     renderDataTable();
   });
 
@@ -13821,6 +15489,8 @@ function initEvents() {
         state.sortField = field;
         state.sortOrder = 'asc';
       }
+      saveUserControl('dataSortField', state.sortField);
+      saveUserControl('dataSortOrder', state.sortOrder);
       renderDataTable();
     });
   });
@@ -13892,17 +15562,86 @@ function initEvents() {
   // Admin Live Timer Monitor Search & Filters
   if (UI.searchMonitorInput) {
     UI.searchMonitorInput.addEventListener('input', () => {
+      saveUserControl('searchMonitorInput', UI.searchMonitorInput.value);
       if (state.currentPage === 'timer') renderTimerPage();
     });
   }
   if (UI.filterMonitorUser) {
     UI.filterMonitorUser.addEventListener('change', () => {
+      saveUserControl('filterMonitorUser', UI.filterMonitorUser.value);
       if (state.currentPage === 'timer') renderTimerPage();
     });
   }
   if (UI.filterMonitorStatus) {
     UI.filterMonitorStatus.addEventListener('change', () => {
+      saveUserControl('filterMonitorStatus', UI.filterMonitorStatus.value);
       if (state.currentPage === 'timer') renderTimerPage();
+    });
+  }
+  // Overview Multi-Metric Table Event Listeners (CA, Tiket, ART)
+  if (UI.btnRefreshOverviewCa) {
+    UI.btnRefreshOverviewCa.addEventListener('click', () => {
+      renderOverviewPage();
+      showToast('Data Diperbarui', 'Peringkat perolehan kinerja berhasil disegarkan.', 'info');
+    });
+  }
+  if (UI.filterOverviewCategory) {
+    UI.filterOverviewCategory.addEventListener('change', (e) => {
+      overviewActiveCategory = e.target.value;
+      overviewSortMetric = 'AUTO';
+      saveOverviewUserPref({ category: overviewActiveCategory, sortMetric: 'AUTO' });
+      saveUserControl('filterOverviewCategory', overviewActiveCategory);
+      renderOverviewPage();
+    });
+  }
+  if (UI.btnSortCaDesc) {
+    UI.btnSortCaDesc.addEventListener('click', () => {
+      overviewSortOrder = 'DESC';
+      overviewCaSortOrder = 'DESC';
+      saveOverviewUserPref({ sortOrder: 'DESC' });
+      saveUserControl('overviewSortOrder', 'DESC');
+      renderOverviewPage();
+    });
+  }
+  if (UI.btnSortCaAsc) {
+    UI.btnSortCaAsc.addEventListener('click', () => {
+      overviewSortOrder = 'ASC';
+      overviewCaSortOrder = 'ASC';
+      saveOverviewUserPref({ sortOrder: 'ASC' });
+      saveUserControl('overviewSortOrder', 'ASC');
+      renderOverviewPage();
+    });
+  }
+  if (UI.thSortScore) {
+    UI.thSortScore.addEventListener('click', () => {
+      overviewSortOrder = overviewSortOrder === 'DESC' ? 'ASC' : 'DESC';
+      overviewCaSortOrder = overviewSortOrder;
+      saveOverviewUserPref({ sortOrder: overviewSortOrder });
+      saveUserControl('overviewSortOrder', overviewSortOrder);
+      renderOverviewPage();
+    });
+  }
+  if (UI.searchOverviewCaInput) {
+    UI.searchOverviewCaInput.addEventListener('input', (e) => {
+      overviewSearchQuery = e.target.value;
+      overviewCaSearchQuery = overviewSearchQuery;
+      saveOverviewUserPref({ searchQuery: overviewSearchQuery });
+      saveUserControl('searchOverviewCaInput', overviewSearchQuery);
+      if (UI.btnClearSearchOverviewCa) {
+        UI.btnClearSearchOverviewCa.classList.toggle('hidden', !overviewSearchQuery);
+      }
+      renderOverviewPage();
+    });
+  }
+  if (UI.btnClearSearchOverviewCa) {
+    UI.btnClearSearchOverviewCa.addEventListener('click', () => {
+      if (UI.searchOverviewCaInput) UI.searchOverviewCaInput.value = '';
+      overviewSearchQuery = '';
+      overviewCaSearchQuery = '';
+      saveOverviewUserPref({ searchQuery: '' });
+      saveUserControl('searchOverviewCaInput', '');
+      UI.btnClearSearchOverviewCa.classList.add('hidden');
+      renderOverviewPage();
     });
   }
 
@@ -13927,6 +15666,14 @@ function initEvents() {
       renderUpdatePaPage();
     });
   }
+  if (UI.filterPaUser) UI.filterPaUser.addEventListener('change', renderUpdatePaPage);
+  if (UI.btnClearSearchPa) {
+    UI.btnClearSearchPa.addEventListener('click', () => {
+      if (UI.searchPaInput) UI.searchPaInput.value = '';
+      saveUserControl('searchPaInput', '');
+      renderUpdatePaPage();
+    });
+  }
   if (UI.filterPaService) UI.filterPaService.addEventListener('change', renderUpdatePaPage);
   if (UI.filterPaShift) UI.filterPaShift.addEventListener('change', renderUpdatePaPage);
   if (UI.filterPaCategory) UI.filterPaCategory.addEventListener('change', renderUpdatePaPage);
@@ -13934,15 +15681,21 @@ function initEvents() {
   if (UI.btnResetPaFilters) {
     UI.btnResetPaFilters.addEventListener('click', () => {
       if (UI.searchPaInput) UI.searchPaInput.value = '';
+      if (UI.filterPaUser) UI.filterPaUser.value = 'ALL';
       if (UI.filterPaService) UI.filterPaService.value = 'ALL';
       if (UI.filterPaShift) UI.filterPaShift.value = 'ALL';
       if (UI.filterPaCategory) UI.filterPaCategory.value = 'ALL';
       if (UI.filterPaStatus) UI.filterPaStatus.value = 'ALL';
+      if (UI.btnClearSearchPa) UI.btnClearSearchPa.classList.add('hidden');
+      if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('update-pa');
       renderUpdatePaPage();
       showToast('Filter Direset', 'Semua filter Update PA telah dikembalikan.', 'info');
     });
   }
   if (UI.btnExportPaCSV) UI.btnExportPaCSV.addEventListener('click', exportPaCSV);
+  if (UI.btnCloseAdminUserPaDetail) UI.btnCloseAdminUserPaDetail.addEventListener('click', closeAdminUserDetailModal);
+  if (UI.btnCloseAdminUserPaDetailBtn) UI.btnCloseAdminUserPaDetailBtn.addEventListener('click', closeAdminUserDetailModal);
+  if (UI.btnFilterMainTableByUser) UI.btnFilterMainTableByUser.addEventListener('click', handleFilterMainTableByUser);
 
   // CA Event Listeners
   if (UI.btnOpenAddCaModal) UI.btnOpenAddCaModal.addEventListener('click', openAddCaModal);
@@ -13981,6 +15734,7 @@ function initEvents() {
   if (UI.btnClearSearchCa) {
     UI.btnClearSearchCa.addEventListener('click', () => {
       if (UI.searchCaInput) UI.searchCaInput.value = '';
+      saveUserControl('searchCaInput', '');
       renderCaPage();
     });
   }
@@ -13995,9 +15749,11 @@ function initEvents() {
       if (UI.searchCaInput) UI.searchCaInput.value = '';
       if (UI.filterCaService) UI.filterCaService.value = 'ALL';
       if (UI.filterCaGrade) UI.filterCaGrade.value = 'ALL';
-      if (UI.filterCaSummarySort) UI.filterCaSummarySort.value = 'DESC';
+      if (UI.filterCaSummarySort) UI.filterCaSummarySort.value = 'AVG_DESC';
       if (UI.filterCaScoreSort) UI.filterCaScoreSort.value = 'DATE_DESC';
+      if (UI.btnClearSearchCa) UI.btnClearSearchCa.classList.add('hidden');
       state.selectedCaIds.clear();
+      if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('ca');
       renderCaPage();
       showToast('Filter Direset', 'Semua filter CA telah dikembalikan.', 'info');
     });
@@ -14109,6 +15865,7 @@ function initEvents() {
   if (UI.btnClearSearchTiket) {
     UI.btnClearSearchTiket.addEventListener('click', () => {
       if (UI.searchTiketInput) UI.searchTiketInput.value = '';
+      saveUserControl('searchTiketInput', '');
       renderTiketPage();
     });
   }
@@ -14127,9 +15884,11 @@ function initEvents() {
       if (UI.searchTiketInput) UI.searchTiketInput.value = '';
       if (UI.filterTiketService) UI.filterTiketService.value = 'ALL';
       if (UI.filterTiketGrade) UI.filterTiketGrade.value = 'ALL';
-      if (UI.filterTiketSummarySort) UI.filterTiketSummarySort.value = 'DESC';
+      if (UI.filterTiketSummarySort) UI.filterTiketSummarySort.value = 'COUNT_DESC';
       if (UI.filterTiketScoreSort) UI.filterTiketScoreSort.value = 'DATE_DESC';
+      if (UI.btnClearSearchTiket) UI.btnClearSearchTiket.classList.add('hidden');
       state.selectedTiketIds.clear();
+      if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('tiket');
       renderTiketPage();
       showToast('Filter Direset', 'Semua filter perolehan tiket telah dikembalikan.', 'info');
     });
@@ -14243,6 +16002,7 @@ function initEvents() {
   if (UI.btnClearSearchAht) {
     UI.btnClearSearchAht.addEventListener('click', () => {
       if (UI.searchAhtInput) UI.searchAhtInput.value = '';
+      saveUserControl('searchAhtInput', '');
       renderAhtPage();
     });
   }
@@ -14254,16 +16014,22 @@ function initEvents() {
 
   if (UI.btnResetAhtFilters) {
     UI.btnResetAhtFilters.addEventListener('click', () => {
+      const isAdm = state.isAdmin();
+      const myName = state.currentUser ? state.currentUser.fullName : '';
+      if (UI.filterAhtMonth) UI.filterAhtMonth.value = '2026-09';
+      if (UI.filterSummaryAhtUser) UI.filterSummaryAhtUser.value = isAdm ? 'ALL' : myName;
+      if (UI.filterSummaryAhtService) UI.filterSummaryAhtService.value = 'ALL';
+      if (UI.filterAhtUserSelect) UI.filterAhtUserSelect.value = isAdm ? 'ALL' : myName;
       if (UI.searchAhtInput) UI.searchAhtInput.value = '';
-      if (UI.filterAhtUserSelect && state.isAdmin()) UI.filterAhtUserSelect.value = 'ALL';
       if (UI.filterAhtService) UI.filterAhtService.value = 'ALL';
       if (UI.filterAhtStatus) UI.filterAhtStatus.value = 'ALL';
-      if (UI.filterAhtSort) UI.filterAhtSort.value = 'DATE_DESC';
-      if (UI.filterSummaryAhtUser && state.isAdmin()) UI.filterSummaryAhtUser.value = 'ALL';
-      if (UI.filterSummaryAhtService) UI.filterSummaryAhtService.value = 'ALL';
       if (UI.filterAhtSummarySort) UI.filterAhtSummarySort.value = 'FASTEST';
+      if (UI.filterAhtSort) UI.filterAhtSort.value = 'DATE_DESC';
+      if (UI.btnClearSearchAht) UI.btnClearSearchAht.classList.add('hidden');
+      state.selectedAhtIds.clear();
+      if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('aht');
       renderAhtPage();
-      showToast('Filter Direset', 'Semua filter AHT dikembalikan ke setelan awal.', 'info');
+      showToast('Filter Direset', 'Semua filter AHT telah dikembalikan.', 'info');
     });
   }
 
@@ -14391,6 +16157,7 @@ function initEvents() {
   if (UI.btnClearSearchArt) {
     UI.btnClearSearchArt.addEventListener('click', () => {
       if (UI.searchArtInput) UI.searchArtInput.value = '';
+      saveUserControl('searchArtInput', '');
       renderArtPage();
     });
   }
@@ -14402,16 +16169,22 @@ function initEvents() {
 
   if (UI.btnResetArtFilters) {
     UI.btnResetArtFilters.addEventListener('click', () => {
+      const isAdm = state.isAdmin();
+      const myName = state.currentUser ? state.currentUser.fullName : '';
+      if (UI.filterArtMonth) UI.filterArtMonth.value = '2026-09';
+      if (UI.filterSummaryArtUser) UI.filterSummaryArtUser.value = isAdm ? 'ALL' : myName;
+      if (UI.filterSummaryArtService) UI.filterSummaryArtService.value = 'ALL';
+      if (UI.filterArtUserSelect) UI.filterArtUserSelect.value = isAdm ? 'ALL' : myName;
       if (UI.searchArtInput) UI.searchArtInput.value = '';
-      if (UI.filterArtUserSelect && state.isAdmin()) UI.filterArtUserSelect.value = 'ALL';
       if (UI.filterArtService) UI.filterArtService.value = 'ALL';
       if (UI.filterArtStatus) UI.filterArtStatus.value = 'ALL';
-      if (UI.filterArtSort) UI.filterArtSort.value = 'DATE_DESC';
-      if (UI.filterSummaryArtUser && state.isAdmin()) UI.filterSummaryArtUser.value = 'ALL';
-      if (UI.filterSummaryArtService) UI.filterSummaryArtService.value = 'ALL';
       if (UI.filterArtSummarySort) UI.filterArtSummarySort.value = 'FASTEST';
+      if (UI.filterArtSort) UI.filterArtSort.value = 'DATE_DESC';
+      if (UI.btnClearSearchArt) UI.btnClearSearchArt.classList.add('hidden');
+      state.selectedArtIds.clear();
+      if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('art');
       renderArtPage();
-      showToast('Filter Direset', 'Semua filter ART dikembalikan ke setelan awal.', 'info');
+      showToast('Filter Direset', 'Semua filter ART telah dikembalikan.', 'info');
     });
   }
 
@@ -14528,6 +16301,7 @@ function initEvents() {
   if (UI.btnClearSearchFinding) {
     UI.btnClearSearchFinding.addEventListener('click', () => {
       if (UI.searchFindingInput) UI.searchFindingInput.value = '';
+      saveUserControl('searchFindingInput', '');
       renderFindingPage();
     });
   }
@@ -14537,13 +16311,17 @@ function initEvents() {
   if (UI.filterFindingStatus) UI.filterFindingStatus.addEventListener('change', renderFindingPage);
   if (UI.btnResetFindingFilters) {
     UI.btnResetFindingFilters.addEventListener('click', () => {
+      if (UI.filterFindingMonth) UI.filterFindingMonth.value = '2026-10';
       if (UI.searchFindingInput) UI.searchFindingInput.value = '';
       if (UI.filterFindingService) UI.filterFindingService.value = 'ALL';
       if (UI.filterFindingType) UI.filterFindingType.value = 'ALL';
       if (UI.filterFindingLevel) UI.filterFindingLevel.value = 'ALL';
       if (UI.filterFindingStatus) UI.filterFindingStatus.value = 'ALL';
+      if (UI.btnClearSearchFinding) UI.btnClearSearchFinding.classList.add('hidden');
+      state.selectedFindingIds.clear();
+      if (typeof resetUserControlsForPage === 'function') resetUserControlsForPage('finding');
       renderFindingPage();
-      showToast('Filter Direset', 'Semua filter temuan audit QA dikembalikan.', 'info');
+      showToast('Filter Direset', 'Semua filter Temuan Audit telah dikembalikan.', 'info');
     });
   }
 
@@ -17042,6 +18820,9 @@ Dashboard DRIVE (Reporting, Insight & Visibility of Employee)`;
 
 // Tampilkan Halaman Typing Test
 function renderTypingTestPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('typing-test', state.currentUser);
+  }
   if (typingState.status !== 'running') {
     resetTypingRace();
   }
@@ -17723,6 +19504,9 @@ function switchQuizTab(tabName) {
   }
 
   quizState.activeTab = tabName;
+  if (typeof saveUserControl === 'function') {
+    saveUserControl('quizActiveTab', tabName);
+  }
 
   const btnBattle = document.getElementById('btnTabQuizBattle');
   const btnLeaderboard = document.getElementById('btnTabQuizLeaderboard');
@@ -17754,6 +19538,9 @@ function switchQuizTab(tabName) {
 }
 
 function renderQuizPage() {
+  if (typeof syncUserControlsForPage === 'function') {
+    syncUserControlsForPage('quiz', state.currentUser);
+  }
   const isAdmin = state.isAdmin();
   const currentUserId = getQuizCurrentUserId();
   const quizPermissionBanner = document.getElementById('quizPermissionBanner');
