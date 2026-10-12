@@ -2827,6 +2827,7 @@ const UI = {
   btnOpenAddPaModal: document.getElementById('btnOpenAddPaModal'),
   filterPaMonth: document.getElementById('filterPaMonth'),
   btnRefreshPa: document.getElementById('btnRefreshPa'),
+  btnDeleteAllPaMonth: document.getElementById('btnDeleteAllPaMonth'),
   btnEmptyAddPa: document.getElementById('btnEmptyAddPa'),
   paBannerRoleLabel: document.getElementById('paBannerRoleLabel'),
   paBannerRoleDesc: document.getElementById('paBannerRoleDesc'),
@@ -3565,6 +3566,7 @@ const UI = {
 
   // Overview Multi-Metric Table Widgets (CA, Tiket, ART)
   btnRefreshOverviewCa: document.getElementById('btnRefreshOverviewCa'),
+  btnDeleteAllOverviewMonth: document.getElementById('btnDeleteAllOverviewMonth'),
   filterOverviewCategory: document.getElementById('filterOverviewCategory'),
   filterOverviewMonth: document.getElementById('filterOverviewMonth'),
   searchOverviewCaInput: document.getElementById('searchOverviewCaInput'),
@@ -3918,6 +3920,14 @@ function renderAppView() {
     }
   }
 
+  // Overview & Update PA permissions
+  if (UI.btnDeleteAllOverviewMonth) {
+    UI.btnDeleteAllOverviewMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnDeleteAllPaMonth) {
+    UI.btnDeleteAllPaMonth.classList.toggle('hidden', !isAdmin);
+  }
+
   // CA (Customer Attributes) permission and banner info
   const caBannerRoleLabel = document.getElementById('caBannerRoleLabel');
   const caBannerRoleDesc = document.getElementById('caBannerRoleDesc');
@@ -3945,6 +3955,15 @@ function renderAppView() {
   }
   if (UI.btnCaDeleteSelected) {
     UI.btnCaDeleteSelected.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnExportCaExcel) {
+    UI.btnExportCaExcel.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.caGSheetSyncBar) {
+    UI.caGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenCaGoogleSheetsModal) {
+    UI.btnOpenCaGoogleSheetsModal.classList.add('hidden');
   }
 
   // CA Role-based View Restrictions (User vs Admin)
@@ -4001,6 +4020,15 @@ function renderAppView() {
   if (UI.tiketThSelectAll) {
     UI.tiketThSelectAll.classList.toggle('hidden', !isAdmin);
   }
+  if (UI.btnExportTiketExcel) {
+    UI.btnExportTiketExcel.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.tiketGSheetSyncBar) {
+    UI.tiketGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenTiketGoogleSheetsModal) {
+    UI.btnOpenTiketGoogleSheetsModal.classList.add('hidden');
+  }
   if (UI.tiketBatchBar && !isAdmin) {
     UI.tiketBatchBar.classList.add('hidden');
   }
@@ -4035,6 +4063,15 @@ function renderAppView() {
   }
   if (UI.ahtThSelectAll) {
     UI.ahtThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnExportAhtExcel) {
+    UI.btnExportAhtExcel.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.ahtGSheetSyncBar) {
+    UI.ahtGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenAhtGoogleSheetsModal) {
+    UI.btnOpenAhtGoogleSheetsModal.classList.add('hidden');
   }
   if (UI.ahtBatchBar && !isAdmin) {
     UI.ahtBatchBar.classList.add('hidden');
@@ -4071,8 +4108,34 @@ function renderAppView() {
   if (UI.artThSelectAll) {
     UI.artThSelectAll.classList.toggle('hidden', !isAdmin);
   }
+  if (UI.btnExportArtExcel) {
+    UI.btnExportArtExcel.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.artGSheetSyncBar) {
+    UI.artGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenArtGoogleSheetsModal) {
+    UI.btnOpenArtGoogleSheetsModal.classList.add('hidden');
+  }
   if (UI.artBatchBar && !isAdmin) {
     UI.artBatchBar.classList.add('hidden');
+  }
+
+  // Finding permission & GSheet/Excel visibility
+  if (UI.btnExportFindingExcel) {
+    UI.btnExportFindingExcel.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.findingGSheetSyncBar) {
+    UI.findingGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenFindingGoogleSheetsModal) {
+    UI.btnOpenFindingGoogleSheetsModal.classList.add('hidden');
+  }
+  if (UI.btnDeleteAllFindingMonth) {
+    UI.btnDeleteAllFindingMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenAddFindingModal) {
+    UI.btnOpenAddFindingModal.classList.toggle('hidden', !isAdmin);
   }
 
   // Settings page info
@@ -4701,9 +4764,55 @@ function updateOverviewLegendAndTitles() {
   }
 }
 
+window.promptDeleteAllOverviewMonth = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus seluruh data bulan ini.', 'danger');
+    return;
+  }
+  const selMonth = (UI.filterOverviewMonth ? UI.filterOverviewMonth.value : '2026-09') || '2026-09';
+  if (!selMonth || selMonth === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const monthLabel = formatMonthLabel(selMonth);
+  const caLogs = state.getCaLogs ? state.getCaLogs() : [];
+  const tiketLogs = state.getTikets ? state.getTikets() : [];
+  const artLogs = state.getArtLogs ? state.getArtLogs() : [];
+  const paLogs = state.getPaLogs ? state.getPaLogs() : [];
+
+  const countCa = caLogs.filter(l => (l.date || '').startsWith(selMonth)).length;
+  const countTiket = tiketLogs.filter(l => (l.date || '').startsWith(selMonth)).length;
+  const countArt = artLogs.filter(l => (l.date || '').startsWith(selMonth)).length;
+  const countPa = paLogs.filter(l => (l.date || '').startsWith(selMonth)).length;
+  const totalCount = countCa + countTiket + countArt + countPa;
+
+  if (totalCount === 0) {
+    showToast('Tidak Ada Data', `Tidak ada data kinerja pada periode ${monthLabel} untuk dihapus.`, 'warning');
+    return;
+  }
+
+  state.pendingDelete = {
+    type: 'overview_month',
+    id: selMonth,
+    name: monthLabel,
+    countCa,
+    countTiket,
+    countArt,
+    countPa,
+    totalCount
+  };
+  UI.confirmDeleteTitle.textContent = `Hapus Semua Data Kinerja Bulan ${monthLabel}?`;
+  UI.confirmDeleteMessage.innerHTML = `Peringatan: Seluruh data evaluasi CA (${countCa}), perolehan tiket (${countTiket}), response time ART (${countArt}), dan catatan PA (${countPa}) pada periode <strong>${monthLabel}</strong> akan dihapus secara permanen (total <strong>${totalCount}</strong> catatan). Tindakan ini tidak dapat dibatalkan.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
 function renderOverviewPage() {
   if (typeof updateDynamicMonthDropdowns === 'function') {
     updateDynamicMonthDropdowns();
+  }
+  const isAdmin = state.isAdmin();
+  if (UI.btnDeleteAllOverviewMonth) {
+    UI.btnDeleteAllOverviewMonth.classList.toggle('hidden', !isAdmin);
   }
   syncOverviewUserPreferences();
   updateOverviewLegendAndTitles();
@@ -5670,6 +5779,16 @@ function executePendingDelete() {
     state.addLog('DELETE_PA', 'Hapus Update PA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus entri Update PA: ${name}.`);
     showToast('Log PA Dihapus', `Catatan Update PA berhasil dihapus.`, 'danger');
     renderUpdatePaPage();
+  } else if (type === 'pa_month') {
+    const month = id;
+    const oldLogs = state.getPaLogs();
+    const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
+    const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
+    state.savePaLogs(remainingLogs);
+    state.addLog('DELETE_PA_MONTH', 'Hapus Update PA Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data Update PA periode ${name} (${countBefore} catatan).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} catatan Update PA</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    if (typeof updateDynamicMonthDropdowns === 'function') updateDynamicMonthDropdowns();
+    renderUpdatePaPage();
   } else if (type === 'ca') {
     const logs = state.getCaLogs().filter(p => p.id !== id);
     state.saveCaLogs(logs);
@@ -5815,6 +5934,35 @@ function executePendingDelete() {
     state.addLog('DELETE_FINDING_BATCH', 'Hapus Temuan Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data temuan QA yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data temuan QA</strong> berhasil dihapus.`, 'danger');
     renderFindingPage();
+  } else if (type === 'overview_month') {
+    const month = id;
+    const oldCa = state.getCaLogs ? state.getCaLogs() : [];
+    const countCaBefore = oldCa.filter(l => (l.date || '').startsWith(month)).length;
+    state.saveCaLogs(oldCa.filter(l => !(l.date || '').startsWith(month)));
+    if (state.selectedCaIds) state.selectedCaIds.clear();
+    if (typeof autoSyncCaAction === 'function') autoSyncCaAction('delete_month', { month });
+
+    const oldTiket = state.getTikets ? state.getTikets() : [];
+    const countTiketBefore = oldTiket.filter(l => (l.date || '').startsWith(month)).length;
+    state.saveTikets(oldTiket.filter(l => !(l.date || '').startsWith(month)));
+    if (state.selectedTiketIds) state.selectedTiketIds.clear();
+    if (typeof autoSyncTiketAction === 'function') autoSyncTiketAction('delete_month', { month });
+
+    const oldArt = state.getArtLogs ? state.getArtLogs() : [];
+    const countArtBefore = oldArt.filter(l => (l.date || '').startsWith(month)).length;
+    state.saveArtLogs(oldArt.filter(l => !(l.date || '').startsWith(month)));
+    if (state.selectedArtIds) state.selectedArtIds.clear();
+    if (typeof autoSyncArtAction === 'function') autoSyncArtAction('delete_month', { month });
+
+    const oldPa = state.getPaLogs ? state.getPaLogs() : [];
+    const countPaBefore = oldPa.filter(l => (l.date || '').startsWith(month)).length;
+    state.savePaLogs(oldPa.filter(l => !(l.date || '').startsWith(month)));
+
+    const totalBefore = countCaBefore + countTiketBefore + countArtBefore + countPaBefore;
+    state.addLog('DELETE_OVERVIEW_MONTH', 'Hapus Data Ringkasan Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data kinerja periode ${name} (${totalBefore} catatan).`);
+    showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${totalBefore} data kinerja</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    if (typeof updateDynamicMonthDropdowns === 'function') updateDynamicMonthDropdowns();
+    renderOverviewPage();
   } else if (type === 'quiz_question') {
     const questions = state.getQuizQuestions().filter(q => q.id !== id);
     state.saveQuizQuestions(questions);
@@ -7574,6 +7722,9 @@ function renderUpdatePaPage() {
   if (UI.btnOpenAddPaModal) {
     UI.btnOpenAddPaModal.classList.add('hidden');
   }
+  if (UI.btnDeleteAllPaMonth) {
+    UI.btnDeleteAllPaMonth.classList.toggle('hidden', !isAdmin);
+  }
 
   // Role banner adjustment
   if (UI.paBannerRoleLabel && UI.paBannerRoleDesc && UI.paBannerBadgePrivilege) {
@@ -8065,6 +8216,31 @@ window.promptDeletePa = function(id, title) {
   UI.modalConfirmDelete.classList.remove('hidden');
 };
 
+window.promptDeleteAllPaMonth = function() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus seluruh data bulan ini.', 'danger');
+    return;
+  }
+  const selMonth = (UI.filterPaMonth ? UI.filterPaMonth.value : '2026-09') || '2026-09';
+  if (!selMonth || selMonth === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const monthLabel = formatMonthLabel(selMonth);
+  const logs = state.getPaLogs();
+  const countInMonth = logs.filter(l => (l.date || '').startsWith(selMonth)).length;
+
+  if (countInMonth === 0) {
+    showToast('Tidak Ada Data', `Tidak ada catatan Update PA pada periode ${monthLabel} untuk dihapus.`, 'warning');
+    return;
+  }
+
+  state.pendingDelete = { type: 'pa_month', id: selMonth, name: monthLabel, count: countInMonth };
+  UI.confirmDeleteTitle.textContent = `Hapus Semua Data Update PA Bulan ${monthLabel}?`;
+  UI.confirmDeleteMessage.innerHTML = `Peringatan: Seluruh <strong>${countInMonth} catatan Update PA</strong> pada periode <strong>${monthLabel}</strong> akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.`;
+  UI.modalConfirmDelete.classList.remove('hidden');
+};
+
 window.approvePa = function(id) {
   if (!state.isAdmin()) {
     showToast('Akses Ditolak', 'Hanya Administrator / Team Leader yang dapat memverifikasi status PA.', 'warning');
@@ -8150,6 +8326,17 @@ function renderCaPage() {
 
   // Update Google Spreadsheet Integration Status Bar
   renderCaGSheetBar();
+  if (UI.caGSheetSyncBar) {
+    UI.caGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenCaGoogleSheetsModal) {
+    UI.btnOpenCaGoogleSheetsModal.classList.add('hidden');
+  }
+
+  // Toggle Download Excel based on role (Hidden on user)
+  if (UI.btnExportCaExcel) {
+    UI.btnExportCaExcel.classList.toggle('hidden', !isAdmin);
+  }
 
   // Toggle Section 1 visibility based on role
   if (UI.caUserSummarySection) {
@@ -9584,6 +9771,9 @@ function renderTiketPage() {
     if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.classList.remove('hidden');
     if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.remove('hidden');
     if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.remove('hidden');
+    if (UI.tiketGSheetSyncBar) UI.tiketGSheetSyncBar.classList.remove('hidden');
+    if (UI.btnExportTiketExcel) UI.btnExportTiketExcel.classList.remove('hidden');
+    if (UI.btnOpenTiketGoogleSheetsModal) UI.btnOpenTiketGoogleSheetsModal.classList.add('hidden');
   } else {
     if (UI.tiketBannerRoleLabel) UI.tiketBannerRoleLabel.textContent = 'Otoritas Akses Perolehan Tiket';
     if (UI.tiketBannerRoleDesc) {
@@ -9597,6 +9787,9 @@ function renderTiketPage() {
     if (UI.btnOpenAddTiketModal) UI.btnOpenAddTiketModal.classList.add('hidden');
     if (UI.btnDeleteAllTiketMonth) UI.btnDeleteAllTiketMonth.classList.add('hidden');
     if (UI.tiketThSelectAll) UI.tiketThSelectAll.classList.add('hidden');
+    if (UI.tiketGSheetSyncBar) UI.tiketGSheetSyncBar.classList.add('hidden');
+    if (UI.btnExportTiketExcel) UI.btnExportTiketExcel.classList.add('hidden');
+    if (UI.btnOpenTiketGoogleSheetsModal) UI.btnOpenTiketGoogleSheetsModal.classList.add('hidden');
     state.selectedTiketIds.clear();
     if (UI.tiketBatchBar) UI.tiketBatchBar.classList.add('hidden');
   }
@@ -11115,6 +11308,9 @@ function renderAhtPage() {
     if (UI.btnOpenAddAhtModal) UI.btnOpenAddAhtModal.classList.remove('hidden');
     if (UI.btnDeleteAllAhtMonth) UI.btnDeleteAllAhtMonth.classList.remove('hidden');
     if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.remove('hidden');
+    if (UI.ahtGSheetSyncBar) UI.ahtGSheetSyncBar.classList.remove('hidden');
+    if (UI.btnExportAhtExcel) UI.btnExportAhtExcel.classList.remove('hidden');
+    if (UI.btnOpenAhtGoogleSheetsModal) UI.btnOpenAhtGoogleSheetsModal.classList.add('hidden');
   } else {
     if (UI.ahtBannerRoleLabel) UI.ahtBannerRoleLabel.textContent = 'Otoritas Akses Handling Time (AHT)';
     if (UI.ahtBannerRoleDesc) {
@@ -11128,6 +11324,9 @@ function renderAhtPage() {
     if (UI.btnOpenAddAhtModal) UI.btnOpenAddAhtModal.classList.add('hidden');
     if (UI.btnDeleteAllAhtMonth) UI.btnDeleteAllAhtMonth.classList.add('hidden');
     if (UI.ahtThSelectAll) UI.ahtThSelectAll.classList.add('hidden');
+    if (UI.ahtGSheetSyncBar) UI.ahtGSheetSyncBar.classList.add('hidden');
+    if (UI.btnExportAhtExcel) UI.btnExportAhtExcel.classList.add('hidden');
+    if (UI.btnOpenAhtGoogleSheetsModal) UI.btnOpenAhtGoogleSheetsModal.classList.add('hidden');
     state.selectedAhtIds.clear();
     if (UI.ahtBatchBar) UI.ahtBatchBar.classList.add('hidden');
   }
@@ -13175,6 +13374,7 @@ function renderArtPage() {
     if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.remove('hidden');
     if (UI.btnOpenArtGoogleSheetsModal) UI.btnOpenArtGoogleSheetsModal.classList.add('hidden');
     if (UI.artGSheetSyncBar) UI.artGSheetSyncBar.classList.remove('hidden');
+    if (UI.btnExportArtExcel) UI.btnExportArtExcel.classList.remove('hidden');
     if (UI.artThSelectAll) UI.artThSelectAll.classList.remove('hidden');
   } else {
     if (UI.artBannerRoleLabel) UI.artBannerRoleLabel.textContent = 'Otoritas Akses Response Time (ART)';
@@ -13190,6 +13390,7 @@ function renderArtPage() {
     if (UI.btnDeleteAllArtMonth) UI.btnDeleteAllArtMonth.classList.add('hidden');
     if (UI.btnOpenArtGoogleSheetsModal) UI.btnOpenArtGoogleSheetsModal.classList.add('hidden');
     if (UI.artGSheetSyncBar) UI.artGSheetSyncBar.classList.add('hidden');
+    if (UI.btnExportArtExcel) UI.btnExportArtExcel.classList.add('hidden');
     if (UI.artThSelectAll) UI.artThSelectAll.classList.add('hidden');
     state.selectedArtIds.clear();
     if (UI.artBatchBar) UI.artBatchBar.classList.add('hidden');
@@ -14659,8 +14860,21 @@ function renderFindingPage() {
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('finding', state.currentUser);
   }
+  const isAdmin = state.isAdmin();
   if (UI.btnOpenFindingGoogleSheetsModal) UI.btnOpenFindingGoogleSheetsModal.classList.add('hidden');
   renderFindingGSheetBar();
+  if (UI.findingGSheetSyncBar) {
+    UI.findingGSheetSyncBar.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnExportFindingExcel) {
+    UI.btnExportFindingExcel.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnDeleteAllFindingMonth) {
+    UI.btnDeleteAllFindingMonth.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.btnOpenAddFindingModal) {
+    UI.btnOpenAddFindingModal.classList.toggle('hidden', !isAdmin);
+  }
   const findings = state.getFindings();
   const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-10') || 'ALL';
   const searchQ = (UI.searchFindingInput ? UI.searchFindingInput.value.trim().toLowerCase() : '');
@@ -15831,6 +16045,9 @@ function initEvents() {
       showToast('Data Diperbarui', 'Peringkat perolehan kinerja berhasil disegarkan.', 'info');
     });
   }
+  if (UI.btnDeleteAllOverviewMonth) {
+    UI.btnDeleteAllOverviewMonth.addEventListener('click', promptDeleteAllOverviewMonth);
+  }
   if (UI.filterOverviewCategory) {
     UI.filterOverviewCategory.addEventListener('change', (e) => {
       overviewActiveCategory = e.target.value;
@@ -15906,6 +16123,9 @@ function initEvents() {
       renderUpdatePaPage();
       showToast('Data Diperbarui', 'Riwayat Update PA disinkronkan.', 'info');
     });
+  }
+  if (UI.btnDeleteAllPaMonth) {
+    UI.btnDeleteAllPaMonth.addEventListener('click', promptDeleteAllPaMonth);
   }
   if (UI.btnClosePaModal) UI.btnClosePaModal.addEventListener('click', closePaModal);
   if (UI.btnCancelPaModal) UI.btnCancelPaModal.addEventListener('click', closePaModal);
