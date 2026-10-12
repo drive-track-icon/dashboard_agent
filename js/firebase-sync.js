@@ -3,17 +3,21 @@
  * DRIVE DASHBOARD - FIREBASE CLOUD SYNCHRONIZATION
  * ============================================================================
  * Menghubungkan dashboard ke Firebase Cloud Firestore sehingga seluruh data:
- * - Otomatis terupdate saat beralih PC, laptop, atau smartphone
- * - Realtime Sync: pembaruan di PC 1 langsung muncul di PC 2 tanpa refresh
- * - Offline-First: tetap cepat menggunakan LocalStorage jika offline
- * - Dilengkapi fitur Backup & Restore JSON untuk transfer manual cepat
+ * - Multi-Device & Cross-Platform: Semua akses web dari PC, laptop, tablet, atau smartphone
+ *   mendapatkan data yang sama dan terintegrasi penuh.
+ * - Realtime Sync: Penambahan, pengeditan, atau penghapusan data di Device A
+ *   langsung tersinkronisasi dan tampil di Device B secara instan tanpa perlu refresh.
+ * - Auto-Seed & Hydration: Perangkat baru yang baru membuka web otomatis menarik
+ *   data master terbaru dari Cloud.
+ * - Offline-First: Akses instan menggunakan LocalStorage dan auto-sync saat online.
+ * - Dilengkapi fitur Backup & Restore JSON.
  * ============================================================================
  */
 
 (function () {
   'use strict';
 
-  // Daftar key data yang disinkronkan antar PC & Device
+  // Daftar seluruh key data yang disinkronkan antar PC, Laptop & Mobile Device
   const SYNC_KEYS = [
     'vortex_users',
     'vortex_items',
@@ -48,6 +52,9 @@
       this.listeners = [];
       this.lastSyncTime = null;
       this.skipNextRemote = {}; // Mencegah feedback loop saat perubahan lokal dipush
+      this._debounceTimers = {};
+      this._suppressSync = false;
+      this._storageIntercepted = false;
     }
 
     /**
@@ -87,7 +94,9 @@
      * Inisialisasi Firebase & Firestore
      */
     async init(dashboardInstance) {
-      this.dashboard = dashboardInstance;
+      if (dashboardInstance) {
+        this.dashboard = dashboardInstance;
+      }
       this.updateStatusBadge('checking', 'Memeriksa koneksi Cloud...');
 
       const config = this.getConfig();
@@ -111,7 +120,7 @@
 
         this.db = firebase.firestore();
 
-        // Aktifkan offline persistence jika belum aktif
+        // Aktifkan offline persistence jika didukung browser
         try {
           await this.db.enablePersistence({ synchronizeTabs: true });
         } catch (err) {
@@ -123,10 +132,10 @@
         this.isConnected = true;
         this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
 
-        // Tarik data terbaru dari Cloud saat pertama kali terbuka di PC ini
+        // Tarik data master terbaru dari Cloud saat pertama kali terbuka di PC / device ini
         await this.syncAllFromCloud(false);
 
-        // Aktifkan listener realtime agar perubahan di PC lain langsung update di PC ini
+        // Aktifkan listener realtime agar pembaruan di PC lain langsung update di PC ini
         this.startRealtimeListeners();
 
         return true;
@@ -139,7 +148,7 @@
     }
 
     /**
-     * Mulai mendengarkan perubahan realtime dari Firestore untuk semua koleksi
+     * Mulai mendengarkan perubahan realtime dari Firestore untuk semua koleksi data
      */
     startRealtimeListeners() {
       if (!this.db) return;
@@ -153,9 +162,9 @@
             if (!docSnapshot.exists) return;
 
             const docData = docSnapshot.data();
-            if (!docData || !docData.payload) return;
+            if (!docData || docData.payload === undefined) return;
 
-            // Jika update ini dipicu oleh diri sendiri dalam waktu 2 detik terakhir, lewati
+            // Jika update ini dipicu oleh diri sendiri dalam waktu 2.5 detik terakhir, lewati
             if (this.skipNextRemote[key] && (Date.now() - this.skipNextRemote[key] < 2500)) {
               delete this.skipNextRemote[key];
               return;
@@ -165,7 +174,9 @@
             const remoteRaw = JSON.stringify(docData.payload);
 
             if (currentLocalRaw !== remoteRaw) {
+              this._suppressSync = true;
               localStorage.setItem(key, remoteRaw);
+              this._suppressSync = false;
               this.lastSyncTime = new Date();
               this.onRemoteDataUpdated(key, docData.payload);
             }
@@ -191,85 +202,132 @@
     }
 
     /**
-     * Handler saat data diupdate dari perangkat lain via realtime
+     * Re-render tampilan dashboard secara adaptif saat data berubah
      */
-    onRemoteDataUpdated(key, data) {
-      if (!this.dashboard) return;
-
-      // Tampilkan toast informatif jika sedang membuka halaman terkait
-      const keyFriendlyNames = {
-        'vortex_users': 'Pengguna',
-        'vortex_items': 'Item',
-        'vortex_tikets': 'Tiket Harian',
-        'vortex_findings': 'Temuan Finding',
-        'vortex_ca_logs': 'Coaching Agreement',
-        'vortex_aht_logs': 'Log AHT',
-        'vortex_art_logs': 'Log ART',
-        'vortex_pa_logs': 'Log PA',
-        'vortex_quiz_questions': 'Soal Kuis',
-        'vortex_quiz_history': 'Riwayat Kuis'
-      };
-
-      const name = keyFriendlyNames[key] || 'Data';
-      if (typeof this.dashboard.showToast === 'function') {
-        this.dashboard.showToast(`Data ${name} otomatis diperbarui dari Cloud / perangkat lain.`, 'info');
-      }
-
-      // Re-render tampilan dashboard jika relevan dengan halaman aktif
+    reRenderCurrentView(key = 'all') {
       try {
-        const activePage = this.dashboard.activePage || (this.dashboard.currentUser && this.dashboard.currentUser.activePage);
-        
-        if (key === 'vortex_users' && typeof this.dashboard.renderUserManagement === 'function') {
-          this.dashboard.renderUserManagement();
-        } else if (key === 'vortex_tikets' && typeof this.dashboard.renderTikets === 'function') {
-          this.dashboard.renderTikets();
-        } else if (key === 'vortex_findings' && typeof this.dashboard.renderFindings === 'function') {
-          this.dashboard.renderFindings();
-        } else if (key === 'vortex_ca_logs' && typeof this.dashboard.renderCaLogs === 'function') {
-          this.dashboard.renderCaLogs();
-        } else if (key === 'vortex_aht_logs' && typeof this.dashboard.renderAhtLogs === 'function') {
-          this.dashboard.renderAhtLogs();
-        } else if (key === 'vortex_art_logs' && typeof this.dashboard.renderArtLogs === 'function') {
-          this.dashboard.renderArtLogs();
-        } else if (key === 'vortex_pa_logs' && typeof this.dashboard.renderPaLogs === 'function') {
-          this.dashboard.renderPaLogs();
-        } else if (key === 'vortex_quiz_questions' && typeof this.dashboard.renderQuizQuestionsTable === 'function') {
-          this.dashboard.renderQuizQuestionsTable();
-        } else if (typeof this.dashboard.renderOverviewStats === 'function') {
-          this.dashboard.renderOverviewStats();
+        const stateObj = this.dashboard || window.state;
+
+        // 1. Sinkronisasi sesi pengguna aktif jika daftar user berubah
+        if ((key === 'all' || key === 'vortex_users') && stateObj && stateObj.currentUser) {
+          try {
+            const rawUsers = localStorage.getItem('vortex_users');
+            if (rawUsers) {
+              const users = JSON.parse(rawUsers);
+              const found = users.find(u => u.id === stateObj.currentUser.id || (u.username && u.username.toLowerCase() === (stateObj.currentUser.username || '').toLowerCase()));
+              if (found) {
+                stateObj.currentUser = found;
+                localStorage.setItem('vortex_session', JSON.stringify(found));
+                const sbName = document.getElementById('sidebarUserName');
+                const tbName = document.getElementById('topbarUserName');
+                const sbAvatar = document.getElementById('sidebarUserAvatar');
+                const sbRole = document.getElementById('sidebarUserRoleBadge');
+                if (sbName) sbName.textContent = found.fullName || found.username;
+                if (tbName) tbName.textContent = found.fullName || found.username;
+                if (sbAvatar && found.avatar) sbAvatar.src = found.avatar;
+                if (sbRole) sbRole.textContent = (found.role || 'user').toUpperCase();
+              }
+            }
+          } catch (e) {
+            console.debug('Error updating session user:', e);
+          }
+        }
+
+        // 2. Perbarui dropdown filter bulan dinamis di semua halaman
+        if (typeof window.updateDynamicMonthDropdowns === 'function') {
+          window.updateDynamicMonthDropdowns();
+        }
+
+        // 3. Re-render halaman yang sedang aktif di layar
+        const activePage = (stateObj && stateObj.currentPage) || 'overview';
+        if (typeof window.navigateToPage === 'function') {
+          window.navigateToPage(activePage, false);
+        } else if (typeof window.renderAppView === 'function') {
+          window.renderAppView();
+        }
+
+        // 4. Jika yang diperbarui adalah data yang memengaruhi Ringkasan (CA, Tiket, ART, PA, Item)
+        // dan user sedang di halaman lain, update data overview di latar belakang
+        if (activePage !== 'overview' && ['vortex_ca_logs', 'vortex_tikets', 'vortex_art_logs', 'vortex_pa_logs', 'vortex_items'].includes(key)) {
+          if (typeof window.renderOverviewPage === 'function') {
+            window.renderOverviewPage();
+          }
         }
       } catch (err) {
-        console.debug('Error re-rendering page on remote update:', err);
+        console.debug('Error in reRenderCurrentView:', err);
       }
     }
 
     /**
-     * Kirim pembaruan ke Firestore saat ada method save() dipanggil di dashboard
+     * Handler saat data diupdate dari perangkat lain via realtime sync
      */
-    async notifyDataChanged(key, data) {
+    onRemoteDataUpdated(key, data) {
+      const keyFriendlyNames = {
+        'vortex_users': 'Manajemen Pengguna',
+        'vortex_items': 'Data Barang & Inventaris',
+        'vortex_logs': 'Log Aktivitas',
+        'vortex_tikets': 'Perolehan Tiket Harian',
+        'vortex_findings': 'Temuan Audit Finding',
+        'vortex_ca_logs': 'Coaching Agreement (CA)',
+        'vortex_aht_logs': 'Average Handling Time (AHT)',
+        'vortex_art_logs': 'Average Response Time (ART)',
+        'vortex_pa_logs': 'Update PA (Productivity)',
+        'vortex_quiz_questions': 'Bank Soal Kuis',
+        'vortex_quiz_history': 'Riwayat Battle Kuis',
+        'vortex_timers': 'Pusat Timer',
+        'vortex_stopwatches': 'Pusat Stopwatch',
+        'drive_typing_team_results': 'Hasil Balapan Typing'
+      };
+
+      const name = keyFriendlyNames[key] || 'Data Sistem';
+
+      // Tampilkan toast informatif jika tersedia
+      if (typeof window.showToast === 'function') {
+        window.showToast('Cloud Sync', `Data <strong>${name}</strong> otomatis diperbarui dari Cloud.`, 'info');
+      }
+
+      // Re-render tampilan halaman secara instan
+      this.reRenderCurrentView(key);
+    }
+
+    /**
+     * Kirim pembaruan ke Firestore saat ada penambahan, pengeditan, atau penghapusan data
+     */
+    notifyDataChanged(key, data) {
       if (!this.isConnected || !this.db) return;
 
       this.skipNextRemote[key] = Date.now();
 
-      try {
-        this.updateStatusBadge('syncing', 'Menyimpan ke Cloud...');
+      // Debounce writes agar tidak spamming jika terjadi multiple changes cepat
+      if (!this._debounceTimers) this._debounceTimers = {};
+      if (this._debounceTimers[key]) clearTimeout(this._debounceTimers[key]);
 
-        await this.db.collection(COLLECTION_NAME).doc(key).set({
-          payload: data,
-          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-          updatedBy: (this.dashboard && this.dashboard.currentUser && this.dashboard.currentUser.username) || 'device'
-        }, { merge: true });
+      this._debounceTimers[key] = setTimeout(async () => {
+        try {
+          this.updateStatusBadge('syncing', 'Menyimpan ke Cloud...');
 
-        this.lastSyncTime = new Date();
-        this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
-      } catch (err) {
-        console.warn(`Gagal sinkron ${key} ke cloud:`, err);
-        this.updateStatusBadge('online', 'Tersimpan lokal (Cloud tertunda)');
-      }
+          // Bersihkan data dari objek non-serializable atau undefined
+          const cleanData = JSON.parse(JSON.stringify(data));
+          const stateObj = this.dashboard || window.state;
+          const username = (stateObj && stateObj.currentUser && (stateObj.currentUser.fullName || stateObj.currentUser.username)) || 'Device';
+
+          await this.db.collection(COLLECTION_NAME).doc(key).set({
+            payload: cleanData,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: username
+          }, { merge: true });
+
+          this.lastSyncTime = new Date();
+          this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
+        } catch (err) {
+          console.warn(`Gagal sinkron ${key} ke cloud:`, err);
+          this.updateStatusBadge('online', 'Tersimpan lokal (Cloud tertunda)');
+        }
+      }, 150);
     }
 
     /**
-     * Unggah SELURUH data lokal ke Cloud Firestore (Digunakan untuk Initial Seed / Upload Manual)
+     * Unggah SELURUH data lokal ke Cloud Firestore (Initial Seed / Upload Manual)
      */
     async syncAllToCloud(showToast = true) {
       if (!this.isConnected || !this.db) {
@@ -282,17 +340,20 @@
       try {
         const batch = this.db.batch();
         let totalKeys = 0;
+        const stateObj = this.dashboard || window.state;
+        const username = (stateObj && stateObj.currentUser && (stateObj.currentUser.fullName || stateObj.currentUser.username)) || 'Device_Upload';
 
         SYNC_KEYS.forEach((key) => {
           const raw = localStorage.getItem(key);
           if (raw) {
             try {
               const data = JSON.parse(raw);
+              const cleanData = JSON.parse(JSON.stringify(data));
               const ref = this.db.collection(COLLECTION_NAME).doc(key);
               batch.set(ref, {
-                payload: data,
+                payload: cleanData,
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-                updatedBy: (this.dashboard && this.dashboard.currentUser && this.dashboard.currentUser.username) || 'device_upload'
+                updatedBy: username
               }, { merge: true });
               totalKeys++;
             } catch (e) {
@@ -306,8 +367,8 @@
         this.isSyncing = false;
         this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
 
-        if (showToast && this.dashboard && typeof this.dashboard.showToast === 'function') {
-          this.dashboard.showToast(`Berhasil mengunggah ${totalKeys} data ke Cloud Firebase!`, 'success');
+        if (showToast && typeof window.showToast === 'function') {
+          window.showToast('Cloud Sync', `Berhasil mengunggah ${totalKeys} kategori data ke Cloud Firebase!`, 'success');
         }
 
         return true;
@@ -319,7 +380,7 @@
     }
 
     /**
-     * Unduh SELURUH data dari Cloud Firestore ke LocalStorage (Berguna saat baru buka di PC baru)
+     * Unduh SELURUH data dari Cloud Firestore ke LocalStorage (Berguna saat baru buka di PC / device baru)
      */
     async syncAllFromCloud(showToast = true) {
       if (!this.isConnected || !this.db) {
@@ -333,38 +394,39 @@
         const snapshot = await this.db.collection(COLLECTION_NAME).get();
 
         if (snapshot.empty) {
-          // Jika cloud masih kosong dan ada data di lokal, tawarkan/lakukan auto-seed
-          console.log('Cloud Firestore masih kosong. Melakukan auto-seed dari data lokal...');
+          // Jika cloud masih kosong, lakukan auto-seed dari data master lokal
+          console.log('Cloud Firestore masih kosong. Melakukan auto-seed dari data master lokal...');
           await this.syncAllToCloud(false);
           this.isSyncing = false;
           return;
         }
 
         let updatedCount = 0;
+        this._suppressSync = true;
         snapshot.forEach((doc) => {
           const key = doc.id;
           const data = doc.data();
-          if (data && data.payload) {
+          if (data && data.payload !== undefined) {
             localStorage.setItem(key, JSON.stringify(data.payload));
             updatedCount++;
           }
         });
+        this._suppressSync = false;
 
         this.lastSyncTime = new Date();
         this.isSyncing = false;
         this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
 
-        if (showToast && this.dashboard && typeof this.dashboard.showToast === 'function') {
-          this.dashboard.showToast(`Berhasil menyinkronkan ${updatedCount} kategori data dari Cloud!`, 'success');
+        if (showToast && typeof window.showToast === 'function') {
+          window.showToast('Cloud Sync', `Berhasil menyinkronkan ${updatedCount} kategori data dari Cloud!`, 'success');
         }
 
-        // Re-render dashboard setelah data cloud ditarik
-        if (this.dashboard && typeof this.dashboard.renderOverviewStats === 'function') {
-          this.dashboard.renderOverviewStats();
-        }
+        // Re-render dashboard setelah data cloud berhasil ditarik ke browser
+        this.reRenderCurrentView('all');
 
         return true;
       } catch (err) {
+        this._suppressSync = false;
         this.isSyncing = false;
         this.updateStatusBadge('error', 'Gagal download: ' + err.message);
         throw err;
@@ -375,11 +437,12 @@
      * BACKUP INSTAN: Export seluruh data ke file JSON
      */
     exportBackupJson() {
+      const stateObj = this.dashboard || window.state;
       const backupObj = {
         app: 'DRIVE_DASHBOARD',
         version: '1.0.0',
         exportedAt: new Date().toISOString(),
-        exportedBy: (this.dashboard && this.dashboard.currentUser && this.dashboard.currentUser.username) || 'user',
+        exportedBy: (stateObj && stateObj.currentUser && (stateObj.currentUser.fullName || stateObj.currentUser.username)) || 'user',
         data: {}
       };
 
@@ -414,8 +477,8 @@
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      if (this.dashboard && typeof this.dashboard.showToast === 'function') {
-        this.dashboard.showToast('File backup JSON berhasil diunduh!', 'success');
+      if (typeof window.showToast === 'function') {
+        window.showToast('Export Berhasil', 'File backup JSON berhasil diunduh!', 'success');
       }
     }
 
@@ -435,29 +498,32 @@
             }
 
             let count = 0;
+            this._suppressSync = true;
             Object.keys(parsed.data).forEach((key) => {
               const val = parsed.data[key];
               localStorage.setItem(key, typeof val === 'object' ? JSON.stringify(val) : String(val));
               count++;
             });
+            this._suppressSync = false;
 
-            // Jika terhubung ke cloud, tawarkan atau otomatis push ke cloud juga
+            // Jika terhubung ke cloud, sinkronkan data baru ini ke Cloud Firestore
             if (this.isConnected) {
               await this.syncAllToCloud(false);
             }
 
-            if (this.dashboard && typeof this.dashboard.showToast === 'function') {
-              this.dashboard.showToast(`Berhasil memulihkan ${count} data dari backup! Halaman akan dimuat ulang...`, 'success');
+            if (typeof window.showToast === 'function') {
+              window.showToast('Restore Berhasil', `Berhasil memulihkan ${count} data dari backup! Halaman akan dimuat ulang...`, 'success');
             }
 
             setTimeout(() => {
               window.location.reload();
-            }, 1200);
+            }, 1000);
 
             resolve(count);
           } catch (err) {
-            if (this.dashboard && typeof this.dashboard.showToast === 'function') {
-              this.dashboard.showToast('Gagal membaca file backup: ' + err.message, 'error');
+            this._suppressSync = false;
+            if (typeof window.showToast === 'function') {
+              window.showToast('Gagal Restore', 'Gagal membaca file backup: ' + err.message, 'danger');
             }
             reject(err);
           }
@@ -468,7 +534,7 @@
     }
 
     /**
-     * Perbarui UI Status Badge di Header Topbar
+     * Perbarui UI Status Badge di Header Topbar & Modal
      */
     updateStatusBadge(status, text) {
       const dot = document.getElementById('cloudSyncDot');
@@ -496,6 +562,7 @@
     attachSaveHooks(state) {
       if (!state) return;
       this.dashboard = state;
+
       const syncMap = [
         { method: 'saveUsers', key: 'vortex_users' },
         { method: 'saveItems', key: 'vortex_items' },
@@ -509,7 +576,12 @@
         { method: 'saveArtLogs', key: 'vortex_art_logs' },
         { method: 'saveFindings', key: 'vortex_findings' },
         { method: 'saveQuizQuestions', key: 'vortex_quiz_questions' },
-        { method: 'saveQuizHistory', key: 'vortex_quiz_history' }
+        { method: 'saveQuizHistory', key: 'vortex_quiz_history' },
+        { method: 'saveCaGSheetConfig', key: 'vortex_ca_gsheet_config' },
+        { method: 'saveTiketGSheetConfig', key: 'vortex_tiket_gsheet_config' },
+        { method: 'saveAhtGSheetConfig', key: 'vortex_aht_gsheet_config' },
+        { method: 'saveArtGSheetConfig', key: 'vortex_art_gsheet_config' },
+        { method: 'saveFindingGSheetConfig', key: 'vortex_finding_gsheet_config' }
       ];
 
       syncMap.forEach(({ method, key }) => {
@@ -523,6 +595,34 @@
           state[method]._isHooked = true;
         }
       });
+
+      // Hook resetAllData agar saat direset oleh Admin, Cloud Firestore juga diselaraskan
+      if (typeof state.resetAllData === 'function' && !state.resetAllData._isHooked) {
+        const origReset = state.resetAllData.bind(state);
+        state.resetAllData = () => {
+          origReset();
+          this.syncAllToCloud(false);
+        };
+        state.resetAllData._isHooked = true;
+      }
+
+      // Intercept localStorage.setItem globally untuk menangkap semua mutasi langsung pada SYNC_KEYS
+      if (typeof window !== 'undefined' && window.localStorage && !this._storageIntercepted) {
+        this._storageIntercepted = true;
+        const originalSetItem = window.localStorage.setItem.bind(window.localStorage);
+        const self = this;
+        window.localStorage.setItem = function(key, value) {
+          originalSetItem(key, value);
+          if (SYNC_KEYS.includes(key) && !self._suppressSync && self.isConnected) {
+            try {
+              const parsed = JSON.parse(value);
+              self.notifyDataChanged(key, parsed);
+            } catch (e) {
+              self.notifyDataChanged(key, value);
+            }
+          }
+        };
+      }
     }
 
     /**
@@ -544,7 +644,6 @@
       const openModal = () => {
         if (!modal) return;
         modal.classList.remove('hidden');
-        // Populate form if config exists
         const cfg = this.getConfig();
         if (cfg) {
           const inpProj = document.getElementById('fbProjectId');
@@ -590,7 +689,7 @@
 
       if (btnPush) {
         btnPush.addEventListener('click', async () => {
-          if (confirm('Apakah Anda yakin ingin mengunggah semua data lokal saat ini ke Cloud? Data di Cloud akan diselaraskan dengan data lokal ini.')) {
+          if (confirm('Apakah Anda yakin ingin mengunggah semua data lokal saat ini ke Cloud? Seluruh data di Cloud akan diselaraskan dengan data lokal perangkat ini.')) {
             try {
               await this.syncAllToCloud(true);
             } catch (e) {
@@ -613,7 +712,7 @@
         inputImport.addEventListener('change', async (e) => {
           const file = e.target.files && e.target.files[0];
           if (file) {
-            if (confirm(`Apakah Anda yakin ingin memulihkan data dari file "${file.name}"? Data saat ini di browser akan diganti dengan data dari file backup ini.`)) {
+            if (confirm(`Apakah Anda yakin ingin memulihkan data dari file "${file.name}"? Data di browser saat ini akan diganti dengan data dari file backup ini.`)) {
               await this.importBackupJson(file);
             }
             inputImport.value = '';
@@ -644,8 +743,8 @@
 
           this.saveConfig(config);
           closeModal();
-          if (this.dashboard && typeof this.dashboard.showToast === 'function') {
-            this.dashboard.showToast('Konfigurasi Firebase disimpan. Menghubungkan ke Cloud...', 'info');
+          if (typeof window.showToast === 'function') {
+            window.showToast('Firebase Config', 'Konfigurasi Firebase disimpan. Menghubungkan ke Cloud...', 'info');
           }
           await this.init(this.dashboard || window.state);
         });
@@ -656,13 +755,13 @@
   // Pasang singleton instance ke window
   window.FirebaseSync = new FirebaseSyncManager();
 
-  // Otomatis setup event UI saat DOM siap
+  // Otomatis pasang hook dan inisialisasi saat DOM siap
   document.addEventListener('DOMContentLoaded', () => {
     window.FirebaseSync.setupUIEvents();
     if (window.state) {
       window.FirebaseSync.attachSaveHooks(window.state);
-      window.FirebaseSync.init(window.state);
     }
+    window.FirebaseSync.init(window.state);
   });
 
 })();
