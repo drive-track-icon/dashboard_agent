@@ -5820,11 +5820,165 @@ function executePendingDelete() {
     renderDataTable();
     if (state.currentPage === 'overview') renderOverviewPage();
   } else if (type === 'user') {
-    const users = state.getUsers().filter(u => u.id !== id);
-    state.saveUsers(users);
-    state.addLog('DELETE_USER', 'Hapus Pengguna', `Admin ${state.currentUser.fullName} menghapus akun pengguna ${name}.`);
-    showToast('Pengguna Dihapus', `Akun <strong>${name}</strong> berhasil dihapus.`, 'danger');
+    const targetUserId = id;
+    const allUsers = state.getUsers();
+    const targetUser = allUsers.find(u => u.id === targetUserId);
+    const targetUsername = targetUser ? (targetUser.username || '') : '';
+    const targetFullName = targetUser ? (targetUser.fullName || '') : name;
+
+    const isMatchUser = (item) => {
+      if (!item) return false;
+      if (item.userId && item.userId === targetUserId) return true;
+      if (targetUsername && item.username && item.username.toLowerCase() === targetUsername.toLowerCase()) return true;
+      if (targetFullName) {
+        if (item.userFullName && item.userFullName.toLowerCase() === targetFullName.toLowerCase()) return true;
+        if (item.fullName && item.fullName.toLowerCase() === targetFullName.toLowerCase()) return true;
+        if (item.author && item.author.toLowerCase() === targetFullName.toLowerCase()) return true;
+      }
+      return false;
+    };
+
+    // 1. Hapus akun pengguna dari vortex_users
+    const remainingUsers = allUsers.filter(u => u.id !== targetUserId);
+    state.saveUsers(remainingUsers);
+
+    // 2. Hapus seluruh data Update PA milik user
+    const oldPa = state.getPaLogs ? state.getPaLogs() : [];
+    const remainingPa = oldPa.filter(p => !isMatchUser(p));
+    if (state.savePaLogs) state.savePaLogs(remainingPa);
+
+    // 3. Hapus seluruh data CA (Customer Attributes) milik user
+    const oldCa = state.getCaLogs ? state.getCaLogs() : [];
+    const deletedCaIds = [];
+    const remainingCa = oldCa.filter(c => {
+      if (isMatchUser(c)) {
+        deletedCaIds.push(c.id);
+        return false;
+      }
+      return true;
+    });
+    if (state.saveCaLogs) state.saveCaLogs(remainingCa);
+    if (state.selectedCaIds) {
+      deletedCaIds.forEach(cId => state.selectedCaIds.delete(cId));
+    }
+    if (deletedCaIds.length > 0 && typeof autoSyncCaAction === 'function') {
+      autoSyncCaAction('delete_batch', { ids: deletedCaIds });
+    }
+
+    // 4. Hapus seluruh data Perolehan Tiket milik user
+    const oldTikets = state.getTikets ? state.getTikets() : [];
+    const deletedTiketIds = [];
+    const remainingTikets = oldTikets.filter(t => {
+      if (isMatchUser(t)) {
+        deletedTiketIds.push(t.id);
+        return false;
+      }
+      return true;
+    });
+    if (state.saveTikets) state.saveTikets(remainingTikets);
+    if (state.selectedTiketIds) {
+      deletedTiketIds.forEach(tId => state.selectedTiketIds.delete(tId));
+    }
+    if (deletedTiketIds.length > 0 && typeof autoSyncTiketAction === 'function') {
+      autoSyncTiketAction('delete_batch', { ids: deletedTiketIds });
+    }
+
+    // 5. Hapus seluruh data AHT (Average Handling Time) milik user
+    const oldAht = state.getAhtLogs ? state.getAhtLogs() : [];
+    const deletedAhtIds = [];
+    const remainingAht = oldAht.filter(a => {
+      if (isMatchUser(a)) {
+        deletedAhtIds.push(a.id);
+        return false;
+      }
+      return true;
+    });
+    if (state.saveAhtLogs) state.saveAhtLogs(remainingAht);
+    if (state.selectedAhtIds) {
+      deletedAhtIds.forEach(aId => state.selectedAhtIds.delete(aId));
+    }
+    if (deletedAhtIds.length > 0 && typeof autoSyncAhtAction === 'function') {
+      autoSyncAhtAction('delete_batch', { ids: deletedAhtIds });
+    }
+
+    // 6. Hapus seluruh data ART (Average Response Time) milik user
+    const oldArt = state.getArtLogs ? state.getArtLogs() : [];
+    const deletedArtIds = [];
+    const remainingArt = oldArt.filter(r => {
+      if (isMatchUser(r)) {
+        deletedArtIds.push(r.id);
+        return false;
+      }
+      return true;
+    });
+    if (state.saveArtLogs) state.saveArtLogs(remainingArt);
+    if (state.selectedArtIds) {
+      deletedArtIds.forEach(rId => state.selectedArtIds.delete(rId));
+    }
+    if (deletedArtIds.length > 0 && typeof autoSyncArtAction === 'function') {
+      autoSyncArtAction('delete_batch', { ids: deletedArtIds });
+    }
+
+    // 7. Hapus seluruh data Temuan Audit QA (Finding) milik user
+    const oldFindings = state.getFindings ? state.getFindings() : [];
+    const deletedFindingIds = [];
+    const remainingFindings = oldFindings.filter(f => {
+      if (isMatchUser(f)) {
+        deletedFindingIds.push(f.id);
+        return false;
+      }
+      return true;
+    });
+    if (state.saveFindings) state.saveFindings(remainingFindings);
+    if (state.selectedFindingIds) {
+      deletedFindingIds.forEach(fId => state.selectedFindingIds.delete(fId));
+    }
+    if (deletedFindingIds.length > 0 && typeof autoSyncFindingAction === 'function') {
+      autoSyncFindingAction('delete_batch', { ids: deletedFindingIds });
+    }
+
+    // 8. Hapus seluruh data Timer & Stopwatch milik user
+    const oldTimers = state.getTimers ? state.getTimers() : [];
+    const remainingTimers = oldTimers.filter(t => !isMatchUser(t));
+    if (state.saveTimers) state.saveTimers(remainingTimers);
+
+    const oldStopwatches = state.getStopwatches ? state.getStopwatches() : [];
+    const remainingStopwatches = oldStopwatches.filter(s => !isMatchUser(s));
+    if (state.saveStopwatches) state.saveStopwatches(remainingStopwatches);
+
+    // 9. Hapus riwayat kuis milik user
+    const oldQuizHist = state.getQuizHistory ? state.getQuizHistory() : [];
+    const remainingQuizHist = oldQuizHist.filter(q => !isMatchUser(q));
+    if (state.saveQuizHistory) state.saveQuizHistory(remainingQuizHist);
+
+    // 10. Hapus riwayat sesi balapan typing test milik user
+    try {
+      const allRuns = JSON.parse(localStorage.getItem('drive_typing_team_results') || '[]');
+      const filteredRuns = allRuns.filter(r => !isMatchUser(r));
+      localStorage.setItem('drive_typing_team_results', JSON.stringify(filteredRuns));
+    } catch (e) {}
+
+    // 11. Hapus seluruh preferensi tersimpan akun user di localStorage
+    if (targetUsername) {
+      const userKey = targetUsername.toLowerCase();
+      localStorage.removeItem('drive_theme_color_' + userKey);
+      localStorage.removeItem('drive_display_mode_' + userKey);
+      localStorage.removeItem('drive_sidebar_collapsed_' + userKey);
+      localStorage.removeItem('drive_dashboard_zoom_' + userKey);
+      localStorage.removeItem('drive_user_active_page_' + userKey);
+      localStorage.removeItem('drive_user_controls_' + userKey);
+    }
+
+    // 12. Catat ke Audit Log & Beri Notifikasi
+    state.addLog('DELETE_USER', 'Hapus Pengguna & Seluruh Datanya', `Admin ${state.currentUser.fullName} menghapus akun ${name} beserta seluruh riwayat data di semua menu.`);
+    showToast('Pengguna & Data Dihapus', `Akun <strong>${name}</strong> dan seluruh data kinerjanya di semua menu berhasil dihapus permanen.`, 'danger');
+
+    // 13. Refresh tampilan Manajemen Tim, Dropdown Filter Bulan, dan Ringkasan
     renderUserManagementPage();
+    if (typeof updateDynamicMonthDropdowns === 'function') updateDynamicMonthDropdowns();
+    if (state.currentPage === 'overview' && typeof renderOverviewPage === 'function') {
+      renderOverviewPage();
+    }
   } else if (type === 'timer') {
     const timers = state.getTimers().filter(t => t.id !== id);
     state.saveTimers(timers);
@@ -6437,9 +6591,14 @@ window.toggleUserStatus = function(id) {
 window.promptDeleteUser = function(id, name) {
   if (!state.isAdmin()) return;
 
+  if (state.currentUser && state.currentUser.id === id) {
+    showToast('Aksi Ditolak', 'Anda tidak dapat menghapus akun Administrator yang sedang aktif digunakan.', 'warning');
+    return;
+  }
+
   state.pendingDelete = { type: 'user', id, name };
-  UI.confirmDeleteTitle.textContent = 'Hapus Akun Pengguna?';
-  UI.confirmDeleteMessage.innerHTML = `Akun <strong>${name}</strong> akan dihapus permanen dan tidak lagi dapat masuk ke dalam sistem.`;
+  UI.confirmDeleteTitle.textContent = 'Hapus Anggota Team?';
+  UI.confirmDeleteMessage.innerHTML = `Peringatan: Akun <strong>${name}</strong> beserta <strong>seluruh data kinerjanya di semua menu</strong> (Update PA, CA, Tiket, AHT, ART, Temuan QA, Timer, Kuis, & Typing) akan dihapus secara permanen dari sistem. Tindakan ini tidak dapat dibatalkan.`;
   UI.modalConfirmDelete.classList.remove('hidden');
 };
 
