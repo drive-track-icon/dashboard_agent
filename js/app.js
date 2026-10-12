@@ -1378,6 +1378,8 @@ const DEFAULT_QUIZ_QUESTIONS = [
 // 2. STATE MANAGER
 // ==========================================
 
+const SESSION_TIMEOUT_MS = 9 * 60 * 60 * 1000; // 9 jam (32.400.000 ms)
+
 class AppState {
   constructor() {
     this.initStorage();
@@ -1830,18 +1832,34 @@ class AppState {
 
   loadSession() {
     const session = localStorage.getItem('vortex_session');
-    return session ? JSON.parse(session) : null;
+    if (!session) return null;
+    const loginTimeStr = localStorage.getItem('vortex_session_login_time');
+    if (loginTimeStr) {
+      const loginTime = parseInt(loginTimeStr, 10);
+      if (!isNaN(loginTime) && (Date.now() - loginTime >= SESSION_TIMEOUT_MS)) {
+        this.clearSession();
+        this.sessionExpiredOnLoad = true;
+        return null;
+      }
+    } else {
+      localStorage.setItem('vortex_session_login_time', String(Date.now()));
+    }
+    return JSON.parse(session);
   }
 
-  setSession(user) {
+  setSession(user, isNewLogin = false) {
     this.currentUser = user;
     localStorage.setItem('vortex_session', JSON.stringify(user));
+    if (isNewLogin || !localStorage.getItem('vortex_session_login_time')) {
+      localStorage.setItem('vortex_session_login_time', String(Date.now()));
+    }
     if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
   }
 
   clearSession() {
     this.currentUser = null;
     localStorage.removeItem('vortex_session');
+    localStorage.removeItem('vortex_session_login_time');
     if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
   }
 
@@ -2528,6 +2546,9 @@ if (typeof window !== 'undefined') {
   window.getAvailableMonthList = getAvailableMonthList;
   window.DYNAMIC_MONTH_FILTER_CONFIGS = DYNAMIC_MONTH_FILTER_CONFIGS;
   window.updateDynamicMonthDropdowns = updateDynamicMonthDropdowns;
+  window.SESSION_TIMEOUT_MS = SESSION_TIMEOUT_MS;
+  window.checkSessionExpiry = checkSessionExpiry;
+  window.handleAutoLogout = handleAutoLogout;
 }
 
 function getUserStorageUserKey(user) {
@@ -3656,9 +3677,46 @@ function startClock() {
     if (UI.realtimeClock) {
       UI.realtimeClock.textContent = `${hrs}:${mins}:${secs} WIB`;
     }
+    // Cek batas waktu sesi login (otomatis logout setelah 9 jam)
+    checkSessionExpiry();
   }
   update();
   setInterval(update, 1000);
+}
+
+function checkSessionExpiry() {
+  if (!state.currentUser) return false;
+  const loginTimeStr = localStorage.getItem('vortex_session_login_time');
+  if (!loginTimeStr) return false;
+  const loginTime = parseInt(loginTimeStr, 10);
+  if (isNaN(loginTime)) return false;
+  if (Date.now() - loginTime >= SESSION_TIMEOUT_MS) {
+    handleAutoLogout();
+    return true;
+  }
+  return false;
+}
+
+function handleAutoLogout() {
+  if (!state.currentUser) return;
+  const user = state.currentUser;
+  state.addLog('LOGIN', 'Sesi Berakhir Otomatis', `Sesi login ${user.fullName} (${user.role.toUpperCase()}) telah mencapai batas waktu 9 jam dan otomatis dikeluarkan oleh sistem.`);
+  if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
+    saveActiveUserQuizSession();
+  }
+  if (typeof quizState !== 'undefined') {
+    quizState.activeUserId = null;
+    if (typeof dismissSpecialOutcomeAnimation === 'function') {
+      dismissSpecialOutcomeAnimation();
+    }
+    const modal = document.getElementById('modalQuizResult');
+    if (modal) modal.classList.add('hidden');
+  }
+  state.clearSession();
+  state.currentPage = 'overview';
+  if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
+  renderAppView();
+  showToast('Sesi Berakhir Otomatis', 'Sesi login Anda telah berakhir setelah 9 jam demi keamanan. Silakan masuk kembali.', 'warning');
 }
 
 // ==========================================
@@ -3689,8 +3747,8 @@ function handleLogin(username, password) {
     saveActiveUserQuizSession();
   }
 
-  // Set session
-  state.setSession(user);
+  // Set session (tandai login baru untuk memulai siklus 9 jam)
+  state.setSession(user, true);
   state.addLog('LOGIN', 'Login', `Pengguna ${user.fullName} berhasil masuk dengan peran ${user.role.toUpperCase()}.`);
 
   showToast(
@@ -3732,7 +3790,7 @@ function switchUserRole(targetRole) {
     if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
       saveActiveUserQuizSession();
     }
-    state.setSession(targetUser);
+    state.setSession(targetUser, true);
     if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
     state.addLog('LOGIN', 'Ganti Peran', `Beralih peran secara instan ke ${targetUser.fullName} (${targetUser.role.toUpperCase()}).`);
     showToast('Peran Diperbarui', `Beralih ke akun <strong>${targetUser.fullName}</strong> (${targetUser.role.toUpperCase()}).`, 'success');
@@ -3745,6 +3803,11 @@ function switchUserRole(targetRole) {
 // ==========================================
 
 function renderAppView() {
+  if (state.sessionExpiredOnLoad) {
+    state.sessionExpiredOnLoad = false;
+    showToast('Sesi Berakhir Otomatis', 'Sesi login Anda telah berakhir setelah 9 jam demi keamanan. Silakan masuk kembali.', 'warning');
+  }
+
   if (!state.currentUser) {
     // Show Login Screen
     UI.loginView.classList.remove('hidden');
@@ -4734,33 +4797,34 @@ function updateOverviewLegendAndTitles() {
 
   const titleEl = document.getElementById('overviewPageTitle');
   const badgeEl = document.getElementById('overviewPageBadge');
-  const descEl = document.getElementById('overviewPageDesc');
+  const descEl = (UI && UI.overviewPageDesc) || document.getElementById('overviewPageDesc');
   const legendEl = document.getElementById('overviewColorLegend');
 
-  // Sembunyikan elemen indikator sesuai permintaan
+  // Sembunyikan elemen indikator dan deskripsi ringkasan sesuai permintaan
   if (legendEl) {
     legendEl.innerHTML = '';
     legendEl.style.display = 'none';
     legendEl.classList.add('hidden');
   }
+  if (descEl) {
+    descEl.textContent = '';
+    descEl.style.display = 'none';
+    descEl.classList.add('hidden');
+  }
 
   if (overviewActiveCategory === 'CA') {
     if (titleEl) titleEl.textContent = 'Ringkasan Perolehan CA User';
     if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-star"></i> CA (Customer Attributes)';
-    if (descEl) descEl.textContent = 'Peringkat dan pencapaian nilai Customer Attributes (CA) desimal 2 angka di belakang koma seluruh petugas CSO.';
   } else if (overviewActiveCategory === 'TIKET') {
     if (titleEl) titleEl.textContent = 'Ringkasan Perolehan Tiket User';
     if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-ticket"></i> Tiket (Target 1.320)';
-    if (descEl) descEl.textContent = 'Peringkat perolehan tiket dan pencapaian target bulanan baku (1.320 Tiket) seluruh petugas CSO.';
   } else if (overviewActiveCategory === 'ART') {
     if (titleEl) titleEl.textContent = 'Ringkasan Average Response Time (ART) User';
     if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-bolt"></i> ART (SLA ≤30s)';
-    if (descEl) descEl.textContent = 'Peringkat kecepatan respon (Average Response Time) dan kepatuhan SLA (≤30 Detik) seluruh petugas CSO.';
   } else {
     // ALL
     if (titleEl) titleEl.textContent = 'Ringkasan Perolehan Kinerja User';
     if (badgeEl) badgeEl.innerHTML = '<i class="fa-solid fa-chart-pie"></i> Semua (CA, Tiket, ART)';
-    if (descEl) descEl.textContent = 'Rekapitulasi komprehensif seluruh performa Customer Attributes (CA), Tiket bulanan (Target 1.320), dan Average Response Time (ART) petugas CSO.';
   }
 }
 
