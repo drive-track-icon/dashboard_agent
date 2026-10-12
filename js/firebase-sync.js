@@ -258,35 +258,8 @@
       }
     }
 
-    /**
-     * Handler saat data diupdate dari perangkat lain via realtime sync
-     */
     onRemoteDataUpdated(key, data) {
-      const keyFriendlyNames = {
-        'vortex_users': 'Manajemen Pengguna',
-        'vortex_items': 'Data Barang & Inventaris',
-        'vortex_logs': 'Log Aktivitas',
-        'vortex_tikets': 'Perolehan Tiket Harian',
-        'vortex_findings': 'Temuan Audit Finding',
-        'vortex_ca_logs': 'Coaching Agreement (CA)',
-        'vortex_aht_logs': 'Average Handling Time (AHT)',
-        'vortex_art_logs': 'Average Response Time (ART)',
-        'vortex_pa_logs': 'Update PA (Productivity)',
-        'vortex_quiz_questions': 'Bank Soal Kuis',
-        'vortex_quiz_history': 'Riwayat Battle Kuis',
-        'vortex_timers': 'Pusat Timer',
-        'vortex_stopwatches': 'Pusat Stopwatch',
-        'drive_typing_team_results': 'Hasil Balapan Typing'
-      };
-
-      const name = keyFriendlyNames[key] || 'Data Sistem';
-
-      // Tampilkan toast informatif jika tersedia
-      if (typeof window.showToast === 'function') {
-        window.showToast('Cloud Sync', `Data <strong>${name}</strong> otomatis diperbarui dari Cloud.`, 'info');
-      }
-
-      // Re-render tampilan halaman secara instan
+      // Re-render tampilan halaman secara instan dan senyap tanpa popup notifikasi
       this.reRenderCurrentView(key);
     }
 
@@ -367,10 +340,6 @@
         this.isSyncing = false;
         this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
 
-        if (showToast && typeof window.showToast === 'function') {
-          window.showToast('Cloud Sync', `Berhasil mengunggah ${totalKeys} kategori data ke Cloud Firebase!`, 'success');
-        }
-
         return true;
       } catch (err) {
         this.isSyncing = false;
@@ -382,7 +351,7 @@
     /**
      * Unduh SELURUH data dari Cloud Firestore ke LocalStorage (Berguna saat baru buka di PC / device baru)
      */
-    async syncAllFromCloud(showToast = true) {
+    async syncAllFromCloud(showToast = false) {
       if (!this.isConnected || !this.db) {
         throw new Error('Belum terhubung ke Firebase Cloud.');
       }
@@ -416,10 +385,6 @@
         this.lastSyncTime = new Date();
         this.isSyncing = false;
         this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
-
-        if (showToast && typeof window.showToast === 'function') {
-          window.showToast('Cloud Sync', `Berhasil menyinkronkan ${updatedCount} kategori data dari Cloud!`, 'success');
-        }
 
         // Re-render dashboard setelah data cloud berhasil ditarik ke browser
         this.reRenderCurrentView('all');
