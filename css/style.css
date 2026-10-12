@@ -9080,10 +9080,6 @@ body.theme-light .typing-category-dropdown {
 }
 
 /* Update PA: Role-based section visibility */
-body[data-user-role="user"] #paAdminMetricsLogsSection,
-body[data-user-role="user"] #paMetricsGrid,
-body[data-user-role="user"] #paSearchToolbar,
-body[data-user-role="user"] #paTableContainer,
 body[data-user-role="user"] #paAdminOverviewSection {
   display: none !important;
 }

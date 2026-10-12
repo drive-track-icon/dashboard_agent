@@ -39,13 +39,6 @@ function createMockElement(id, classes = []) {
 const ids = [
   'paAdminOverviewSection',
   'paUserPersonalCardContainer',
-  'paAdminMetricsLogsSection',
-  'paMetricsGrid',
-  'paSearchToolbar',
-  'paTableContainer',
-  'filterPaUser',
-  'paTableBody',
-  'paTableEmpty',
   'paBannerRoleLabel',
   'paBannerRoleDesc',
   'paBannerBadgePrivilege',
@@ -71,25 +64,14 @@ let isAdmin = false;
 if (isAdmin) {
   domElements.paAdminOverviewSection.classList.remove('hidden');
   domElements.paUserPersonalCardContainer.classList.add('hidden');
-  domElements.paAdminMetricsLogsSection.classList.remove('hidden');
-  domElements.paMetricsGrid.classList.remove('hidden');
-  domElements.paSearchToolbar.classList.remove('hidden');
-  domElements.paTableContainer.classList.remove('hidden');
 } else {
   domElements.paAdminOverviewSection.classList.add('hidden');
-  domElements.paAdminMetricsLogsSection.classList.add('hidden');
-  domElements.paMetricsGrid.classList.add('hidden');
-  domElements.paSearchToolbar.classList.add('hidden');
-  domElements.paTableContainer.classList.add('hidden');
   domElements.paUserPersonalCardContainer.classList.remove('hidden');
 }
 
-assert(domElements.paMetricsGrid.classList.contains('hidden'), 'paMetricsGrid must have class hidden for user');
-assert(domElements.paSearchToolbar.classList.contains('hidden'), 'paSearchToolbar must have class hidden for user');
-assert(domElements.paTableContainer.classList.contains('hidden'), 'paTableContainer must have class hidden for user');
-assert(domElements.paAdminMetricsLogsSection.classList.contains('hidden'), 'paAdminMetricsLogsSection must have class hidden for user');
+assert(domElements.paAdminOverviewSection.classList.contains('hidden'), 'paAdminOverviewSection must have class hidden for user');
 assert(!domElements.paUserPersonalCardContainer.classList.contains('hidden'), 'paUserPersonalCardContainer must NOT have class hidden for user');
-console.log('   [PASS] On user view: Total Interaksi Ditangani, Total Jam Efektif, Total Waktu AUX, Skor Capaian PA, card cari, and card tabel are all hidden!');
+console.log('   [PASS] On user view: Personal card is visible, admin overview is hidden.');
 
 // Test simulation for admin role
 console.log('\n2. Simulating admin view for Update PA:');
@@ -98,24 +80,13 @@ isAdmin = true;
 if (isAdmin) {
   domElements.paAdminOverviewSection.classList.remove('hidden');
   domElements.paUserPersonalCardContainer.classList.add('hidden');
-  domElements.paAdminMetricsLogsSection.classList.remove('hidden');
-  domElements.paMetricsGrid.classList.remove('hidden');
-  domElements.paSearchToolbar.classList.remove('hidden');
-  domElements.paTableContainer.classList.remove('hidden');
 } else {
   domElements.paAdminOverviewSection.classList.add('hidden');
-  domElements.paAdminMetricsLogsSection.classList.add('hidden');
-  domElements.paMetricsGrid.classList.add('hidden');
-  domElements.paSearchToolbar.classList.add('hidden');
-  domElements.paTableContainer.classList.add('hidden');
   domElements.paUserPersonalCardContainer.classList.remove('hidden');
 }
 
-assert(!domElements.paMetricsGrid.classList.contains('hidden'), 'paMetricsGrid must NOT have class hidden for admin');
-assert(!domElements.paSearchToolbar.classList.contains('hidden'), 'paSearchToolbar must NOT have class hidden for admin');
-assert(!domElements.paTableContainer.classList.contains('hidden'), 'paTableContainer must NOT have class hidden for admin');
-assert(!domElements.paAdminMetricsLogsSection.classList.contains('hidden'), 'paAdminMetricsLogsSection must NOT have class hidden for admin');
+assert(!domElements.paAdminOverviewSection.classList.contains('hidden'), 'paAdminOverviewSection must NOT have class hidden for admin');
 assert(domElements.paUserPersonalCardContainer.classList.contains('hidden'), 'paUserPersonalCardContainer must have class hidden for admin');
-console.log('   [PASS] On admin view: Admin overview section, metrics grid, card cari, and card table are all visible!');
+console.log('   [PASS] On admin view: Admin overview section is visible, personal card is hidden.');
 
 console.log('\n=== ALL SIMULATION CHECKS PASSED SUCCESSFULLY! ===');

@@ -447,6 +447,16 @@
             </div>
             
             <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterOverviewMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterOverviewMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
               <button class="btn btn-outline-gray" id="btnRefreshOverviewCa" title="Segarkan Data Ringkasan">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
@@ -662,15 +672,25 @@
                 <h2 class="page-title">Update PA</h2>
                 <span class="badge badge-red-subtle"><i class="fa-solid fa-bolt"></i> Productivity &amp; Activity</span>
               </div>
-              <p class="page-desc">Pencatatan riwayat aktivitas shift, penanganan interaksi pelanggan, auxiliary time (AUX), dan pemantauan produktivitas CSO.</p>
+              <p class="page-desc hidden">Pencatatan riwayat aktivitas shift, penanganan interaksi pelanggan, auxiliary time (AUX), dan pemantauan produktivitas CSO.</p>
             </div>
             
             <div class="page-title-actions">
+              <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
+                <label for="filterPaMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
+                <select id="filterPaMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
+                  <option value="2026-09" selected>September 2026</option>
+                  <option value="2026-08">Agustus 2026</option>
+                  <option value="2026-07">Juli 2026</option>
+                </select>
+              </div>
               <button class="btn btn-outline-gray" id="btnRefreshPa">
                 <i class="fa-solid fa-arrows-rotate"></i>
                 <span>Segarkan</span>
               </button>
-              <button class="btn btn-primary glow-effect-red" id="btnOpenAddPaModal">
+              <button class="btn btn-primary glow-effect-red hidden" id="btnOpenAddPaModal">
                 <i class="fa-solid fa-plus"></i>
                 <span>Catat Update PA</span>
               </button>
@@ -683,7 +703,7 @@
               <i class="fa-solid fa-clipboard-user text-red"></i>
               <div>
                 <strong id="paBannerRoleLabel">Status PA Hari Ini: Aktif &amp; Terpantau</strong>
-                <p id="paBannerRoleDesc">Pastikan seluruh durasi shift, penanganan tiket, dan waktu AUX tercatat dengan benar untuk akurasi data produktivitas harian.</p>
+                <p id="paBannerRoleDesc" class="hidden">Pastikan seluruh durasi shift, penanganan tiket, dan waktu AUX tercatat dengan benar untuk akurasi data produktivitas harian.</p>
               </div>
             </div>
             <div class="status-banner-right">
@@ -746,7 +766,7 @@
                   </h3>
                   <span class="badge badge-admin" id="paAdminUserCountBadge">4 Pengguna</span>
                 </div>
-                <p class="section-desc text-muted" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">
+                <p class="section-desc text-muted hidden" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); margin-top:2px;">
                   Admin dapat melihat seluruh data Update PA user. Klik tombol <strong>Detail</strong> pada kartu pengguna untuk melihat rincian Foto, email, layanan, CA, Tiket, AHT, ART, dan riwayat aktivitas shift lengkap.
                 </p>
               </div>
@@ -755,168 +775,6 @@
             <!-- Grid Kartu User Admin -->
             <div class="pa-admin-user-grid" id="paAdminUserGrid">
               <!-- Dynamically populated -->
-            </div>
-          </div>
-
-          <!-- Section Log & Metrik PA (Hanya Admin / Disembunyikan pada User) -->
-          <div class="pa-admin-metrics-logs-section hidden" id="paAdminMetricsLogsSection">
-            <!-- Metric Cards Grid for PA -->
-            <div class="metrics-grid" id="paMetricsGrid">
-              <div class="metric-card glass-panel card-hover">
-                <div class="metric-header">
-                  <div class="metric-icon-box bg-red-gradient">
-                    <i class="fa-solid fa-headset text-white"></i>
-                  </div>
-                  <span class="metric-tag tag-red" id="paMetricShiftTag">Shift Aktif</span>
-                </div>
-                <div class="metric-body">
-                  <span class="metric-label">Total Interaksi Ditangani</span>
-                  <h3 class="metric-value text-red" id="paStatTotalInteractions">0</h3>
-                  <span class="metric-subtext" id="paStatInteractionsSub">Dari log PA tercatat</span>
-                </div>
-              </div>
-
-              <div class="metric-card glass-panel card-hover">
-                <div class="metric-header">
-                  <div class="metric-icon-box bg-gray-dark">
-                    <i class="fa-solid fa-clock text-silver"></i>
-                  </div>
-                  <span class="metric-tag tag-gray">Productive Hours</span>
-                </div>
-                <div class="metric-body">
-                  <span class="metric-label">Total Jam Efektif</span>
-                  <h3 class="metric-value text-white" id="paStatProductiveHours">0.0 Jam</h3>
-                  <span class="metric-subtext">Ready &amp; Penanganan Chat/Call</span>
-                </div>
-              </div>
-
-              <div class="metric-card glass-panel card-hover">
-                <div class="metric-header">
-                  <div class="metric-icon-box bg-gray-dark">
-                    <i class="fa-solid fa-mug-hot text-yellow"></i>
-                  </div>
-                  <span class="metric-tag tag-yellow">AUX Duration</span>
-                </div>
-                <div class="metric-body">
-                  <span class="metric-label">Total Waktu AUX</span>
-                  <h3 class="metric-value text-yellow" id="paStatAuxMinutes">0 Menit</h3>
-                  <span class="metric-subtext">Istirahat, Sholat, Toilet, Coaching</span>
-                </div>
-              </div>
-
-              <div class="metric-card glass-panel card-hover border-red-subtle">
-                <div class="metric-header">
-                  <div class="metric-icon-box bg-red-subtle">
-                    <i class="fa-solid fa-chart-line text-red"></i>
-                  </div>
-                  <span class="metric-tag tag-green" id="paStatTargetBadge">Target 95%</span>
-                </div>
-                <div class="metric-body">
-                  <span class="metric-label">Skor Capaian PA</span>
-                  <h3 class="metric-value text-silver" id="paStatScore">0%</h3>
-                  <span class="metric-subtext" id="paStatScoreSub">Rasio terhadap target interaksi</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Filter & Search Toolbar (Card Cari) -->
-            <div class="table-toolbar glass-panel" id="paSearchToolbar">
-              <div class="toolbar-search">
-                <i class="fa-solid fa-magnifying-glass search-icon"></i>
-                <input type="text" id="searchPaInput" class="search-input" placeholder="Cari nama anggota CSO, layanan, catatan, atau aktivitas...">
-                <button class="btn-clear-search hidden" id="btnClearSearchPa" aria-label="Bersihkan pencarian">
-                  <i class="fa-solid fa-xmark"></i>
-                </button>
-              </div>
-              
-              <div class="toolbar-filters">
-                <select id="filterPaUser" class="filter-select hidden">
-                  <option value="ALL">Semua Petugas CSO</option>
-                </select>
-
-                <select id="filterPaService" class="filter-select">
-                  <option value="ALL">Semua Layanan CSO</option>
-                  <option value="CSO INBOUND">CSO INBOUND</option>
-                  <option value="CSO DIGILIVE CHAT - DM">CSO DIGILIVE CHAT - DM</option>
-                  <option value="CSO DIGILIVE CHAT - MY ICON+">CSO DIGILIVE CHAT - MY ICON+</option>
-                  <option value="CSO DIGILIVE CHAT - WA">CSO DIGILIVE CHAT - WA</option>
-                  <option value="CSO BACK OFFICE">CSO BACK OFFICE</option>
-                  <option value="CSO OUTBOUND">CSO OUTBOUND</option>
-                  <option value="CSO EMAIL">CSO EMAIL</option>
-                  <option value="TEAM LEADER">TEAM LEADER</option>
-                </select>
-
-                <select id="filterPaShift" class="filter-select">
-                  <option value="ALL">Semua Shift</option>
-                  <option value="Shift Pagi">Shift Pagi</option>
-                  <option value="Shift Siang">Shift Siang</option>
-                  <option value="Shift Malam">Shift Malam</option>
-                  <option value="Normal Office">Normal Office</option>
-                </select>
-
-                <select id="filterPaCategory" class="filter-select">
-                  <option value="ALL">Semua Aktivitas / AUX</option>
-                  <option value="READY">Ready / Handling</option>
-                  <option value="AUX 1">AUX 1: Istirahat / Makan</option>
-                  <option value="AUX 2">AUX 2: Toilet / Personal</option>
-                  <option value="AUX 3">AUX 3: Sholat / Ibadah</option>
-                  <option value="AUX 4">AUX 4: Briefing &amp; Coaching</option>
-                  <option value="AUX 5">AUX 5: Follow Up Tiket</option>
-                  <option value="AUX 6">AUX 6: Training / QA</option>
-                </select>
-
-                <select id="filterPaStatus" class="filter-select">
-                  <option value="ALL">Semua Status</option>
-                  <option value="Terverifikasi">Terverifikasi</option>
-                  <option value="Selesai">Selesai</option>
-                  <option value="Menunggu Review">Menunggu Review</option>
-                </select>
-
-                <button class="btn btn-outline-gray btn-sm" id="btnResetPaFilters" title="Reset Semua Filter">
-                  <i class="fa-solid fa-rotate-left"></i>
-                </button>
-
-                <button class="btn btn-outline-gray btn-sm" id="btnExportPaCSV" title="Ekspor Log PA ke CSV">
-                  <i class="fa-solid fa-file-csv text-red"></i>
-                  <span class="hide-mobile">Ekspor CSV</span>
-                </button>
-              </div>
-            </div>
-
-            <!-- PA Log Table (Card Waktu & Tanggal Petugas CSO Layanan CSO Shift Aktivitas & AUX Interaksi Durasi Status Aksi) -->
-            <div class="table-container glass-panel" id="paTableContainer">
-              <div class="table-responsive">
-                <table class="custom-table" id="tablePaLogs">
-                  <thead>
-                    <tr>
-                      <th>Waktu &amp; Tanggal</th>
-                      <th>Petugas CSO</th>
-                      <th>Layanan CSO</th>
-                      <th>Shift</th>
-                      <th>Aktivitas &amp; AUX</th>
-                      <th style="text-align: right;">Interaksi</th>
-                      <th style="text-align: right;">Durasi</th>
-                      <th>Status</th>
-                      <th style="width: 140px; text-align: center;">Aksi</th>
-                    </tr>
-                  </thead>
-                  <tbody id="paTableBody">
-                    <!-- Rendered dynamically -->
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- Empty State for PA -->
-              <div class="table-empty-state hidden" id="paTableEmpty">
-                <div class="empty-icon-wrap">
-                  <i class="fa-solid fa-clipboard-question text-muted"></i>
-                </div>
-                <h4>Tidak Ada Catatan PA</h4>
-                <p class="text-muted">Belum ada riwayat update PA yang sesuai dengan kriteria filter pencarian.</p>
-                <button class="btn btn-outline-red btn-sm mt-3" id="btnEmptyAddPa">
-                  <i class="fa-solid fa-plus"></i> Buat Entri PA Pertama
-                </button>
-              </div>
             </div>
           </div>
 
@@ -937,6 +795,8 @@
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
                 <label for="filterCaMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterCaMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
                   <option value="2026-07">Juli 2026</option>
@@ -1236,6 +1096,8 @@
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
                 <label for="filterTiketMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterTiketMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
                   <option value="2026-07">Juli 2026</option>
@@ -1564,6 +1426,8 @@
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
                 <label for="filterAhtMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterAhtMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
                   <option value="2026-07">Juli 2026</option>
@@ -1884,6 +1748,8 @@
               <div class="month-filter-group" style="display:inline-flex; align-items:center; gap:8px;">
                 <label for="filterArtMonth" style="font-size: calc(0.8rem * var(--content-font-scale, 1)); color:var(--gray-300); font-weight:600;"><i class="fa-regular fa-calendar text-red" style="margin-right:4px;"></i>Bulan:</label>
                 <select id="filterArtMonth" class="filter-select" style="min-width: 160px; font-weight: 600;">
+                  <option value="ALL">Semua Bulan</option>
+                  <option value="2026-10">Oktober 2026</option>
                   <option value="2026-09" selected>September 2026</option>
                   <option value="2026-08">Agustus 2026</option>
                   <option value="2026-07">Juli 2026</option>
@@ -4813,10 +4679,7 @@
         </div>
       </div>
 
-      <div class="modal-footer" style="display:flex; justify-content:space-between; align-items:center;">
-        <button type="button" class="btn btn-outline-cyan btn-sm" id="btnFilterMainTableByUser">
-          <i class="fa-solid fa-filter"></i> Filter di Tabel Utama
-        </button>
+      <div class="modal-footer" style="display:flex; justify-content:flex-end; align-items:center;">
         <button type="button" class="btn btn-outline-gray" id="btnCloseAdminUserPaDetailBtn">Tutup</button>
       </div>
     </div>

@@ -2292,11 +2292,13 @@ function setUserDashboardZoom(user, level) {
 const PAGE_CONTROL_DEFAULTS = {
   overview: {
     filterOverviewCategory: 'ALL',
+    filterOverviewMonth: '2026-09',
     searchOverviewCaInput: '',
     overviewSortOrder: 'DESC',
     overviewSortMetric: 'AUTO'
   },
   'update-pa': {
+    filterPaMonth: '2026-09',
     searchPaInput: '',
     filterPaUser: 'ALL',
     filterPaService: 'ALL',
@@ -2399,6 +2401,135 @@ Object.values(PAGE_CONTROL_DEFAULTS).forEach(pageObj => {
   Object.keys(pageObj).forEach(k => ALL_MANAGED_CONTROL_KEYS.add(k));
 });
 
+// ==========================================
+// 2.9 DYNAMIC AUTO-UPDATING MONTH SYSTEM
+// ("Ringkasan", "Update PA", "CA", "Tiket", "AHT", "ART", "Finding")
+// ==========================================
+
+const INDO_MONTH_NAMES = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+];
+
+function formatMonthLabel(ym) {
+  if (!ym || ym === 'ALL') return 'Semua Bulan';
+  const parts = String(ym).trim().split('-');
+  if (parts.length < 2) return ym;
+  const year = parts[0];
+  const monthIdx = parseInt(parts[1], 10) - 1;
+  const monthName = INDO_MONTH_NAMES[monthIdx] || parts[1];
+  return `${monthName} ${year}`;
+}
+
+function getAvailableMonthList() {
+  const now = new Date();
+  const curY = now.getFullYear();
+  const curM = now.getMonth() + 1;
+  const currentYm = `${curY}-${String(curM).padStart(2, '0')}`;
+
+  let minYm = '2026-07';
+  let maxYm = currentYm;
+
+  // Scan stored records for any additional historical or future months
+  const scanSources = [];
+  try {
+    if (typeof state !== 'undefined' && state) {
+      if (typeof state.getCaLogs === 'function') scanSources.push(state.getCaLogs());
+      if (typeof state.getTikets === 'function') scanSources.push(state.getTikets());
+      if (typeof state.getAhtLogs === 'function') scanSources.push(state.getAhtLogs());
+      if (typeof state.getArtLogs === 'function') scanSources.push(state.getArtLogs());
+      if (typeof state.getPaLogs === 'function') scanSources.push(state.getPaLogs());
+      if (typeof state.getFindings === 'function') scanSources.push(state.getFindings());
+    }
+  } catch (e) {
+    console.warn('Error reading state logs for dynamic month list:', e);
+  }
+
+  scanSources.forEach(list => {
+    if (!Array.isArray(list)) return;
+    list.forEach(item => {
+      const d = item && (item.date || item.createdAt);
+      if (typeof d === 'string' && /^\d{4}-\d{2}/.test(d)) {
+        const ym = d.slice(0, 7);
+        if (ym < minYm && ym >= '2024-01') minYm = ym;
+        if (ym > maxYm) maxYm = ym;
+      }
+    });
+  });
+
+  const [minYear, minMonth] = minYm.split('-').map(Number);
+  const [maxYear, maxMonth] = maxYm.split('-').map(Number);
+
+  const months = [];
+  let y = maxYear;
+  let m = maxMonth;
+
+  while (y > minYear || (y === minYear && m >= minMonth)) {
+    months.push(`${y}-${String(m).padStart(2, '0')}`);
+    m--;
+    if (m < 1) {
+      m = 12;
+      y--;
+    }
+  }
+
+  return months;
+}
+
+const DYNAMIC_MONTH_FILTER_CONFIGS = [
+  { id: 'filterOverviewMonth', pageKey: 'overview', defaultVal: '2026-09' },
+  { id: 'filterPaMonth', pageKey: 'update-pa', defaultVal: '2026-09' },
+  { id: 'filterCaMonth', pageKey: 'ca', defaultVal: '2026-09' },
+  { id: 'filterTiketMonth', pageKey: 'tiket', defaultVal: '2026-09' },
+  { id: 'filterAhtMonth', pageKey: 'aht', defaultVal: '2026-09' },
+  { id: 'filterArtMonth', pageKey: 'art', defaultVal: '2026-09' },
+  { id: 'filterFindingMonth', pageKey: 'finding', defaultVal: '2026-10' }
+];
+
+function updateDynamicMonthDropdowns() {
+  const months = getAvailableMonthList();
+  const desiredOptions = [
+    { value: 'ALL', label: 'Semua Bulan' },
+    ...months.map(m => ({ value: m, label: formatMonthLabel(m) }))
+  ];
+
+  DYNAMIC_MONTH_FILTER_CONFIGS.forEach(cfg => {
+    const el = (UI && UI[cfg.id]) || document.getElementById(cfg.id);
+    if (!el) return;
+
+    // Check if select options already match exactly
+    const curOptions = el.options ? Array.from(el.options) : [];
+    const isSame = curOptions.length === desiredOptions.length &&
+      desiredOptions.every((opt, i) => curOptions[i] && curOptions[i].value === opt.value && curOptions[i].textContent === opt.label);
+
+    if (isSame && curOptions.length > 0) return;
+
+    const savedVal = el.value;
+    el.innerHTML = desiredOptions.map(opt => `<option value="${opt.value}">${opt.label}</option>`).join('');
+
+    // Restore value
+    if (desiredOptions.some(opt => opt.value === savedVal)) {
+      el.value = savedVal;
+    } else {
+      const prefVal = typeof getUserControlValue === 'function' ? getUserControlValue(cfg.id, cfg.defaultVal) : cfg.defaultVal;
+      if (desiredOptions.some(opt => opt.value === prefVal)) {
+        el.value = prefVal;
+      } else {
+        el.value = months[0] || cfg.defaultVal;
+      }
+    }
+  });
+}
+
+// Export for window access and testing
+if (typeof window !== 'undefined') {
+  window.INDO_MONTH_NAMES = INDO_MONTH_NAMES;
+  window.formatMonthLabel = formatMonthLabel;
+  window.getAvailableMonthList = getAvailableMonthList;
+  window.DYNAMIC_MONTH_FILTER_CONFIGS = DYNAMIC_MONTH_FILTER_CONFIGS;
+  window.updateDynamicMonthDropdowns = updateDynamicMonthDropdowns;
+}
+
 function getUserStorageUserKey(user) {
   const u = user || (typeof state !== 'undefined' ? state.currentUser : null);
   if (!u) return 'guest';
@@ -2475,6 +2606,10 @@ function resetUserControlsForPage(pageId, user) {
 function syncUserControlsForPage(pageId, user) {
   const defaults = PAGE_CONTROL_DEFAULTS[pageId];
   if (!defaults) return;
+
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
 
   const activeUser = user || (typeof state !== 'undefined' ? state.currentUser : null);
 
@@ -2690,6 +2825,7 @@ const UI = {
   navUpdatePa: document.getElementById('navUpdatePa'),
   pageUpdatePa: document.getElementById('pageUpdatePa'),
   btnOpenAddPaModal: document.getElementById('btnOpenAddPaModal'),
+  filterPaMonth: document.getElementById('filterPaMonth'),
   btnRefreshPa: document.getElementById('btnRefreshPa'),
   btnEmptyAddPa: document.getElementById('btnEmptyAddPa'),
   paBannerRoleLabel: document.getElementById('paBannerRoleLabel'),
@@ -3430,6 +3566,7 @@ const UI = {
   // Overview Multi-Metric Table Widgets (CA, Tiket, ART)
   btnRefreshOverviewCa: document.getElementById('btnRefreshOverviewCa'),
   filterOverviewCategory: document.getElementById('filterOverviewCategory'),
+  filterOverviewMonth: document.getElementById('filterOverviewMonth'),
   searchOverviewCaInput: document.getElementById('searchOverviewCaInput'),
   btnClearSearchOverviewCa: document.getElementById('btnClearSearchOverviewCa'),
   btnSortCaDesc: document.getElementById('btnSortCaDesc'),
@@ -3768,12 +3905,14 @@ function renderAppView() {
   if (paBannerRoleLabel && paBannerRoleDesc && paBannerBadgePrivilege) {
     if (isAdmin) {
       paBannerRoleLabel.textContent = 'Otoritas Akses: Supervisor & Verifikasi Tim';
-      paBannerRoleDesc.innerHTML = 'Admin & Team Leader dapat memantau seluruh catatan Update PA dari seluruh agen CSO, serta melakukan verifikasi status.';
+      paBannerRoleDesc.textContent = '';
+      paBannerRoleDesc.classList.add('hidden');
       paBannerBadgePrivilege.className = 'badge badge-admin';
       paBannerBadgePrivilege.textContent = 'Supervisor & Verifikasi';
     } else {
       paBannerRoleLabel.textContent = 'Otoritas Akses: Agen CSO (Pelaporan Mandiri)';
-      paBannerRoleDesc.innerHTML = 'Catat dan perbarui durasi shift, status AUX, jumlah penanganan tiket/chat, serta kendala operasional Anda secara akurat.';
+      paBannerRoleDesc.textContent = '';
+      paBannerRoleDesc.classList.add('hidden');
       paBannerBadgePrivilege.className = 'badge badge-user';
       paBannerBadgePrivilege.textContent = 'Pelaporan Mandiri';
     }
@@ -4056,6 +4195,10 @@ function navigateToPage(pageId, save = true) {
   // Close mobile sidebar if open
   closeMobileSidebar();
 
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
+
   // Trigger page-specific renders
   if (pageId === 'overview') {
     renderOverviewPage();
@@ -4126,6 +4269,7 @@ function getOverviewUserPref() {
   } catch (e) {}
   return {
     category: 'ALL',
+    month: '2026-09',
     sortOrder: 'DESC',
     sortMetric: 'AUTO',
     searchQuery: ''
@@ -4156,6 +4300,10 @@ function syncOverviewUserPreferences(force = false) {
     if (elCategory) {
       elCategory.value = overviewActiveCategory;
     }
+    const elMonth = (UI && UI.filterOverviewMonth) || document.getElementById('filterOverviewMonth');
+    if (elMonth) {
+      elMonth.value = pref.month || '2026-09';
+    }
     const searchInput = (UI && UI.searchOverviewCaInput) || document.getElementById('searchOverviewCaInput');
     if (searchInput) {
       searchInput.value = overviewSearchQuery;
@@ -4175,9 +4323,17 @@ function syncOverviewUserPreferences(force = false) {
 
 function calculateOverviewCombinedData() {
   const users = (state.getUsers ? state.getUsers() : []);
-  const allCaLogs = (state.getCaLogs ? state.getCaLogs() : []);
-  const allTikets = (state.getTikets ? state.getTikets() : []);
-  const allArtLogs = (state.getArtLogs ? state.getArtLogs() : []);
+  const elMonth = (UI && UI.filterOverviewMonth) || document.getElementById('filterOverviewMonth');
+  const selMonth = (elMonth ? elMonth.value : '2026-09') || '2026-09';
+
+  const filterByMonth = (logs) => {
+    if (!selMonth || selMonth === 'ALL') return logs;
+    return logs.filter(l => (l.date || '').startsWith(selMonth));
+  };
+
+  const allCaLogs = filterByMonth(state.getCaLogs ? state.getCaLogs() : []);
+  const allTikets = filterByMonth(state.getTikets ? state.getTikets() : []);
+  const allArtLogs = filterByMonth(state.getArtLogs ? state.getArtLogs() : []);
 
   const list = users.map(u => {
     const fullName = u.fullName || u.username;
@@ -4546,6 +4702,9 @@ function updateOverviewLegendAndTitles() {
 }
 
 function renderOverviewPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   syncOverviewUserPreferences();
   updateOverviewLegendAndTitles();
 
@@ -7087,7 +7246,7 @@ function startTimerTicker() {
 // 12.5 UPDATE PA (PRODUCTIVITY & ACTIVITY)
 // ==========================================
 
-function calculateUserPaSummaryMetrics(targetUserOrName) {
+function calculateUserPaSummaryMetrics(targetUserOrName, selectedMonth) {
   const users = (state.getUsers ? state.getUsers() : []);
   let u = null;
   if (targetUserOrName && typeof targetUserOrName === 'object') {
@@ -7115,6 +7274,16 @@ function calculateUserPaSummaryMetrics(targetUserOrName) {
     };
   }
 
+  if (!selectedMonth) {
+    const elMonth = (UI && UI.filterPaMonth) || document.getElementById('filterPaMonth');
+    selectedMonth = (elMonth ? elMonth.value : '2026-09') || '2026-09';
+  }
+
+  const filterByMonth = (logs) => {
+    if (!selectedMonth || selectedMonth === 'ALL') return logs;
+    return logs.filter(l => (l.date || '').startsWith(selectedMonth));
+  };
+
   const fullName = u.fullName || u.username;
   const email = u.email || `${u.username || 'user'}@drive.internal`;
   const department = u.department || 'CSO INBOUND';
@@ -7122,7 +7291,8 @@ function calculateUserPaSummaryMetrics(targetUserOrName) {
   const avatar = u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
 
   // 1. CA (Customer Attributes) - Desimal dua angka di belakang koma tanpa persentase
-  const caLogs = (state.getCaLogs ? state.getCaLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const rawCaLogs = (state.getCaLogs ? state.getCaLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const caLogs = filterByMonth(rawCaLogs);
   let caFormatted = '-';
   let caScore = '0.00';
   if (caLogs.length > 0) {
@@ -7132,7 +7302,8 @@ function calculateUserPaSummaryMetrics(targetUserOrName) {
   }
 
   // 2. Tiket
-  const tikets = (state.getTikets ? state.getTikets() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const rawTikets = (state.getTikets ? state.getTikets() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const tikets = filterByMonth(rawTikets);
   let tiketCount = 0;
   let tiketFormatted = '0 Tiket';
   if (tikets.length > 0) {
@@ -7141,7 +7312,8 @@ function calculateUserPaSummaryMetrics(targetUserOrName) {
   }
 
   // 3. AHT (Average Handling Time)
-  const ahtLogs = (state.getAhtLogs ? state.getAhtLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const rawAhtLogs = (state.getAhtLogs ? state.getAhtLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const ahtLogs = filterByMonth(rawAhtLogs);
   let ahtSeconds = 0;
   let ahtFormatted = '0 Detik';
   if (ahtLogs.length > 0) {
@@ -7155,7 +7327,8 @@ function calculateUserPaSummaryMetrics(targetUserOrName) {
   }
 
   // 4. ART (Average Response Time)
-  const artLogs = (state.getArtLogs ? state.getArtLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const rawArtLogs = (state.getArtLogs ? state.getArtLogs() : []).filter(l => l.userFullName === fullName || l.userId === u.id);
+  const artLogs = filterByMonth(rawArtLogs);
   let artSeconds = 0;
   let artFormatted = '0.0 Detik';
   if (artLogs.length > 0) {
@@ -7185,7 +7358,9 @@ function calculateUserPaSummaryMetrics(targetUserOrName) {
 
 function renderUserPersonalPaCard(currentUser) {
   if (!currentUser) return;
-  const metrics = calculateUserPaSummaryMetrics(currentUser);
+  const elMonth = (UI && UI.filterPaMonth) || document.getElementById('filterPaMonth');
+  const selectedMonth = (elMonth ? elMonth.value : '2026-09') || '2026-09';
+  const metrics = calculateUserPaSummaryMetrics(currentUser, selectedMonth);
 
   if (UI.paCardUserAvatar) UI.paCardUserAvatar.src = metrics.avatar;
   if (UI.paCardUserName) UI.paCardUserName.textContent = metrics.fullName;
@@ -7207,6 +7382,8 @@ function renderAdminPaUserGrid() {
   if (!UI.paAdminUserGrid) return;
   const users = state.getUsers();
   const allLogs = state.getPaLogs();
+  const elMonth = (UI && UI.filterPaMonth) || document.getElementById('filterPaMonth');
+  const selectedMonth = (elMonth ? elMonth.value : '2026-09') || '2026-09';
 
   if (UI.paAdminUserCountBadge) {
     UI.paAdminUserCountBadge.textContent = `${users.length} Pengguna`;
@@ -7214,8 +7391,15 @@ function renderAdminPaUserGrid() {
 
   UI.paAdminUserGrid.innerHTML = '';
   users.forEach(usr => {
-    const metrics = calculateUserPaSummaryMetrics(usr);
-    const userPaLogs = allLogs.filter(l => (l.userId && l.userId === usr.id) || (l.username && l.username === usr.username) || (l.userFullName && l.userFullName === usr.fullName));
+    const metrics = calculateUserPaSummaryMetrics(usr, selectedMonth);
+    const userPaLogs = allLogs.filter(l => {
+      const matchUser = (l.userId && l.userId === usr.id) || (l.username && l.username === usr.username) || (l.userFullName && l.userFullName === usr.fullName);
+      if (!matchUser) return false;
+      if (selectedMonth && selectedMonth !== 'ALL') {
+        return (l.date || '').startsWith(selectedMonth);
+      }
+      return true;
+    });
     const totalInteractions = userPaLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 0), 0);
     const totalMinutes = userPaLogs.reduce((acc, l) => acc + (Number(l.durationMinutes) || 0), 0);
 
@@ -7277,9 +7461,18 @@ function openAdminUserDetailModal(userIdOrName) {
   }
 
   activeDetailUserForFilter = u;
-  const metrics = calculateUserPaSummaryMetrics(u);
+  const elMonth = (UI && UI.filterPaMonth) || document.getElementById('filterPaMonth');
+  const selectedMonth = (elMonth ? elMonth.value : '2026-09') || '2026-09';
+  const metrics = calculateUserPaSummaryMetrics(u, selectedMonth);
   const allLogs = state.getPaLogs();
-  const userLogs = allLogs.filter(l => (l.userId && l.userId === u.id) || (l.username && l.username === u.username) || (l.userFullName && l.userFullName === u.fullName));
+  const userLogs = allLogs.filter(l => {
+    const matchUser = (l.userId && l.userId === u.id) || (l.username && l.username === u.username) || (l.userFullName && l.userFullName === u.fullName);
+    if (!matchUser) return false;
+    if (selectedMonth && selectedMonth !== 'ALL') {
+      return (l.date || '').startsWith(selectedMonth);
+    }
+    return true;
+  });
 
   // Populate Format Card: Foto user, email :, layanan :, CA :, Tiket :, AHT :, ART :
   if (UI.adminDetailUserAvatar) UI.adminDetailUserAvatar.src = metrics.avatar;
@@ -7367,6 +7560,9 @@ window.openAdminUserDetailModal = openAdminUserDetailModal;
 window.closeAdminUserDetailModal = closeAdminUserDetailModal;
 
 function renderUpdatePaPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('update-pa', state.currentUser);
   }
@@ -7374,16 +7570,23 @@ function renderUpdatePaPage() {
   const u = state.currentUser;
   const isAdmin = state.isAdmin();
 
+  // Sembunyikan fitur Catat Update PA untuk user dan admin
+  if (UI.btnOpenAddPaModal) {
+    UI.btnOpenAddPaModal.classList.add('hidden');
+  }
+
   // Role banner adjustment
   if (UI.paBannerRoleLabel && UI.paBannerRoleDesc && UI.paBannerBadgePrivilege) {
     if (isAdmin) {
       UI.paBannerRoleLabel.textContent = 'Otoritas Akses: Supervisor & Monitoring Seluruh User';
-      UI.paBannerRoleDesc.innerHTML = 'Admin dapat memantau seluruh data Update PA user, mengecek detail performa masing-masing agen, dan memverifikasi status.';
+      UI.paBannerRoleDesc.textContent = '';
+      UI.paBannerRoleDesc.classList.add('hidden');
       UI.paBannerBadgePrivilege.className = 'badge badge-admin';
       UI.paBannerBadgePrivilege.textContent = 'Admin Penuh';
     } else {
       UI.paBannerRoleLabel.textContent = `Update PA Saya: ${u?.fullName || 'Agen CSO'}`;
-      UI.paBannerRoleDesc.innerHTML = 'Anda hanya dapat melihat dan mengelola catatan Update PA milik Anda sendiri. Data rekan lain tidak dapat diakses demi privasi dan akurasi mandiri.';
+      UI.paBannerRoleDesc.textContent = '';
+      UI.paBannerRoleDesc.classList.add('hidden');
       UI.paBannerBadgePrivilege.className = 'badge badge-user';
       UI.paBannerBadgePrivilege.textContent = 'Akses Pribadi';
     }
@@ -7797,6 +8000,10 @@ function handleSavePa(e) {
     showToast('Update PA Berhasil Disimpan', `Aktivitas <strong>${activityCategory}</strong> berhasil dicatat.`, 'success');
   }
 
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
+
   closePaModal();
   renderUpdatePaPage();
 }
@@ -7918,6 +8125,9 @@ function formatCaScore(val) {
 }
 
 function renderCaPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('ca', state.currentUser);
   }
@@ -7925,13 +8135,8 @@ function renderCaPage() {
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
 
-  const monthLabels = {
-    '2026-09': 'September 2026',
-    '2026-08': 'Agustus 2026',
-    '2026-07': 'Juli 2026'
-  };
   const selMonth = (UI.filterCaMonth ? UI.filterCaMonth.value : '2026-09') || '2026-09';
-  const monthLabel = monthLabels[selMonth] || selMonth;
+  const monthLabel = formatMonthLabel(selMonth);
   if (UI.caMonthHeaderLabel) {
     UI.caMonthHeaderLabel.textContent = monthLabel;
   }
@@ -7982,7 +8187,7 @@ function renderCaPage() {
   }
 
   // Filter logs for the selected 1-month period
-  const monthLogs = logs.filter(l => (l.date || '').startsWith(selMonth));
+  const monthLogs = (selMonth && selMonth !== 'ALL') ? logs.filter(l => (l.date || '').startsWith(selMonth)) : logs;
 
   // ========================================================
   // Section 1: Rekapitulasi Nilai Seluruh User dalam 1 Bulan (ADMIN ONLY)
@@ -8440,6 +8645,9 @@ function handleSaveCa(e) {
 
   // Automatically align month filter if the new entry date is in a different month
   const entryMonth = date.slice(0, 7);
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (UI.filterCaMonth && Array.from(UI.filterCaMonth.options).some(o => o.value === entryMonth)) {
     UI.filterCaMonth.value = entryMonth;
   }
@@ -8465,13 +8673,12 @@ window.promptDeleteCaMonth = function() {
     showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus seluruh data bulan ini.', 'danger');
     return;
   }
-  const monthLabels = {
-    '2026-09': 'September 2026',
-    '2026-08': 'Agustus 2026',
-    '2026-07': 'Juli 2026'
-  };
   const selMonth = (UI.filterCaMonth ? UI.filterCaMonth.value : '2026-09') || '2026-09';
-  const monthLabel = monthLabels[selMonth] || selMonth;
+  if (!selMonth || selMonth === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const monthLabel = formatMonthLabel(selMonth);
   const logs = state.getCaLogs();
   const countInMonth = logs.filter(l => (l.date || '').startsWith(selMonth)).length;
 
@@ -8515,7 +8722,7 @@ window.toggleSelectAllCa = function(selectAll) {
 
   const logs = state.getCaLogs();
   const filtered = logs.filter(item => {
-    if (!(item.date || '').startsWith(selMonth)) return false;
+    if (selMonth !== 'ALL' && !(item.date || '').startsWith(selMonth)) return false;
     if (searchQ) {
       const match = (item.userFullName || '').toLowerCase().includes(searchQ) ||
                     (item.date || '').toLowerCase().includes(searchQ) ||
@@ -8580,7 +8787,7 @@ function exportCaExcel() {
   if (state.selectedCaIds && state.selectedCaIds.size > 0) {
     exportLogs = allLogs.filter(l => state.selectedCaIds.has(l.id));
   } else {
-    let monthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth));
+    let monthLogs = (selMonth && selMonth !== 'ALL') ? allLogs.filter(l => (l.date || '').startsWith(selMonth)) : allLogs;
     if (!isAdmin) {
       monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
     }
@@ -9332,6 +9539,9 @@ function formatTicketCount(val) {
 }
 
 function renderTiketPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('tiket', state.currentUser);
   }
@@ -9339,14 +9549,8 @@ function renderTiketPage() {
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
 
-  const monthLabels = {
-    '2026-09': 'September 2026',
-    '2026-08': 'Agustus 2026',
-    '2026-07': 'Juli 2026'
-  };
-
   const selectedMonth = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
-  const monthLabel = monthLabels[selectedMonth] || selectedMonth;
+  const monthLabel = formatMonthLabel(selectedMonth);
 
   if (UI.tiketMonthHeaderLabel) {
     UI.tiketMonthHeaderLabel.textContent = monthLabel;
@@ -9398,7 +9602,7 @@ function renderTiketPage() {
   }
 
   const allTikets = state.getTikets();
-  const monthLogs = allTikets.filter(l => (l.date || '').startsWith(selectedMonth));
+  const monthLogs = (selectedMonth && selectedMonth !== 'ALL') ? allTikets.filter(l => (l.date || '').startsWith(selectedMonth)) : allTikets;
   const users = state.getUsers();
 
   // Populate filterSummaryTiketUser in Section 1
@@ -10032,6 +10236,14 @@ function handleSaveTiket(e) {
     showToast('Perolehan Tiket Disimpan', `Perolehan tiket <strong>${ticketCount} tiket</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
   }
 
+  const entryMonth = date.slice(0, 7);
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
+  if (UI.filterTiketMonth && Array.from(UI.filterTiketMonth.options).some(o => o.value === entryMonth)) {
+    UI.filterTiketMonth.value = entryMonth;
+  }
+
   closeTiketModal();
   renderTiketPage();
 }
@@ -10079,12 +10291,11 @@ window.filterTiketByUser = function(userFullName) {
 function promptDeleteAllTiketMonth() {
   if (!state.isAdmin()) return;
   const month = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
-  const monthLabels = {
-    '2026-09': 'September 2026',
-    '2026-08': 'Agustus 2026',
-    '2026-07': 'Juli 2026'
-  };
-  const monthText = monthLabels[month] || month;
+  if (!month || month === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const monthText = formatMonthLabel(month);
   const count = state.getTikets().filter(l => (l.date || '').startsWith(month)).length;
   if (count === 0) {
     showToast('Tidak Ada Data', `Tidak ada data perolehan tiket di bulan ${monthText} untuk dihapus.`, 'warning');
@@ -10112,7 +10323,7 @@ function promptDeleteSelectedTiket() {
 function toggleSelectAllTiket(selectAll) {
   if (!state.isAdmin()) return;
   const selectedMonth = (UI.filterTiketMonth ? UI.filterTiketMonth.value : '2026-09') || '2026-09';
-  const monthLogs = state.getTikets().filter(l => (l.date || '').startsWith(selectedMonth));
+  const monthLogs = (selectedMonth && selectedMonth !== 'ALL') ? state.getTikets().filter(l => (l.date || '').startsWith(selectedMonth)) : state.getTikets();
   const searchQ = (UI.searchTiketInput ? UI.searchTiketInput.value.trim().toLowerCase() : '');
   const filterUser = (UI.filterTiketUserSelect ? UI.filterTiketUserSelect.value : 'ALL');
   const filterService = (UI.filterTiketService ? UI.filterTiketService.value : 'ALL');
@@ -10161,7 +10372,7 @@ function exportTiketExcel() {
   if (state.selectedTiketIds && state.selectedTiketIds.size > 0) {
     exportLogs = allTikets.filter(l => state.selectedTiketIds.has(l.id));
   } else {
-    let monthLogs = allTikets.filter(l => (l.date || '').startsWith(selectedMonth));
+    let monthLogs = (selectedMonth && selectedMonth !== 'ALL') ? allTikets.filter(l => (l.date || '').startsWith(selectedMonth)) : allTikets;
     if (!isAdmin) {
       monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
     }
@@ -10853,6 +11064,9 @@ function formatAhtDuration(totalSec) {
 }
 
 function renderAhtPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('aht', state.currentUser);
   }
@@ -10860,14 +11074,8 @@ function renderAhtPage() {
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
 
-  const monthLabels = {
-    '2026-09': 'September 2026',
-    '2026-08': 'Agustus 2026',
-    '2026-07': 'Juli 2026'
-  };
-
   const selectedMonth = (UI.filterAhtMonth ? UI.filterAhtMonth.value : '2026-09') || '2026-09';
-  const monthLabel = monthLabels[selectedMonth] || selectedMonth;
+  const monthLabel = formatMonthLabel(selectedMonth);
 
   if (UI.ahtMonthHeaderLabel) {
     UI.ahtMonthHeaderLabel.textContent = monthLabel;
@@ -10925,7 +11133,7 @@ function renderAhtPage() {
   }
 
   const allAhtLogs = state.getAhtLogs();
-  const monthLogs = allAhtLogs.filter(l => (l.date || '').startsWith(selectedMonth));
+  const monthLogs = (selectedMonth && selectedMonth !== 'ALL') ? allAhtLogs.filter(l => (l.date || '').startsWith(selectedMonth)) : allAhtLogs;
   const users = state.getUsers();
 
   // Populate filterSummaryAhtUser in Section 1
@@ -11521,6 +11729,14 @@ function handleSaveAht(e) {
     showToast('Handling Time Disimpan', `Handling time <strong>${formatAhtSeconds(actualSeconds)}</strong> untuk <strong>${userFullName}</strong> (${date}) berhasil dicatat.`, 'success');
   }
 
+  const entryMonth = date.slice(0, 7);
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
+  if (UI.filterAhtMonth && Array.from(UI.filterAhtMonth.options).some(o => o.value === entryMonth)) {
+    UI.filterAhtMonth.value = entryMonth;
+  }
+
   closeAhtModal();
   renderAhtPage();
 }
@@ -11553,7 +11769,16 @@ window.promptDeleteAllAhtMonth = function() {
     return;
   }
   const month = (UI.filterAhtMonth ? UI.filterAhtMonth.value : '2026-09') || '2026-09';
-  const monthText = month === '2026-09' ? 'September 2026' : (month === '2026-08' ? 'Agustus 2026' : 'Juli 2026');
+  if (!month || month === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const monthText = formatMonthLabel(month);
+  const count = state.getAhtLogs().filter(l => (l.date || '').startsWith(month)).length;
+  if (count === 0) {
+    showToast('Tidak Ada Data', `Tidak ada data handling time di bulan ${monthText} untuk dihapus.`, 'warning');
+    return;
+  }
   state.pendingDelete = { type: 'aht_month', id: month, name: monthText };
   UI.confirmDeleteTitle.textContent = `Hapus Semua Handling Time Bulan ${monthText}?`;
   UI.confirmDeleteMessage.innerHTML = `Perhatian: Seluruh data handling time harian untuk periode <strong>${monthText}</strong> akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`;
@@ -11612,7 +11837,7 @@ function exportAhtExcel() {
   if (state.selectedAhtIds && state.selectedAhtIds.size > 0) {
     exportLogs = allLogs.filter(l => state.selectedAhtIds.has(l.id));
   } else {
-    let monthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth));
+    let monthLogs = (selMonth && selMonth !== 'ALL') ? allLogs.filter(l => (l.date || '').startsWith(selMonth)) : allLogs;
     if (!isAdmin) {
       monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
     }
@@ -12903,6 +13128,9 @@ function copyArtAppsScriptCode() {
 // ==========================================
 
 function renderArtPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('art', state.currentUser);
   }
@@ -12910,14 +13138,8 @@ function renderArtPage() {
   const currentUser = state.currentUser;
   const currentFullName = currentUser ? currentUser.fullName : '';
 
-  const monthLabels = {
-    '2026-09': 'September 2026',
-    '2026-08': 'Agustus 2026',
-    '2026-07': 'Juli 2026'
-  };
-
   const selectedMonth = (UI.filterArtMonth ? UI.filterArtMonth.value : '2026-09') || '2026-09';
-  const monthLabel = monthLabels[selectedMonth] || selectedMonth;
+  const monthLabel = formatMonthLabel(selectedMonth);
 
   if (UI.artMonthHeaderLabel) {
     UI.artMonthHeaderLabel.textContent = monthLabel;
@@ -12976,7 +13198,7 @@ function renderArtPage() {
   renderArtGSheetBar();
 
   const allArtLogs = state.getArtLogs();
-  const monthLogs = allArtLogs.filter(l => (l.date || '').startsWith(selectedMonth));
+  const monthLogs = (selectedMonth && selectedMonth !== 'ALL') ? allArtLogs.filter(l => (l.date || '').startsWith(selectedMonth)) : allArtLogs;
   const users = state.getUsers();
 
   // Populate filterSummaryArtUser in Section 1
@@ -13621,6 +13843,14 @@ function handleSaveArt(e) {
     autoSyncArtAction('save', { log: newEntry });
   }
 
+  const entryMonth = date.slice(0, 7);
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
+  if (UI.filterArtMonth && Array.from(UI.filterArtMonth.options).some(o => o.value === entryMonth)) {
+    UI.filterArtMonth.value = entryMonth;
+  }
+
   closeArtModal();
   renderArtPage();
 }
@@ -13653,7 +13883,16 @@ window.promptDeleteAllArtMonth = function() {
     return;
   }
   const month = (UI.filterArtMonth ? UI.filterArtMonth.value : '2026-09') || '2026-09';
-  const monthText = month === '2026-09' ? 'September 2026' : (month === '2026-08' ? 'Agustus 2026' : 'Juli 2026');
+  if (!month || month === 'ALL') {
+    showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
+    return;
+  }
+  const monthText = formatMonthLabel(month);
+  const count = state.getArtLogs().filter(l => (l.date || '').startsWith(month)).length;
+  if (count === 0) {
+    showToast('Tidak Ada Data', `Tidak ada data response time di bulan ${monthText} untuk dihapus.`, 'warning');
+    return;
+  }
   state.pendingDelete = { type: 'art_month', id: month, name: monthText };
   UI.confirmDeleteTitle.textContent = `Hapus Semua Response Time Bulan ${monthText}?`;
   UI.confirmDeleteMessage.innerHTML = `Perhatian: Seluruh data response time harian untuk periode <strong>${monthText}</strong> akan dihapus permanen. Tindakan ini tidak dapat dibatalkan.`;
@@ -13712,7 +13951,7 @@ function exportArtExcel() {
   if (state.selectedArtIds && state.selectedArtIds.size > 0) {
     exportLogs = allLogs.filter(l => state.selectedArtIds.has(l.id));
   } else {
-    let monthLogs = allLogs.filter(l => (l.date || '').startsWith(selMonth));
+    let monthLogs = (selMonth && selMonth !== 'ALL') ? allLogs.filter(l => (l.date || '').startsWith(selMonth)) : allLogs;
     if (!isAdmin) {
       monthLogs = monthLogs.filter(l => l.userFullName === currentFullName);
     }
@@ -14414,6 +14653,9 @@ function copyFindingAppsScriptCode() {
 // ==========================================
 
 function renderFindingPage() {
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('finding', state.currentUser);
   }
@@ -14671,6 +14913,10 @@ function handleSaveFinding(e) {
     autoSyncFindingAction('save', { finding: newEntry });
     state.addLog('CREATE_FINDING', 'Temuan QA Baru', `${u.fullName} mencatat temuan audit QA [${newId}] untuk ${userFullName} (${deviationLevel}).`);
     showToast('Temuan QA Dicatat', `Temuan <strong>${newId}</strong> berhasil didaftarkan.`, 'success');
+  }
+
+  if (typeof updateDynamicMonthDropdowns === 'function') {
+    updateDynamicMonthDropdowns();
   }
 
   closeFindingModal();
@@ -15594,6 +15840,13 @@ function initEvents() {
       renderOverviewPage();
     });
   }
+  if (UI.filterOverviewMonth) {
+    UI.filterOverviewMonth.addEventListener('change', (e) => {
+      saveOverviewUserPref({ month: e.target.value });
+      saveUserControl('filterOverviewMonth', e.target.value);
+      renderOverviewPage();
+    });
+  }
   if (UI.btnSortCaDesc) {
     UI.btnSortCaDesc.addEventListener('click', () => {
       overviewSortOrder = 'DESC';
@@ -15674,12 +15927,17 @@ function initEvents() {
       renderUpdatePaPage();
     });
   }
+  if (UI.filterPaMonth) UI.filterPaMonth.addEventListener('change', () => {
+    saveUserControl('filterPaMonth', UI.filterPaMonth.value);
+    renderUpdatePaPage();
+  });
   if (UI.filterPaService) UI.filterPaService.addEventListener('change', renderUpdatePaPage);
   if (UI.filterPaShift) UI.filterPaShift.addEventListener('change', renderUpdatePaPage);
   if (UI.filterPaCategory) UI.filterPaCategory.addEventListener('change', renderUpdatePaPage);
   if (UI.filterPaStatus) UI.filterPaStatus.addEventListener('change', renderUpdatePaPage);
   if (UI.btnResetPaFilters) {
     UI.btnResetPaFilters.addEventListener('click', () => {
+      if (UI.filterPaMonth) UI.filterPaMonth.value = '2026-09';
       if (UI.searchPaInput) UI.searchPaInput.value = '';
       if (UI.filterPaUser) UI.filterPaUser.value = 'ALL';
       if (UI.filterPaService) UI.filterPaService.value = 'ALL';
@@ -15727,6 +15985,7 @@ function initEvents() {
   if (UI.formCa) UI.formCa.addEventListener('submit', handleSaveCa);
   if (UI.filterCaMonth) UI.filterCaMonth.addEventListener('change', () => {
     state.selectedCaIds.clear();
+    saveUserControl('filterCaMonth', UI.filterCaMonth.value);
     renderCaPage();
   });
   if (UI.filterCaUserSelect) UI.filterCaUserSelect.addEventListener('change', renderCaPage);
@@ -15830,7 +16089,10 @@ function initEvents() {
   }
 
   // Tiket Event Listeners
-  if (UI.filterTiketMonth) UI.filterTiketMonth.addEventListener('change', renderTiketPage);
+  if (UI.filterTiketMonth) UI.filterTiketMonth.addEventListener('change', () => {
+    saveUserControl('filterTiketMonth', UI.filterTiketMonth.value);
+    renderTiketPage();
+  });
   if (UI.filterSummaryTiketUser) UI.filterSummaryTiketUser.addEventListener('change', renderTiketPage);
   if (UI.filterSummaryTiketService) UI.filterSummaryTiketService.addEventListener('change', renderTiketPage);
   if (UI.filterTiketSummarySort) UI.filterTiketSummarySort.addEventListener('change', renderTiketPage);
@@ -15952,7 +16214,10 @@ function initEvents() {
 
 
   // AHT Event Listeners
-  if (UI.filterAhtMonth) UI.filterAhtMonth.addEventListener('change', renderAhtPage);
+  if (UI.filterAhtMonth) UI.filterAhtMonth.addEventListener('change', () => {
+    saveUserControl('filterAhtMonth', UI.filterAhtMonth.value);
+    renderAhtPage();
+  });
   if (UI.filterSummaryAhtUser) UI.filterSummaryAhtUser.addEventListener('change', renderAhtPage);
   if (UI.filterSummaryAhtService) UI.filterSummaryAhtService.addEventListener('change', renderAhtPage);
   if (UI.filterAhtSummarySort) UI.filterAhtSummarySort.addEventListener('change', renderAhtPage);
@@ -16108,7 +16373,10 @@ function initEvents() {
   }
 
   // ART Event Listeners
-  if (UI.filterArtMonth) UI.filterArtMonth.addEventListener('change', renderArtPage);
+  if (UI.filterArtMonth) UI.filterArtMonth.addEventListener('change', () => {
+    saveUserControl('filterArtMonth', UI.filterArtMonth.value);
+    renderArtPage();
+  });
   if (UI.filterSummaryArtUser) UI.filterSummaryArtUser.addEventListener('change', renderArtPage);
   if (UI.filterSummaryArtService) UI.filterSummaryArtService.addEventListener('change', renderArtPage);
   if (UI.filterArtSummarySort) UI.filterArtSummarySort.addEventListener('change', renderArtPage);
@@ -16263,7 +16531,10 @@ function initEvents() {
   }
 
   // Finding Event Listeners
-  if (UI.filterFindingMonth) UI.filterFindingMonth.addEventListener('change', renderFindingPage);
+  if (UI.filterFindingMonth) UI.filterFindingMonth.addEventListener('change', () => {
+    saveUserControl('filterFindingMonth', UI.filterFindingMonth.value);
+    renderFindingPage();
+  });
   if (UI.btnDeleteAllFindingMonth) UI.btnDeleteAllFindingMonth.addEventListener('click', promptDeleteAllFindingMonth);
   if (UI.btnOpenAddFindingModal) UI.btnOpenAddFindingModal.addEventListener('click', openAddFindingModal);
   if (UI.btnRefreshFinding) {
