@@ -18,11 +18,11 @@
 
 window.DRIVE_FIREBASE_CONFIG = {
   // Ganti nilai di bawah ini dengan config dari Firebase Console Anda:
-  apiKey: "AIzaSyAx5aPDyPh3Rsh4UtA5bkeCV1iwWoIi8xY",
-  authDomain: "dashbord-agent.firebaseapp.com",
-  projectId: "dashbord-agent",
-  storageBucket: "dashbord-agent.firebasestorage.app",
-  messagingSenderId: "78069455282",
-  appId: "1:78069455282:web:22c61e0425f3ab3946ecab",
-  measurementId: "G-P6ZQLF92QD"
+  apiKey: "AIzaSyBcoOc0mBtgNpUkA5k6uAgrKvdxXbtwluU",
+  authDomain: "dashboard-agent-adaro.firebaseapp.com",
+  projectId: "dashboard-agent-adaro",
+  storageBucket: "dashboard-agent-adaro.firebasestorage.app",
+  messagingSenderId: "471437979516",
+  appId: "1:471437979516:web:3bf6b01a308d2da94bbef9",
+  measurementId: "G-Y725X4QZFT"
 };
