@@ -17946,6 +17946,7 @@ const typingState = {
   wpmTimeline: [],
   chartInstance: null
 };
+window.typingState = typingState;
 
 // Driver Rank Mapping
 function getDriverRank(wpm, accuracy) {
@@ -19537,17 +19538,26 @@ Dashboard DRIVE (Reporting, Insight & Visibility of Employee)`;
 }
 
 // Tampilkan Halaman Typing Test
-function renderTypingTestPage() {
+function renderTypingTestPage(forceReset = false) {
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('typing-test', state.currentUser);
   }
   if (typingState.status !== 'running') {
-    resetTypingRace();
+    // Hanya reset/shuffle kata jika diminta eksplisit atau arena kata belum pernah digenerate
+    if (forceReset || !typingState.words || typingState.words.length === 0) {
+      resetTypingRace();
+    }
   }
-  switchCar(typingState.selectedCar);
+  if (typingState.status !== 'running') {
+    switchCar(typingState.selectedCar);
+  }
   renderTypingHistory();
   renderAdminTypingLeaderboard();
 }
+
+window.renderTypingTestPage = renderTypingTestPage;
+window.renderAdminTypingLeaderboard = renderAdminTypingLeaderboard;
+window.renderTypingHistory = renderTypingHistory;
 
 // Inisialisasi Seluruh Event Listener Typing Test
 function initTypingTest() {

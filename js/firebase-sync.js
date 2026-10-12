@@ -238,12 +238,64 @@
           window.updateDynamicMonthDropdowns();
         }
 
-        // 3. Re-render halaman yang sedang aktif di layar
+        // 3. Re-render halaman yang sedang aktif di layar secara spesifik dan cerdas
         const activePage = (stateObj && stateObj.currentPage) || 'overview';
-        if (typeof window.navigateToPage === 'function') {
-          window.navigateToPage(activePage, false);
-        } else if (typeof window.renderAppView === 'function') {
-          window.renderAppView();
+
+        // KHUSUS MENU "Typing Test": Jaga stabilitas maksimal agar tidak terganggu sinkronisasi cloud
+        if (activePage === 'typing-test') {
+          // Jika yang berubah adalah hasil balapan tim atau sync all:
+          if (key === 'drive_typing_team_results' || key === 'all') {
+            // Hanya update leaderboard hasil balapan tanpa merestart atau merefresh arena kata
+            if (typeof window.renderAdminTypingLeaderboard === 'function') {
+              window.renderAdminTypingLeaderboard();
+            }
+            if (typeof window.renderTypingHistory === 'function') {
+              window.renderTypingHistory();
+            }
+          }
+          // JANGAN lakukan navigateToPage atau reset arena game sama sekali saat di menu Typing Test!
+          return;
+        }
+
+        // KHUSUS MENU "Quiz": Jaga stabilitas jika sedang dalam arena battle aktif
+        if (activePage === 'quiz') {
+          if (key === 'vortex_quiz_questions' && typeof window.renderQuizAdminQuestions === 'function') {
+            window.renderQuizAdminQuestions();
+          }
+          if (key === 'vortex_quiz_history' && typeof window.renderQuizLeaderboard === 'function') {
+            window.renderQuizLeaderboard();
+          }
+          if (key === 'all' && typeof window.renderQuizPage === 'function') {
+            const qState = window.quizState;
+            if (!qState || qState.status !== 'battling') {
+              window.renderQuizPage();
+            }
+          }
+          return;
+        }
+
+        // Pemetaan halaman dan key data yang relevan agar halaman tidak ter-refresh oleh data lain yang tidak terkait
+        const PAGE_AFFECTED_KEYS = {
+          'overview': ['vortex_ca_logs', 'vortex_tikets', 'vortex_art_logs', 'vortex_pa_logs', 'vortex_items', 'vortex_users', 'all'],
+          'data-management': ['vortex_items', 'vortex_users', 'all'],
+          'update-pa': ['vortex_pa_logs', 'vortex_users', 'all'],
+          'ca': ['vortex_ca_logs', 'vortex_ca_gsheet_config', 'vortex_users', 'all'],
+          'tiket': ['vortex_tikets', 'vortex_tiket_gsheet_config', 'vortex_users', 'all'],
+          'aht': ['vortex_aht_logs', 'vortex_aht_gsheet_config', 'vortex_users', 'all'],
+          'art': ['vortex_art_logs', 'vortex_art_gsheet_config', 'vortex_users', 'all'],
+          'finding': ['vortex_findings', 'vortex_finding_gsheet_config', 'vortex_users', 'all'],
+          'timer': ['vortex_timers', 'vortex_stopwatches', 'vortex_users', 'all'],
+          'user-management': ['vortex_users', 'all'],
+          'activity-log': ['vortex_logs', 'all']
+        };
+
+        const relevantKeys = PAGE_AFFECTED_KEYS[activePage] || ['all'];
+        if (relevantKeys.includes(key)) {
+          if (typeof window.navigateToPage === 'function') {
+            window.navigateToPage(activePage, false);
+          } else if (typeof window.renderAppView === 'function') {
+            window.renderAppView();
+          }
         }
 
         // 4. Jika yang diperbarui adalah data yang memengaruhi Ringkasan (CA, Tiket, ART, PA, Item)
@@ -275,6 +327,9 @@
       if (!this._debounceTimers) this._debounceTimers = {};
       if (this._debounceTimers[key]) clearTimeout(this._debounceTimers[key]);
 
+      // Throttle timer & stopwatch background ticks agar tidak memicu listener terus-menerus
+      const delay = (key === 'vortex_timers' || key === 'vortex_stopwatches') ? 3000 : 150;
+
       this._debounceTimers[key] = setTimeout(async () => {
         try {
           this.updateStatusBadge('syncing', 'Menyimpan ke Cloud...');
@@ -296,7 +351,7 @@
           console.warn(`Gagal sinkron ${key} ke cloud:`, err);
           this.updateStatusBadge('online', 'Tersimpan lokal (Cloud tertunda)');
         }
-      }, 150);
+      }, delay);
     }
 
     /**

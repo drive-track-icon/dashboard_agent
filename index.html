@@ -6439,8 +6439,8 @@
           </button>
         </div>
 
-        <!-- Tombol Aksi Cloud -->
-        <div class="cloud-actions-grid">
+        <!-- Tombol Aksi Cloud (Disembunyikan Sesuai Permintaan) -->
+        <div class="cloud-actions-grid hidden" style="display: none !important;">
           <div class="cloud-action-card">
             <div>
               <div class="cloud-action-title text-red"><i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari Cloud</div>
@@ -6462,11 +6462,11 @@
           </div>
         </div>
 
-        <!-- Transfer Cepat Antar PC (JSON) -->
-        <div class="cloud-section-divider">
+        <!-- Transfer Cepat Antar PC (JSON) (Disembunyikan Sesuai Permintaan) -->
+        <div class="cloud-section-divider hidden" style="display: none !important;">
           <span>OPSI TRANSFER CEPAT (OFFLINE / BACKUP FILE)</span>
         </div>
-        <div class="cloud-actions-grid" style="margin-bottom: 16px;">
+        <div class="cloud-actions-grid hidden" style="display: none !important; margin-bottom: 16px;">
           <div class="cloud-action-card">
             <div>
               <div class="cloud-action-title"><i class="fa-solid fa-file-export text-red"></i> Backup ke File JSON</div>
@@ -6489,12 +6489,21 @@
           </div>
         </div>
 
-        <!-- Konfigurasi Firebase Firestore -->
-        <div class="cloud-section-divider">
+        <!-- Info Integrasi Realtime Terpadu -->
+        <div class="cloud-info-panel" style="margin-top: 14px; padding: 14px 16px; border-radius: var(--radius-md, 8px); background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2); display: flex; align-items: flex-start; gap: 12px;">
+          <i class="fa-solid fa-circle-check text-green" style="font-size: 1.15rem; margin-top: 2px;"></i>
+          <div style="font-size: 0.83rem; line-height: 1.5; color: var(--gray-300, #d1d5db);">
+            <strong style="color: #fff; display: block; margin-bottom: 2px;">Integrasi Cloud Otomatis Aktif</strong>
+            Seluruh data yang ditambah, diedit, atau dihapus telah otomatis terintegrasi langsung dengan Firebase Firestore. Semua akses web dari PC, laptop, maupun smartphone mendapatkan data yang sama secara real-time.
+          </div>
+        </div>
+
+        <!-- Konfigurasi Firebase Firestore (Disembunyikan Sesuai Permintaan) -->
+        <div class="cloud-section-divider hidden" style="display: none !important;">
           <span>PENGATURAN KREDENSIAL FIREBASE</span>
         </div>
 
-        <form id="formFirebaseConfig" novalidate>
+        <form id="formFirebaseConfig" class="hidden" style="display: none !important;" novalidate>
           <div class="form-row">
             <div class="form-group flex-1">
               <label for="fbProjectId" class="form-label">Project ID Firebase <span class="required">*</span></label>
@@ -6519,13 +6528,15 @@
             <i class="fa-solid fa-circle-info text-red"></i> Konfigurasi ini didapatkan dari <strong>Firebase Console</strong> &gt; Project Settings &gt; General &gt; Your Apps (Web).
           </div>
 
-          <div class="modal-footer" style="padding: 16px 0 0; margin-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px;">
-            <button type="button" class="btn btn-outline-gray" id="btnCancelFirebaseModal">Tutup</button>
-            <button type="submit" class="btn btn-primary glow-effect-red" id="btnSaveFirebaseConfig">
-              <i class="fa-solid fa-floppy-disk"></i> Simpan &amp; Hubungkan
-            </button>
-          </div>
+          <button type="submit" id="btnSaveFirebaseConfig" style="display: none !important;">
+            Simpan &amp; Hubungkan
+          </button>
         </form>
+
+        <!-- Modal Footer: Tombol Tutup Saja -->
+        <div class="modal-footer" style="padding: 16px 0 0; margin-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end;">
+          <button type="button" class="btn btn-outline-gray" id="btnCancelFirebaseModal">Tutup</button>
+        </div>
       </div>
     </div>
   </div>
