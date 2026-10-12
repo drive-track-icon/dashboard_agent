@@ -21,6 +21,10 @@
   <!-- SheetJS Library for Excel (.xlsx) Export -->
   <script src="js/xlsx.full.min.js"></script>
 
+  <!-- Firebase SDK (Compat v10) for Cloud Firestore Multi-Device Sync -->
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
   <!-- Custom CSS -->
   <link rel="stylesheet" href="css/style.css">
 </head>
@@ -290,6 +294,12 @@
           <div class="realtime-clock hide-mobile" id="realtimeClock" title="Waktu Lokal">
             00:00:00 WIB
           </div>
+
+          <!-- Cloud Sync Multi-Device Button -->
+          <button class="btn-icon-topbar cloud-sync-btn" id="btnCloudSync" aria-label="Sinkronisasi Cloud Firebase (Antar PC / Device)" title="Status Cloud: Memeriksa koneksi...">
+            <i class="fa-solid fa-cloud" id="cloudSyncIcon"></i>
+            <span class="cloud-sync-status-dot offline" id="cloudSyncDot"></span>
+          </button>
 
           <!-- Dark / Light Mode Switcher Button -->
           <button class="btn-icon-topbar" id="btnThemeMode" aria-label="Ubah Mode Gelap / Putih" title="Mode Tampilan: Gelap (Klik untuk beralih ke Mode Putih)">
@@ -6396,7 +6406,133 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: SINKRONISASI CLOUD FIREBASE & MULTI-DEVICE ==================== -->
+  <div class="modal-backdrop hidden" id="modalCloudSync">
+    <div class="modal-dialog glass-panel" style="max-width: 640px;">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <div class="modal-icon-badge bg-red-gradient">
+            <i class="fa-solid fa-cloud"></i>
+          </div>
+          <div>
+            <h3 class="modal-title">Sinkronisasi Cloud &amp; Multi-Device</h3>
+            <p class="modal-subtitle">Sinkronkan data secara otomatis antar PC, laptop, dan smartphone via Firebase Firestore.</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseCloudSyncModal" aria-label="Tutup Modal">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Status Koneksi -->
+        <div class="cloud-status-card">
+          <div class="cloud-status-info">
+            <span class="cloud-status-indicator offline" id="cloudModalStatusDot"></span>
+            <div>
+              <div style="font-weight: 600; font-size: 0.95rem;" id="cloudModalStatusText">Lokal (Belum terhubung ke Cloud)</div>
+              <div style="font-size: 0.78rem; color: var(--gray-400);" id="cloudModalStatusSub">Data saat ini tersimpan di browser perangkat ini.</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-outline-gray btn-sm" id="btnRefreshCloudSync" title="Coba Hubungkan / Refresh">
+            <i class="fa-solid fa-rotate"></i> Refresh
+          </button>
+        </div>
+
+        <!-- Tombol Aksi Cloud -->
+        <div class="cloud-actions-grid">
+          <div class="cloud-action-card">
+            <div>
+              <div class="cloud-action-title text-red"><i class="fa-solid fa-cloud-arrow-down"></i> Tarik dari Cloud</div>
+              <p class="cloud-action-desc">Unduh data terbaru dari Firebase Cloud ke PC ini (berguna saat baru buka di PC lain).</p>
+            </div>
+            <button type="button" class="btn btn-outline-gray btn-sm w-100" id="btnPullFromCloud">
+              <i class="fa-solid fa-download"></i> Tarik Data Cloud
+            </button>
+          </div>
+
+          <div class="cloud-action-card">
+            <div>
+              <div class="cloud-action-title text-red"><i class="fa-solid fa-cloud-arrow-up"></i> Unggah ke Cloud</div>
+              <p class="cloud-action-desc">Kirim semua data lokal dari PC ini ke Firebase Cloud sebagai data pusat bersama.</p>
+            </div>
+            <button type="button" class="btn btn-outline-gray btn-sm w-100" id="btnPushToCloud">
+              <i class="fa-solid fa-upload"></i> Unggah Semua Data
+            </button>
+          </div>
+        </div>
+
+        <!-- Transfer Cepat Antar PC (JSON) -->
+        <div class="cloud-section-divider">
+          <span>OPSI TRANSFER CEPAT (OFFLINE / BACKUP FILE)</span>
+        </div>
+        <div class="cloud-actions-grid" style="margin-bottom: 16px;">
+          <div class="cloud-action-card">
+            <div>
+              <div class="cloud-action-title"><i class="fa-solid fa-file-export text-red"></i> Backup ke File JSON</div>
+              <p class="cloud-action-desc">Unduh 1 file backup berisi seluruh data (bisa dikirim via WA / flashdisk ke PC lain).</p>
+            </div>
+            <button type="button" class="btn btn-outline-gray btn-sm w-100" id="btnExportJsonBackup">
+              <i class="fa-solid fa-file-arrow-down"></i> Export JSON
+            </button>
+          </div>
+
+          <div class="cloud-action-card">
+            <div>
+              <div class="cloud-action-title"><i class="fa-solid fa-file-import text-red"></i> Pulihkan dari File JSON</div>
+              <p class="cloud-action-desc">Pilih file backup JSON untuk memulihkan seluruh data di PC ini dalam 1 detik.</p>
+            </div>
+            <input type="file" id="inputImportJsonFile" accept=".json" style="display: none;">
+            <button type="button" class="btn btn-outline-gray btn-sm w-100" id="btnTriggerImportJson">
+              <i class="fa-solid fa-file-arrow-up"></i> Import JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- Konfigurasi Firebase Firestore -->
+        <div class="cloud-section-divider">
+          <span>PENGATURAN KREDENSIAL FIREBASE</span>
+        </div>
+
+        <form id="formFirebaseConfig" novalidate>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="fbProjectId" class="form-label">Project ID Firebase <span class="required">*</span></label>
+              <input type="text" id="fbProjectId" class="form-control" placeholder="contoh: dashboard-agent-adaro" required>
+            </div>
+            <div class="form-group flex-1">
+              <label for="fbApiKey" class="form-label">API Key Firebase <span class="required">*</span></label>
+              <input type="password" id="fbApiKey" class="form-control" placeholder="AIzaSy..." required>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group flex-1">
+              <label for="fbAuthDomain" class="form-label">Auth Domain</label>
+              <input type="text" id="fbAuthDomain" class="form-control" placeholder="project-id.firebaseapp.com">
+            </div>
+            <div class="form-group flex-1">
+              <label for="fbAppId" class="form-label">App ID</label>
+              <input type="text" id="fbAppId" class="form-control" placeholder="1:123456789:web:abcdef">
+            </div>
+          </div>
+          <div style="font-size: 0.78rem; color: var(--gray-400); margin-top: 4px;">
+            <i class="fa-solid fa-circle-info text-red"></i> Konfigurasi ini didapatkan dari <strong>Firebase Console</strong> &gt; Project Settings &gt; General &gt; Your Apps (Web).
+          </div>
+
+          <div class="modal-footer" style="padding: 16px 0 0; margin-top: 16px; border-top: 1px solid var(--border-subtle); display: flex; justify-content: flex-end; gap: 10px;">
+            <button type="button" class="btn btn-outline-gray" id="btnCancelFirebaseModal">Tutup</button>
+            <button type="submit" class="btn btn-primary glow-effect-red" id="btnSaveFirebaseConfig">
+              <i class="fa-solid fa-floppy-disk"></i> Simpan &amp; Hubungkan
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Custom JavaScript Logic -->
+  <script src="js/firebase-config.js"></script>
+  <script src="js/firebase-sync.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

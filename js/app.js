@@ -1888,6 +1888,10 @@ class AppState {
 }
 
 const state = new AppState();
+window.state = state;
+if (typeof window !== 'undefined' && window.FirebaseSync && typeof window.FirebaseSync.attachSaveHooks === 'function') {
+  window.FirebaseSync.attachSaveHooks(state);
+}
 
 // ==========================================
 // 2.5 THEME COLOR PALETTES & CUSTOMIZER
