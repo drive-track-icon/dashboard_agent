@@ -916,6 +916,18 @@
   // Pasang singleton instance ke window
   window.FirebaseSync = new FirebaseSyncManager();
 
+  // Global Resilience Shield (Mencegah runtime error atau unhandled rejection merusak aplikasi di HP / PC)
+  window.addEventListener('unhandledrejection', (event) => {
+    console.warn('[DRIVE Shield] Unhandled rejection diamankan:', event.reason);
+    if (event.preventDefault) {
+      event.preventDefault();
+    }
+  });
+
+  window.addEventListener('error', (event) => {
+    console.warn('[DRIVE Shield] Runtime error diamankan:', event.message || event);
+  });
+
   // Otomatis pasang hook dan inisialisasi saat DOM siap
   document.addEventListener('DOMContentLoaded', () => {
     window.FirebaseSync.setupUIEvents();
@@ -923,6 +935,45 @@
       window.FirebaseSync.attachSaveHooks(window.state);
     }
     window.FirebaseSync.init(window.state);
+  });
+
+  // Tangani saat koneksi internet pulih (Online di PC / HP)
+  window.addEventListener('online', async () => {
+    if (window.FirebaseSync && window.FirebaseSync.db) {
+      try {
+        await window.FirebaseSync.db.enableNetwork();
+        window.FirebaseSync.isConnected = true;
+        window.FirebaseSync.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
+        if (typeof window.showToast === 'function') {
+          window.showToast('Koneksi Pulih', 'Perangkat kembali online. Menyinkronkan data...', 'info');
+        }
+        await window.FirebaseSync.syncAllFromCloud(false);
+      } catch (e) {
+        console.warn('Gagal reconnect Firestore saat online:', e);
+      }
+    }
+  });
+
+  // Tangani saat koneksi internet terputus (Offline di PC / HP)
+  window.addEventListener('offline', () => {
+    if (window.FirebaseSync) {
+      window.FirebaseSync.updateStatusBadge('offline', 'Mode Offline (Data aman tersimpan di perangkat)');
+      if (typeof window.showToast === 'function') {
+        window.showToast('Mode Offline', 'Koneksi terputus. Data tetap tersimpan aman di perangkat Anda.', 'warning');
+      }
+    }
+  });
+
+  // Tangani saat tab kembali aktif atau layar HP dibuka dari sleep / background (visibilitychange)
+  document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'visible' && window.FirebaseSync && window.FirebaseSync.db && navigator.onLine) {
+      try {
+        await window.FirebaseSync.db.enableNetwork();
+        await window.FirebaseSync.syncAllFromCloud(false);
+      } catch (e) {
+        // Abaikan jika network sudah aktif
+      }
+    }
   });
 
   // Segera kirim semua data tertunda ke cloud sebelum halaman direfresh / ditutup

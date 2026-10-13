@@ -2,10 +2,18 @@
 <html lang="id">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover">
   <title>DRIVE | Dashboard Reporting, Insight &amp; Visibility of Employee</title>
   <meta name="description" content="DRIVE - Dashboard Reporting, Insight &amp; Visibility of Employee dengan Hak Akses Admin dan User, Kombinasi Tema Merah, Hitam, dan Abu-abu">
   <link rel="icon" type="image/jpeg" href="assets/hotwheels_tire.jpg">
+  
+  <!-- Mobile Web App & Theme Color (Android & iOS PWA optimization) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="DRIVE">
+  <meta name="theme-color" content="#0d0f15">
+  <meta name="format-detection" content="telephone=no">
   
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,8 +26,8 @@
   <!-- Chart.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 
-  <!-- SheetJS Library for Excel (.xlsx) Export -->
-  <script src="js/xlsx.full.min.js"></script>
+  <!-- SheetJS Library for Excel (.xlsx) Export (Deferred for fast mobile rendering) -->
+  <script src="js/xlsx.full.min.js" defer></script>
 
   <!-- Firebase SDK (Compat v10) for Cloud Firestore Multi-Device Sync -->
   <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
