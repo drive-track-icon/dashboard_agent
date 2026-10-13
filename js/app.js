@@ -3000,12 +3000,12 @@ const UI = {
   adminDetailUserTiket: document.getElementById('adminDetailUserTiket'),
   adminDetailUserAht: document.getElementById('adminDetailUserAht'),
   adminDetailUserArt: document.getElementById('adminDetailUserArt'),
-  adminDetailUserStatLogs: document.getElementById('adminDetailUserStatLogs'),
-  adminDetailUserStatInteractions: document.getElementById('adminDetailUserStatInteractions'),
-  adminDetailUserStatHours: document.getElementById('adminDetailUserStatHours'),
-  adminDetailUserStatAux: document.getElementById('adminDetailUserStatAux'),
-  adminDetailUserLogsBadge: document.getElementById('adminDetailUserLogsBadge'),
-  adminDetailUserLogsTableBody: document.getElementById('adminDetailUserLogsTableBody'),
+  adminDetailUserFindingsContainer: document.getElementById('adminDetailUserFindingsContainer'),
+  adminDetailUserFindingsBadge: document.getElementById('adminDetailUserFindingsBadge'),
+  adminDetailUserFindingsList: document.getElementById('adminDetailUserFindingsList'),
+  paUserPersonalFindingsContainer: document.getElementById('paUserPersonalFindingsContainer'),
+  paUserPersonalFindingsBadge: document.getElementById('paUserPersonalFindingsBadge'),
+  paUserPersonalFindingsList: document.getElementById('paUserPersonalFindingsList'),
 
   // CA Elements
   navCa: document.getElementById('navCa'),
@@ -7880,6 +7880,82 @@ function renderUserPersonalPaCard(currentUser) {
   if (UI.paCardUserTiket) UI.paCardUserTiket.textContent = metrics.tiketFormatted;
   if (UI.paCardUserAht) UI.paCardUserAht.textContent = metrics.ahtFormatted;
   if (UI.paCardUserArt) UI.paCardUserArt.textContent = metrics.artFormatted;
+
+  // Render Catatan Finding Pengguna Mandiri jika user mendapatkan finding
+  const pFindingsContainer = (UI && UI.paUserPersonalFindingsContainer) || document.getElementById('paUserPersonalFindingsContainer');
+  const pFindingsList = (UI && UI.paUserPersonalFindingsList) || document.getElementById('paUserPersonalFindingsList');
+  const pFindingsBadge = (UI && UI.paUserPersonalFindingsBadge) || document.getElementById('paUserPersonalFindingsBadge');
+
+  if (pFindingsContainer && pFindingsList) {
+    const allFindings = (typeof state.getFindings === 'function') ? state.getFindings() : [];
+    const myFindings = allFindings.filter(f => isFindingForUser(f, currentUser));
+    const myFilteredFindings = (selectedMonth && selectedMonth !== 'ALL')
+      ? myFindings.filter(f => (f.date || '').startsWith(selectedMonth))
+      : myFindings;
+
+    if (myFilteredFindings.length > 0) {
+      pFindingsContainer.classList.remove('hidden');
+      if (pFindingsBadge) {
+        pFindingsBadge.className = 'badge badge-red';
+        pFindingsBadge.textContent = `${myFilteredFindings.length} Finding`;
+      }
+      pFindingsList.innerHTML = '';
+      myFilteredFindings.forEach(item => {
+        let typeBadge = item.findingType === 'Feedback Positif' ? 'badge-green' : 'badge-yellow';
+        let devBadge = 'badge-yellow';
+        let borderColor = 'var(--yellow-status)';
+        if ((item.deviationLevel || '').startsWith('Korektif')) {
+          devBadge = 'badge-blue';
+          borderColor = '#3b82f6';
+        } else if ((item.deviationLevel || '').startsWith('SP')) {
+          devBadge = 'badge-red glow-effect-red';
+          borderColor = 'var(--red-primary)';
+        } else if (item.findingType === 'Feedback Positif') {
+          borderColor = 'var(--green-status)';
+        }
+
+        let statBadge = 'badge-yellow';
+        if (item.status === 'Dalam Coaching') statBadge = 'badge-blue';
+        else if (item.status === 'Closed') statBadge = 'badge-green';
+
+        const card = document.createElement('div');
+        card.className = 'glass-subpanel finding-note-card';
+        card.style.cssText = `padding: 12px 14px; border-left: 4px solid ${borderColor}; border-radius: 8px; background: rgba(20, 24, 34, 0.75); margin-bottom: 2px;`;
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span class="text-red font-mono" style="font-weight: 700; font-size: 0.8rem;">${item.id}</span>
+              <span class="badge ${devBadge}" style="font-size: 0.7rem;">${item.deviationLevel}</span>
+              <span class="badge ${typeBadge}" style="font-size: 0.7rem;">${item.findingType || 'Feedback Negatif'}</span>
+              <span class="badge badge-gray" style="font-size: 0.7rem;"><i class="fa-solid fa-tag text-silver" style="margin-right: 3px;"></i>${item.category}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.75rem; color: var(--gray-400);"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${item.date || '-'}</span>
+              <span class="badge ${statBadge}" style="font-size: 0.7rem;">${item.status}</span>
+            </div>
+          </div>
+          <div style="font-size: 0.83rem; color: #ffffff; line-height: 1.45; margin-bottom: 6px;">
+            <strong style="color: var(--gray-300);">Deskripsi Temuan:</strong> ${item.desc}
+          </div>
+          ${item.actionPlan ? `
+            <div style="font-size: 0.77rem; color: var(--gray-300); margin-top: 4px; display: flex; gap: 6px; align-items: flex-start;">
+              <i class="fa-solid fa-lightbulb text-yellow" style="margin-top: 2px;"></i>
+              <div><strong style="color: var(--yellow-status);">Action Plan:</strong> ${item.actionPlan}</div>
+            </div>
+          ` : ''}
+          ${item.commitment ? `
+            <div style="font-size: 0.77rem; color: var(--gray-300); margin-top: 3px; display: flex; gap: 6px; align-items: flex-start;">
+              <i class="fa-solid fa-handshake text-blue" style="margin-top: 2px;"></i>
+              <div><strong style="color: #60a5fa;">Komitmen:</strong> ${item.commitment}</div>
+            </div>
+          ` : ''}
+        `;
+        pFindingsList.appendChild(card);
+      });
+    } else {
+      pFindingsContainer.classList.add('hidden');
+    }
+  }
 }
 
 function renderAdminPaUserGrid() {
@@ -7992,50 +8068,89 @@ function openAdminUserDetailModal(userIdOrName) {
   if (UI.adminDetailUserAht) UI.adminDetailUserAht.textContent = metrics.ahtFormatted;
   if (UI.adminDetailUserArt) UI.adminDetailUserArt.textContent = metrics.artFormatted;
 
-  // Calculate user metrics
-  let totalInteractions = 0;
-  let productiveMins = 0;
-  let auxMins = 0;
-  userLogs.forEach(l => {
-    totalInteractions += Number(l.interactionCount) || 0;
-    const dur = Number(l.durationMinutes) || 0;
-    if ((l.activityCategory || '').startsWith('READY') || !(l.activityCategory || '').startsWith('AUX')) {
-      productiveMins += dur;
+  // Ambil data catatan temuan audit QA (Finding) untuk agen ini dari menu Finding
+  const allFindings = (typeof state.getFindings === 'function') ? state.getFindings() : [];
+  const userFindings = allFindings.filter(f => isFindingForUser(f, u));
+  const filteredFindings = (selectedMonth && selectedMonth !== 'ALL')
+    ? userFindings.filter(f => (f.date || '').startsWith(selectedMonth))
+    : userFindings;
+
+  // Render Catatan Finding
+  const findingsListEl = (UI && UI.adminDetailUserFindingsList) || document.getElementById('adminDetailUserFindingsList');
+  const findingsBadgeEl = (UI && UI.adminDetailUserFindingsBadge) || document.getElementById('adminDetailUserFindingsBadge');
+
+  if (findingsBadgeEl) {
+    if (filteredFindings.length > 0) {
+      findingsBadgeEl.className = 'badge badge-red';
+      findingsBadgeEl.textContent = `${filteredFindings.length} Finding`;
     } else {
-      auxMins += dur;
+      findingsBadgeEl.className = 'badge badge-green';
+      findingsBadgeEl.textContent = '0 Finding (Bersih)';
     }
-  });
+  }
 
-  if (UI.adminDetailUserStatLogs) UI.adminDetailUserStatLogs.textContent = userLogs.length;
-  if (UI.adminDetailUserStatInteractions) UI.adminDetailUserStatInteractions.textContent = totalInteractions.toLocaleString('id-ID');
-  if (UI.adminDetailUserStatHours) UI.adminDetailUserStatHours.textContent = `${(productiveMins / 60).toFixed(1)} Jam`;
-  if (UI.adminDetailUserStatAux) UI.adminDetailUserStatAux.textContent = `${auxMins} Menit`;
-  if (UI.adminDetailUserLogsBadge) UI.adminDetailUserLogsBadge.textContent = `${userLogs.length} Catatan`;
-
-  // Render Table of User Logs
-  if (UI.adminDetailUserLogsTableBody) {
-    UI.adminDetailUserLogsTableBody.innerHTML = '';
-    if (userLogs.length === 0) {
-      UI.adminDetailUserLogsTableBody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--gray-400);">Belum ada catatan Update PA yang tersimpan untuk agen ini.</td></tr>';
+  if (findingsListEl) {
+    findingsListEl.innerHTML = '';
+    if (filteredFindings.length === 0) {
+      findingsListEl.innerHTML = `
+        <div class="glass-subpanel" style="padding: 18px 16px; text-align: center; border-radius: 8px; color: var(--gray-400); background: rgba(18, 22, 32, 0.6); border: 1px dashed var(--border-mid);">
+          <i class="fa-solid fa-circle-check text-green" style="font-size: 1.6rem; margin-bottom: 8px; display: block;"></i>
+          <span style="color: #ffffff; font-weight: 600; font-size: 0.88rem; display: block;">Tidak Ada Catatan Finding</span>
+          <span style="font-size: 0.78rem; color: var(--gray-400);">Agen ini tidak memiliki catatan temuan audit QA pada periode ${selectedMonth === 'ALL' ? 'keseluruhan' : selectedMonth}.</span>
+        </div>
+      `;
     } else {
-      userLogs.forEach(item => {
-        const tr = document.createElement('tr');
-        let statusBadge = item.status === 'Terverifikasi' ? 'badge-green' : (item.status === 'Selesai' ? 'badge-blue' : 'badge-yellow');
-        tr.innerHTML = `
-          <td>
-            <div style="font-weight:600; color:#fff;">${item.date}</div>
-            <small class="text-muted">${item.createdAt ? (item.createdAt.split(' ')[1] || '') : ''} WIB</small>
-          </td>
-          <td><span style="color:var(--gray-300);">${item.shift || '-'}</span></td>
-          <td>
-            <span class="badge badge-gray" style="font-size:0.74rem;">${item.activityCategory}</span>
-            ${item.notes ? `<div style="font-size:0.7rem; color:var(--gray-400); margin-top:2px; max-width:180px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${item.notes}</div>` : ''}
-          </td>
-          <td style="text-align:right; font-weight:700; color:#fff;">${item.interactionCount || 0}</td>
-          <td style="text-align:right; color:var(--gray-300);">${item.durationMinutes || 0} m</td>
-          <td><span class="badge ${statusBadge}" style="font-size:0.72rem;">${item.status}</span></td>
+      filteredFindings.forEach(item => {
+        let typeBadge = item.findingType === 'Feedback Positif' ? 'badge-green' : 'badge-yellow';
+        let devBadge = 'badge-yellow';
+        let borderColor = 'var(--yellow-status)';
+        if ((item.deviationLevel || '').startsWith('Korektif')) {
+          devBadge = 'badge-blue';
+          borderColor = '#3b82f6';
+        } else if ((item.deviationLevel || '').startsWith('SP')) {
+          devBadge = 'badge-red glow-effect-red';
+          borderColor = 'var(--red-primary)';
+        } else if (item.findingType === 'Feedback Positif') {
+          borderColor = 'var(--green-status)';
+        }
+
+        let statBadge = 'badge-yellow';
+        if (item.status === 'Dalam Coaching') statBadge = 'badge-blue';
+        else if (item.status === 'Closed') statBadge = 'badge-green';
+
+        const card = document.createElement('div');
+        card.className = 'glass-subpanel finding-note-card';
+        card.style.cssText = `padding: 12px 14px; border-left: 4px solid ${borderColor}; border-radius: 8px; background: rgba(20, 24, 34, 0.75); margin-bottom: 2px;`;
+        card.innerHTML = `
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; margin-bottom: 6px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+              <span class="text-red font-mono" style="font-weight: 700; font-size: 0.8rem;">${item.id}</span>
+              <span class="badge ${devBadge}" style="font-size: 0.7rem;">${item.deviationLevel}</span>
+              <span class="badge ${typeBadge}" style="font-size: 0.7rem;">${item.findingType || 'Feedback Negatif'}</span>
+              <span class="badge badge-gray" style="font-size: 0.7rem;"><i class="fa-solid fa-tag text-silver" style="margin-right: 3px;"></i>${item.category}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 0.75rem; color: var(--gray-400);"><i class="fa-regular fa-calendar" style="margin-right: 4px;"></i>${item.date || '-'}</span>
+              <span class="badge ${statBadge}" style="font-size: 0.7rem;">${item.status}</span>
+            </div>
+          </div>
+          <div style="font-size: 0.83rem; color: #ffffff; line-height: 1.45; margin-bottom: 6px;">
+            <strong style="color: var(--gray-300);">Deskripsi Temuan:</strong> ${item.desc}
+          </div>
+          ${item.actionPlan ? `
+            <div style="font-size: 0.77rem; color: var(--gray-300); margin-top: 4px; display: flex; gap: 6px; align-items: flex-start;">
+              <i class="fa-solid fa-lightbulb text-yellow" style="margin-top: 2px;"></i>
+              <div><strong style="color: var(--yellow-status);">Action Plan:</strong> ${item.actionPlan}</div>
+            </div>
+          ` : ''}
+          ${item.commitment ? `
+            <div style="font-size: 0.77rem; color: var(--gray-300); margin-top: 3px; display: flex; gap: 6px; align-items: flex-start;">
+              <i class="fa-solid fa-handshake text-blue" style="margin-top: 2px;"></i>
+              <div><strong style="color: #60a5fa;">Komitmen:</strong> ${item.commitment}</div>
+            </div>
+          ` : ''}
         `;
-        UI.adminDetailUserLogsTableBody.appendChild(tr);
+        findingsListEl.appendChild(card);
       });
     }
   }

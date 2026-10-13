@@ -780,6 +780,20 @@
                 </div>
               </div>
             </div>
+
+            <!-- Catatan Finding Pengguna Mandiri (Ditampilkan Jika User Mendapatkan Finding) -->
+            <div class="admin-detail-findings-section mt-3 hidden" id="paUserPersonalFindingsContainer">
+              <div class="section-subbar mb-2" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                <h4 style="font-size: 0.95rem; font-weight:700; color:#ffffff; margin:0; display:flex; align-items:center; gap:6px;">
+                  <i class="fa-solid fa-triangle-exclamation text-red"></i>
+                  <span>Catatan Finding Saya</span>
+                </h4>
+                <span class="badge badge-gray" id="paUserPersonalFindingsBadge">0 Finding</span>
+              </div>
+              <div id="paUserPersonalFindingsList" class="detail-findings-list" style="display:flex; flex-direction:column; gap:10px;">
+                <!-- Populated dynamically jika user mendapatkan finding -->
+              </div>
+            </div>
           </div>
 
           <!-- Section Monitoring Seluruh Pengguna Update PA (Hanya Admin yang dapat melihat) -->
@@ -4602,7 +4616,7 @@
           </div>
           <div>
             <h3 class="modal-title" id="adminUserModalTitle">Detail Update PA Pengguna</h3>
-            <p class="modal-subtitle">Informasi profil performa dan seluruh catatan aktivitas shift agen CSO</p>
+            <p class="modal-subtitle">Informasi profil performa agen dan catatan temuan audit QA (Finding)</p>
           </div>
         </div>
         <button class="modal-close-btn" id="btnCloseAdminUserPaDetail" aria-label="Tutup Modal Detail">
@@ -4654,54 +4668,19 @@
           </div>
         </div>
 
-        <!-- Metric Summary Bar of User PA -->
-        <div class="metrics-grid mb-3" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
-          <div class="metric-card glass-subpanel" style="padding: 12px;">
-            <span class="metric-label" style="font-size:0.75rem;">Total Log PA</span>
-            <h4 class="metric-value text-red" id="adminDetailUserStatLogs" style="font-size:1.15rem; margin:2px 0;">0</h4>
-            <span class="metric-subtext" style="font-size:0.7rem;">Entri tercatat</span>
+        <!-- Section: Catatan Finding (Diambil dari Menu Finding jika User Mendapatkan Finding) -->
+        <div class="admin-detail-findings-section mt-3" id="adminDetailUserFindingsContainer">
+          <div class="section-subbar mb-2" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+            <h4 style="font-size: 0.95rem; font-weight:700; color:#ffffff; margin:0; display:flex; align-items:center; gap:6px;">
+              <i class="fa-solid fa-triangle-exclamation text-red"></i>
+              <span>Catatan Finding</span>
+            </h4>
+            <span class="badge badge-gray" id="adminDetailUserFindingsBadge">0 Finding</span>
           </div>
-          <div class="metric-card glass-subpanel" style="padding: 12px;">
-            <span class="metric-label" style="font-size:0.75rem;">Interaksi</span>
-            <h4 class="metric-value text-white" id="adminDetailUserStatInteractions" style="font-size:1.15rem; margin:2px 0;">0</h4>
-            <span class="metric-subtext" style="font-size:0.7rem;">Chat / Telepon</span>
-          </div>
-          <div class="metric-card glass-subpanel" style="padding: 12px;">
-            <span class="metric-label" style="font-size:0.75rem;">Jam Efektif</span>
-            <h4 class="metric-value text-silver" id="adminDetailUserStatHours" style="font-size:1.15rem; margin:2px 0;">0.0 Jam</h4>
-            <span class="metric-subtext" style="font-size:0.7rem;">Productive Time</span>
-          </div>
-          <div class="metric-card glass-subpanel" style="padding: 12px;">
-            <span class="metric-label" style="font-size:0.75rem;">Total AUX</span>
-            <h4 class="metric-value text-yellow" id="adminDetailUserStatAux" style="font-size:1.15rem; margin:2px 0;">0 Menit</h4>
-            <span class="metric-subtext" style="font-size:0.7rem;">Istirahat &amp; AUX</span>
-          </div>
-        </div>
 
-        <!-- Tabel Riwayat Catatan Update PA Pengguna -->
-        <div class="section-subbar mb-2" style="display:flex; justify-content:space-between; align-items:center;">
-          <h4 style="font-size: 0.95rem; font-weight:700; color:#ffffff;">
-            <i class="fa-solid fa-clipboard-list text-red" style="margin-right:6px;"></i>Daftar Catatan Update PA Agen Ini
-          </h4>
-          <span class="badge badge-gray" id="adminDetailUserLogsBadge">0 Entri</span>
-        </div>
-
-        <div class="table-responsive glass-subpanel" style="max-height: 240px; overflow-y: auto;">
-          <table class="custom-table" style="font-size: 0.8rem;">
-            <thead>
-              <tr>
-                <th>Tanggal</th>
-                <th>Shift</th>
-                <th>Aktivitas &amp; AUX</th>
-                <th style="text-align: right;">Interaksi</th>
-                <th style="text-align: right;">Durasi</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody id="adminDetailUserLogsTableBody">
-              <!-- Populated dynamically -->
-            </tbody>
-          </table>
+          <div id="adminDetailUserFindingsList" class="detail-findings-list" style="display:flex; flex-direction:column; gap:10px; max-height: 280px; overflow-y: auto; padding-right: 4px;">
+            <!-- Populated dynamically dari menu Finding -->
+          </div>
         </div>
       </div>
 
