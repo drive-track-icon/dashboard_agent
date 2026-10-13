@@ -2292,34 +2292,39 @@ function toggleDisplayMode(notify = true) {
 function getUserSidebarCollapsed(user) {
   if (!user) return false;
   const username = (user.username || user.id || '').toLowerCase();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const storageKey = isMobile ? 'drive_sidebar_collapsed_mobile_' + username : 'drive_sidebar_collapsed_' + username;
   try {
-    const saved = localStorage.getItem('drive_sidebar_collapsed_' + username);
+    const saved = localStorage.getItem(storageKey);
     if (saved !== null) return saved === 'true';
-    const fallback = localStorage.getItem('sidebar_collapsed');
-    if (fallback !== null) return fallback === 'true';
+    if (!isMobile) {
+      const fallback = localStorage.getItem('sidebar_collapsed');
+      if (fallback !== null) return fallback === 'true';
+    }
   } catch (e) {
     console.warn('LocalStorage read error for user sidebar collapsed:', e);
   }
-  if (typeof user.sidebarCollapsed === 'boolean') {
+  if (!isMobile && typeof user.sidebarCollapsed === 'boolean') {
     return user.sidebarCollapsed;
   }
-  return false;
+  return isMobile ? true : false;
 }
 
 function setUserSidebarCollapsed(user, collapsed) {
   if (!user) return;
   const username = (user.username || user.id || '').toLowerCase();
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  const storageKey = isMobile ? 'drive_sidebar_collapsed_mobile_' + username : 'drive_sidebar_collapsed_' + username;
   try {
-    localStorage.setItem('drive_sidebar_collapsed_' + username, collapsed ? 'true' : 'false');
-    user.sidebarCollapsed = collapsed;
-    state.setSession(user);
-
-    const users = state.getUsers();
-    const userIndex = users.findIndex(u => (u.username || '').toLowerCase() === username);
-    if (userIndex !== -1) {
-      users[userIndex].sidebarCollapsed = collapsed;
-      state.saveUsers(users);
+    localStorage.setItem(storageKey, collapsed ? 'true' : 'false');
+    if (!isMobile) {
+      localStorage.setItem('sidebar_collapsed', collapsed ? 'true' : 'false');
+      user.sidebarCollapsed = collapsed;
+      state.setSession(user);
     }
+    // CATATAN: JANGAN panggil state.saveUsers(users) di sini!
+    // Pengaturan UI lokal (sidebar collapse & zoom) tidak boleh memicu FirebaseSync,
+    // yang sebelumnya memicu re-render halaman dan otomatis mengecilkan kembali sidebar di HP.
   } catch (e) {
     console.warn('Gagal menyimpan preferensi sidebar per-user:', e);
   }
@@ -2357,15 +2362,10 @@ function setUserDashboardZoom(user, level) {
   const username = (user.username || user.id || '').toLowerCase();
   try {
     localStorage.setItem('drive_dashboard_zoom_' + username, level.toString());
+    localStorage.setItem('dashboard_zoom_level', level.toString());
     user.dashboardZoom = level;
     state.setSession(user);
-
-    const users = state.getUsers();
-    const userIndex = users.findIndex(u => (u.username || '').toLowerCase() === username);
-    if (userIndex !== -1) {
-      users[userIndex].dashboardZoom = level;
-      state.saveUsers(users);
-    }
+    // CATATAN: JANGAN panggil state.saveUsers(users) di sini agar tidak memicu re-render
   } catch (e) {
     console.warn('Gagal menyimpan preferensi zoom per-user:', e);
   }
@@ -4396,8 +4396,10 @@ function navigateToPage(pageId, save = true) {
     }
   });
 
-  // Close mobile sidebar if open
-  closeMobileSidebar();
+  // Tutup drawer sidebar pada mobile HANYA jika navigasi dipicu oleh klik menu aktif (save === true)
+  if (save && typeof window !== 'undefined' && window.innerWidth <= 768 && !isSidebarCollapsed) {
+    closeMobileSidebar();
+  }
 
   if (typeof updateDynamicMonthDropdowns === 'function') {
     updateDynamicMonthDropdowns();
@@ -16012,14 +16014,14 @@ let isSidebarCollapsed = false;
 function openMobileSidebar() {
   UI.sidebar.classList.add('open');
   if (UI.sidebarOverlay) UI.sidebarOverlay.classList.add('active');
-  applySidebarCollapse(false, false);
+  applySidebarCollapse(false, true);
 }
 
 function closeMobileSidebar() {
   UI.sidebar.classList.remove('open');
   if (UI.sidebarOverlay) UI.sidebarOverlay.classList.remove('active');
-  if (window.innerWidth <= 768) {
-    applySidebarCollapse(true, false);
+  if (typeof window !== 'undefined' && window.innerWidth <= 768) {
+    applySidebarCollapse(true, true);
   }
 }
 
@@ -16038,7 +16040,8 @@ function initSidebarCollapse() {
 
   if (UI.sidebarBrandClickable) {
     UI.sidebarBrandClickable.addEventListener('click', (e) => {
-      if (isSidebarCollapsed || window.innerWidth <= 768) {
+      // Hanya perluas sidebar jika saat ini sedang diperkecil
+      if (isSidebarCollapsed) {
         e.stopPropagation();
         toggleSidebarCollapse();
       }
@@ -16322,7 +16325,11 @@ function initEvents() {
   UI.menuToggleBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     if (window.innerWidth <= 768) {
-      openMobileSidebar();
+      if (isSidebarCollapsed) {
+        openMobileSidebar();
+      } else {
+        closeMobileSidebar();
+      }
     } else {
       toggleSidebarCollapse();
     }

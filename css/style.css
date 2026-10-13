@@ -3639,8 +3639,36 @@ textarea.form-control {
   .dashboard-shell:not(.sidebar-collapsed) .sidebar {
     width: var(--sidebar-width) !important;
     box-shadow: 10px 0 35px rgba(0, 0, 0, 0.95) !important;
-    z-index: 250 !important;
+    z-index: 260 !important;
     overflow-x: hidden !important;
+  }
+
+  /* Header saat sidebar diperbesar pada mobile: tertata rapi & proporsional */
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-header {
+    padding: 0.65rem 0.65rem 0.65rem 0.85rem !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 0.45rem !important;
+  }
+
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-brand {
+    flex: 1 !important;
+    min-width: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+  }
+
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-brand-name {
+    font-size: calc(1.15rem * var(--content-font-scale, 1)) !important;
+  }
+
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-brand-sub {
+    font-size: calc(0.55rem * var(--content-font-scale, 1)) !important;
+    max-width: 125px !important;
+    line-height: 1.15 !important;
   }
 
   /* Tombol Perkecil / Perbesar Sidebar Tetap Tersedia dan Aktif di Layar HP */
@@ -3648,14 +3676,40 @@ textarea.form-control {
     display: flex !important;
   }
 
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-collapse-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: var(--radius-sm) !important;
+  }
+
   .sidebar-close-btn {
     display: none;
   }
 
   .dashboard-shell:not(.sidebar-collapsed) .sidebar-close-btn {
+    width: 34px !important;
+    height: 34px !important;
+    min-width: 34px !important;
     display: flex !important;
-    align-items: center;
-    justify-content: center;
+    align-items: center !important;
+    justify-content: center !important;
+    border-radius: var(--radius-sm) !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid var(--border-subtle) !important;
+    color: var(--gray-400) !important;
+    cursor: pointer !important;
+    transition: all var(--transition-fast) !important;
+  }
+
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-close-btn:hover,
+  .dashboard-shell:not(.sidebar-collapsed) .sidebar-close-btn:active {
+    background: var(--red-subtle) !important;
+    border-color: var(--red-border) !important;
+    color: #ffffff !important;
   }
 
   /* Sidebar Ramping (Collapsed) pada Mobile */
