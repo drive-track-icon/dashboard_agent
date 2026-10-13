@@ -7881,7 +7881,7 @@ function renderUserPersonalPaCard(currentUser) {
   if (UI.paCardUserAht) UI.paCardUserAht.textContent = metrics.ahtFormatted;
   if (UI.paCardUserArt) UI.paCardUserArt.textContent = metrics.artFormatted;
 
-  // Render Catatan Finding Pengguna Mandiri jika user mendapatkan finding
+  // Render Catatan Finding Pengguna Mandiri jika user mendapatkan finding dari menu Finding
   const pFindingsContainer = (UI && UI.paUserPersonalFindingsContainer) || document.getElementById('paUserPersonalFindingsContainer');
   const pFindingsList = (UI && UI.paUserPersonalFindingsList) || document.getElementById('paUserPersonalFindingsList');
   const pFindingsBadge = (UI && UI.paUserPersonalFindingsBadge) || document.getElementById('paUserPersonalFindingsBadge');
@@ -7889,18 +7889,16 @@ function renderUserPersonalPaCard(currentUser) {
   if (pFindingsContainer && pFindingsList) {
     const allFindings = (typeof state.getFindings === 'function') ? state.getFindings() : [];
     const myFindings = allFindings.filter(f => isFindingForUser(f, currentUser));
-    const myFilteredFindings = (selectedMonth && selectedMonth !== 'ALL')
-      ? myFindings.filter(f => (f.date || '').startsWith(selectedMonth))
-      : myFindings;
+    myFindings.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
-    if (myFilteredFindings.length > 0) {
+    if (myFindings.length > 0) {
       pFindingsContainer.classList.remove('hidden');
       if (pFindingsBadge) {
         pFindingsBadge.className = 'badge badge-red';
-        pFindingsBadge.textContent = `${myFilteredFindings.length} Finding`;
+        pFindingsBadge.textContent = `${myFindings.length} Finding`;
       }
       pFindingsList.innerHTML = '';
-      myFilteredFindings.forEach(item => {
+      myFindings.forEach(item => {
         let typeBadge = item.findingType === 'Feedback Positif' ? 'badge-green' : 'badge-yellow';
         let devBadge = 'badge-yellow';
         let borderColor = 'var(--yellow-status)';
@@ -7961,7 +7959,6 @@ function renderUserPersonalPaCard(currentUser) {
 function renderAdminPaUserGrid() {
   if (!UI.paAdminUserGrid) return;
   const users = state.getUsers();
-  const allLogs = state.getPaLogs();
   const elMonth = (UI && UI.filterPaMonth) || document.getElementById('filterPaMonth');
   const selectedMonth = (elMonth ? elMonth.value : '2026-09') || '2026-09';
 
@@ -7972,16 +7969,6 @@ function renderAdminPaUserGrid() {
   UI.paAdminUserGrid.innerHTML = '';
   users.forEach(usr => {
     const metrics = calculateUserPaSummaryMetrics(usr, selectedMonth);
-    const userPaLogs = allLogs.filter(l => {
-      const matchUser = (l.userId && l.userId === usr.id) || (l.username && l.username === usr.username) || (l.userFullName && l.userFullName === usr.fullName);
-      if (!matchUser) return false;
-      if (selectedMonth && selectedMonth !== 'ALL') {
-        return (l.date || '').startsWith(selectedMonth);
-      }
-      return true;
-    });
-    const totalInteractions = userPaLogs.reduce((acc, l) => acc + (Number(l.interactionCount) || 0), 0);
-    const totalMinutes = userPaLogs.reduce((acc, l) => acc + (Number(l.durationMinutes) || 0), 0);
 
     const card = document.createElement('div');
     card.className = 'pa-admin-agent-card';
@@ -7997,25 +7984,25 @@ function renderAdminPaUserGrid() {
 
       <div class="pa-agent-card-stats">
         <div class="pa-agent-stat-item">
-          <span class="pa-agent-stat-label">Total Log PA:</span>
-          <span class="pa-agent-stat-val text-red font-mono">${userPaLogs.length} Entri</span>
+          <span class="pa-agent-stat-label"><i class="fa-solid fa-ticket text-red" style="margin-right:3px;"></i>Tiket:</span>
+          <span class="pa-agent-stat-val text-white font-mono">${metrics.tiketFormatted}</span>
         </div>
         <div class="pa-agent-stat-item">
-          <span class="pa-agent-stat-label">Interaksi:</span>
-          <span class="pa-agent-stat-val text-white font-mono">${totalInteractions.toLocaleString('id-ID')}</span>
+          <span class="pa-agent-stat-label"><i class="fa-solid fa-clock text-yellow" style="margin-right:3px;"></i>AHT:</span>
+          <span class="pa-agent-stat-val text-silver font-mono">${metrics.ahtFormatted}</span>
         </div>
         <div class="pa-agent-stat-item">
-          <span class="pa-agent-stat-label">Durasi Kerja:</span>
-          <span class="pa-agent-stat-val text-silver font-mono">${(totalMinutes / 60).toFixed(1)} Jam</span>
+          <span class="pa-agent-stat-label"><i class="fa-solid fa-bolt text-red" style="margin-right:3px;"></i>ART:</span>
+          <span class="pa-agent-stat-val text-silver font-mono">${metrics.artFormatted}</span>
         </div>
         <div class="pa-agent-stat-item">
-          <span class="pa-agent-stat-label">Nilai CA:</span>
-          <span class="pa-agent-stat-val text-green font-mono">${parseFloat(metrics.caScore) > 0 ? metrics.caFormatted : '-'}</span>
+          <span class="pa-agent-stat-label"><i class="fa-solid fa-star text-yellow" style="margin-right:3px;"></i>CA:</span>
+          <span class="pa-agent-stat-val text-green font-mono">${metrics.caFormatted}</span>
         </div>
       </div>
 
       <div class="pa-agent-card-footer">
-        <button type="button" class="btn-detail-agent" onclick="openAdminUserDetailModal('${usr.id}')" title="Lihat Detail Kartu & Riwayat PA ${metrics.fullName}">
+        <button type="button" class="btn-detail-agent" onclick="openAdminUserDetailModal('${usr.id}')" title="Lihat Detail Kartu & Catatan Finding ${metrics.fullName}">
           <i class="fa-solid fa-id-card"></i>
           <span>Detail</span>
         </button>
@@ -8068,21 +8055,19 @@ function openAdminUserDetailModal(userIdOrName) {
   if (UI.adminDetailUserAht) UI.adminDetailUserAht.textContent = metrics.ahtFormatted;
   if (UI.adminDetailUserArt) UI.adminDetailUserArt.textContent = metrics.artFormatted;
 
-  // Ambil data catatan temuan audit QA (Finding) untuk agen ini dari menu Finding
+  // Ambil data catatan temuan audit QA (Finding) untuk agen ini langsung dari menu Finding
   const allFindings = (typeof state.getFindings === 'function') ? state.getFindings() : [];
   const userFindings = allFindings.filter(f => isFindingForUser(f, u));
-  const filteredFindings = (selectedMonth && selectedMonth !== 'ALL')
-    ? userFindings.filter(f => (f.date || '').startsWith(selectedMonth))
-    : userFindings;
+  userFindings.sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0));
 
   // Render Catatan Finding
   const findingsListEl = (UI && UI.adminDetailUserFindingsList) || document.getElementById('adminDetailUserFindingsList');
   const findingsBadgeEl = (UI && UI.adminDetailUserFindingsBadge) || document.getElementById('adminDetailUserFindingsBadge');
 
   if (findingsBadgeEl) {
-    if (filteredFindings.length > 0) {
+    if (userFindings.length > 0) {
       findingsBadgeEl.className = 'badge badge-red';
-      findingsBadgeEl.textContent = `${filteredFindings.length} Finding`;
+      findingsBadgeEl.textContent = `${userFindings.length} Finding`;
     } else {
       findingsBadgeEl.className = 'badge badge-green';
       findingsBadgeEl.textContent = '0 Finding (Bersih)';
@@ -8091,16 +8076,16 @@ function openAdminUserDetailModal(userIdOrName) {
 
   if (findingsListEl) {
     findingsListEl.innerHTML = '';
-    if (filteredFindings.length === 0) {
+    if (userFindings.length === 0) {
       findingsListEl.innerHTML = `
         <div class="glass-subpanel" style="padding: 18px 16px; text-align: center; border-radius: 8px; color: var(--gray-400); background: rgba(18, 22, 32, 0.6); border: 1px dashed var(--border-mid);">
           <i class="fa-solid fa-circle-check text-green" style="font-size: 1.6rem; margin-bottom: 8px; display: block;"></i>
           <span style="color: #ffffff; font-weight: 600; font-size: 0.88rem; display: block;">Tidak Ada Catatan Finding</span>
-          <span style="font-size: 0.78rem; color: var(--gray-400);">Agen ini tidak memiliki catatan temuan audit QA pada periode ${selectedMonth === 'ALL' ? 'keseluruhan' : selectedMonth}.</span>
+          <span style="font-size: 0.78rem; color: var(--gray-400);">Agen ini tidak memiliki catatan temuan audit QA pada menu Finding.</span>
         </div>
       `;
     } else {
-      filteredFindings.forEach(item => {
+      userFindings.forEach(item => {
         let typeBadge = item.findingType === 'Feedback Positif' ? 'badge-green' : 'badge-yellow';
         let devBadge = 'badge-yellow';
         let borderColor = 'var(--yellow-status)';
@@ -15342,15 +15327,28 @@ function copyFindingAppsScriptCode() {
 
 function isFindingForUser(item, user) {
   if (!item || !user) return false;
-  const targetId = user.id || '';
-  const targetUsername = (user.username || '').toLowerCase();
-  const targetFullName = (user.fullName || '').toLowerCase();
+  const targetId = String(user.id || '').trim().toLowerCase();
+  const targetUsername = String(user.username || '').trim().toLowerCase();
+  const targetFullName = String(user.fullName || '').trim().toLowerCase();
 
-  if (item.userId && targetId && item.userId === targetId) return true;
-  if (item.username && targetUsername && item.username.toLowerCase() === targetUsername) return true;
-  if (item.userFullName && targetFullName && item.userFullName.toLowerCase() === targetFullName) return true;
-  if (item.fullName && targetFullName && item.fullName.toLowerCase() === targetFullName) return true;
-  if (item.author && targetFullName && item.author.toLowerCase() === targetFullName) return true;
+  const itemUserId = String(item.userId || '').trim().toLowerCase();
+  const itemUsername = String(item.username || '').trim().toLowerCase();
+  const itemFullName = String(item.userFullName || item.fullName || item.author || '').trim().toLowerCase();
+
+  if (itemUserId && targetId && itemUserId === targetId) return true;
+  if (itemUsername && targetUsername && itemUsername === targetUsername) return true;
+  if (itemFullName && targetFullName && itemFullName === targetFullName) return true;
+
+  // Normalisasi tanpa gelar kehormatan (misal: S.Kom, M.T., dsb)
+  const cleanStr = (s) => s.replace(/,\s*[a-z\.\s]+$/i, '').replace(/[^a-z0-9]/g, '');
+  const cItem = cleanStr(itemFullName);
+  const cTarget = cleanStr(targetFullName);
+  if (cItem && cTarget && (cItem === cTarget || cItem.includes(cTarget) || cTarget.includes(cItem))) {
+    return true;
+  }
+
+  // Cek jika username cocok dengan nama depan/belakang
+  if (targetUsername && itemFullName.includes(targetUsername)) return true;
 
   return false;
 }
