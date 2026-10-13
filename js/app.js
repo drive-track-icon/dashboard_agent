@@ -1584,29 +1584,34 @@ class AppState {
 
     // Auto-migrate team department to CSO Layanan if necessary
     const validCSO = [
+      'ADMINISTRATOR',
+      'MANAGEMENT',
+      'TEAM LEADER',
       'CSO INBOUND',
       'CSO DIGILIVE CHAT - DM',
       'CSO DIGILIVE CHAT - MY ICON+',
       'CSO DIGILIVE CHAT - WA',
       'CSO BACK OFFICE',
       'CSO OUTBOUND',
-      'CSO EMAIL',
-      'TEAM LEADER'
+      'CSO EMAIL'
     ];
     try {
       const storedUsers = JSON.parse(localStorage.getItem('vortex_users') || '[]');
       if (storedUsers.length > 0) {
         let changed = false;
         storedUsers.forEach((u, i) => {
-          if (!validCSO.includes(u.department)) {
-            u.department = validCSO[i % validCSO.length];
+          if (u.role === 'admin' && !u.department) {
+            u.department = 'ADMINISTRATOR';
+            changed = true;
+          } else if (u.role !== 'admin' && !validCSO.includes(u.department)) {
+            u.department = validCSO[(i + 3) % validCSO.length];
             changed = true;
           }
         });
         if (changed) {
           localStorage.setItem('vortex_users', JSON.stringify(storedUsers));
-          if (this.currentUser && !validCSO.includes(this.currentUser.department)) {
-            const match = storedUsers.find(u => u.id === this.currentUser.id);
+          if (this.currentUser) {
+            const match = storedUsers.find(u => (u.id && u.id === this.currentUser.id) || (u.username && u.username.toLowerCase() === (this.currentUser.username || '').toLowerCase()));
             if (match) {
               this.currentUser.department = match.department;
               localStorage.setItem('vortex_session', JSON.stringify(this.currentUser));
@@ -1893,6 +1898,13 @@ class AppState {
       localStorage.setItem('vortex_session_login_time', String(Date.now()));
     }
     if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
+  }
+
+  saveSession(user) {
+    if (user) {
+      this.currentUser = user;
+      this.safeSetStorage('vortex_session', user);
+    }
   }
 
   clearSession() {
@@ -6380,24 +6392,29 @@ function renderUserManagementPage() {
   });
 
   UI.userTableBody.innerHTML = filteredUsers.map((u, idx) => {
-    const isSelf = state.currentUser && state.currentUser.id === u.id;
+    const isSelf = state.currentUser && (
+      (u.id && state.currentUser.id && String(state.currentUser.id) === String(u.id)) ||
+      (state.currentUser.username && u.username && state.currentUser.username.toLowerCase() === u.username.toLowerCase())
+    );
     const roleBadge = u.role === 'admin' 
       ? '<span class="badge badge-admin"><i class="fa-solid fa-crown"></i> Administrator</span>'
       : '<span class="badge badge-user"><i class="fa-solid fa-user"></i> Pengguna Biasa</span>';
 
     const statusBadge = u.status === 'active'
-      ? `<span class="badge badge-green badge-status-toggle" onclick="toggleUserStatus('${u.id}')" title="Klik untuk ubah status"><i class="fa-solid fa-circle-check"></i> Aktif</span>`
-      : `<span class="badge badge-red badge-status-toggle" onclick="toggleUserStatus('${u.id}')" title="Klik untuk ubah status"><i class="fa-solid fa-ban"></i> Nonaktif</span>`;
+      ? `<span class="badge badge-green badge-status-toggle" onclick="toggleUserStatus('${u.id || u.username}')" title="Klik untuk ubah status"><i class="fa-solid fa-circle-check"></i> Aktif</span>`
+      : `<span class="badge badge-red badge-status-toggle" onclick="toggleUserStatus('${u.id || u.username}')" title="Klik untuk ubah status"><i class="fa-solid fa-ban"></i> Nonaktif</span>`;
 
-    const serviceBadge = u.department === 'TEAM LEADER'
-      ? '<span class="badge badge-red-outline" style="font-size:0.75rem;"><i class="fa-solid fa-user-shield text-red" style="margin-right: 4px;"></i>TEAM LEADER</span>'
+    const isLeadership = (u.department === 'TEAM LEADER' || u.role === 'admin' || u.department === 'ADMINISTRATOR' || u.department === 'MANAGEMENT');
+    const serviceBadge = isLeadership
+      ? `<span class="badge badge-red-outline" style="font-size:0.75rem;"><i class="fa-solid ${u.role === 'admin' ? 'fa-user-shield' : 'fa-headset'} text-red" style="margin-right: 4px;"></i>${u.department || (u.role === 'admin' ? 'ADMINISTRATOR' : 'TEAM LEADER')}</span>`
       : `<span class="badge badge-gray" style="font-size:0.75rem;"><i class="fa-solid fa-headset text-red" style="margin-right: 4px;"></i>${u.department || 'CSO INBOUND'}</span>`;
 
+    const userKey = u.id || u.username;
     let actionButtons = '';
     if (isSelf) {
       actionButtons = `
         <div class="table-actions-cell">
-          <button class="btn-table-action btn-action-edit" onclick="openEditUserModal('${u.id}')" title="Edit Profil Team Anda">
+          <button class="btn-table-action btn-action-edit" onclick="openEditUserModal('${userKey}')" title="Edit Profil Team Anda">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
           <span class="badge badge-gray" style="font-size:0.7rem;">
@@ -6408,10 +6425,10 @@ function renderUserManagementPage() {
     } else {
       actionButtons = `
         <div class="table-actions-cell">
-          <button class="btn-table-action btn-action-edit" onclick="openEditUserModal('${u.id}')" title="Edit Anggota Team">
+          <button class="btn-table-action btn-action-edit" onclick="openEditUserModal('${userKey}')" title="Edit Anggota Team">
             <i class="fa-solid fa-pen-to-square"></i>
           </button>
-          <button class="btn-table-action btn-action-delete" onclick="promptDeleteUser('${u.id}', '${u.fullName.replace(/'/g, "\\'")}')" title="Hapus Pengguna (Admin)">
+          <button class="btn-table-action btn-action-delete" onclick="promptDeleteUser('${userKey}', '${(u.fullName || u.username).replace(/'/g, "\\'")}')" title="Hapus Pengguna (Admin)">
             <i class="fa-solid fa-trash-can"></i>
           </button>
         </div>
@@ -6455,11 +6472,15 @@ function openRegisterUserModal() {
 
   if (UI.regPassword) {
     UI.regPassword.required = true;
+    UI.regPassword.setAttribute('required', 'required');
+    UI.regPassword.setAttribute('minlength', '6');
     UI.regPassword.value = '';
   }
   if (UI.regPasswordRequired) UI.regPasswordRequired.style.display = 'inline';
   if (UI.regPasswordLabel) UI.regPasswordLabel.innerHTML = 'Kata Sandi Akun <span class="required" id="regPasswordRequired">*</span>';
   if (UI.regPasswordHint) UI.regPasswordHint.textContent = 'Pengguna dapat masuk menggunakan username dan kata sandi ini.';
+
+  if (UI.regDept) UI.regDept.value = '';
 
   if (UI.modalUserTitle) UI.modalUserTitle.textContent = 'Manajemen Team Baru';
   if (UI.modalUserSubtitle) UI.modalUserSubtitle.textContent = 'Tambah anggota team baru dengan layanan CSO dan hak akses peran';
@@ -6478,19 +6499,36 @@ window.openEditUserModal = function(id) {
   }
 
   const users = state.getUsers();
-  const user = users.find(u => u.id === id);
+  const user = users.find(u => (u.id && String(u.id) === String(id)) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
   if (!user) {
     showToast('Data Tidak Ditemukan', 'Pengguna tidak ditemukan di sistem.', 'danger');
     return;
   }
 
   UI.registerUserForm.reset();
-  if (UI.regUserId) UI.regUserId.value = user.id;
-  if (UI.regFullName) UI.regFullName.value = user.fullName;
-  if (UI.regUsername) UI.regUsername.value = user.username;
-  if (UI.regEmail) UI.regEmail.value = user.email;
-  if (UI.regRole) UI.regRole.value = user.role;
-  if (UI.regDept) UI.regDept.value = user.department || 'CSO INBOUND';
+  if (UI.regUserId) UI.regUserId.value = user.id || user.username || '';
+  if (UI.regFullName) UI.regFullName.value = user.fullName || '';
+  if (UI.regUsername) UI.regUsername.value = user.username || '';
+  if (UI.regEmail) UI.regEmail.value = user.email || '';
+  if (UI.regRole) UI.regRole.value = user.role || 'user';
+  
+  const deptVal = user.department || (user.role === 'admin' ? 'ADMINISTRATOR' : 'CSO INBOUND');
+  if (UI.regDept) {
+    let exists = false;
+    for (let i = 0; i < UI.regDept.options.length; i++) {
+      if (UI.regDept.options[i].value === deptVal) {
+        exists = true;
+        break;
+      }
+    }
+    if (!exists && deptVal) {
+      const opt = document.createElement('option');
+      opt.value = deptVal;
+      opt.textContent = deptVal;
+      UI.regDept.appendChild(opt);
+    }
+    UI.regDept.value = deptVal;
+  }
 
   const avatarSrc = user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80';
   if (UI.regAvatarPreview) UI.regAvatarPreview.src = avatarSrc;
@@ -6499,6 +6537,8 @@ window.openEditUserModal = function(id) {
 
   if (UI.regPassword) {
     UI.regPassword.required = false;
+    UI.regPassword.removeAttribute('required');
+    UI.regPassword.removeAttribute('minlength');
     UI.regPassword.value = '';
   }
   if (UI.regPasswordRequired) UI.regPasswordRequired.style.display = 'none';
@@ -6521,6 +6561,9 @@ function closeRegisterUserModal() {
 
 function updateRoleExplanation() {
   const role = UI.regRole.value;
+  if (role === 'admin' && UI.regDept && !UI.regDept.value) {
+    UI.regDept.value = 'ADMINISTRATOR';
+  }
   const box = document.getElementById('roleExplainBox');
   if (!box) return;
 
@@ -6550,12 +6593,15 @@ function handleRegisterUserSubmit(e) {
   }
 
   const editId = UI.regUserId ? UI.regUserId.value.trim() : '';
-  const fullName = UI.regFullName.value.trim();
-  const username = UI.regUsername.value.trim().toLowerCase();
-  const email = UI.regEmail.value.trim();
-  const role = UI.regRole.value;
-  const department = UI.regDept.value.trim();
-  const password = UI.regPassword.value;
+  const fullName = UI.regFullName ? UI.regFullName.value.trim() : '';
+  const username = UI.regUsername ? UI.regUsername.value.trim().toLowerCase() : '';
+  const email = UI.regEmail ? UI.regEmail.value.trim() : '';
+  const role = (UI.regRole ? UI.regRole.value : 'user') || 'user';
+  let department = (UI.regDept ? UI.regDept.value.trim() : '');
+  if (!department && role === 'admin') {
+    department = 'ADMINISTRATOR';
+  }
+  const password = UI.regPassword ? UI.regPassword.value : '';
 
   if (!fullName || !username || !email || !department) {
     showToast('Form Tidak Lengkap', 'Mohon lengkapi Nama Lengkap, Username, Email, dan Layanan.', 'warning');
@@ -6572,19 +6618,30 @@ function handleRegisterUserSubmit(e) {
 
   if (editId) {
     // ==================== EDIT MODE ====================
-    const userIndex = users.findIndex(u => u.id === editId);
+    const userIndex = users.findIndex(u => (u.id && String(u.id) === String(editId)) || (u.username && u.username.toLowerCase() === String(editId).toLowerCase()));
     if (userIndex === -1) {
       showToast('Error', 'Data pengguna tidak ditemukan.', 'danger');
       return;
     }
 
     // Check if new username conflicts with other user
-    if (users.some(u => u.id !== editId && u.username.toLowerCase() === username)) {
+    if (users.some((u, idx) => idx !== userIndex && u.username && u.username.toLowerCase() === username)) {
       showToast('Username Digunakan', `Username "${username}" sudah digunakan pengguna lain.`, 'danger');
       return;
     }
 
     const targetUser = users[userIndex];
+
+    // Protection: Prevent demoting the last active administrator
+    if (targetUser.role === 'admin' && role !== 'admin') {
+      const remainingAdmins = users.filter((u, idx) => idx !== userIndex && u.role === 'admin' && u.status === 'active');
+      if (remainingAdmins.length === 0) {
+        showToast('Aksi Ditolak', 'Tidak dapat mengubah peran admin terakhir menjadi user biasa. Sistem membutuhkan minimal satu Administrator.', 'warning');
+        return;
+      }
+    }
+
+    const oldUsername = targetUser.username;
     targetUser.fullName = fullName;
     targetUser.username = username;
     targetUser.email = email;
@@ -6600,35 +6657,48 @@ function handleRegisterUserSubmit(e) {
       targetUser.password = password;
     }
 
-    state.saveUsers(users);
+    // If current logged in user is being updated, sync session & topbar BEFORE state.saveUsers
+    const isSelf = state.currentUser && (
+      (targetUser.id && state.currentUser.id && String(state.currentUser.id) === String(targetUser.id)) ||
+      (state.currentUser.username && state.currentUser.username.toLowerCase() === oldUsername.toLowerCase())
+    );
 
-    // If current logged in user is being updated, sync state & topbar
-    if (state.currentUser && state.currentUser.id === editId) {
+    if (isSelf) {
       state.currentUser.fullName = fullName;
       state.currentUser.username = username;
       state.currentUser.email = email;
       state.currentUser.role = role;
       state.currentUser.department = department;
       state.currentUser.avatar = avatar;
-      state.saveSession(state.currentUser);
+      if (password && password.trim().length > 0) {
+        state.currentUser.password = password;
+      }
+      state.setSession(state.currentUser, false);
 
       if (UI.sidebarUserName) UI.sidebarUserName.textContent = fullName;
       if (UI.sidebarUserAvatar) UI.sidebarUserAvatar.src = avatar;
       if (UI.topbarUserName) UI.topbarUserName.textContent = fullName;
       if (UI.topbarUserAvatar) UI.topbarUserAvatar.src = avatar;
+      if (UI.sidebarUserRoleBadge) UI.sidebarUserRoleBadge.textContent = role.toUpperCase();
     }
 
+    state.saveUsers(users);
+
+    const adminName = (state.currentUser && (state.currentUser.fullName || state.currentUser.username)) || 'Administrator';
     state.addLog(
       'UPDATE_USER',
       'Ubah Anggota Team',
-      `Admin ${state.currentUser.fullName} memperbarui data anggota team: ${fullName} (@${username}) pada layanan ${department}.`
+      `Admin ${adminName} memperbarui data anggota team: ${fullName} (@${username}) pada layanan ${department}.`
     );
 
     showToast('Data Diperbarui', `Data anggota team <strong>${fullName}</strong> berhasil disimpan.`, 'success');
     closeRegisterUserModal();
     renderUserManagementPage();
-    if (state.currentPage === 'overview') renderOverviewPage();
-    if (state.currentPage === 'timer') renderTimerPage();
+    if (state.currentPage === 'overview' && typeof renderOverviewPage === 'function') renderOverviewPage();
+    if (state.currentPage === 'timer' && typeof renderTimerPage === 'function') renderTimerPage();
+    if (state.currentPage === 'settings' && typeof syncUserControlsForPage === 'function') {
+      syncUserControlsForPage('settings', state.currentUser);
+    }
     return;
   }
 
@@ -6684,12 +6754,25 @@ window.toggleUserStatus = function(id) {
   if (!state.isAdmin()) return;
 
   const users = state.getUsers();
-  const user = users.find(u => u.id === id);
+  const user = users.find(u => (u.id && String(u.id) === String(id)) || (u.username && u.username.toLowerCase() === String(id).toLowerCase()));
   if (!user) return;
 
-  if (state.currentUser && state.currentUser.id === user.id) {
+  const isSelf = state.currentUser && (
+    (user.id && state.currentUser.id && String(state.currentUser.id) === String(user.id)) ||
+    (state.currentUser.username && user.username && state.currentUser.username.toLowerCase() === user.username.toLowerCase())
+  );
+  if (isSelf) {
     showToast('Aksi Tidak Diizinkan', 'Anda tidak dapat menonaktifkan akun yang sedang aktif digunakan.', 'warning');
     return;
+  }
+
+  // Prevent deactivating the last active admin
+  if (user.role === 'admin' && user.status === 'active') {
+    const activeAdmins = users.filter(u => u.role === 'admin' && u.status === 'active' && String(u.id) !== String(user.id));
+    if (activeAdmins.length === 0) {
+      showToast('Aksi Ditolak', 'Tidak dapat menonaktifkan satu-satunya Administrator aktif di sistem.', 'warning');
+      return;
+    }
   }
 
   user.status = user.status === 'active' ? 'inactive' : 'active';
