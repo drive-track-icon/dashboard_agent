@@ -55,6 +55,68 @@
       this._debounceTimers = {};
       this._suppressSync = false;
       this._storageIntercepted = false;
+      this.isHydrating = false;
+    }
+
+    /**
+     * Dapatkan daftar ID item yang telah dihapus secara sengaja oleh pengguna
+     */
+    getDeletedIds(key) {
+      try {
+        const raw = localStorage.getItem('vortex_deleted_ids_' + key);
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    /**
+     * Catat ID item yang dihapus agar tidak muncul kembali saat sinkronisasi
+     */
+    trackDeletedId(key, id) {
+      if (!id) return;
+      try {
+        const set = this.getDeletedIds(key);
+        set.add(id);
+        localStorage.setItem('vortex_deleted_ids_' + key, JSON.stringify([...set]));
+      } catch (e) {}
+    }
+
+    /**
+     * Hapus ID dari catatan terhapus saat pengguna membuat item baru
+     */
+    clearDeletedId(key, id) {
+      if (!id) return;
+      try {
+        const set = this.getDeletedIds(key);
+        set.delete(id);
+        localStorage.setItem('vortex_deleted_ids_' + key, JSON.stringify([...set]));
+      } catch (e) {}
+    }
+
+    /**
+     * Segera kirim semua perubahan yang tertunda di debounce sebelum browser di-refresh atau ditutup
+     */
+    flushPendingSync() {
+      if (!this._debounceTimers) return;
+      Object.keys(this._debounceTimers).forEach((key) => {
+        if (this._debounceTimers[key]) {
+          clearTimeout(this._debounceTimers[key]);
+          delete this._debounceTimers[key];
+          try {
+            const raw = localStorage.getItem(key);
+            if (raw && this.isConnected && this.db) {
+              const data = JSON.parse(raw);
+              this.db.collection(COLLECTION_NAME).doc(key).set({
+                payload: data,
+                updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+                updatedBy: 'Unload_Sync'
+              }, { merge: true });
+            }
+          } catch (e) {}
+        }
+      });
     }
 
     /**
@@ -171,14 +233,33 @@
             }
 
             const currentLocalRaw = localStorage.getItem(key);
-            const remoteRaw = JSON.stringify(docData.payload);
+            let finalPayload = docData.payload;
 
-            if (currentLocalRaw !== remoteRaw) {
+            // Pengaman khusus semua koleksi data (Array of items with id): Jangan menimpa item lokal yang baru dibuat
+            if (Array.isArray(docData.payload)) {
+              try {
+                const localArr = JSON.parse(currentLocalRaw || '[]');
+                const remoteArr = Array.isArray(docData.payload) ? docData.payload : [];
+                if (Array.isArray(localArr) && localArr.length > 0) {
+                  const deletedIds = this.getDeletedIds(key);
+                  const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id) && !remoteArr.some(r => r && r.id === l.id));
+                  if (localOnly.length > 0) {
+                    finalPayload = [...remoteArr, ...localOnly];
+                    this.notifyDataChanged(key, finalPayload, true);
+                  }
+                }
+              } catch (e) {
+                console.debug(`Error in realtime ${key} merge:`, e);
+              }
+            }
+
+            const finalRaw = JSON.stringify(finalPayload);
+            if (currentLocalRaw !== finalRaw) {
               this._suppressSync = true;
-              localStorage.setItem(key, remoteRaw);
+              localStorage.setItem(key, finalRaw);
               this._suppressSync = false;
               this.lastSyncTime = new Date();
-              this.onRemoteDataUpdated(key, docData.payload);
+              this.onRemoteDataUpdated(key, finalPayload);
             }
           }, (err) => {
             console.warn(`Realtime listener error untuk ${key}:`, err);
@@ -318,19 +399,39 @@
     /**
      * Kirim pembaruan ke Firestore saat ada penambahan, pengeditan, atau penghapusan data
      */
-    notifyDataChanged(key, data) {
-      if (!this.isConnected || !this.db) return;
+    notifyDataChanged(key, data, immediate = false) {
+      if (!this.isConnected || !this.db || this.isHydrating || this._suppressSync) return;
 
       this.skipNextRemote[key] = Date.now();
+      try {
+        localStorage.setItem(key + '_updated_at', Date.now().toString());
+      } catch (e) {}
+
+      // Bersihkan item aktif dari catatan deletedIds jika ada yang dibuat ulang
+      if (Array.isArray(data)) {
+        try {
+          const set = this.getDeletedIds(key);
+          if (set.size > 0) {
+            let changed = false;
+            data.forEach(item => {
+              if (item && item.id && set.has(item.id)) {
+                set.delete(item.id);
+                changed = true;
+              }
+            });
+            if (changed) {
+              localStorage.setItem('vortex_deleted_ids_' + key, JSON.stringify([...set]));
+            }
+          }
+        } catch (e) {}
+      }
 
       // Debounce writes agar tidak spamming jika terjadi multiple changes cepat
       if (!this._debounceTimers) this._debounceTimers = {};
       if (this._debounceTimers[key]) clearTimeout(this._debounceTimers[key]);
 
-      // Throttle timer & stopwatch background ticks agar tidak memicu listener terus-menerus
-      const delay = (key === 'vortex_timers' || key === 'vortex_stopwatches') ? 3000 : 150;
-
-      this._debounceTimers[key] = setTimeout(async () => {
+      const performSave = async () => {
+        delete this._debounceTimers[key];
         try {
           this.updateStatusBadge('syncing', 'Menyimpan ke Cloud...');
 
@@ -351,7 +452,15 @@
           console.warn(`Gagal sinkron ${key} ke cloud:`, err);
           this.updateStatusBadge('online', 'Tersimpan lokal (Cloud tertunda)');
         }
-      }, delay);
+      };
+
+      if (immediate) {
+        performSave();
+        return;
+      }
+
+      const delay = (key === 'vortex_timers' || key === 'vortex_stopwatches') ? 100 : 150;
+      this._debounceTimers[key] = setTimeout(performSave, delay);
     }
 
     /**
@@ -412,6 +521,7 @@
       }
 
       this.isSyncing = true;
+      this.isHydrating = true;
       this.updateStatusBadge('syncing', 'Mengunduh data terbaru...');
 
       try {
@@ -422,6 +532,7 @@
           console.log('Cloud Firestore masih kosong. Melakukan auto-seed dari data master lokal...');
           await this.syncAllToCloud(false);
           this.isSyncing = false;
+          this.isHydrating = false;
           return;
         }
 
@@ -430,12 +541,39 @@
         snapshot.forEach((doc) => {
           const key = doc.id;
           const data = doc.data();
-          if (data && data.payload !== undefined) {
-            localStorage.setItem(key, JSON.stringify(data.payload));
+          if (data && data.payload !== undefined && data.payload !== null) {
+            let finalPayload = data.payload;
+
+            // PENGAMAN KHUSUS SEMUA KOLEKSI DATA (Array of items with id):
+            // JANGAN SAMPAI DATA LOKAL BARU / BELUM DISINKRONKAN HILANG SAAT REFRESH
+            if (Array.isArray(data.payload)) {
+              try {
+                const localRaw = localStorage.getItem(key);
+                const localArr = localRaw ? JSON.parse(localRaw) : [];
+                const remoteArr = Array.isArray(data.payload) ? data.payload : [];
+                if (Array.isArray(localArr) && localArr.length > 0) {
+                  const deletedIds = this.getDeletedIds(key);
+                  const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id) && !remoteArr.some(r => r && r.id === l.id));
+                  if (localOnly.length > 0) {
+                    finalPayload = [...remoteArr, ...localOnly];
+                    // Kirim pembaruan gabungan kembali ke cloud agar cloud juga memiliki data terbaru
+                    setTimeout(() => {
+                      this.notifyDataChanged(key, finalPayload, true);
+                    }, 200);
+                  }
+                }
+              } catch (e) {
+                console.warn(`Gagal merge data untuk ${key} saat sync:`, e);
+              }
+            }
+
+            localStorage.setItem(key, JSON.stringify(finalPayload));
             updatedCount++;
           }
         });
+        localStorage.setItem('vortex_data_initialized', 'true');
         this._suppressSync = false;
+        this.isHydrating = false;
 
         this.lastSyncTime = new Date();
         this.isSyncing = false;
@@ -447,6 +585,7 @@
         return true;
       } catch (err) {
         this._suppressSync = false;
+        this.isHydrating = false;
         this.isSyncing = false;
         this.updateStatusBadge('error', 'Gagal download: ' + err.message);
         throw err;
@@ -609,7 +748,8 @@
           const original = state[method].bind(state);
           state[method] = (data) => {
             const result = original(data);
-            this.notifyDataChanged(key, data);
+            const isImmediate = (key === 'vortex_timers' || key === 'vortex_stopwatches');
+            this.notifyDataChanged(key, data, isImmediate);
             return result;
           };
           state[method]._isHooked = true;
@@ -636,7 +776,8 @@
           if (SYNC_KEYS.includes(key) && !self._suppressSync && self.isConnected) {
             try {
               const parsed = JSON.parse(value);
-              self.notifyDataChanged(key, parsed);
+              const isImmediate = (key === 'vortex_timers' || key === 'vortex_stopwatches');
+              self.notifyDataChanged(key, parsed, isImmediate);
             } catch (e) {
               self.notifyDataChanged(key, value);
             }
@@ -782,6 +923,30 @@
       window.FirebaseSync.attachSaveHooks(window.state);
     }
     window.FirebaseSync.init(window.state);
+  });
+
+  // Segera kirim semua data tertunda ke cloud sebelum halaman direfresh / ditutup
+  window.addEventListener('beforeunload', () => {
+    if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
+      window.FirebaseSync.flushPendingSync();
+    }
+  });
+
+  window.addEventListener('pagehide', () => {
+    if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
+      window.FirebaseSync.flushPendingSync();
+    }
+  });
+
+  // Sinkronisasi realtime antar-tab browser pada perangkat yang sama
+  window.addEventListener('storage', (e) => {
+    if (e && e.key && SYNC_KEYS.includes(e.key)) {
+      try {
+        if (window.FirebaseSync && typeof window.FirebaseSync.reRenderCurrentView === 'function') {
+          window.FirebaseSync.reRenderCurrentView(e.key);
+        }
+      } catch (err) {}
+    }
   });
 
 })();

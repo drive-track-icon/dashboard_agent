@@ -1420,136 +1420,166 @@ class AppState {
     this.currentDisplayMode = 'dark';
   }
 
-  initStorage() {
-    if (!localStorage.getItem('vortex_users')) {
-      localStorage.setItem('vortex_users', JSON.stringify(DEFAULT_USERS));
-    }
-    if (!localStorage.getItem('vortex_items')) {
-      localStorage.setItem('vortex_items', JSON.stringify(DEFAULT_ITEMS));
-    }
-    if (!localStorage.getItem('vortex_logs')) {
-      localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
-    }
-    const existingPa = JSON.parse(localStorage.getItem('vortex_pa_logs') || '[]');
-    if (!existingPa.length || !existingPa.some(p => p.id === 'pa_6')) {
-      const mergedPa = [...existingPa];
-      DEFAULT_PA_LOGS.forEach(def => {
-        if (!mergedPa.some(p => p.id === def.id)) {
-          mergedPa.push(def);
-        }
-      });
-      localStorage.setItem('vortex_pa_logs', JSON.stringify(mergedPa.length ? mergedPa : DEFAULT_PA_LOGS));
-    }
-    if (!localStorage.getItem('vortex_ca_logs')) {
-      localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
-    }
-    if (!localStorage.getItem('vortex_tikets')) {
-      localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
-    }
-    const existingAht = JSON.parse(localStorage.getItem('vortex_aht_logs') || '[]');
-    if (!existingAht.length || !existingAht[0].date) {
-      localStorage.setItem('vortex_aht_logs', JSON.stringify(DEFAULT_AHT_LOGS));
-    }
-    const existingArt = JSON.parse(localStorage.getItem('vortex_art_logs') || '[]');
-    if (!existingArt.length || !existingArt[0].date) {
-      localStorage.setItem('vortex_art_logs', JSON.stringify(DEFAULT_ART_LOGS));
-    }
-    if (!localStorage.getItem('vortex_findings')) {
-      localStorage.setItem('vortex_findings', JSON.stringify(DEFAULT_FINDINGS));
-    }
-    const validQuizCats = ['Informasi', 'Keluhan', 'Gangguan'];
-    const storedQuizQ = JSON.parse(localStorage.getItem('vortex_quiz_questions') || '[]');
-    if (!storedQuizQ.length || !storedQuizQ[0].options || !storedQuizQ[0].options.E || !storedQuizQ.some(q => validQuizCats.includes(q.category))) {
-      localStorage.setItem('vortex_quiz_questions', JSON.stringify(DEFAULT_QUIZ_QUESTIONS));
-    } else {
-      let needsSave = false;
-      storedQuizQ.forEach(q => {
-        if (!validQuizCats.includes(q.category)) {
-          if (q.category && (q.category.includes('Produk') || q.category.includes('SLA'))) {
-            q.category = 'Informasi';
-          } else if (q.category && (q.category.includes('Teknis') || q.category.includes('Trouble'))) {
-            q.category = 'Gangguan';
-          } else {
-            q.category = 'Keluhan';
+  safeGetStorage(key, fallback = []) {
+    try {
+      const raw = localStorage.getItem(key);
+      if (!raw) {
+        try {
+          const backup = sessionStorage.getItem('backup_' + key);
+          if (backup) {
+            const parsedBackup = JSON.parse(backup);
+            if (parsedBackup !== null && parsedBackup !== undefined) {
+              localStorage.setItem(key, backup);
+              return parsedBackup;
+            }
           }
-          needsSave = true;
-        }
-        if (q.isMarked === undefined) {
-          q.isMarked = false;
-          needsSave = true;
+        } catch (e) {}
+        return fallback;
+      }
+      const parsed = JSON.parse(raw);
+      return (parsed !== null && parsed !== undefined) ? parsed : fallback;
+    } catch (e) {
+      console.warn(`[SafeStorage] Gagal parse JSON untuk ${key}, menggunakan fallback:`, e);
+      try {
+        const backup = sessionStorage.getItem('backup_' + key);
+        if (backup) return JSON.parse(backup);
+      } catch (err) {}
+      return fallback;
+    }
+  }
+
+  safeSetStorage(key, value) {
+    try {
+      const serialized = typeof value === 'string' ? value : JSON.stringify(value);
+      localStorage.setItem(key, serialized);
+      try {
+        sessionStorage.setItem('backup_' + key, serialized);
+      } catch (e) {}
+      return true;
+    } catch (e) {
+      console.error(`[SafeStorage] Gagal menyimpan ${key} ke localStorage:`, e);
+      try {
+        sessionStorage.setItem('backup_' + key, JSON.stringify(value));
+      } catch (err) {}
+      return false;
+    }
+  }
+
+  trackDeletedId(key, id) {
+    if (!id) return;
+    if (window.FirebaseSync && typeof window.FirebaseSync.trackDeletedId === 'function') {
+      window.FirebaseSync.trackDeletedId(key, id);
+    }
+  }
+
+  clearDeletedId(key, id) {
+    if (!id) return;
+    if (window.FirebaseSync && typeof window.FirebaseSync.clearDeletedId === 'function') {
+      window.FirebaseSync.clearDeletedId(key, id);
+    }
+  }
+
+  initStorage() {
+    const isAlreadyInitialized = localStorage.getItem('vortex_data_initialized') === 'true';
+
+    // 1. Inisialisasi awal (HANYA SEKALI SAAT FIRST-TIME RUN):
+    if (!isAlreadyInitialized) {
+      if (localStorage.getItem('vortex_users') === null) {
+        localStorage.setItem('vortex_users', JSON.stringify(DEFAULT_USERS));
+      }
+      if (localStorage.getItem('vortex_items') === null) {
+        localStorage.setItem('vortex_items', JSON.stringify(DEFAULT_ITEMS));
+      }
+      if (localStorage.getItem('vortex_logs') === null) {
+        localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
+      }
+      if (localStorage.getItem('vortex_pa_logs') === null) {
+        localStorage.setItem('vortex_pa_logs', JSON.stringify(DEFAULT_PA_LOGS));
+      }
+      if (localStorage.getItem('vortex_ca_logs') === null) {
+        localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
+      }
+      if (localStorage.getItem('vortex_tikets') === null) {
+        localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
+      }
+      if (localStorage.getItem('vortex_aht_logs') === null) {
+        localStorage.setItem('vortex_aht_logs', JSON.stringify(DEFAULT_AHT_LOGS));
+      }
+      if (localStorage.getItem('vortex_art_logs') === null) {
+        localStorage.setItem('vortex_art_logs', JSON.stringify(DEFAULT_ART_LOGS));
+      }
+      if (localStorage.getItem('vortex_findings') === null) {
+        localStorage.setItem('vortex_findings', JSON.stringify(DEFAULT_FINDINGS));
+      }
+      if (localStorage.getItem('vortex_quiz_questions') === null) {
+        localStorage.setItem('vortex_quiz_questions', JSON.stringify(DEFAULT_QUIZ_QUESTIONS));
+      }
+      if (localStorage.getItem('vortex_quiz_history') === null) {
+        const initialHistory = [
+          {
+            id: 'QZH-1001',
+            userId: 'usr_user_1',
+            userName: 'siti_rahma',
+            userFullName: 'Siti Rahma',
+            department: 'CSO DIGILIVE CHAT - WA',
+            score: 90,
+            correctCount: 9,
+            totalQuestions: 10,
+            outcome: 'menang',
+            duration: '01:24',
+            timestamp: '2026-09-30 19:40'
+          },
+          {
+            id: 'QZH-1002',
+            userId: 'usr_user_2',
+            userName: 'ahmad_fauzi',
+            userFullName: 'Ahmad Fauzi',
+            department: 'CSO BACK OFFICE',
+            score: 70,
+            correctCount: 7,
+            totalQuestions: 10,
+            outcome: 'kalah',
+            duration: '02:05',
+            timestamp: '2026-09-30 20:15'
+          },
+          {
+            id: 'QZH-1003',
+            userId: 'usr_admin_1',
+            userName: 'admin',
+            userFullName: 'Budi Santoso, S.Kom',
+            department: 'CSO INBOUND',
+            score: 100,
+            correctCount: 10,
+            totalQuestions: 10,
+            outcome: 'sempurna',
+            duration: '01:10',
+            timestamp: '2026-09-30 21:00'
+          }
+        ];
+        localStorage.setItem('vortex_quiz_history', JSON.stringify(initialHistory));
+      }
+      if (localStorage.getItem('vortex_timers') === null) {
+        localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
+      }
+      if (localStorage.getItem('vortex_stopwatches') === null) {
+        localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
+      }
+      localStorage.setItem('vortex_data_initialized', 'true');
+    } else {
+      // 2. Akses berikutnya (SUBSEQUENT ACCESS):
+      // JANGAN PERNAH MENIMPA DATA ATAU MERESET KOLEKSI KOSONG KE DEFAULT_*!
+      // Hanya pastikan key yang bernilai null (belum pernah diset) diisi '[]' agar aman dari error parse.
+      const criticalKeys = [
+        'vortex_users', 'vortex_items', 'vortex_logs', 'vortex_pa_logs',
+        'vortex_ca_logs', 'vortex_tikets', 'vortex_aht_logs', 'vortex_art_logs',
+        'vortex_findings', 'vortex_quiz_questions', 'vortex_quiz_history',
+        'vortex_timers', 'vortex_stopwatches'
+      ];
+      criticalKeys.forEach(k => {
+        if (localStorage.getItem(k) === null) {
+          localStorage.setItem(k, '[]');
         }
       });
-      if (needsSave) {
-        localStorage.setItem('vortex_quiz_questions', JSON.stringify(storedQuizQ));
-      }
-    }
-
-    if (!localStorage.getItem('vortex_quiz_history')) {
-      const initialHistory = [
-        {
-          id: 'QZH-1001',
-          userId: 'usr_user_1',
-          userName: 'siti_rahma',
-          userFullName: 'Siti Rahma',
-          department: 'CSO DIGILIVE CHAT - WA',
-          score: 90,
-          correctCount: 9,
-          totalQuestions: 10,
-          outcome: 'menang',
-          duration: '01:24',
-          timestamp: '2026-09-30 19:40'
-        },
-        {
-          id: 'QZH-1002',
-          userId: 'usr_user_2',
-          userName: 'ahmad_fauzi',
-          userFullName: 'Ahmad Fauzi',
-          department: 'CSO BACK OFFICE',
-          score: 70,
-          correctCount: 7,
-          totalQuestions: 10,
-          outcome: 'kalah',
-          duration: '02:05',
-          timestamp: '2026-09-30 20:15'
-        },
-        {
-          id: 'QZH-1003',
-          userId: 'usr_admin_1',
-          userName: 'admin',
-          userFullName: 'Budi Santoso, S.Kom',
-          department: 'CSO INBOUND',
-          score: 100,
-          correctCount: 10,
-          totalQuestions: 10,
-          outcome: 'sempurna',
-          duration: '01:10',
-          timestamp: '2026-09-30 21:00'
-        }
-      ];
-      localStorage.setItem('vortex_quiz_history', JSON.stringify(initialHistory));
-    }
-
-    // Auto-migrate or initialize timers with user metadata
-    const existingTimers = JSON.parse(localStorage.getItem('vortex_timers') || '[]');
-    if (existingTimers.length === 0 || !existingTimers[0].userId) {
-      localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
-    }
-
-    const existingSw = JSON.parse(localStorage.getItem('vortex_stopwatches') || '[]');
-    if (existingSw.length === 0 || !existingSw[0].userId) {
-      localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
-    }
-
-    // Auto-migrate or initialize CA logs with decimal precision if needed
-    const existingCa = JSON.parse(localStorage.getItem('vortex_ca_logs') || '[]');
-    if (existingCa.length < 10 || !existingCa.some(l => typeof l.score === 'number' && !Number.isInteger(l.score))) {
-      localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
-    }
-
-    // Auto-migrate or initialize Tiket logs with daily interval per user and 1.320 target
-    const existingTikets = JSON.parse(localStorage.getItem('vortex_tikets') || '[]');
-    if (existingTikets.length === 0 || !existingTikets[0].ticketCount || existingTikets.length < 20) {
-      localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
     }
 
     // Auto-migrate team department to CSO Layanan if necessary
@@ -1563,82 +1593,86 @@ class AppState {
       'CSO EMAIL',
       'TEAM LEADER'
     ];
-    const storedUsers = JSON.parse(localStorage.getItem('vortex_users') || '[]');
-    if (storedUsers.length > 0) {
-      let changed = false;
-      storedUsers.forEach((u, i) => {
-        if (!validCSO.includes(u.department)) {
-          u.department = validCSO[i % validCSO.length];
-          changed = true;
-        }
-      });
-      if (changed) {
-        localStorage.setItem('vortex_users', JSON.stringify(storedUsers));
-        if (this.currentUser && !validCSO.includes(this.currentUser.department)) {
-          const match = storedUsers.find(u => u.id === this.currentUser.id);
-          if (match) {
-            this.currentUser.department = match.department;
-            localStorage.setItem('vortex_session', JSON.stringify(this.currentUser));
+    try {
+      const storedUsers = JSON.parse(localStorage.getItem('vortex_users') || '[]');
+      if (storedUsers.length > 0) {
+        let changed = false;
+        storedUsers.forEach((u, i) => {
+          if (!validCSO.includes(u.department)) {
+            u.department = validCSO[i % validCSO.length];
+            changed = true;
+          }
+        });
+        if (changed) {
+          localStorage.setItem('vortex_users', JSON.stringify(storedUsers));
+          if (this.currentUser && !validCSO.includes(this.currentUser.department)) {
+            const match = storedUsers.find(u => u.id === this.currentUser.id);
+            if (match) {
+              this.currentUser.department = match.department;
+              localStorage.setItem('vortex_session', JSON.stringify(this.currentUser));
+            }
           }
         }
       }
+    } catch (e) {
+      console.warn('Error validating user departments on storage init:', e);
     }
   }
 
   getUsers() {
-    return JSON.parse(localStorage.getItem('vortex_users') || '[]');
+    return this.safeGetStorage('vortex_users', []);
   }
 
   saveUsers(users) {
-    localStorage.setItem('vortex_users', JSON.stringify(users));
+    this.safeSetStorage('vortex_users', users);
   }
 
   getItems() {
-    return JSON.parse(localStorage.getItem('vortex_items') || '[]');
+    return this.safeGetStorage('vortex_items', []);
   }
 
   saveItems(items) {
-    localStorage.setItem('vortex_items', JSON.stringify(items));
+    this.safeSetStorage('vortex_items', items);
   }
 
   getLogs() {
-    return JSON.parse(localStorage.getItem('vortex_logs') || '[]');
+    return this.safeGetStorage('vortex_logs', []);
   }
 
   saveLogs(logs) {
-    localStorage.setItem('vortex_logs', JSON.stringify(logs));
+    this.safeSetStorage('vortex_logs', logs);
   }
 
   getTimers() {
-    return JSON.parse(localStorage.getItem('vortex_timers') || '[]');
+    return this.safeGetStorage('vortex_timers', []);
   }
 
   saveTimers(timers) {
-    localStorage.setItem('vortex_timers', JSON.stringify(timers));
+    this.safeSetStorage('vortex_timers', timers);
   }
 
   getStopwatches() {
-    return JSON.parse(localStorage.getItem('vortex_stopwatches') || '[]');
+    return this.safeGetStorage('vortex_stopwatches', []);
   }
 
   saveStopwatches(stopwatches) {
-    localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
+    this.safeSetStorage('vortex_stopwatches', stopwatches);
   }
 
   getPaLogs() {
-    return JSON.parse(localStorage.getItem('vortex_pa_logs') || '[]');
+    return this.safeGetStorage('vortex_pa_logs', []);
   }
 
   savePaLogs(logs) {
-    localStorage.setItem('vortex_pa_logs', JSON.stringify(logs));
+    this.safeSetStorage('vortex_pa_logs', logs);
   }
 
   getCaLogs() {
-    return JSON.parse(localStorage.getItem('vortex_ca_logs') || '[]');
+    return this.safeGetStorage('vortex_ca_logs', []);
   }
 
   saveCaLogs(logs) {
-    localStorage.setItem('vortex_ca_logs', JSON.stringify(logs));
+    this.safeSetStorage('vortex_ca_logs', logs);
   }
 
   getCaGSheetConfig() {
@@ -1652,23 +1686,23 @@ class AppState {
       lastSyncMessage: ''
     };
     try {
-      const raw = localStorage.getItem('vortex_ca_gsheet_config');
-      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+      const parsed = this.safeGetStorage('vortex_ca_gsheet_config', null);
+      return parsed ? { ...defaults, ...parsed } : defaults;
     } catch (e) {
       return defaults;
     }
   }
 
   saveCaGSheetConfig(cfg) {
-    localStorage.setItem('vortex_ca_gsheet_config', JSON.stringify(cfg));
+    this.safeSetStorage('vortex_ca_gsheet_config', cfg);
   }
 
   getTikets() {
-    return JSON.parse(localStorage.getItem('vortex_tikets') || '[]');
+    return this.safeGetStorage('vortex_tikets', []);
   }
 
   saveTikets(tikets) {
-    localStorage.setItem('vortex_tikets', JSON.stringify(tikets));
+    this.safeSetStorage('vortex_tikets', tikets);
   }
 
   getTiketGSheetConfig() {
@@ -1682,23 +1716,23 @@ class AppState {
       lastSyncMessage: ''
     };
     try {
-      const raw = localStorage.getItem('vortex_tiket_gsheet_config');
-      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+      const parsed = this.safeGetStorage('vortex_tiket_gsheet_config', null);
+      return parsed ? { ...defaults, ...parsed } : defaults;
     } catch (e) {
       return defaults;
     }
   }
 
   saveTiketGSheetConfig(cfg) {
-    localStorage.setItem('vortex_tiket_gsheet_config', JSON.stringify(cfg));
+    this.safeSetStorage('vortex_tiket_gsheet_config', cfg);
   }
 
   getAhtLogs() {
-    return JSON.parse(localStorage.getItem('vortex_aht_logs') || '[]');
+    return this.safeGetStorage('vortex_aht_logs', []);
   }
 
   saveAhtLogs(logs) {
-    localStorage.setItem('vortex_aht_logs', JSON.stringify(logs));
+    this.safeSetStorage('vortex_aht_logs', logs);
   }
 
   getAhtGSheetConfig() {
@@ -1712,23 +1746,23 @@ class AppState {
       lastSyncMessage: ''
     };
     try {
-      const raw = localStorage.getItem('vortex_aht_gsheet_config');
-      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+      const parsed = this.safeGetStorage('vortex_aht_gsheet_config', null);
+      return parsed ? { ...defaults, ...parsed } : defaults;
     } catch (e) {
       return defaults;
     }
   }
 
   saveAhtGSheetConfig(cfg) {
-    localStorage.setItem('vortex_aht_gsheet_config', JSON.stringify(cfg));
+    this.safeSetStorage('vortex_aht_gsheet_config', cfg);
   }
 
   getArtLogs() {
-    return JSON.parse(localStorage.getItem('vortex_art_logs') || '[]');
+    return this.safeGetStorage('vortex_art_logs', []);
   }
 
   saveArtLogs(logs) {
-    localStorage.setItem('vortex_art_logs', JSON.stringify(logs));
+    this.safeSetStorage('vortex_art_logs', logs);
   }
 
   getArtGSheetConfig() {
@@ -1742,19 +1776,19 @@ class AppState {
       lastSyncMessage: ''
     };
     try {
-      const raw = localStorage.getItem('vortex_art_gsheet_config');
-      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+      const parsed = this.safeGetStorage('vortex_art_gsheet_config', null);
+      return parsed ? { ...defaults, ...parsed } : defaults;
     } catch (e) {
       return defaults;
     }
   }
 
   saveArtGSheetConfig(cfg) {
-    localStorage.setItem('vortex_art_gsheet_config', JSON.stringify(cfg));
+    this.safeSetStorage('vortex_art_gsheet_config', cfg);
   }
 
   getFindings() {
-    const raw = JSON.parse(localStorage.getItem('vortex_findings') || '[]');
+    const raw = this.safeGetStorage('vortex_findings', []);
     return raw.map(item => {
       let level = item.deviationLevel;
       if (level === 'Minor') level = 'Reminder 1';
@@ -1770,7 +1804,7 @@ class AppState {
   }
 
   saveFindings(findings) {
-    localStorage.setItem('vortex_findings', JSON.stringify(findings));
+    this.safeSetStorage('vortex_findings', findings);
   }
 
   getFindingGSheetConfig() {
@@ -1783,31 +1817,31 @@ class AppState {
       lastSyncStatus: 'disconnected'
     };
     try {
-      const raw = localStorage.getItem('vortex_finding_gsheet_config');
-      return raw ? { ...defaults, ...JSON.parse(raw) } : defaults;
+      const parsed = this.safeGetStorage('vortex_finding_gsheet_config', null);
+      return parsed ? { ...defaults, ...parsed } : defaults;
     } catch (e) {
       return defaults;
     }
   }
 
   saveFindingGSheetConfig(cfg) {
-    localStorage.setItem('vortex_finding_gsheet_config', JSON.stringify(cfg));
+    this.safeSetStorage('vortex_finding_gsheet_config', cfg);
   }
 
   getQuizQuestions() {
-    return JSON.parse(localStorage.getItem('vortex_quiz_questions') || '[]');
+    return this.safeGetStorage('vortex_quiz_questions', []);
   }
 
   saveQuizQuestions(questions) {
-    localStorage.setItem('vortex_quiz_questions', JSON.stringify(questions));
+    this.safeSetStorage('vortex_quiz_questions', questions);
   }
 
   getQuizHistory() {
-    return JSON.parse(localStorage.getItem('vortex_quiz_history') || '[]');
+    return this.safeGetStorage('vortex_quiz_history', []);
   }
 
   saveQuizHistory(history) {
-    localStorage.setItem('vortex_quiz_history', JSON.stringify(history));
+    this.safeSetStorage('vortex_quiz_history', history);
   }
 
   addLog(actionType, actionBadge, details, status = 'Sukses') {
@@ -1831,25 +1865,30 @@ class AppState {
   }
 
   loadSession() {
-    const session = localStorage.getItem('vortex_session');
-    if (!session) return null;
-    const loginTimeStr = localStorage.getItem('vortex_session_login_time');
-    if (loginTimeStr) {
-      const loginTime = parseInt(loginTimeStr, 10);
-      if (!isNaN(loginTime) && (Date.now() - loginTime >= SESSION_TIMEOUT_MS)) {
-        this.clearSession();
-        this.sessionExpiredOnLoad = true;
-        return null;
+    try {
+      const session = localStorage.getItem('vortex_session');
+      if (!session) return null;
+      const loginTimeStr = localStorage.getItem('vortex_session_login_time');
+      if (loginTimeStr) {
+        const loginTime = parseInt(loginTimeStr, 10);
+        if (!isNaN(loginTime) && (Date.now() - loginTime >= SESSION_TIMEOUT_MS)) {
+          this.clearSession();
+          this.sessionExpiredOnLoad = true;
+          return null;
+        }
+      } else {
+        localStorage.setItem('vortex_session_login_time', String(Date.now()));
       }
-    } else {
-      localStorage.setItem('vortex_session_login_time', String(Date.now()));
+      return JSON.parse(session);
+    } catch (e) {
+      console.warn('Gagal memuat sesi pengguna:', e);
+      return null;
     }
-    return JSON.parse(session);
   }
 
   setSession(user, isNewLogin = false) {
     this.currentUser = user;
-    localStorage.setItem('vortex_session', JSON.stringify(user));
+    this.safeSetStorage('vortex_session', user);
     if (isNewLogin || !localStorage.getItem('vortex_session_login_time')) {
       localStorage.setItem('vortex_session_login_time', String(Date.now()));
     }
@@ -1868,17 +1907,30 @@ class AppState {
   }
 
   resetAllData() {
-    localStorage.setItem('vortex_users', JSON.stringify(DEFAULT_USERS));
-    localStorage.setItem('vortex_items', JSON.stringify(DEFAULT_ITEMS));
-    localStorage.setItem('vortex_logs', JSON.stringify(DEFAULT_LOGS));
-    localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
-    localStorage.setItem('vortex_stopwatches', JSON.stringify(DEFAULT_STOPWATCHES));
-    localStorage.setItem('vortex_pa_logs', JSON.stringify(DEFAULT_PA_LOGS));
-    localStorage.setItem('vortex_ca_logs', JSON.stringify(DEFAULT_CA_LOGS));
-    localStorage.setItem('vortex_tikets', JSON.stringify(DEFAULT_TIKETS));
-    localStorage.setItem('vortex_aht_logs', JSON.stringify(DEFAULT_AHT_LOGS));
-    localStorage.setItem('vortex_art_logs', JSON.stringify(DEFAULT_ART_LOGS));
-    localStorage.setItem('vortex_findings', JSON.stringify(DEFAULT_FINDINGS));
+    this.safeSetStorage('vortex_users', DEFAULT_USERS);
+    this.safeSetStorage('vortex_items', DEFAULT_ITEMS);
+    this.safeSetStorage('vortex_logs', DEFAULT_LOGS);
+    this.safeSetStorage('vortex_timers', DEFAULT_TIMERS);
+    this.safeSetStorage('vortex_stopwatches', DEFAULT_STOPWATCHES);
+    this.safeSetStorage('vortex_pa_logs', DEFAULT_PA_LOGS);
+    this.safeSetStorage('vortex_ca_logs', DEFAULT_CA_LOGS);
+    this.safeSetStorage('vortex_tikets', DEFAULT_TIKETS);
+    this.safeSetStorage('vortex_aht_logs', DEFAULT_AHT_LOGS);
+    this.safeSetStorage('vortex_art_logs', DEFAULT_ART_LOGS);
+    this.safeSetStorage('vortex_findings', DEFAULT_FINDINGS);
+    this.safeSetStorage('vortex_quiz_questions', DEFAULT_QUIZ_QUESTIONS);
+    localStorage.setItem('vortex_data_initialized', 'true');
+
+    // Bersihkan track deleted IDs agar data sampel baru dapat disinkronkan bersih
+    const syncKeys = [
+      'vortex_pa_logs', 'vortex_ca_logs', 'vortex_tikets', 'vortex_aht_logs',
+      'vortex_art_logs', 'vortex_findings', 'vortex_timers', 'vortex_stopwatches',
+      'vortex_items', 'vortex_users', 'vortex_quiz_questions'
+    ];
+    syncKeys.forEach(k => {
+      try { localStorage.removeItem('vortex_deleted_ids_' + k); } catch (e) {}
+    });
+
     if (this.currentUser) {
       // keep current user object updated from default
       const found = DEFAULT_USERS.find(u => u.username === this.currentUser.username);
@@ -2371,7 +2423,7 @@ const PAGE_CONTROL_DEFAULTS = {
     filterArtSort: 'DATE_DESC'
   },
   finding: {
-    filterFindingMonth: '2026-10',
+    filterFindingMonth: '2026-09',
     searchFindingInput: '',
     filterFindingService: 'ALL',
     filterFindingType: 'ALL',
@@ -2505,7 +2557,7 @@ const DYNAMIC_MONTH_FILTER_CONFIGS = [
   { id: 'filterTiketMonth', pageKey: 'tiket', defaultVal: '2026-09' },
   { id: 'filterAhtMonth', pageKey: 'aht', defaultVal: '2026-09' },
   { id: 'filterArtMonth', pageKey: 'art', defaultVal: '2026-09' },
-  { id: 'filterFindingMonth', pageKey: 'finding', defaultVal: '2026-10' }
+  { id: 'filterFindingMonth', pageKey: 'finding', defaultVal: '2026-09' }
 ];
 
 function updateDynamicMonthDropdowns() {
@@ -3378,6 +3430,7 @@ const UI = {
   btnFindingDeleteSelected: document.getElementById('btnFindingDeleteSelected'),
   tableFindingLogs: document.getElementById('tableFindingLogs'),
   findingThSelectAll: document.getElementById('findingThSelectAll'),
+  findingThActions: document.getElementById('findingThActions'),
   findingSelectAllCheckbox: document.getElementById('findingSelectAllCheckbox'),
   findingTableBody: document.getElementById('findingTableBody'),
   modalFindingForm: document.getElementById('modalFindingForm'),
@@ -4203,6 +4256,15 @@ function renderAppView() {
   }
   if (UI.btnOpenAddFindingModal) {
     UI.btnOpenAddFindingModal.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.findingThSelectAll) {
+    UI.findingThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.findingThActions) {
+    UI.findingThActions.textContent = isAdmin ? 'Aksi' : 'Mode Akses';
+  }
+  if (UI.findingBatchBar && !isAdmin) {
+    UI.findingBatchBar.classList.add('hidden');
   }
 
   // Settings page info
@@ -5819,6 +5881,7 @@ function executePendingDelete() {
   if (type === 'item') {
     const items = state.getItems().filter(i => i.id !== id);
     state.saveItems(items);
+    state.trackDeletedId('vortex_items', id);
     state.addLog('DELETE_ITEM', 'Hapus Barang', `Admin ${state.currentUser.fullName} menghapus barang ${name} dari sistem.`);
     showToast('Barang Dihapus', `Barang <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderDataTable();
@@ -5845,6 +5908,7 @@ function executePendingDelete() {
     // 1. Hapus akun pengguna dari vortex_users
     const remainingUsers = allUsers.filter(u => u.id !== targetUserId);
     state.saveUsers(remainingUsers);
+    state.trackDeletedId('vortex_users', targetUserId);
 
     // 2. Hapus seluruh data Update PA milik user
     const oldPa = state.getPaLogs ? state.getPaLogs() : [];
@@ -5986,18 +6050,31 @@ function executePendingDelete() {
   } else if (type === 'timer') {
     const timers = state.getTimers().filter(t => t.id !== id);
     state.saveTimers(timers);
+    if (window.FirebaseSync && typeof window.FirebaseSync.trackDeletedId === 'function') {
+      window.FirebaseSync.trackDeletedId('vortex_timers', id);
+    }
+    if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+      window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+    }
     state.addLog('DELETE_TIMER', 'Hapus Timer', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus timer: ${name}.`);
     showToast('Timer Dihapus', `Timer <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderTimerPage();
   } else if (type === 'stopwatch') {
     const stopwatches = state.getStopwatches().filter(s => s.id !== id);
     state.saveStopwatches(stopwatches);
+    if (window.FirebaseSync && typeof window.FirebaseSync.trackDeletedId === 'function') {
+      window.FirebaseSync.trackDeletedId('vortex_stopwatches', id);
+    }
+    if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+      window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
+    }
     state.addLog('DELETE_STOPWATCH', 'Hapus Stopwatch', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus stopwatch: ${name}.`);
     showToast('Stopwatch Dihapus', `Stopwatch <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderTimerPage();
   } else if (type === 'pa') {
     const logs = state.getPaLogs().filter(p => p.id !== id);
     state.savePaLogs(logs);
+    state.trackDeletedId('vortex_pa_logs', id);
     state.addLog('DELETE_PA', 'Hapus Update PA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus entri Update PA: ${name}.`);
     showToast('Log PA Dihapus', `Catatan Update PA berhasil dihapus.`, 'danger');
     renderUpdatePaPage();
@@ -6007,6 +6084,7 @@ function executePendingDelete() {
     const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.savePaLogs(remainingLogs);
+    oldLogs.filter(l => (l.date || '').startsWith(month)).forEach(l => state.trackDeletedId('vortex_pa_logs', l.id));
     state.addLog('DELETE_PA_MONTH', 'Hapus Update PA Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data Update PA periode ${name} (${countBefore} catatan).`);
     showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} catatan Update PA</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
     if (typeof updateDynamicMonthDropdowns === 'function') updateDynamicMonthDropdowns();
@@ -6014,6 +6092,7 @@ function executePendingDelete() {
   } else if (type === 'ca') {
     const logs = state.getCaLogs().filter(p => p.id !== id);
     state.saveCaLogs(logs);
+    state.trackDeletedId('vortex_ca_logs', id);
     if (state.selectedCaIds) state.selectedCaIds.delete(id);
     autoSyncCaAction('delete', { id });
     state.addLog('DELETE_CA', 'Hapus Nilai CA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus evaluasi CA: ${name}.`);
@@ -6025,6 +6104,7 @@ function executePendingDelete() {
     const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveCaLogs(remainingLogs);
+    oldLogs.filter(l => (l.date || '').startsWith(month)).forEach(l => state.trackDeletedId('vortex_ca_logs', l.id));
     if (state.selectedCaIds) state.selectedCaIds.clear();
     autoSyncCaAction('delete_month', { month });
     state.addLog('DELETE_CA_MONTH', 'Hapus Data CA Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data CA periode ${name} (${countBefore} catatan).`);
@@ -6035,6 +6115,7 @@ function executePendingDelete() {
     const oldLogs = state.getCaLogs();
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveCaLogs(remainingLogs);
+    idsToDelete.forEach(dId => state.trackDeletedId('vortex_ca_logs', dId));
     if (state.selectedCaIds) state.selectedCaIds.clear();
     autoSyncCaAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_CA_BATCH', 'Hapus Data CA Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data evaluasi CA yang ditandai.`);
@@ -6043,6 +6124,7 @@ function executePendingDelete() {
   } else if (type === 'tiket') {
     const tikets = state.getTikets().filter(t => t.id !== id);
     state.saveTikets(tikets);
+    state.trackDeletedId('vortex_tikets', id);
     if (state.selectedTiketIds) state.selectedTiketIds.delete(id);
     autoSyncTiketAction('delete', { id });
     state.addLog('DELETE_TIKET', 'Hapus Perolehan Tiket', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus nilai tiket harian: ${name}.`);
@@ -6054,6 +6136,7 @@ function executePendingDelete() {
     const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveTikets(remainingLogs);
+    oldLogs.filter(l => (l.date || '').startsWith(month)).forEach(l => state.trackDeletedId('vortex_tikets', l.id));
     if (state.selectedTiketIds) state.selectedTiketIds.clear();
     autoSyncTiketAction('delete_month', { month });
     state.addLog('DELETE_TIKET_MONTH', 'Hapus Perolehan Tiket Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh nilai tiket periode ${name} (${countBefore} catatan).`);
@@ -6064,6 +6147,7 @@ function executePendingDelete() {
     const oldLogs = state.getTikets();
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveTikets(remainingLogs);
+    idsToDelete.forEach(dId => state.trackDeletedId('vortex_tikets', dId));
     if (state.selectedTiketIds) state.selectedTiketIds.clear();
     autoSyncTiketAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_TIKET_BATCH', 'Hapus Data Tiket Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data nilai tiket yang ditandai.`);
@@ -6072,6 +6156,7 @@ function executePendingDelete() {
   } else if (type === 'aht') {
     const ahtLogs = state.getAhtLogs().filter(t => t.id !== id);
     state.saveAhtLogs(ahtLogs);
+    state.trackDeletedId('vortex_aht_logs', id);
     if (state.selectedAhtIds) state.selectedAhtIds.delete(id);
     autoSyncAhtAction('delete', { id });
     state.addLog('DELETE_AHT', 'Hapus Handling Time', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus catatan handling time harian: ${name}.`);
@@ -6083,6 +6168,7 @@ function executePendingDelete() {
     const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveAhtLogs(remainingLogs);
+    oldLogs.filter(l => (l.date || '').startsWith(month)).forEach(l => state.trackDeletedId('vortex_aht_logs', l.id));
     if (state.selectedAhtIds) state.selectedAhtIds.clear();
     autoSyncAhtAction('delete_month', { month });
     state.addLog('DELETE_AHT_MONTH', 'Hapus AHT Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data handling time periode ${name} (${countBefore} catatan).`);
@@ -6093,6 +6179,7 @@ function executePendingDelete() {
     const oldLogs = state.getAhtLogs();
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveAhtLogs(remainingLogs);
+    idsToDelete.forEach(dId => state.trackDeletedId('vortex_aht_logs', dId));
     if (state.selectedAhtIds) state.selectedAhtIds.clear();
     autoSyncAhtAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_AHT_BATCH', 'Hapus AHT Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data handling time yang ditandai.`);
@@ -6101,6 +6188,7 @@ function executePendingDelete() {
   } else if (type === 'art') {
     const artLogs = state.getArtLogs().filter(t => t.id !== id);
     state.saveArtLogs(artLogs);
+    state.trackDeletedId('vortex_art_logs', id);
     if (state.selectedArtIds) state.selectedArtIds.delete(id);
     autoSyncArtAction('delete', { id });
     state.addLog('DELETE_ART', 'Hapus Response Time', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus catatan response time harian: ${name}.`);
@@ -6112,6 +6200,7 @@ function executePendingDelete() {
     const countBefore = oldLogs.filter(l => (l.date || '').startsWith(month)).length;
     const remainingLogs = oldLogs.filter(l => !(l.date || '').startsWith(month));
     state.saveArtLogs(remainingLogs);
+    oldLogs.filter(l => (l.date || '').startsWith(month)).forEach(l => state.trackDeletedId('vortex_art_logs', l.id));
     if (state.selectedArtIds) state.selectedArtIds.clear();
     autoSyncArtAction('delete_month', { month });
     state.addLog('DELETE_ART_MONTH', 'Hapus ART Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data response time periode ${name} (${countBefore} catatan).`);
@@ -6122,35 +6211,51 @@ function executePendingDelete() {
     const oldLogs = state.getArtLogs();
     const remainingLogs = oldLogs.filter(l => !idsToDelete.includes(l.id));
     state.saveArtLogs(remainingLogs);
+    idsToDelete.forEach(dId => state.trackDeletedId('vortex_art_logs', dId));
     if (state.selectedArtIds) state.selectedArtIds.clear();
     autoSyncArtAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_ART_BATCH', 'Hapus ART Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data response time yang ditandai.`);
     showToast('Data Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} data response time</strong> berhasil dihapus.`, 'danger');
     renderArtPage();
   } else if (type === 'finding') {
+    if (!state.isAdmin()) {
+      showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus temuan audit QA.', 'warning');
+      return;
+    }
     const findings = state.getFindings().filter(f => f.id !== id);
     state.saveFindings(findings);
+    state.trackDeletedId('vortex_findings', id);
     if (state.selectedFindingIds) state.selectedFindingIds.delete(id);
     autoSyncFindingAction('delete', { id });
     state.addLog('DELETE_FINDING', 'Hapus Temuan QA', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus temuan audit QA: ${name}.`);
     showToast('Temuan Dihapus', `Data temuan audit QA berhasil dihapus.`, 'danger');
     renderFindingPage();
   } else if (type === 'finding_month') {
+    if (!state.isAdmin()) {
+      showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus temuan audit QA bulanan.', 'warning');
+      return;
+    }
     const monthKey = id;
     const allFindings = state.getFindings();
     const countBefore = allFindings.filter(f => (f.date || '').startsWith(monthKey)).length;
     const remaining = allFindings.filter(f => !(f.date || '').startsWith(monthKey));
     state.saveFindings(remaining);
+    allFindings.filter(f => (f.date || '').startsWith(monthKey)).forEach(f => state.trackDeletedId('vortex_findings', f.id));
     if (state.selectedFindingIds) state.selectedFindingIds.clear();
     autoSyncFindingAction('delete_month', { month: monthKey });
     state.addLog('DELETE_FINDING_MONTH', 'Hapus Temuan Bulanan', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus seluruh data temuan QA periode ${name} (${countBefore} data).`);
     showToast('Data Bulan Ini Dihapus', `Seluruh <strong>${countBefore} data temuan QA</strong> periode <strong>${name}</strong> berhasil dihapus.`, 'danger');
     renderFindingPage();
   } else if (type === 'finding_batch') {
+    if (!state.isAdmin()) {
+      showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus massal temuan audit QA.', 'warning');
+      return;
+    }
     const idsToDelete = state.pendingDelete.ids || [];
     const oldFindings = state.getFindings();
     const remaining = oldFindings.filter(f => !idsToDelete.includes(f.id));
     state.saveFindings(remaining);
+    idsToDelete.forEach(dId => state.trackDeletedId('vortex_findings', dId));
     if (state.selectedFindingIds) state.selectedFindingIds.clear();
     autoSyncFindingAction('delete_batch', { ids: idsToDelete });
     state.addLog('DELETE_FINDING_BATCH', 'Hapus Temuan Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} data temuan QA yang ditandai.`);
@@ -6188,6 +6293,7 @@ function executePendingDelete() {
   } else if (type === 'quiz_question') {
     const questions = state.getQuizQuestions().filter(q => q.id !== id);
     state.saveQuizQuestions(questions);
+    state.trackDeletedId('vortex_quiz_questions', id);
     if (typeof quizState !== 'undefined' && quizState.selectedQuestionIds) {
       quizState.selectedQuestionIds.delete(id);
     }
@@ -6202,6 +6308,7 @@ function executePendingDelete() {
     const questions = state.getQuizQuestions();
     const remaining = questions.filter(q => !idsToDelete.includes(q.id));
     state.saveQuizQuestions(remaining);
+    idsToDelete.forEach(qId => state.trackDeletedId('vortex_quiz_questions', qId));
     if (typeof quizState !== 'undefined' && quizState.selectedQuestionIds) {
       idsToDelete.forEach(qId => quizState.selectedQuestionIds.delete(qId));
     }
@@ -7327,8 +7434,12 @@ function handleSaveTimer(e) {
 
       existing.isRunning = autoStart;
       existing.lastTick = Date.now();
+      existing.updatedAt = Date.now();
 
       state.saveTimers(timers);
+      if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+        window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+      }
       state.addLog('EDIT_TIMER', 'Ubah Timer', `${state.currentUser.fullName} memperbarui waktu ditentukan timer "${name}" menjadi ${formatSecondsToHMS(totalSeconds)}.`);
       showToast('Waktu Ditentukan Diperbarui', `Waktu ditentukan untuk <strong>${name}</strong> berhasil diatur ke <strong>${formatSecondsToHMS(totalSeconds)}</strong>.`, 'success');
     }
@@ -7346,11 +7457,19 @@ function handleSaveTimer(e) {
       totalSeconds,
       remainingSeconds: totalSeconds,
       isRunning: autoStart,
-      lastTick: Date.now()
+      lastTick: Date.now(),
+      createdAt: Date.now(),
+      updatedAt: Date.now()
     };
 
     timers.push(newTimer);
     state.saveTimers(timers);
+    if (window.FirebaseSync && typeof window.FirebaseSync.clearDeletedId === 'function') {
+      window.FirebaseSync.clearDeletedId('vortex_timers', newTimer.id);
+    }
+    if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+      window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+    }
     state.addLog('CREATE_TIMER', 'Tambah Timer', `${state.currentUser.fullName} membuat timer baru: ${name} (${formatSecondsToHMS(totalSeconds)}).`);
     showToast('Timer Ditambahkan', `Timer <strong>${name}</strong> berhasil didaftarkan ke ruang kerja Anda.`, 'success');
   }
@@ -7469,11 +7588,19 @@ function handleSaveStopwatch(e) {
     dept: dept,
     elapsedSeconds: 0,
     isRunning: autoStart,
-    lastTick: Date.now()
+    lastTick: Date.now(),
+    createdAt: Date.now(),
+    updatedAt: Date.now()
   };
 
   stopwatches.push(newSw);
   state.saveStopwatches(stopwatches);
+  if (window.FirebaseSync && typeof window.FirebaseSync.clearDeletedId === 'function') {
+    window.FirebaseSync.clearDeletedId('vortex_stopwatches', newSw.id);
+  }
+  if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+    window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
+  }
   state.addLog('CREATE_STOPWATCH', 'Tambah Stopwatch', `${state.currentUser.fullName} membuat stopwatch baru: ${name}.`);
   showToast('Stopwatch Ditambahkan', `Stopwatch <strong>${name}</strong> berhasil dibuat.`, 'success');
 
@@ -7611,8 +7738,10 @@ function startTimerTicker() {
     });
 
     if (hasChanges) {
-      state.saveTimers(timers);
-      state.saveStopwatches(stopwatches);
+      if (window.FirebaseSync) window.FirebaseSync._suppressSync = true;
+      localStorage.setItem('vortex_timers', JSON.stringify(timers));
+      localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
+      if (window.FirebaseSync) window.FirebaseSync._suppressSync = false;
     }
   }, 1000);
 }
@@ -14766,6 +14895,10 @@ function renderFindingGSheetBar() {
 }
 
 function openFindingGSheetModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mengatur integrasi Google Spreadsheet.', 'warning');
+    return;
+  }
   const config = state.getFindingGSheetConfig();
   if (UI.inputFindingGSheetWebAppUrl) UI.inputFindingGSheetWebAppUrl.value = config.webAppUrl || '';
   if (UI.inputFindingGSheetUrl) UI.inputFindingGSheetUrl.value = config.sheetId || '';
@@ -14817,6 +14950,10 @@ function switchFindingGSheetTab(tab) {
 }
 
 function saveFindingGSheetConfigHandler() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menyimpan konfigurasi Google Spreadsheet.', 'warning');
+    return;
+  }
   const current = state.getFindingGSheetConfig();
   const webAppUrl = (UI.inputFindingGSheetWebAppUrl ? UI.inputFindingGSheetWebAppUrl.value.trim() : '');
   const sheetInput = (UI.inputFindingGSheetUrl ? UI.inputFindingGSheetUrl.value.trim() : '');
@@ -14887,6 +15024,10 @@ async function testFindingGSheetConnection() {
 }
 
 async function pushFindingToGoogleSheets() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk sinkronisasi Google Spreadsheet.', 'warning');
+    return;
+  }
   const config = state.getFindingGSheetConfig();
   if (!config.webAppUrl) {
     showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App Google Apps Script terlebih dahulu.', 'warning');
@@ -14950,6 +15091,10 @@ async function pushFindingToGoogleSheets() {
 }
 
 async function pullFindingFromGoogleSheets() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk sinkronisasi Google Spreadsheet.', 'warning');
+    return;
+  }
   const config = state.getFindingGSheetConfig();
   if (!config.webAppUrl && !config.sheetId) {
     showToast('Belum Dikonfigurasi', 'Harap konfigurasi URL Web App atau ID Spreadsheet terlebih dahulu.', 'warning');
@@ -15080,6 +15225,21 @@ function copyFindingAppsScriptCode() {
 // 12.9 FINDING (QA AUDIT FINDINGS)
 // ==========================================
 
+function isFindingForUser(item, user) {
+  if (!item || !user) return false;
+  const targetId = user.id || '';
+  const targetUsername = (user.username || '').toLowerCase();
+  const targetFullName = (user.fullName || '').toLowerCase();
+
+  if (item.userId && targetId && item.userId === targetId) return true;
+  if (item.username && targetUsername && item.username.toLowerCase() === targetUsername) return true;
+  if (item.userFullName && targetFullName && item.userFullName.toLowerCase() === targetFullName) return true;
+  if (item.fullName && targetFullName && item.fullName.toLowerCase() === targetFullName) return true;
+  if (item.author && targetFullName && item.author.toLowerCase() === targetFullName) return true;
+
+  return false;
+}
+
 function renderFindingPage() {
   if (typeof updateDynamicMonthDropdowns === 'function') {
     updateDynamicMonthDropdowns();
@@ -15088,6 +15248,8 @@ function renderFindingPage() {
     syncUserControlsForPage('finding', state.currentUser);
   }
   const isAdmin = state.isAdmin();
+  const currentUser = state.currentUser;
+
   if (UI.btnOpenFindingGoogleSheetsModal) UI.btnOpenFindingGoogleSheetsModal.classList.add('hidden');
   renderFindingGSheetBar();
   if (UI.findingGSheetSyncBar) {
@@ -15102,8 +15264,22 @@ function renderFindingPage() {
   if (UI.btnOpenAddFindingModal) {
     UI.btnOpenAddFindingModal.classList.toggle('hidden', !isAdmin);
   }
-  const findings = state.getFindings();
-  const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-10') || 'ALL';
+
+  // Toggle Header Checkbox dan Header Aksi khusus Admin
+  if (UI.findingThSelectAll) {
+    UI.findingThSelectAll.classList.toggle('hidden', !isAdmin);
+  }
+  if (UI.findingThActions) {
+    UI.findingThActions.textContent = isAdmin ? 'Aksi' : 'Mode Akses';
+  }
+
+  const allFindings = state.getFindings();
+  // KHUSUS USER: Hanya user yang mendapatkan finding yang dapat melihatnya (user lain tidak dapat melihat)
+  const accessibleFindings = isAdmin
+    ? allFindings
+    : allFindings.filter(f => isFindingForUser(f, currentUser));
+
+  const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-09') || 'ALL';
   const searchQ = (UI.searchFindingInput ? UI.searchFindingInput.value.trim().toLowerCase() : '');
   const filterService = (UI.filterFindingService ? UI.filterFindingService.value : 'ALL');
   const filterType = (UI.filterFindingType ? UI.filterFindingType.value : 'ALL');
@@ -15114,7 +15290,7 @@ function renderFindingPage() {
     UI.btnClearSearchFinding.classList.toggle('hidden', !searchQ);
   }
 
-  const filtered = findings.filter(item => {
+  const filtered = accessibleFindings.filter(item => {
     if (selectedMonth !== 'ALL' && !(item.date || '').startsWith(selectedMonth)) return false;
     if (searchQ) {
       const match = (item.id || '').toLowerCase().includes(searchQ) ||
@@ -15134,8 +15310,10 @@ function renderFindingPage() {
     return true;
   });
 
-  // Calculate metrics based on selected month (or all if ALL selected)
-  const monthFindings = selectedMonth === 'ALL' ? findings : findings.filter(f => (f.date || '').startsWith(selectedMonth));
+  // Calculate metrics based on selected month (or all if ALL selected) - Hanya untuk data yang berhak dilihat
+  const monthFindings = selectedMonth === 'ALL'
+    ? accessibleFindings
+    : accessibleFindings.filter(f => (f.date || '').startsWith(selectedMonth));
   const totalCount = monthFindings.length;
   const reminderCount = monthFindings.filter(f => (f.deviationLevel || '').startsWith('Reminder')).length;
   const korektifCount = monthFindings.filter(f => (f.deviationLevel || '').startsWith('Korektif')).length;
@@ -15146,27 +15324,33 @@ function renderFindingPage() {
   if (UI.findingStatMayor) UI.findingStatMayor.textContent = korektifCount;
   if (UI.findingStatFatal) UI.findingStatFatal.textContent = spCount;
 
-  // Batch action bar & Header select-all sync
-  const visibleIds = filtered.map(item => item.id);
-  const selectedVisibleCount = visibleIds.filter(id => state.selectedFindingIds && state.selectedFindingIds.has(id)).length;
-  if (UI.findingSelectAllCheckbox) {
-    UI.findingSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
-    UI.findingSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
-  }
-  if (UI.findingBatchBar) {
-    const hasSelected = state.selectedFindingIds && state.selectedFindingIds.size > 0;
-    UI.findingBatchBar.classList.toggle('hidden', !hasSelected);
-    if (UI.findingSelectedCount) {
-      UI.findingSelectedCount.textContent = state.selectedFindingIds ? state.selectedFindingIds.size : 0;
+  // Batch action bar & Header select-all sync (Admin only)
+  if (isAdmin) {
+    const visibleIds = filtered.map(item => item.id);
+    const selectedVisibleCount = visibleIds.filter(id => state.selectedFindingIds && state.selectedFindingIds.has(id)).length;
+    if (UI.findingSelectAllCheckbox) {
+      UI.findingSelectAllCheckbox.checked = visibleIds.length > 0 && selectedVisibleCount === visibleIds.length;
+      UI.findingSelectAllCheckbox.indeterminate = selectedVisibleCount > 0 && selectedVisibleCount < visibleIds.length;
     }
+    if (UI.findingBatchBar) {
+      const hasSelected = state.selectedFindingIds && state.selectedFindingIds.size > 0;
+      UI.findingBatchBar.classList.toggle('hidden', !hasSelected);
+      if (UI.findingSelectedCount) {
+        UI.findingSelectedCount.textContent = state.selectedFindingIds ? state.selectedFindingIds.size : 0;
+      }
+    }
+  } else {
+    if (state.selectedFindingIds) state.selectedFindingIds.clear();
+    if (UI.findingBatchBar) UI.findingBatchBar.classList.add('hidden');
   }
 
   if (!UI.findingTableBody) return;
   UI.findingTableBody.innerHTML = '';
 
+  const colSpanCount = isAdmin ? 12 : 11;
   if (filtered.length === 0) {
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td colspan="12" style="text-align: center; padding: 32px; color: var(--gray-400);">Tidak ada catatan temuan audit QA yang sesuai.</td>`;
+    tr.innerHTML = `<td colspan="${colSpanCount}" style="text-align: center; padding: 32px; color: var(--gray-400);"><i class="fa-regular fa-folder-open" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.6;"></i>${isAdmin ? 'Tidak ada catatan temuan audit QA yang sesuai.' : 'Belum ada catatan temuan audit QA untuk akun Anda pada periode ini.'}</td>`;
     UI.findingTableBody.appendChild(tr);
     return;
   }
@@ -15191,10 +15375,43 @@ function renderFindingPage() {
     if (item.status === 'Dalam Coaching') statBadge = 'badge-blue';
     else if (item.status === 'Closed') statBadge = 'badge-green';
 
-    tr.innerHTML = `
+    const checkboxHtml = isAdmin ? `
       <td style="text-align: center;">
         <input type="checkbox" class="finding-table-checkbox finding-row-checkbox checkbox-custom" data-id="${item.id}" ${isChecked ? 'checked' : ''}>
       </td>
+    ` : '';
+
+    const statusHtml = isAdmin ? `
+      <td>
+        <button class="badge ${statBadge}" style="font-size:0.75rem; cursor:pointer; border:none;" onclick="quickCycleFindingStatus('${item.id}')" title="Klik untuk ubah status tindak lanjut">
+          ${item.status}
+        </button>
+      </td>
+    ` : `
+      <td>
+        <span class="badge ${statBadge}" style="font-size:0.75rem;">${item.status}</span>
+      </td>
+    `;
+
+    const actionHtml = isAdmin ? `
+      <td style="text-align:center; white-space:nowrap;">
+        <button class="btn btn-icon btn-sm" onclick="openEditFindingModal('${item.id}')" title="Edit Temuan" style="margin-right:4px;">
+          <i class="fa-solid fa-pen-to-square text-blue"></i>
+        </button>
+        <button class="btn btn-icon btn-sm" onclick="promptDeleteFinding('${item.id}', '${item.id}')" title="Hapus Temuan">
+          <i class="fa-solid fa-trash-can text-red"></i>
+        </button>
+      </td>
+    ` : `
+      <td style="text-align:center;">
+        <span class="badge badge-gray" style="font-size:0.75rem; padding:4px 8px;" title="Mode Tinjauan (Read-Only)">
+          <i class="fa-solid fa-eye text-silver" style="margin-right:4px;"></i>Hanya Lihat
+        </span>
+      </td>
+    `;
+
+    tr.innerHTML = `
+      ${checkboxHtml}
       <td><span class="text-red font-mono" style="font-weight:700;">${item.id}</span></td>
       <td><span style="font-size:0.8rem; color:var(--gray-300);">${item.date || '-'}</span></td>
       <td><span style="font-weight:600; color:#fff;">${item.userFullName}</span></td>
@@ -15209,25 +15426,18 @@ function renderFindingPage() {
       <td>
         <span style="font-size:0.8rem; color:var(--gray-200);">${item.commitment || '-'}</span>
       </td>
-      <td>
-        <button class="badge ${statBadge}" style="font-size:0.75rem; cursor:pointer; border:none;" onclick="quickCycleFindingStatus('${item.id}')" title="Klik untuk ubah status tindak lanjut">
-          ${item.status}
-        </button>
-      </td>
-      <td style="text-align:center; white-space:nowrap;">
-        <button class="btn btn-icon btn-sm" onclick="openEditFindingModal('${item.id}')" title="Edit Temuan" style="margin-right:4px;">
-          <i class="fa-solid fa-pen-to-square text-blue"></i>
-        </button>
-        <button class="btn btn-icon btn-sm" onclick="promptDeleteFinding('${item.id}', '${item.id}')" title="Hapus Temuan">
-          <i class="fa-solid fa-trash-can text-red"></i>
-        </button>
-      </td>
+      ${statusHtml}
+      ${actionHtml}
     `;
     UI.findingTableBody.appendChild(tr);
   });
 }
 
 function openAddFindingModal() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mencatat temuan audit QA.', 'warning');
+    return;
+  }
   const u = state.currentUser;
   if (!u) return;
 
@@ -15252,6 +15462,10 @@ function openAddFindingModal() {
 }
 
 window.openEditFindingModal = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mengedit temuan audit QA.', 'warning');
+    return;
+  }
   const findings = state.getFindings();
   const item = findings.find(f => f.id === id);
   if (!item) {
@@ -15282,6 +15496,10 @@ function closeFindingModal() {
 
 function handleSaveFinding(e) {
   e.preventDefault();
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menambah atau memperbarui temuan audit QA.', 'warning');
+    return;
+  }
   const u = state.currentUser;
   if (!u) return;
 
@@ -15302,6 +15520,14 @@ function handleSaveFinding(e) {
     return;
   }
 
+  const allUsers = state.getUsers();
+  const matchedUser = allUsers.find(usr => 
+    (usr.fullName && usr.fullName.toLowerCase() === userFullName.toLowerCase()) ||
+    (usr.username && usr.username.toLowerCase() === userFullName.toLowerCase())
+  );
+  const targetUserId = matchedUser ? matchedUser.id : '';
+  const targetUsername = matchedUser ? matchedUser.username : '';
+
   const findings = state.getFindings();
 
   if (editId) {
@@ -15313,6 +15539,8 @@ function handleSaveFinding(e) {
     }
     findings[targetIdx] = {
       ...findings[targetIdx],
+      userId: targetUserId || findings[targetIdx].userId || '',
+      username: targetUsername || findings[targetIdx].username || '',
       date,
       userFullName,
       department,
@@ -15337,6 +15565,8 @@ function handleSaveFinding(e) {
     const newEntry = {
       id: newId,
       date: todayStr,
+      userId: targetUserId,
+      username: targetUsername,
       userFullName,
       department,
       findingType,
@@ -15365,6 +15595,10 @@ function handleSaveFinding(e) {
 }
 
 window.quickCycleFindingStatus = function(id) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang dapat mengubah status tindak lanjut temuan.', 'warning');
+    return;
+  }
   const findings = state.getFindings();
   const item = findings.find(f => f.id === id);
   if (!item) return;
@@ -15381,6 +15615,10 @@ window.quickCycleFindingStatus = function(id) {
 };
 
 window.promptDeleteFinding = function(id, name) {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk menghapus temuan audit QA.', 'warning');
+    return;
+  }
   state.pendingDelete = { type: 'finding', id, name };
   UI.confirmDeleteTitle.textContent = 'Hapus Temuan QA?';
   UI.confirmDeleteMessage.innerHTML = `Temuan audit QA nomor <strong>${name}</strong> akan dihapus permanen.`;
@@ -15392,7 +15630,7 @@ window.promptDeleteAllFindingMonth = function() {
     showToast('Akses Ditolak', 'Hanya Administrator yang dapat menghapus data temuan bulanan.', 'warning');
     return;
   }
-  const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-10') || 'ALL';
+  const selectedMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-09') || 'ALL';
   if (!selectedMonth || selectedMonth === 'ALL') {
     showToast('Pilih Bulan Spesifik', 'Silakan pilih bulan tertentu terlebih dahulu untuk menghapus data bulanan.', 'warning');
     return;
@@ -15441,6 +15679,10 @@ window.handleFindingBatchDelete = function() {
 };
 
 function exportFindingExcel() {
+  if (!state.isAdmin()) {
+    showToast('Akses Dibatasi', 'Hanya Administrator yang memiliki wewenang untuk mengekspor data audit QA.', 'warning');
+    return;
+  }
   const selMonth = (UI.filterFindingMonth ? UI.filterFindingMonth.value : '2026-09') || 'ALL';
   const allFindings = state.getFindings();
 
@@ -17029,7 +17271,7 @@ function initEvents() {
   if (UI.filterFindingStatus) UI.filterFindingStatus.addEventListener('change', renderFindingPage);
   if (UI.btnResetFindingFilters) {
     UI.btnResetFindingFilters.addEventListener('click', () => {
-      if (UI.filterFindingMonth) UI.filterFindingMonth.value = '2026-10';
+      if (UI.filterFindingMonth) UI.filterFindingMonth.value = '2026-09';
       if (UI.searchFindingInput) UI.searchFindingInput.value = '';
       if (UI.filterFindingService) UI.filterFindingService.value = 'ALL';
       if (UI.filterFindingType) UI.filterFindingType.value = 'ALL';
