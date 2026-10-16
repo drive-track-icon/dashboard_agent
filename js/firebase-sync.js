@@ -72,6 +72,43 @@
     }
 
     /**
+     * Dapatkan daftar ID item yang pernah disinkronkan ke/dari Cloud
+     */
+    getKnownSyncedIds(key) {
+      try {
+        const raw = localStorage.getItem('vortex_synced_ids_' + key);
+        const arr = raw ? JSON.parse(raw) : [];
+        return new Set(Array.isArray(arr) ? arr : []);
+      } catch (e) {
+        return new Set();
+      }
+    }
+
+    /**
+     * Catat ID item yang berhasil disinkronkan
+     */
+    recordKnownSyncedIds(key, ids) {
+      try {
+        const set = this.getKnownSyncedIds(key);
+        if (Array.isArray(ids)) {
+          ids.forEach(id => { if (id) set.add(id); });
+        }
+        localStorage.setItem('vortex_synced_ids_' + key, JSON.stringify([...set]));
+      } catch (e) {}
+    }
+
+    /**
+     * Hapus ID dari daftar sinkron saat dihapus
+     */
+    removeKnownSyncedId(key, id) {
+      try {
+        const set = this.getKnownSyncedIds(key);
+        set.delete(id);
+        localStorage.setItem('vortex_synced_ids_' + key, JSON.stringify([...set]));
+      } catch (e) {}
+    }
+
+    /**
      * Catat ID item yang dihapus agar tidak muncul kembali saat sinkronisasi
      */
     trackDeletedId(key, id) {
@@ -80,6 +117,7 @@
         const set = this.getDeletedIds(key);
         set.add(id);
         localStorage.setItem('vortex_deleted_ids_' + key, JSON.stringify([...set]));
+        this.removeKnownSyncedId(key, id);
       } catch (e) {}
     }
 
@@ -110,6 +148,7 @@
               const data = JSON.parse(raw);
               this.db.collection(COLLECTION_NAME).doc(key).set({
                 payload: data,
+                deletedIds: [...this.getDeletedIds(key)],
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedBy: 'Unload_Sync'
               }, { merge: true });
@@ -227,15 +266,14 @@
           if (isTimer) {
             copy.remainingSeconds = Math.max(0, (Number(copy.remainingSeconds) || 0) - elapsedSec);
             copy.lastTick = Number(copy.lastTick) + (elapsedSec * 1000);
-            copy.updatedAt = now;
             if (copy.remainingSeconds === 0) {
               copy.isRunning = false;
               copy.lastTick = null;
+              copy.updatedAt = now;
             }
           } else {
             copy.elapsedSeconds = (Number(copy.elapsedSeconds) || 0) + elapsedSec;
             copy.lastTick = Number(copy.lastTick) + (elapsedSec * 1000);
-            copy.updatedAt = now;
           }
         }
         return copy;
@@ -244,23 +282,40 @@
       if (!Array.isArray(localArr) || localArr.length === 0) {
         if (isTimerKey && Array.isArray(remoteArr)) {
           const now = Date.now();
-          const caughtUp = remoteArr.map(r => catchUpTimerOrSw(r, now));
+          const caughtUp = remoteArr.filter(r => r && r.id && !deletedIds.has(r.id)).map(r => catchUpTimerOrSw(r, now));
+          if (typeof this.recordKnownSyncedIds === 'function') {
+            this.recordKnownSyncedIds(key, caughtUp.map(r => r.id));
+          }
           return { merged: caughtUp, hasLocalOverrides: false };
         }
         return { merged: Array.isArray(remoteArr) ? remoteArr : [], hasLocalOverrides: false };
       }
+
+      const DEFAULT_DEMO_TIMER_IDS = new Set([
+        'tmr_user_1', 'tmr_user_2', 'tmr_user_3', 'tmr_admin_1', 'tmr_admin_2',
+        'sw_user_1', 'sw_user_2', 'sw_admin_1', 'sw_admin_2'
+      ]);
+
+      const knownSyncedIds = (isTimerKey && typeof this.getKnownSyncedIds === 'function')
+        ? this.getKnownSyncedIds(key)
+        : new Set();
+
       if (!Array.isArray(remoteArr) || remoteArr.length === 0) {
+        if (isTimerKey) {
+          const brandNewLocal = localArr.filter(l => (
+            l && l.id &&
+            !deletedIds.has(l.id) &&
+            !knownSyncedIds.has(l.id) &&
+            !DEFAULT_DEMO_TIMER_IDS.has(l.id)
+          ));
+          return { merged: brandNewLocal, hasLocalOverrides: brandNewLocal.length > 0 };
+        }
         const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id));
         return { merged: localOnly, hasLocalOverrides: localOnly.length > 0 };
       }
 
       if (isTimerKey) {
         const now = Date.now();
-        const DEFAULT_DEMO_TIMER_IDS = new Set([
-          'tmr_user_1', 'tmr_user_2', 'tmr_user_3', 'tmr_admin_1', 'tmr_admin_2',
-          'sw_user_1', 'sw_user_2', 'sw_admin_1', 'sw_admin_2'
-        ]);
-
         const mergedMap = new Map();
         remoteArr.forEach(r => {
           if (r && r.id && !deletedIds.has(r.id)) {
@@ -268,76 +323,94 @@
           }
         });
 
+        if (typeof this.recordKnownSyncedIds === 'function') {
+          this.recordKnownSyncedIds(key, remoteArr.map(r => r && r.id));
+        }
+
         let hasLocalOverrides = false;
         localArr.forEach(rawL => {
           if (!rawL || !rawL.id || deletedIds.has(rawL.id)) return;
           const l = catchUpTimerOrSw(rawL, now);
           const r = mergedMap.get(l.id);
           if (!r) {
-            // Pengaman Pindah Device: Jika remoteArr sudah memiliki data di cloud,
-            // jangan suntikkan demo item bawaan dari device baru ke dalam cloud
+            // Item ada di lokal tapi tidak ada di remoteArr (Cloud)
+            // 1. Abaikan item demo bawaan jika cloud sudah memiliki koleksi
             if (DEFAULT_DEMO_TIMER_IDS.has(l.id) && remoteArr.length > 0) {
               return;
             }
+            // 2. Jika item pernah disinkronkan ke cloud, berarti item telah dihapus di device lain!
+            if (knownSyncedIds.has(l.id)) {
+              if (typeof this.trackDeletedId === 'function') {
+                this.trackDeletedId(key, l.id);
+              }
+              return;
+            }
+            // 3. Item baru yang dibuat lokal saat offline
             mergedMap.set(l.id, l);
             hasLocalOverrides = true;
           } else {
-            const lEffectiveTime = Number(l.lastTick || l.resetAt || l.updatedAt || l.createdAt || 0);
-            const rEffectiveTime = Number(r.lastTick || r.resetAt || r.updatedAt || r.createdAt || 0);
-
-            // Cek apakah item benar-benar direset secara eksplisit oleh aksi user
-            const localWasExplicitlyReset = (l.isRunning === false && (
+            const lStarted = Number(l.startedAt || (l.isRunning ? (l.lastTick || l.updatedAt || 0) : 0));
+            const lPaused = Number(l.pausedAt || (!l.isRunning ? (l.updatedAt || 0) : 0));
+            const lIsReset = (l.isRunning === false && (
               (isTimer && l.remainingSeconds === l.totalSeconds) ||
               (isStopwatch && l.elapsedSeconds === 0)
-            ) && (
-              (!!l.resetAt && l.resetAt >= rEffectiveTime) ||
-              (!r.isRunning && lEffectiveTime >= rEffectiveTime) ||
-              (lEffectiveTime > rEffectiveTime + 500)
             ));
+            const lReset = Number(l.resetAt || (lIsReset ? (l.updatedAt || 0) : 0));
 
-            const remoteWasExplicitlyReset = (r.isRunning === false && (
+            const rStarted = Number(r.startedAt || (r.isRunning ? (r.lastTick || r.updatedAt || 0) : 0));
+            const rPaused = Number(r.pausedAt || (!r.isRunning ? (r.updatedAt || 0) : 0));
+            const rIsReset = (r.isRunning === false && (
               (isTimer && r.remainingSeconds === r.totalSeconds) ||
               (isStopwatch && r.elapsedSeconds === 0)
-            ) && (
-              (!!r.resetAt && r.resetAt >= lEffectiveTime) ||
-              (!l.isRunning && rEffectiveTime >= lEffectiveTime) ||
-              (rEffectiveTime > lEffectiveTime + 500)
             ));
+            const rReset = Number(r.resetAt || (rIsReset ? (r.updatedAt || 0) : 0));
 
-            let chosen = l;
+            let chosen = r; // Default ke Cloud snapshot yang sudah dicatch-up
 
-            // ATURAN 1: Remote sedang berjalan (dari Device A / Cloud), Lokal TIDAK berjalan (Device B baru buka / belum disentuh)
-            if (!l.isRunning && r.isRunning) {
-              // Hanya tolak remote jika user di device ini BENAR-BENAR mereset secara eksplisit setelah timer remote berjalan
-              if (localWasExplicitlyReset) {
+            // ATURAN 1: Remote TIDAK berjalan, Lokal SEDANG berjalan
+            if (!r.isRunning && l.isRunning) {
+              if (rIsReset && (rReset >= lStarted - 500)) {
+                // Remote direset secara eksplisit di device lain setelah lokal mulai
+                chosen = r;
+              } else if (lStarted > Math.max(rPaused, rReset, Number(r.updatedAt || 0)) + 500) {
+                // User di device ini secara eksplisit mengklik Mulai SETELAH remote dijeda/direset
                 chosen = l;
                 hasLocalOverrides = true;
               } else {
+                // Remote dijeda di device lain -> Device ini harus ikut jeda!
                 chosen = r;
               }
             }
-            // ATURAN 2: Lokal sedang berjalan, Remote TIDAK berjalan
-            else if (l.isRunning && !r.isRunning) {
-              if (remoteWasExplicitlyReset) {
-                chosen = r;
-              } else {
+            // ATURAN 2: Remote SEDANG berjalan, Lokal TIDAK berjalan
+            else if (r.isRunning && !l.isRunning) {
+              if (lIsReset && (lReset > rStarted + 500)) {
+                // User di device ini secara eksplisit mereset setelah remote mulai
                 chosen = l;
                 hasLocalOverrides = true;
+              } else if (lPaused > rStarted + 500) {
+                // User di device ini secara eksplisit menjeda setelah remote mulai
+                chosen = l;
+                hasLocalOverrides = true;
+              } else {
+                // Remote mulai berjalan di device lain -> Device ini harus ikut berjalan!
+                chosen = r;
               }
             }
-            // ATURAN 3: Keduanya sedang berjalan
-            else if (l.isRunning && r.isRunning) {
-              chosen = (lEffectiveTime >= rEffectiveTime) ? l : r;
+            // ATURAN 3: Keduanya SEDANG berjalan
+            else if (r.isRunning && l.isRunning) {
+              // Gunakan remote sebagai acuan tunggal agar waktu sinkron realtime tanpa drift
+              chosen = r;
             }
-            // ATURAN 4: Keduanya berhenti
+            // ATURAN 4: Keduanya TIDAK berjalan
             else {
-              if (localWasExplicitlyReset && !remoteWasExplicitlyReset) {
+              if (lIsReset && !rIsReset && lReset > Math.max(rReset, rPaused, Number(r.updatedAt || 0)) + 500) {
                 chosen = l;
                 hasLocalOverrides = true;
-              } else if (remoteWasExplicitlyReset) {
+              } else if (rIsReset) {
                 chosen = r;
-              } else if (lEffectiveTime >= rEffectiveTime) {
+              } else if (Math.max(lPaused, Number(l.updatedAt || 0)) > Math.max(rPaused, Number(r.updatedAt || 0)) + 500) {
                 chosen = l;
+                hasLocalOverrides = true;
               } else {
                 chosen = r;
               }
@@ -381,6 +454,11 @@
 
             const docData = docSnapshot.data();
             if (!docData || docData.payload === undefined) return;
+
+            // Sinkronisasi catatan ID item yang dihapus dari cloud ke lokal
+            if (Array.isArray(docData.deletedIds) && docData.deletedIds.length > 0) {
+              docData.deletedIds.forEach(dId => this.trackDeletedId(key, dId));
+            }
 
             // Jika update ini dipicu oleh diri sendiri dalam waktu 3 detik terakhir, lewati (jaga double event cache & server ack)
             if (this.skipNextRemote[key] && (Date.now() - this.skipNextRemote[key] < 3000)) {
@@ -599,6 +677,7 @@
 
           await this.db.collection(COLLECTION_NAME).doc(key).set({
             payload: cleanData,
+            deletedIds: [...this.getDeletedIds(key)],
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedBy: username
           }, { merge: true });
@@ -660,6 +739,7 @@
               const ref = this.db.collection(COLLECTION_NAME).doc(key);
               batch.set(ref, {
                 payload: cleanData,
+                deletedIds: [...this.getDeletedIds(key)],
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedBy: username
               }, { merge: true });
@@ -713,6 +793,10 @@
           const key = doc.id;
           const data = doc.data();
           if (data && data.payload !== undefined && data.payload !== null) {
+            // Sinkronisasi catatan ID item yang dihapus dari cloud ke lokal
+            if (Array.isArray(data.deletedIds) && data.deletedIds.length > 0) {
+              data.deletedIds.forEach(dId => this.trackDeletedId(key, dId));
+            }
             let finalPayload = data.payload;
 
             // PENGAMAN KHUSUS SEMUA KOLEKSI DATA (Array of items with id):
@@ -1092,16 +1176,18 @@
   window.FirebaseSync = new FirebaseSyncManager();
 
   // Global Resilience Shield (Mencegah runtime error atau unhandled rejection merusak aplikasi di HP / PC)
-  window.addEventListener('unhandledrejection', (event) => {
-    console.warn('[DRIVE Shield] Unhandled rejection diamankan:', event.reason);
-    if (event.preventDefault) {
-      event.preventDefault();
-    }
-  });
+  if (typeof window.addEventListener === 'function') {
+    window.addEventListener('unhandledrejection', (event) => {
+      console.warn('[DRIVE Shield] Unhandled rejection diamankan:', event.reason);
+      if (event.preventDefault) {
+        event.preventDefault();
+      }
+    });
 
-  window.addEventListener('error', (event) => {
-    console.warn('[DRIVE Shield] Runtime error diamankan:', event.message || event);
-  });
+    window.addEventListener('error', (event) => {
+      console.warn('[DRIVE Shield] Runtime error diamankan:', event.message || event);
+    });
+  }
 
   // Otomatis pasang hook dan inisialisasi saat DOM siap
   document.addEventListener('DOMContentLoaded', () => {
@@ -1113,66 +1199,70 @@
   });
 
   // Tangani saat koneksi internet pulih (Online di PC / HP)
-  window.addEventListener('online', async () => {
-    if (window.FirebaseSync && window.FirebaseSync.db) {
-      try {
-        await window.FirebaseSync.db.enableNetwork();
-        window.FirebaseSync.isConnected = true;
-        window.FirebaseSync.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
-        if (typeof window.showToast === 'function') {
-          window.showToast('Koneksi Pulih', 'Perangkat kembali online. Menyinkronkan data...', 'info');
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+    window.addEventListener('online', async () => {
+      if (window.FirebaseSync && window.FirebaseSync.db) {
+        try {
+          await window.FirebaseSync.db.enableNetwork();
+          window.FirebaseSync.isConnected = true;
+          window.FirebaseSync.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
+          if (typeof window.showToast === 'function') {
+            window.showToast('Koneksi Pulih', 'Perangkat kembali online. Menyinkronkan data...', 'info');
+          }
+          await window.FirebaseSync.syncAllFromCloud(false);
+        } catch (e) {
+          console.warn('Gagal reconnect Firestore saat online:', e);
         }
-        await window.FirebaseSync.syncAllFromCloud(false);
-      } catch (e) {
-        console.warn('Gagal reconnect Firestore saat online:', e);
       }
-    }
-  });
+    });
 
-  // Tangani saat koneksi internet terputus (Offline di PC / HP)
-  window.addEventListener('offline', () => {
-    if (window.FirebaseSync) {
-      window.FirebaseSync.updateStatusBadge('offline', 'Mode Offline (Data aman tersimpan di perangkat)');
-      if (typeof window.showToast === 'function') {
-        window.showToast('Mode Offline', 'Koneksi terputus. Data tetap tersimpan aman di perangkat Anda.', 'warning');
+    // Tangani saat koneksi internet terputus (Offline di PC / HP)
+    window.addEventListener('offline', () => {
+      if (window.FirebaseSync) {
+        window.FirebaseSync.updateStatusBadge('offline', 'Mode Offline (Data aman tersimpan di perangkat)');
+        if (typeof window.showToast === 'function') {
+          window.showToast('Mode Offline', 'Koneksi terputus. Data tetap tersimpan aman di perangkat Anda.', 'warning');
+        }
       }
-    }
-  });
+    });
+
+    // Segera kirim semua data tertunda ke cloud sebelum halaman direfresh / ditutup
+    window.addEventListener('beforeunload', () => {
+      if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
+        window.FirebaseSync.flushPendingSync();
+      }
+    });
+
+    window.addEventListener('pagehide', () => {
+      if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
+        window.FirebaseSync.flushPendingSync();
+      }
+    });
+
+    // Sinkronisasi realtime antar-tab browser pada perangkat yang sama
+    window.addEventListener('storage', (e) => {
+      if (e && e.key && SYNC_KEYS.includes(e.key)) {
+        try {
+          if (window.FirebaseSync && typeof window.FirebaseSync.reRenderCurrentView === 'function') {
+            window.FirebaseSync.reRenderCurrentView(e.key);
+          }
+        } catch (err) {}
+      }
+    });
+  }
 
   // Tangani saat tab kembali aktif atau layar HP dibuka dari sleep / background (visibilitychange)
-  document.addEventListener('visibilitychange', async () => {
-    if (document.visibilityState === 'visible' && window.FirebaseSync && window.FirebaseSync.db && navigator.onLine) {
-      try {
-        await window.FirebaseSync.db.enableNetwork();
-        await window.FirebaseSync.syncAllFromCloud(false);
-      } catch (e) {
-        // Abaikan jika network sudah aktif
-      }
-    }
-  });
-
-  // Segera kirim semua data tertunda ke cloud sebelum halaman direfresh / ditutup
-  window.addEventListener('beforeunload', () => {
-    if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
-      window.FirebaseSync.flushPendingSync();
-    }
-  });
-
-  window.addEventListener('pagehide', () => {
-    if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
-      window.FirebaseSync.flushPendingSync();
-    }
-  });
-
-  // Sinkronisasi realtime antar-tab browser pada perangkat yang sama
-  window.addEventListener('storage', (e) => {
-    if (e && e.key && SYNC_KEYS.includes(e.key)) {
-      try {
-        if (window.FirebaseSync && typeof window.FirebaseSync.reRenderCurrentView === 'function') {
-          window.FirebaseSync.reRenderCurrentView(e.key);
+  if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+    document.addEventListener('visibilitychange', async () => {
+      if (document.visibilityState === 'visible' && window.FirebaseSync && window.FirebaseSync.db && typeof navigator !== 'undefined' && navigator.onLine) {
+        try {
+          await window.FirebaseSync.db.enableNetwork();
+          await window.FirebaseSync.syncAllFromCloud(false);
+        } catch (e) {
+          // Abaikan jika network sudah aktif
         }
-      } catch (err) {}
-    }
-  });
+      }
+    });
+  }
 
 })();

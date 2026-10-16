@@ -7604,6 +7604,8 @@ window.toggleTimerRunning = function(id) {
     return;
   }
 
+  const now = Date.now();
+
   // If timer was completed and user plays again, reset to totalSeconds first
   if (timer.remainingSeconds === 0) {
     timer.remainingSeconds = timer.totalSeconds;
@@ -7612,11 +7614,15 @@ window.toggleTimerRunning = function(id) {
     timer.isRunning = !timer.isRunning;
   }
 
-  timer.lastTick = timer.isRunning ? Date.now() : null;
+  timer.lastTick = timer.isRunning ? now : null;
   if (timer.isRunning) {
     timer.resetAt = null;
+    timer.pausedAt = null;
+    timer.startedAt = now;
+  } else {
+    timer.pausedAt = now;
   }
-  timer.updatedAt = Date.now();
+  timer.updatedAt = now;
   state.saveTimers(timers);
   if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
     window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
@@ -7635,12 +7641,15 @@ window.resetTimer = function(id) {
     return;
   }
 
+  const now = Date.now();
   // Hentikan timer seketika dan kembalikan ke waktu semula
   timer.remainingSeconds = timer.totalSeconds;
   timer.isRunning = false;
   timer.lastTick = null;
-  timer.resetAt = Date.now();
-  timer.updatedAt = Date.now();
+  timer.startedAt = null;
+  timer.pausedAt = null;
+  timer.resetAt = now;
+  timer.updatedAt = now;
   state.saveTimers(timers);
 
   // Pastikan langsung tersinkronisasi ke Cloud Firestore agar tidak tertimpa snapshot lama
@@ -7765,11 +7774,16 @@ window.toggleStopwatchRunning = function(id) {
   }
 
   sw.isRunning = !sw.isRunning;
-  sw.lastTick = sw.isRunning ? Date.now() : null;
+  const now = Date.now();
+  sw.lastTick = sw.isRunning ? now : null;
   if (sw.isRunning) {
     sw.resetAt = null;
+    sw.pausedAt = null;
+    sw.startedAt = now;
+  } else {
+    sw.pausedAt = now;
   }
-  sw.updatedAt = Date.now();
+  sw.updatedAt = now;
   state.saveStopwatches(stopwatches);
   if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
     window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
@@ -7788,12 +7802,15 @@ window.resetStopwatch = function(id) {
     return;
   }
 
+  const now = Date.now();
   // Hentikan stopwatch seketika dan kembalikan ke 00:00:00
   sw.elapsedSeconds = 0;
   sw.isRunning = false;
   sw.lastTick = null;
-  sw.resetAt = Date.now();
-  sw.updatedAt = Date.now();
+  sw.startedAt = null;
+  sw.pausedAt = null;
+  sw.resetAt = now;
+  sw.updatedAt = now;
   state.saveStopwatches(stopwatches);
 
   // Pastikan langsung tersinkronisasi ke Cloud Firestore agar tidak tertimpa snapshot lama
@@ -7848,11 +7865,11 @@ window.catchUpTimersAndStopwatches = function() {
         if (elapsedSec > 0) {
           t.remainingSeconds = Math.max(0, (Number(t.remainingSeconds) || 0) - elapsedSec);
           t.lastTick = Number(t.lastTick) + (elapsedSec * 1000);
-          t.updatedAt = now;
           changed = true;
           if (t.remainingSeconds === 0) {
             t.isRunning = false;
             t.lastTick = null;
+            t.updatedAt = now;
           }
         }
       }
@@ -7874,7 +7891,6 @@ window.catchUpTimersAndStopwatches = function() {
         if (elapsedSec > 0) {
           sw.elapsedSeconds = (Number(sw.elapsedSeconds) || 0) + elapsedSec;
           sw.lastTick = Number(sw.lastTick) + (elapsedSec * 1000);
-          sw.updatedAt = now;
           swChanged = true;
         }
       }
@@ -7904,12 +7920,12 @@ function startTimerTicker() {
         if (elapsedSec > 0) {
           t.remainingSeconds = Math.max(0, (Number(t.remainingSeconds) || 0) - elapsedSec);
           t.lastTick = Number(t.lastTick) + (elapsedSec * 1000);
-          t.updatedAt = now;
           hasChanges = true;
 
           if (t.remainingSeconds === 0) {
             t.isRunning = false;
             t.lastTick = null;
+            t.updatedAt = now;
             if (state.currentUser && t.userId === state.currentUser.id) {
               showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
             }
@@ -7958,7 +7974,6 @@ function startTimerTicker() {
         if (elapsedSec > 0) {
           sw.elapsedSeconds = (Number(sw.elapsedSeconds) || 0) + elapsedSec;
           sw.lastTick = Number(sw.lastTick) + (elapsedSec * 1000);
-          sw.updatedAt = now;
           hasChanges = true;
         }
 
