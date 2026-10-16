@@ -13,10 +13,10 @@ const DEFAULT_USERS = [
     id: 'usr_admin_1',
     username: 'admin',
     password: 'admin123',
-    fullName: 'Budi Santoso, S.Kom',
-    email: 'admin@drive.internal',
+    fullName: 'Admin Icon',
+    email: 'admin@iconpln.co.id',
     role: 'admin',
-    department: 'CSO INBOUND',
+    department: 'TEAM LEADER',
     themeColor: 'default',
     displayMode: 'dark',
     status: 'active',
@@ -24,46 +24,130 @@ const DEFAULT_USERS = [
     createdAt: '2026-01-10 08:30'
   },
   {
-    id: 'usr_user_1',
-    username: 'user',
-    password: 'user123',
-    fullName: 'Siti Rahma',
-    email: 'siti.rahma@drive.internal',
+    id: 'usr_1791919849049',
+    username: 'sugeng.riyadi',
+    password: 'Contact123',
+    fullName: 'Sugeng Riyadi',
+    email: 'sugeng.riyadi@iconpln.co.id',
     role: 'user',
     department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:30'
+  },
+  {
+    id: 'usr_1791919896925',
+    username: 'ayu.pratiwi',
+    password: 'Contact123',
+    fullName: 'Ayu Yudha Pratiwi',
+    email: 'ayu.pratiwi@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
     themeColor: 'default',
     displayMode: 'dark',
+    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:31'
+  },
+  {
+    id: 'usr_1791919954081',
+    username: 'anggi.sanghika',
+    password: 'Contact123',
+    fullName: 'Anggi Ayu Sanghika',
+    email: 'anggi.sanghika@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:32'
+  },
+  {
+    id: 'usr_1791920011284',
+    username: 'avina.zahra',
+    password: 'Contact123',
+    fullName: 'Avina Ainun Zahra',
+    email: 'avina.zahra@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:33'
+  },
+  {
+    id: 'usr_1791920071392',
+    username: 'rofi.andiyono',
+    password: 'Contact123',
+    fullName: 'Rofi Andiyono',
+    email: 'rofi.andiyono@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
+    themeColor: 'default',
+    displayMode: 'dark',
+    avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:34'
+  },
+  {
+    id: 'usr_1791920113455',
+    username: 'dyah.millenia',
+    password: 'Contact123',
+    fullName: 'Dyah Ayu Millenia',
+    email: 'dyah.millenia@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
     status: 'active',
     avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    createdAt: '2026-01-15 09:15'
+    createdAt: '2026-10-14 02:35'
   },
   {
-    id: 'usr_user_2',
-    username: 'ahmad_fauzi',
-    password: 'user123',
-    fullName: 'Ahmad Fauzi',
-    email: 'ahmad.fauzi@drive.internal',
+    id: 'usr_1791920166215',
+    username: 'feni.sofiani',
+    password: 'Contact123',
+    fullName: 'Feni Elka Sofiani',
+    email: 'feni.sofiani@iconpln.co.id',
     role: 'user',
-    department: 'CSO BACK OFFICE',
-    themeColor: 'default',
-    displayMode: 'dark',
+    department: 'CSO DIGILIVE CHAT - WA',
     status: 'active',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    createdAt: '2026-02-01 11:20'
+    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:36'
   },
   {
-    id: 'usr_admin_2',
-    username: 'dewi_lestari',
-    password: 'admin123',
-    fullName: 'Dewi Lestari, M.T.',
-    email: 'dewi.lestari@drive.internal',
-    role: 'admin',
-    department: 'TEAM LEADER',
+    id: 'usr_1791920210005',
+    username: 'wahyu.kurniyawan',
+    password: 'Contact123',
+    fullName: 'Wahyu Reza Kurniyawan',
+    email: 'wahyu.kurniyawan@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
     themeColor: 'default',
     displayMode: 'dark',
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:36'
+  },
+  {
+    id: 'usr_1791920252963',
+    username: 'hafsa.mufida',
+    password: 'Contact123',
+    fullName: 'Hafsa Mufida',
+    email: 'hafsa.mufida@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
     status: 'active',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    createdAt: '2026-01-05 14:00'
+    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:37'
+  },
+  {
+    id: 'usr_1791920309161',
+    username: 'mei.rihardini',
+    password: 'Contact123',
+    fullName: 'Mei Rihardini',
+    email: 'mei.rihardini@iconpln.co.id',
+    role: 'user',
+    department: 'CSO DIGILIVE CHAT - WA',
+    status: 'active',
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
+    createdAt: '2026-10-14 02:38'
   }
 ];
 
@@ -79,7 +163,7 @@ const DEFAULT_ITEMS = [
     location: 'Data Center Lt. 2 - Rack 04',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-24 14:15',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_2',
@@ -92,7 +176,7 @@ const DEFAULT_ITEMS = [
     location: 'Gudang Inventaris A - Rak L02',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-22 10:30',
-    updatedBy: 'Dewi Lestari'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_3',
@@ -105,7 +189,7 @@ const DEFAULT_ITEMS = [
     location: 'Data Center Lt. 2 - Rack 01',
     condition: 'Sangat Baik',
     updatedAt: '2026-09-20 16:45',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_4',
@@ -118,7 +202,7 @@ const DEFAULT_ITEMS = [
     location: 'Gudang Periferal Lt. 1 - Rak M05',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-21 09:10',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_5',
@@ -131,7 +215,7 @@ const DEFAULT_ITEMS = [
     location: 'Ruang Genset / Power Rack',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-18 11:20',
-    updatedBy: 'Dewi Lestari'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_6',
@@ -144,7 +228,7 @@ const DEFAULT_ITEMS = [
     location: 'Divisi Operasional & Administrasi Lt. 3',
     condition: 'Sangat Baik',
     updatedAt: '2026-09-15 13:00',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_7',
@@ -157,7 +241,7 @@ const DEFAULT_ITEMS = [
     location: 'Ruang Rapat Utama Lt. 4',
     condition: 'Sangat Baik',
     updatedAt: '2026-09-12 15:30',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_8',
@@ -170,7 +254,7 @@ const DEFAULT_ITEMS = [
     location: 'Gudang Inventaris A - Rak N01',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-25 08:45',
-    updatedBy: 'Dewi Lestari'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_9',
@@ -183,7 +267,7 @@ const DEFAULT_ITEMS = [
     location: 'Gudang Kabel & Perlengkapan B1',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-23 11:10',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   },
   {
     id: 'item_10',
@@ -196,1026 +280,43 @@ const DEFAULT_ITEMS = [
     location: 'Sedang Habis - Menunggu PO Vendor',
     condition: 'Baru (Segel)',
     updatedAt: '2026-09-26 13:40',
-    updatedBy: 'Budi Santoso'
+    updatedBy: 'Admin Icon'
   }
 ];
 
 const DEFAULT_LOGS = [
   {
     id: 'log_1',
-    timestamp: '2026-09-26 15:10',
-    user: 'Budi Santoso (Admin)',
-    actionType: 'UPDATE_ITEM',
-    actionBadge: 'Ubah Data',
-    details: 'Memperbarui stok NAS Synology DiskStation DS1621+ menjadi 0 (Habis).',
-    status: 'Sukses'
-  },
-  {
-    id: 'log_2',
-    timestamp: '2026-09-26 14:05',
-    user: 'Siti Rahma (User)',
-    actionType: 'LOGIN',
-    actionBadge: 'Login',
-    details: 'Pengguna masuk ke sistem melalui portal otentikasi (Mode Tinjauan).',
-    status: 'Sukses'
-  },
-  {
-    id: 'log_3',
-    timestamp: '2026-09-25 08:45',
-    user: 'Dewi Lestari (Admin)',
-    actionType: 'CREATE_ITEM',
-    actionBadge: 'Tambah Data',
-    details: 'Menambahkan produk baru: UniFi Access Point U6 Pro (35 Unit).',
-    status: 'Sukses'
-  },
-  {
-    id: 'log_4',
-    timestamp: '2026-09-24 16:30',
-    user: 'Budi Santoso (Admin)',
-    actionType: 'REGISTER_USER',
-    actionBadge: 'Daftar User',
-    details: 'Mendaftarkan pengguna baru: Ahmad Fauzi dengan hak akses User Biasa.',
+    timestamp: '2026-10-14 02:30',
+    user: 'Admin Icon (ADMIN)',
+    actionType: 'SYSTEM_INIT',
+    actionBadge: 'Sistem',
+    details: 'Inisialisasi sistem manajemen operasional DRIVE Dashboard.',
     status: 'Sukses'
   }
 ];
 
-const DEFAULT_TIMERS = [
-  // Timers milik Siti Rahma (User Biasa)
-  {
-    id: 'tmr_user_1',
-    userId: 'usr_user_1',
-    username: 'user',
-    userFullName: 'Siti Rahma',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    name: 'Pemeriksaan Fisik Barang Masuk',
-    category: 'CSO INBOUND',
-    desc: 'Verifikasi kesesuaian dokumen faktur dengan kondisi fisik stok.',
-    totalSeconds: 2700, // 45 Menit (Waktu Ditentukan)
-    remainingSeconds: 2700,
-    isRunning: false,
-    lastTick: null
-  },
-  {
-    id: 'tmr_user_2',
-    userId: 'usr_user_1',
-    username: 'user',
-    userFullName: 'Siti Rahma',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    name: 'Penyusunan Laporan Logistik Harian',
-    category: 'CSO DIGILIVE CHAT - WA',
-    desc: 'Rekapitulasi berkas pengiriman dan surat jalan operasional.',
-    totalSeconds: 5400, // 1 Jam 30 Menit
-    remainingSeconds: 5400,
-    isRunning: false,
-    lastTick: null
-  },
-  // Timers milik Ahmad Fauzi (User Biasa)
-  {
-    id: 'tmr_user_3',
-    userId: 'usr_user_2',
-    username: 'ahmad_fauzi',
-    userFullName: 'Ahmad Fauzi',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    name: 'Audit Stok Rak Elektronik A-12',
-    category: 'CSO BACK OFFICE',
-    desc: 'Pengecekan nomor seri dan label segel garansi.',
-    totalSeconds: 7200, // 2 Jam
-    remainingSeconds: 7200,
-    isRunning: false,
-    lastTick: null
-  },
-  // Timers milik Admin (Budi Santoso)
-  {
-    id: 'tmr_admin_1',
-    userId: 'usr_admin_1',
-    username: 'admin',
-    userFullName: 'Budi Santoso, S.Kom',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    name: 'Batas Waktu Backup Server Cloud',
-    category: 'CSO DIGILIVE CHAT - MY ICON+',
-    desc: 'Sinkronisasi mirror database ke data center cadangan secara terenkripsi.',
-    totalSeconds: 9000, // 2 Jam 30 Menit
-    remainingSeconds: 9000,
-    isRunning: false,
-    lastTick: null
-  },
-  {
-    id: 'tmr_admin_2',
-    userId: 'usr_admin_1',
-    username: 'admin',
-    userFullName: 'Budi Santoso, S.Kom',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    name: 'Tenggat Waktu Respons SLA Tiket',
-    category: 'CSO OUTBOUND',
-    desc: 'Batas eskalasi penyelesaian kendala infrastruktur level kritis.',
-    totalSeconds: 3600, // 1 Jam
-    remainingSeconds: 3600,
-    isRunning: false,
-    lastTick: null
-  }
-];
-
-const DEFAULT_STOPWATCHES = [
-  // Stopwatch milik Siti Rahma
-  {
-    id: 'sw_user_1',
-    userId: 'usr_user_1',
-    username: 'user',
-    userFullName: 'Siti Rahma',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    name: 'Waktu Proses Packing & Labeling',
-    dept: 'CSO INBOUND',
-    elapsedSeconds: 0,
-    isRunning: false,
-    lastTick: null
-  },
-  // Stopwatch milik Ahmad Fauzi
-  {
-    id: 'sw_user_2',
-    userId: 'usr_user_2',
-    username: 'ahmad_fauzi',
-    userFullName: 'Ahmad Fauzi',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    name: 'Pencatatan Waktu Pengecekan Barcode',
-    dept: 'CSO BACK OFFICE',
-    elapsedSeconds: 0,
-    isRunning: false,
-    lastTick: null
-  },
-  // Stopwatch milik Admin
-  {
-    id: 'sw_admin_1',
-    userId: 'usr_admin_1',
-    username: 'admin',
-    userFullName: 'Budi Santoso, S.Kom',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    name: 'Stopwatch Uji Ketahanan Bandwidth 10G',
-    dept: 'CSO DIGILIVE CHAT - DM',
-    elapsedSeconds: 0,
-    isRunning: false,
-    lastTick: null
-  }
-];
-
-const DEFAULT_PA_LOGS = [
-  {
-    id: 'pa_1',
-    userId: 'usr_user_1',
-    username: 'user',
-    userFullName: 'Siti Rahma',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    department: 'CSO DIGILIVE CHAT - WA',
-    date: '2026-09-28',
-    shift: 'Shift Pagi (07:00 - 15:00)',
-    activityCategory: 'READY / HANDLING CHAT',
-    interactionCount: 38,
-    targetCount: 40,
-    durationMinutes: 240,
-    notes: 'Penanganan chat interaksi pelanggan WhatsApp terkait informasi tagihan dan kendala jaringan Iconnet.',
-    status: 'Terverifikasi',
-    createdAt: '2026-09-28 11:30'
-  },
-  {
-    id: 'pa_2',
-    userId: 'usr_user_1',
-    username: 'user',
-    userFullName: 'Siti Rahma',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    department: 'CSO DIGILIVE CHAT - WA',
-    date: '2026-09-28',
-    shift: 'Shift Pagi (07:00 - 15:00)',
-    activityCategory: 'AUX 1: ISTIRAHAT / MAKAN',
-    interactionCount: 0,
-    targetCount: 0,
-    durationMinutes: 60,
-    notes: 'Istirahat makan siang dan ibadah shift 1.',
-    status: 'Terverifikasi',
-    createdAt: '2026-09-28 12:45'
-  },
-  {
-    id: 'pa_3',
-    userId: 'usr_user_1',
-    username: 'user',
-    userFullName: 'Siti Rahma',
-    userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-    department: 'CSO DIGILIVE CHAT - WA',
-    date: '2026-09-28',
-    shift: 'Shift Pagi (07:00 - 15:00)',
-    activityCategory: 'AUX 5: FOLLOW UP TIKET',
-    interactionCount: 14,
-    targetCount: 15,
-    durationMinutes: 90,
-    notes: 'Follow up konfirmasi open tiket pelanggan eskalasi PLN Icon Plus.',
-    status: 'Selesai',
-    createdAt: '2026-09-28 14:20'
-  },
-  {
-    id: 'pa_4',
-    userId: 'usr_user_2',
-    username: 'ahmad_fauzi',
-    userFullName: 'Ahmad Fauzi',
-    userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-    department: 'CSO BACK OFFICE',
-    date: '2026-09-28',
-    shift: 'Normal Office (08:00 - 17:00)',
-    activityCategory: 'READY / VERIFIKASI DOKUMEN',
-    interactionCount: 42,
-    targetCount: 40,
-    durationMinutes: 210,
-    notes: 'Validasi berkas pendaftaran pelanggan baru dan sinkronisasi sistem billing.',
-    status: 'Terverifikasi',
-    createdAt: '2026-09-28 13:00'
-  },
-  {
-    id: 'pa_5',
-    userId: 'usr_admin_1',
-    username: 'admin',
-    userFullName: 'Budi Santoso, S.Kom',
-    userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    department: 'CSO INBOUND',
-    date: '2026-09-28',
-    shift: 'Shift Pagi (07:00 - 15:00)',
-    activityCategory: 'AUX 4: BRIEFING & COACHING',
-    interactionCount: 0,
-    targetCount: 0,
-    durationMinutes: 45,
-    notes: 'Coaching peningkatan FCR (First Contact Resolution) dan evaluasi SLA mingguan.',
-    status: 'Terverifikasi',
-    createdAt: '2026-09-28 08:30'
-  },
-  {
-    id: 'pa_6',
-    userId: 'usr_admin_2',
-    username: 'dewi_lestari',
-    userFullName: 'Dewi Lestari, M.T.',
-    userAvatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-    department: 'TEAM LEADER',
-    date: '2026-09-28',
-    shift: 'Normal Office (08:00 - 17:00)',
-    activityCategory: 'READY / HANDLING CHAT',
-    interactionCount: 30,
-    targetCount: 30,
-    durationMinutes: 180,
-    notes: 'Monitoring antrian chat eskalasi dan supervisi layanan pelanggan.',
-    status: 'Terverifikasi',
-    createdAt: '2026-09-28 10:00'
-  }
-];
-
-const DEFAULT_CA_LOGS = [
-  // Siti Rahma (CSO DIGILIVE CHAT - WA)
-  {
-    id: 'ca_sr_1',
-    date: '2026-09-28',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    channel: 'Live Chat WA',
-    score: 97.25,
-    grade: 'Sangat Baik',
-    focusParam: 'Greeting SOP, Identifikasi Kebutuhan, Validasi Akun',
-    status: 'Terverifikasi',
-    notes: 'Respon cepat, greeting ramah sesuai standar Iconnet, penyampaian solusi tagihan jelas.',
-    createdAt: '2026-09-28 10:15'
-  },
-  {
-    id: 'ca_sr_2',
-    date: '2026-09-26',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    channel: 'Live Chat WA',
-    score: 95.50,
-    grade: 'Sangat Baik',
-    focusParam: 'Closing SOP, Konfirmasi Kepuasan Pelanggan',
-    status: 'Terverifikasi',
-    notes: 'Format closing SOP lengkap dengan penawaran bantuan tambahan dan salam penutup.',
-    createdAt: '2026-09-26 09:30'
-  },
-  {
-    id: 'ca_sr_3',
-    date: '2026-09-23',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    channel: 'Live Chat WA',
-    score: 96.00,
-    grade: 'Sangat Baik',
-    focusParam: 'Akurasi Penjelasan Paket Promo Iconnet',
-    status: 'Terverifikasi',
-    notes: 'Penjelasan skema add-on channel TV dan kecepatan bandwidth sangat presisi.',
-    createdAt: '2026-09-23 11:20'
-  },
-  {
-    id: 'ca_sr_4',
-    date: '2026-09-18',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    channel: 'Live Chat WA',
-    score: 92.40,
-    grade: 'Baik',
-    focusParam: 'Handling Objection & Respon Waktu Tunggu',
-    status: 'Terverifikasi',
-    notes: 'Penanganan keluhan pelanggan agak tegang, namun solusi teknis tersampaikan dengan baik.',
-    createdAt: '2026-09-18 14:10'
-  },
-  {
-    id: 'ca_sr_5',
-    date: '2026-09-12',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    channel: 'Live Chat WA',
-    score: 98.15,
-    grade: 'Sangat Baik',
-    focusParam: 'FCR (First Contact Resolution) & Empati',
-    status: 'Terverifikasi',
-    notes: 'Penyelesaian kendala tanpa eskalasi tambahan, apresiasi positif dari pelanggan.',
-    createdAt: '2026-09-12 15:45'
-  },
-  {
-    id: 'ca_sr_6',
-    date: '2026-09-05',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    channel: 'Live Chat WA',
-    score: 94.50,
-    grade: 'Baik',
-    focusParam: 'Verifikasi Identitas & Kode OTP',
-    status: 'Terverifikasi',
-    notes: 'Protokol verifikasi akun pelanggan dipatuhi secara tepat sesuai standar keamanan.',
-    createdAt: '2026-09-05 10:00'
-  },
-
-  // Ahmad Fauzi (CSO BACK OFFICE)
-  {
-    id: 'ca_af_1',
-    date: '2026-09-28',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    channel: 'Back Office',
-    score: 94.00,
-    grade: 'Baik',
-    focusParam: 'Akurasi Verifikasi Dokumen & SLA Closing',
-    status: 'Terverifikasi',
-    notes: 'Verifikasi berkas pendaftaran pelanggan baru akurat. Update status tiket tepat waktu.',
-    createdAt: '2026-09-28 11:30'
-  },
-  {
-    id: 'ca_af_2',
-    date: '2026-09-25',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    channel: 'Back Office',
-    score: 96.50,
-    grade: 'Sangat Baik',
-    focusParam: 'Kelengkapan Lampiran Formulir Pasang Baru',
-    status: 'Terverifikasi',
-    notes: 'Checklist berkas KTP dan koordinat lokasi pelanggan diinput tanpa kesalahan.',
-    createdAt: '2026-09-25 13:40'
-  },
-  {
-    id: 'ca_af_3',
-    date: '2026-09-21',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    channel: 'Back Office',
-    score: 91.25,
-    grade: 'Baik',
-    focusParam: 'Kecepatan Rekonsiliasi Billing Bank',
-    status: 'Terverifikasi',
-    notes: 'Terdapat jeda saat konfirmasi slip transfer, namun hasil rekonsiliasi akurat.',
-    createdAt: '2026-09-21 16:15'
-  },
-  {
-    id: 'ca_af_4',
-    date: '2026-09-15',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    channel: 'Back Office',
-    score: 95.00,
-    grade: 'Sangat Baik',
-    focusParam: 'Validasi Data Teknis Modem ONT',
-    status: 'Terverifikasi',
-    notes: 'Pencocokan serial number router ONT dengan sistem inventaris berjalan lancar.',
-    createdAt: '2026-09-15 09:50'
-  },
-  {
-    id: 'ca_af_5',
-    date: '2026-09-08',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    channel: 'Back Office',
-    score: 93.75,
-    grade: 'Baik',
-    focusParam: 'Kesesuaian Format Notulen Tindak Lanjut',
-    status: 'Terverifikasi',
-    notes: 'Pencatatan resume tiket eskalasi rapi dan mudah dipahami oleh tim dispatch lapangan.',
-    createdAt: '2026-09-08 14:00'
-  },
-
-  // Budi Santoso, S.Kom (CSO INBOUND)
-  {
-    id: 'ca_bs_1',
-    date: '2026-09-27',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    channel: 'Inbound Call',
-    score: 98.50,
-    grade: 'Sangat Baik',
-    focusParam: 'Active Listening, Empathy, Solusi Teknis',
-    status: 'Terverifikasi',
-    notes: 'Penanganan komplain internet putus ditangani dengan tenang, empati tinggi, panduan modem akurat.',
-    createdAt: '2026-09-27 14:20'
-  },
-  {
-    id: 'ca_bs_2',
-    date: '2026-09-22',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    channel: 'Inbound Call',
-    score: 97.00,
-    grade: 'Sangat Baik',
-    focusParam: 'Artikulasi Nada Bicara & Solusi FCR',
-    status: 'Terverifikasi',
-    notes: 'Intonasi sopan, penanganan kendala lambat koneksi tuntas dalam 4 menit.',
-    createdAt: '2026-09-22 10:30'
-  },
-  {
-    id: 'ca_bs_3',
-    date: '2026-09-16',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    channel: 'Inbound Call',
-    score: 99.00,
-    grade: 'Sangat Baik',
-    focusParam: 'Handling Pelanggan Prioritas / Korporat',
-    status: 'Terverifikasi',
-    notes: 'Sangat menguasai topologi jaringan korporat dan SLA eskalasi teknis tingkat tinggi.',
-    createdAt: '2026-09-16 11:15'
-  },
-  {
-    id: 'ca_bs_4',
-    date: '2026-09-09',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    channel: 'Inbound Call',
-    score: 96.25,
-    grade: 'Sangat Baik',
-    focusParam: 'Standar Greeting Pembuka & Penutup',
-    status: 'Terverifikasi',
-    notes: 'Penyampaian salam baku PLN Icon Plus konsisten dan ramah.',
-    createdAt: '2026-09-09 08:45'
-  },
-  {
-    id: 'ca_bs_5',
-    date: '2026-09-02',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    channel: 'Inbound Call',
-    score: 98.00,
-    grade: 'Sangat Baik',
-    focusParam: 'Eskalasi Gangguan Massal OSP',
-    status: 'Terverifikasi',
-    notes: 'Tiket dispatch darurat terkirim ke tim lapangan dalam kurun waktu 8 menit.',
-    createdAt: '2026-09-02 16:00'
-  },
-
-  // Dewi Lestari, M.T. (TEAM LEADER)
-  {
-    id: 'ca_dl_1',
-    date: '2026-09-27',
-    userFullName: 'Dewi Lestari, M.T.',
-    department: 'TEAM LEADER',
-    channel: 'Direct Message IG',
-    score: 96.75,
-    grade: 'Sangat Baik',
-    focusParam: 'Ketepatan Eskalasi & Etika Komunikasi',
-    status: 'Terverifikasi',
-    notes: 'Respon tanggap pada DM Instagram, eskalasi ke dispatch teknisi lapangan berjalan mulus.',
-    createdAt: '2026-09-27 16:45'
-  },
-  {
-    id: 'ca_dl_2',
-    date: '2026-09-20',
-    userFullName: 'Dewi Lestari, M.T.',
-    department: 'TEAM LEADER',
-    channel: 'My Icon+ App',
-    score: 97.50,
-    grade: 'Sangat Baik',
-    focusParam: 'Supervisi Penanganan Kendala Kritis',
-    status: 'Terverifikasi',
-    notes: 'Bantuan asistensi tiket eskalasi tier-2 berjalan efektif.',
-    createdAt: '2026-09-20 13:10'
-  },
-  {
-    id: 'ca_dl_3',
-    date: '2026-09-14',
-    userFullName: 'Dewi Lestari, M.T.',
-    department: 'TEAM LEADER',
-    channel: 'Email Support',
-    score: 95.25,
-    grade: 'Sangat Baik',
-    focusParam: 'Format Formal Tanggapan Surat Pelanggan',
-    status: 'Terverifikasi',
-    notes: 'Surat balasan resmi komplain tagihan disusun dengan bahasa profesional dan persuasif.',
-    createdAt: '2026-09-14 15:20'
-  },
-  {
-    id: 'ca_dl_4',
-    date: '2026-09-04',
-    userFullName: 'Dewi Lestari, M.T.',
-    department: 'TEAM LEADER',
-    channel: 'Direct Message IG',
-    score: 96.00,
-    grade: 'Sangat Baik',
-    focusParam: 'Sosialisasi Promo Upgrade & FCR',
-    status: 'Terverifikasi',
-    notes: 'Interaksi di media sosial berhasil mengubah komplain menjadi apresiasi kepuasan pelanggan.',
-    createdAt: '2026-09-04 11:30'
-  }
-];
-
-const MONTHLY_TICKET_TARGET = 1320;
+const DEFAULT_TIMERS = [];
+const DEFAULT_STOPWATCHES = [];
+const DEFAULT_PA_LOGS = [];
+const DEFAULT_CA_LOGS = [];
 
 function generateDefaultTiketLogs() {
-  const septWorkdays = [
-    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
-    '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11',
-    '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18',
-    '2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25',
-    '2026-09-28', '2026-09-29', '2026-09-30'
-  ];
-
-  const augWorkdays = [
-    '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07',
-    '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
-    '2026-08-18', '2026-08-19', '2026-08-20', '2026-08-21',
-    '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28',
-    '2026-08-31'
-  ];
-
-  const categories = [
-    'Gangguan Koneksi Internet',
-    'Penurunan Bandwidth / Lambat',
-    'Permohonan Upgrade Paket',
-    'Kendala Tagihan / Billing',
-    'Aktivasi Pelanggan Baru',
-    'Gangguan Router / Perangkat',
-    'Eskalasi Insiden Kritis'
-  ];
-
-  // September distribution per user (Target bulanan: 1.320 tiket):
-  // Siti Rahma (WA) -> target 1320, realisasi 1345 (+25 tiket, capaian 101.9%)
-  // Budi Santoso (INBOUND) -> target 1320, realisasi 1328 (+8 tiket, capaian 100.6%)
-  // Dewi Lestari (TEAM LEADER) -> target 1320, realisasi 1310 (-10 tiket, capaian 99.2%)
-  // Ahmad Fauzi (BACK OFFICE) -> target 1320, realisasi 1265 (-55 tiket, capaian 95.8%)
-  const sitiSept = [64, 60, 59, 64, 65, 57, 59, 63, 62, 60, 57, 65, 64, 58, 60, 62, 63, 59, 59, 63, 64, 58];
-  const budiSept = [61, 60, 62, 59, 62, 57, 61, 60, 63, 58, 61, 60, 62, 60, 59, 62, 61, 59, 62, 60, 62, 57];
-  const dewiSept = [58, 61, 59, 61, 57, 61, 58, 61, 59, 61, 58, 61, 58, 61, 59, 61, 57, 61, 58, 61, 59, 60];
-  const ahmadSept = [59, 56, 58, 55, 59, 56, 60, 55, 58, 56, 58, 57, 59, 56, 58, 55, 59, 56, 60, 55, 58, 62];
-
-  const usersConfig = [
-    {
-      name: 'Siti Rahma',
-      dept: 'CSO DIGILIVE CHAT - WA',
-      prefix: 'sr',
-      septCounts: sitiSept,
-      slaBase: 97.6,
-      noteBase: 'Penanganan perolehan tiket live chat WA tuntas sesuai SLA.'
-    },
-    {
-      name: 'Budi Santoso, S.Kom',
-      dept: 'CSO INBOUND',
-      prefix: 'bs',
-      septCounts: budiSept,
-      slaBase: 97.2,
-      noteBase: 'Pelayanan tiket komplain suara inbound & eskalasi teknis tertangani sigap.'
-    },
-    {
-      name: 'Dewi Lestari, M.T.',
-      dept: 'TEAM LEADER',
-      prefix: 'dl',
-      septCounts: dewiSept,
-      slaBase: 98.1,
-      noteBase: 'Monitoring eskalasi kendala kritis & penyelesaian tiket tier-2 lancar.'
-    },
-    {
-      name: 'Ahmad Fauzi',
-      dept: 'CSO BACK OFFICE',
-      prefix: 'af',
-      septCounts: ahmadSept,
-      slaBase: 95.8,
-      noteBase: 'Proses tiket verifikasi upgrade paket & rekonsiliasi data pelanggan selesai.'
-    }
-  ];
-
-  const list = [];
-
-  // Generate September 2026 logs (22 hari input)
-  septWorkdays.forEach((dateStr, dayIdx) => {
-    usersConfig.forEach((cfg, uIdx) => {
-      const count = cfg.septCounts[dayIdx];
-      const solved = count;
-      const sla = parseFloat((cfg.slaBase + ((dayIdx * 3 + uIdx * 7) % 20) / 10 - 0.8).toFixed(1));
-      const cat = categories[(dayIdx + uIdx * 2) % categories.length];
-
-      list.push({
-        id: `tkt_${cfg.prefix}_202609_${String(dayIdx + 1).padStart(2, '0')}`,
-        date: dateStr,
-        userFullName: cfg.name,
-        department: cfg.dept,
-        category: cat,
-        ticketCount: count,
-        solvedTickets: solved,
-        slaRate: sla,
-        notes: `${cfg.noteBase} Memperoleh ${count} tiket harian (Kepatuhan SLA ${sla}%).`,
-        createdAt: `${dateStr} 17:00`
-      });
-    });
-  });
-
-  // Generate August 2026 logs (20 hari input historis)
-  augWorkdays.forEach((dateStr, dayIdx) => {
-    usersConfig.forEach((cfg, uIdx) => {
-      const count = 62 + ((dayIdx * 3 + uIdx * 5) % 9) - 3;
-      const solved = count;
-      const sla = parseFloat((96.2 + ((dayIdx + uIdx) % 30) / 10).toFixed(1));
-      const cat = categories[(dayIdx + uIdx) % categories.length];
-
-      list.push({
-        id: `tkt_${cfg.prefix}_202608_${String(dayIdx + 1).padStart(2, '0')}`,
-        date: dateStr,
-        userFullName: cfg.name,
-        department: cfg.dept,
-        category: cat,
-        ticketCount: count,
-        solvedTickets: solved,
-        slaRate: sla,
-        notes: `Riwayat perolehan tiket harian bulan Agustus. Realisasi ${count} tiket.`,
-        createdAt: `${dateStr} 17:00`
-      });
-    });
-  });
-
-  return list;
+  return [];
 }
-
-const DEFAULT_TIKETS = generateDefaultTiketLogs();
+const DEFAULT_TIKETS = [];
 
 function generateDefaultAhtLogs() {
-  const septWorkdays = [
-    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
-    '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11',
-    '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18',
-    '2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25',
-    '2026-09-28', '2026-09-29', '2026-09-30'
-  ];
-
-  const augWorkdays = [
-    '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07',
-    '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
-    '2026-08-18', '2026-08-19', '2026-08-20', '2026-08-21',
-    '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28',
-    '2026-08-31'
-  ];
-
-  // Daily AHT profiles for each user (SLA Target: 300 seconds / 05:00 minutes)
-  const sitiSeptSecs = [195, 210, 185, 200, 190, 215, 205, 195, 220, 180, 205, 195, 210, 190, 200, 215, 190, 205, 195, 210, 185, 200];
-  const sitiCounts =   [ 58,  62,  55,  60,  64,  52,  58,  61,  60,  57,  54,  63,  62,  55,  58,  60,  61,  56,  57,  61,  63,  56];
-
-  const budiSeptSecs = [245, 255, 235, 260, 250, 240, 265, 250, 275, 245, 250, 260, 245, 255, 270, 315, 240, 250, 265, 255, 245, 250];
-  const budiCounts =   [ 42,  45,  40,  44,  46,  38,  43,  45,  44,  41,  39,  46,  45,  40,  42,  44,  45,  41,  42,  45,  46,  41];
-
-  const dewiSeptSecs = [180, 195, 175, 190, 185, 205, 190, 185, 200, 175, 190, 185, 195, 180, 190, 205, 180, 195, 185, 195, 175, 190];
-  const dewiCounts =   [ 28,  30,  26,  29,  31,  25,  28,  30,  29,  27,  26,  31,  30,  26,  28,  30,  31,  27,  28,  30,  31,  27];
-
-  const ahmadSeptSecs = [275, 285, 265, 290, 280, 320, 270, 285, 330, 275, 280, 290, 275, 285, 295, 280, 270, 285, 290, 280, 275, 280];
-  const ahmadCounts =   [ 36,  38,  34,  37,  39,  32,  36,  38,  37,  35,  33,  39,  38,  34,  36,  38,  39,  35,  36,  38,  39,  35];
-
-  const usersConfig = [
-    {
-      name: 'Siti Rahma',
-      dept: 'CSO DIGILIVE CHAT - WA',
-      prefix: 'sr',
-      septSecs: sitiSeptSecs,
-      septCounts: sitiCounts,
-      noteBase: 'Pelayanan live chat interaktif WA cepat, tanggap, dan efisien.'
-    },
-    {
-      name: 'Budi Santoso, S.Kom',
-      dept: 'CSO INBOUND',
-      prefix: 'bs',
-      septSecs: budiSeptSecs,
-      septCounts: budiCounts,
-      noteBase: 'Penerimaan panggilan komplain dan eskalasi telepon inbound terkendali.'
-    },
-    {
-      name: 'Dewi Lestari, M.T.',
-      dept: 'TEAM LEADER',
-      prefix: 'dl',
-      septSecs: dewiSeptSecs,
-      septCounts: dewiCounts,
-      noteBase: 'Supervisi penanganan kendala tier-2 dan mediasi pelanggan VIP berjalan lancar.'
-    },
-    {
-      name: 'Ahmad Fauzi',
-      dept: 'CSO BACK OFFICE',
-      prefix: 'af',
-      septSecs: ahmadSeptSecs,
-      septCounts: ahmadCounts,
-      noteBase: 'Validasi berkas administrasi dan investigasi keluhan teknis selesai.'
-    }
-  ];
-
-  const list = [];
-
-  // Generate September 2026 daily logs (22 hari input)
-  septWorkdays.forEach((dateStr, dayIdx) => {
-    usersConfig.forEach((cfg) => {
-      const actualSec = cfg.septSecs[dayIdx];
-      const count = cfg.septCounts[dayIdx];
-      const targetSec = 300;
-      const totalDurSec = count * actualSec;
-      const devSec = actualSec - targetSec;
-      const isSla = actualSec <= targetSec;
-      const devText = isSla ? `-${Math.abs(devSec)} dtk (Cepat)` : `+${devSec} dtk (Over SLA)`;
-
-      list.push({
-        id: `aht_${cfg.prefix}_202609_${String(dayIdx + 1).padStart(2, '0')}`,
-        date: dateStr,
-        userFullName: cfg.name,
-        department: cfg.dept,
-        interactionCount: count,
-        totalDurationSeconds: totalDurSec,
-        actualSeconds: actualSec,
-        targetSeconds: targetSec,
-        deviationSeconds: devSec,
-        deviationText: devText,
-        status: isSla ? 'Sesuai SLA' : 'Over SLA',
-        notes: isSla 
-          ? `${cfg.noteBase} Rata-rata durasi ${Math.floor(actualSec/60)}m ${actualSec%60}s per interaksi.`
-          : `${cfg.noteBase} Melebihi SLA karena investigasi kendala kompleks pelanggan.`,
-        createdAt: `${dateStr} 17:30`
-      });
-    });
-  });
-
-  // Generate August 2026 daily logs (20 hari input historis)
-  augWorkdays.forEach((dateStr, dayIdx) => {
-    usersConfig.forEach((cfg, uIdx) => {
-      const baseSec = cfg.septSecs[dayIdx % cfg.septSecs.length];
-      const actualSec = Math.max(160, baseSec + ((dayIdx * 7 + uIdx * 11) % 31) - 15);
-      const count = Math.max(20, cfg.septCounts[dayIdx % cfg.septCounts.length] + ((dayIdx + uIdx) % 7) - 3);
-      const targetSec = 300;
-      const totalDurSec = count * actualSec;
-      const devSec = actualSec - targetSec;
-      const isSla = actualSec <= targetSec;
-      const devText = isSla ? `-${Math.abs(devSec)} dtk (Cepat)` : `+${devSec} dtk (Over SLA)`;
-
-      list.push({
-        id: `aht_${cfg.prefix}_202608_${String(dayIdx + 1).padStart(2, '0')}`,
-        date: dateStr,
-        userFullName: cfg.name,
-        department: cfg.dept,
-        interactionCount: count,
-        totalDurationSeconds: totalDurSec,
-        actualSeconds: actualSec,
-        targetSeconds: targetSec,
-        deviationSeconds: devSec,
-        deviationText: devText,
-        status: isSla ? 'Sesuai SLA' : 'Over SLA',
-        notes: `Riwayat pencatatan handling time bulan Agustus. Durasi rata-rata ${Math.floor(actualSec/60)}m ${actualSec%60}s.`,
-        createdAt: `${dateStr} 17:30`
-      });
-    });
-  });
-
-  return list;
+  return [];
 }
-
-const DEFAULT_AHT_LOGS = generateDefaultAhtLogs();
+const DEFAULT_AHT_LOGS = [];
 
 function generateDefaultArtLogs() {
-  const septWorkdays = [
-    '2026-09-01', '2026-09-02', '2026-09-03', '2026-09-04',
-    '2026-09-07', '2026-09-08', '2026-09-09', '2026-09-10', '2026-09-11',
-    '2026-09-14', '2026-09-15', '2026-09-16', '2026-09-17', '2026-09-18',
-    '2026-09-21', '2026-09-22', '2026-09-23', '2026-09-24', '2026-09-25',
-    '2026-09-28', '2026-09-29', '2026-09-30'
-  ];
-
-  const augWorkdays = [
-    '2026-08-03', '2026-08-04', '2026-08-05', '2026-08-06', '2026-08-07',
-    '2026-08-10', '2026-08-11', '2026-08-12', '2026-08-13', '2026-08-14',
-    '2026-08-18', '2026-08-19', '2026-08-20', '2026-08-21',
-    '2026-08-24', '2026-08-25', '2026-08-26', '2026-08-27', '2026-08-28',
-    '2026-08-31'
-  ];
-
-  // Daily ART profiles for each user (SLA Target: < 30 seconds)
-  // Siti Rahma (WA) - Fast & responsive (12-16s)
-  const sitiSeptArt =   [12.4, 13.8, 11.5, 14.2, 12.0, 15.1, 13.5, 12.2, 14.8, 11.9, 13.0, 12.5, 14.0, 12.8, 13.2, 15.0, 12.4, 13.6, 12.9, 14.1, 11.8, 13.4];
-  const sitiSeptFrt =   [ 6.2,  7.0,  5.8,  7.5,  6.0,  8.2,  7.1,  6.4,  7.8,  6.1,  6.8,  6.5,  7.2,  6.7,  7.0,  8.0,  6.3,  7.1,  6.6,  7.4,  5.9,  6.9];
-  const sitiSeptQueue = [ 3.8,  4.5,  3.2,  4.8,  4.0,  5.5,  4.2,  3.9,  5.1,  3.6,  4.3,  4.1,  4.6,  4.2,  4.4,  5.2,  3.9,  4.5,  4.1,  4.7,  3.5,  4.2];
-  const sitiCounts =    [  58,   62,   55,   60,   64,   52,   58,   61,   60,   57,   54,   63,   62,   55,   58,   60,   61,   56,   57,   61,   63,   56];
-
-  // Budi Santoso (INBOUND / EMAIL) - Inbound telephone & email (18-26s, peak 33.2s)
-  const budiSeptArt =   [21.5, 23.0, 19.8, 24.2, 22.0, 25.5, 23.8, 21.2, 26.0, 20.5, 22.4, 24.0, 21.8, 23.5, 26.2, 33.5, 20.8, 22.0, 24.5, 23.2, 21.6, 22.8];
-  const budiSeptFrt =   [11.2, 12.5, 10.4, 13.0, 11.8, 14.2, 12.6, 11.0, 14.5, 10.8, 12.0, 13.1, 11.5, 12.7, 14.6, 18.2, 10.9, 11.8, 13.4, 12.5, 11.3, 12.2];
-  const budiSeptQueue = [ 8.5,  9.8,  7.9, 10.2,  9.1, 11.5,  9.8,  8.4, 11.8,  8.2,  9.4, 10.5,  8.9, 10.0, 11.7, 15.0,  8.3,  9.2, 10.6,  9.7,  8.8,  9.5];
-  const budiCounts =    [  42,   45,   40,   44,   46,   38,   43,   45,   44,   41,   39,   46,   45,   40,   42,   44,   45,   41,   42,   45,   46,   41];
-
-  // Dewi Lestari (TEAM LEADER / DM) - Highest speed (9-14s)
-  const dewiSeptArt =   [10.2, 11.5,  9.8, 11.0, 10.5, 12.2, 11.0, 10.4, 11.8,  9.9, 10.8, 10.5, 11.2, 10.3, 10.9, 12.4, 10.1, 11.2, 10.6, 11.3,  9.7, 10.8];
-  const dewiSeptFrt =   [ 5.1,  6.0,  4.9,  5.8,  5.3,  6.5,  5.7,  5.2,  6.2,  5.0,  5.6,  5.4,  5.9,  5.3,  5.7,  6.6,  5.1,  5.8,  5.5,  5.9,  4.8,  5.6];
-  const dewiSeptQueue = [ 3.2,  4.0,  3.0,  3.9,  3.5,  4.5,  3.8,  3.3,  4.2,  3.1,  3.7,  3.5,  4.0,  3.4,  3.8,  4.6,  3.3,  3.9,  3.6,  4.0,  3.0,  3.7];
-  const dewiCounts =    [  28,   30,   26,   29,   31,   25,   28,   30,   29,   27,   26,   31,   30,   26,   28,   30,   31,   27,   28,   30,   31,   27];
-
-  // Ahmad Fauzi (BACK OFFICE / MY ICON+) - Investigation & ticketing (19-27s, peak 32.8s)
-  const ahmadSeptArt =   [22.8, 24.5, 21.0, 25.0, 23.5, 27.2, 23.0, 24.2, 28.5, 22.0, 23.8, 25.2, 22.9, 24.1, 26.5, 32.8, 21.9, 23.6, 25.0, 24.0, 22.5, 23.9];
-  const ahmadSeptFrt =   [12.5, 13.8, 11.6, 14.5, 13.0, 15.6, 12.9, 13.7, 16.2, 12.1, 13.2, 14.3, 12.7, 13.5, 15.1, 19.5, 12.0, 13.1, 14.2, 13.6, 12.4, 13.3];
-  const ahmadSeptQueue = [ 9.8, 11.0,  8.9, 11.5, 10.2, 12.8, 10.1, 10.9, 13.5,  9.5, 10.4, 11.2,  9.9, 10.7, 12.1, 16.0,  9.4, 10.3, 11.4, 10.8,  9.7, 10.5];
-  const ahmadCounts =    [  36,   38,   34,   37,   39,   32,   36,   38,   37,   35,   33,   39,   38,   34,   36,   38,   39,   35,   36,   38,   39,   35];
-
-  const usersConfig = [
-    {
-      name: 'Siti Rahma',
-      dept: 'CSO DIGILIVE CHAT - WA',
-      prefix: 'sr',
-      septArt: sitiSeptArt,
-      septFrt: sitiSeptFrt,
-      septQueue: sitiSeptQueue,
-      septCounts: sitiCounts,
-      noteBase: 'Respon live chat interaktif WhatsApp prima dan cepat di bawah 15 detik.'
-    },
-    {
-      name: 'Budi Santoso, S.Kom',
-      dept: 'CSO INBOUND',
-      prefix: 'bs',
-      septArt: budiSeptArt,
-      septFrt: budiSeptFrt,
-      septQueue: budiSeptQueue,
-      septCounts: budiCounts,
-      noteBase: 'Penanganan antrian panggilan telepon dan klarifikasi tiket inbound pelanggan.'
-    },
-    {
-      name: 'Dewi Lestari, M.T.',
-      dept: 'TEAM LEADER',
-      prefix: 'dl',
-      septArt: dewiSeptArt,
-      septFrt: dewiSeptFrt,
-      septQueue: dewiSeptQueue,
-      septCounts: dewiCounts,
-      noteBase: 'Kecepatan respon live chat DM & eskalasi keluhan pelanggan sangat responsif.'
-    },
-    {
-      name: 'Ahmad Fauzi',
-      dept: 'CSO BACK OFFICE',
-      prefix: 'af',
-      septArt: ahmadSeptArt,
-      septFrt: ahmadSeptFrt,
-      septQueue: ahmadSeptQueue,
-      septCounts: ahmadCounts,
-      noteBase: 'Respon chat My Icon+ dan koordinasi investigasi teknis operasional back office.'
-    }
-  ];
-
-  const list = [];
-
-  // Generate September 2026 daily logs (22 hari input)
-  septWorkdays.forEach((dateStr, dayIdx) => {
-    usersConfig.forEach((cfg) => {
-      const artSec = cfg.septArt[dayIdx];
-      const frtSec = cfg.septFrt[dayIdx];
-      const queueSec = cfg.septQueue[dayIdx];
-      const count = cfg.septCounts[dayIdx];
-      const targetSec = 30;
-      const devSec = parseFloat((artSec - targetSec).toFixed(1));
-      const isSla = artSec <= targetSec;
-      const devText = isSla ? `-${Math.abs(devSec).toFixed(1)} dtk (Cepat)` : `+${devSec.toFixed(1)} dtk (Over SLA)`;
-
-      list.push({
-        id: `art_${cfg.prefix}_202609_${String(dayIdx + 1).padStart(2, '0')}`,
-        date: dateStr,
-        userFullName: cfg.name,
-        department: cfg.dept,
-        interactionCount: count,
-        queueSeconds: queueSec,
-        frtSeconds: frtSec,
-        avgResponseSeconds: artSec,
-        targetSeconds: targetSec,
-        deviationSeconds: devSec,
-        deviationText: devText,
-        status: isSla ? 'Sesuai SLA' : 'Over SLA',
-        notes: isSla
-          ? `${cfg.noteBase} Rata-rata respon ${artSec} detik per interaksi.`
-          : `${cfg.noteBase} Lonjakan antrian menyebabkan response time melewati batas 30 detik.`,
-        createdAt: `${dateStr} 17:30`
-      });
-    });
-  });
-
-  // Generate August 2026 daily logs (20 hari input historis)
-  augWorkdays.forEach((dateStr, dayIdx) => {
-    usersConfig.forEach((cfg, uIdx) => {
-      const baseArt = cfg.septArt[dayIdx % cfg.septArt.length];
-      const artSec = parseFloat(Math.max(8.0, baseArt + (((dayIdx * 3 + uIdx * 5) % 11) * 0.4) - 2.0).toFixed(1));
-      const frtSec = parseFloat(Math.max(4.0, (artSec * 0.55)).toFixed(1));
-      const queueSec = parseFloat(Math.max(2.5, (artSec * 0.35)).toFixed(1));
-      const count = Math.max(20, cfg.septCounts[dayIdx % cfg.septCounts.length] + ((dayIdx + uIdx) % 7) - 3);
-      const targetSec = 30;
-      const devSec = parseFloat((artSec - targetSec).toFixed(1));
-      const isSla = artSec <= targetSec;
-      const devText = isSla ? `-${Math.abs(devSec).toFixed(1)} dtk (Cepat)` : `+${devSec.toFixed(1)} dtk (Over SLA)`;
-
-      list.push({
-        id: `art_${cfg.prefix}_202608_${String(dayIdx + 1).padStart(2, '0')}`,
-        date: dateStr,
-        userFullName: cfg.name,
-        department: cfg.dept,
-        interactionCount: count,
-        queueSeconds: queueSec,
-        frtSeconds: frtSec,
-        avgResponseSeconds: artSec,
-        targetSeconds: targetSec,
-        deviationSeconds: devSec,
-        deviationText: devText,
-        status: isSla ? 'Sesuai SLA' : 'Over SLA',
-        notes: `Riwayat pencatatan response time bulan Agustus. ART: ${artSec}s, FRT: ${frtSec}s.`,
-        createdAt: `${dateStr} 17:30`
-      });
-    });
-  });
-
-  return list;
+  return [];
 }
+const DEFAULT_ART_LOGS = [];
 
-const DEFAULT_ART_LOGS = generateDefaultArtLogs();
-
-const DEFAULT_FINDINGS = [
-  {
-    id: 'FND-2026-001',
-    date: '2026-09-27',
-    userFullName: 'Ahmad Fauzi',
-    department: 'CSO BACK OFFICE',
-    findingType: 'Feedback Negatif',
-    category: 'Informasi',
-    deviationLevel: 'Reminder 1',
-    desc: 'Kelalaian penulisan format nomor serial router ONT pada kolom catatan tiket eskalasi.',
-    commitment: 'Memeriksa ulang format nomor serial ONT dan memastikan kelengkapan data sebelum submit tiket.',
-    actionPlan: 'Briefing format baku pengisian formulir tiket dan penegasan checklist data teknis.',
-    status: 'Closed'
-  },
-  {
-    id: 'FND-2026-002',
-    date: '2026-09-28',
-    userFullName: 'Siti Rahma',
-    department: 'CSO DIGILIVE CHAT - WA',
-    findingType: 'Feedback Negatif',
-    category: 'Keluhan',
-    deviationLevel: 'Reminder 2',
-    desc: 'Lupa menyertakan kalimat penawaran informasi survei kepuasan pelanggan pada pesan closing.',
-    commitment: 'Menggunakan template closing makro lengkap beserta penawaran survei kepuasan pelanggan.',
-    actionPlan: 'Pengingat makro template respon cepat pada sistem live chat agar penutup otomatis terpasang.',
-    status: 'Dalam Coaching'
-  },
-  {
-    id: 'FND-2026-003',
-    date: '2026-09-26',
-    userFullName: 'Budi Santoso, S.Kom',
-    department: 'CSO INBOUND',
-    findingType: 'Feedback Negatif',
-    category: 'Gangguan',
-    deviationLevel: 'Korektif 1',
-    desc: 'Tiket gangguan massal fiber optik terlambat dieskalasi ke grup dispatcher selama 35 menit melewati batas SLA 15 menit.',
-    commitment: 'Segera melakukan eskalasi darurat maksimal 10 menit setelah verifikasi awal insiden massal.',
-    actionPlan: 'Coaching 1-on-1 mengenai alur darurat gangguan massal (critical incident) dan aktivasi alarm reminder tiket.',
-    status: 'Open'
-  },
-  {
-    id: 'FND-2026-004',
-    date: '2026-09-25',
-    userFullName: 'Dewi Lestari, M.T.',
-    department: 'TEAM LEADER',
-    findingType: 'Feedback Positif',
-    category: 'Informasi',
-    deviationLevel: 'Reminder 1',
-    desc: 'Validasi data identitas penelepon sangat teliti dan penanganan keluhan pelanggan berjalan sangat solutif sesuai PDP.',
-    commitment: 'Mempertahankan standar verifikasi tinggi dan membagikan praktik terbaik kepada seluruh tim.',
-    actionPlan: 'Diberikan apresiasi bulanan dan dijadikan contoh role model.',
-    status: 'Closed'
-  },
-  {
-    id: 'FND-2026-005',
-    date: '2026-10-01',
-    userFullName: 'Rian Pratama',
-    department: 'CSO DIGILIVE CHAT - DM',
-    findingType: 'Feedback Negatif',
-    category: 'Keluhan',
-    deviationLevel: 'Reminder 1',
-    desc: 'Informasi tarif paket upgrade yang diberikan kurang detail pada biaya sewa modem ONT.',
-    commitment: 'Menyampaikan rincian tarif paket secara transparan termasuk biaya sewa perangkat ONT.',
-    actionPlan: 'Penyegaran daftar harga resmi layanan Q4 2026.',
-    status: 'Open'
-  }
-];
+const DEFAULT_FINDINGS = [];
 
 // ==========================================
 // 1.10 DEFAULT QUIZ QUESTIONS (ULTRAMAN VS MONSTER)
@@ -1515,48 +616,7 @@ class AppState {
         localStorage.setItem('vortex_quiz_questions', JSON.stringify(DEFAULT_QUIZ_QUESTIONS));
       }
       if (localStorage.getItem('vortex_quiz_history') === null) {
-        const initialHistory = [
-          {
-            id: 'QZH-1001',
-            userId: 'usr_user_1',
-            userName: 'siti_rahma',
-            userFullName: 'Siti Rahma',
-            department: 'CSO DIGILIVE CHAT - WA',
-            score: 90,
-            correctCount: 9,
-            totalQuestions: 10,
-            outcome: 'menang',
-            duration: '01:24',
-            timestamp: '2026-09-30 19:40'
-          },
-          {
-            id: 'QZH-1002',
-            userId: 'usr_user_2',
-            userName: 'ahmad_fauzi',
-            userFullName: 'Ahmad Fauzi',
-            department: 'CSO BACK OFFICE',
-            score: 70,
-            correctCount: 7,
-            totalQuestions: 10,
-            outcome: 'kalah',
-            duration: '02:05',
-            timestamp: '2026-09-30 20:15'
-          },
-          {
-            id: 'QZH-1003',
-            userId: 'usr_admin_1',
-            userName: 'admin',
-            userFullName: 'Budi Santoso, S.Kom',
-            department: 'CSO INBOUND',
-            score: 100,
-            correctCount: 10,
-            totalQuestions: 10,
-            outcome: 'sempurna',
-            duration: '01:10',
-            timestamp: '2026-09-30 21:00'
-          }
-        ];
-        localStorage.setItem('vortex_quiz_history', JSON.stringify(initialHistory));
+        localStorage.setItem('vortex_quiz_history', '[]');
       }
       if (localStorage.getItem('vortex_timers') === null) {
         localStorage.setItem('vortex_timers', JSON.stringify(DEFAULT_TIMERS));
@@ -1627,6 +687,65 @@ class AppState {
     try {
       this.catchUpTimersAndStopwatches();
     } catch (e) {}
+
+    // Auto-purge data lama atau default (Siti Rahma, Ahmad Fauzi, Dewi Lestari, Budi Santoso) dari localStorage
+    try {
+      const dummyUserIds = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
+      const dummyUsernames = new Set(['user', 'ahmad_fauzi', 'dewi_lestari']);
+      const dummyNames = new Set([
+        'siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari',
+        'budi santoso, s.kom', 'budi santoso'
+      ]);
+
+      const rawUsers = localStorage.getItem('vortex_users');
+      if (rawUsers) {
+        const parsedUsers = JSON.parse(rawUsers);
+        if (Array.isArray(parsedUsers)) {
+          const cleaned = parsedUsers.filter(u => 
+            u && !dummyUserIds.has(u.id) &&
+            !dummyUsernames.has((u.username || '').toLowerCase()) &&
+            !dummyNames.has((u.fullName || '').toLowerCase().trim())
+          );
+          if (cleaned.length !== parsedUsers.length) {
+            localStorage.setItem('vortex_users', JSON.stringify(cleaned));
+          }
+        }
+      }
+
+      dummyUserIds.forEach(id => this.trackDeletedId('vortex_users', id));
+
+      const keysToClean = [
+        'vortex_pa_logs', 'vortex_ca_logs', 'vortex_tikets',
+        'vortex_aht_logs', 'vortex_art_logs', 'vortex_findings',
+        'vortex_quiz_history', 'drive_typing_team_results', 'vortex_logs'
+      ];
+      keysToClean.forEach(k => {
+        const raw = localStorage.getItem(k);
+        if (raw) {
+          try {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr)) {
+              const filtered = arr.filter(item => {
+                if (!item) return false;
+                if (item.userId && dummyUserIds.has(item.userId)) return false;
+                if (item.id && (dummyUserIds.has(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return false;
+                if (item.username && dummyUsernames.has(item.username.toLowerCase())) return false;
+                const name = (item.userFullName || item.fullName || item.userName || item.author || item.targetUser || '').toLowerCase().trim();
+                if (dummyNames.has(name)) return false;
+                const userStr = (item.user || '').toLowerCase();
+                if (userStr.includes('siti rahma') || userStr.includes('ahmad fauzi') || userStr.includes('dewi lestari') || userStr.includes('budi santoso')) return false;
+                return true;
+              });
+              if (filtered.length !== arr.length) {
+                localStorage.setItem(k, JSON.stringify(filtered));
+              }
+            }
+          } catch (e) {}
+        }
+      });
+    } catch (e) {
+      console.warn('Error purging legacy dummy data on initStorage:', e);
+    }
   }
 
   getUsers() {
@@ -3700,6 +2819,7 @@ const UI = {
   btnSettingsSwitchUser: document.getElementById('btnSettingsSwitchUser'),
   btnResetAllData: document.getElementById('btnResetAllData')
 };
+window.UI = UI;
 
 // ==========================================
 // 4. UTILITIES (FORMATTING & TOASTS)
@@ -3807,9 +2927,63 @@ function handleAutoLogout() {
 // 5. AUTHENTICATION & ROLE SWITCHING
 // ==========================================
 
-function handleLogin(username, password) {
-  const users = state.getUsers();
-  const user = users.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+async function handleLogin(username, password) {
+  let users = state.getUsers();
+  let user = users.find(u => u.username && u.username.toLowerCase() === username.trim().toLowerCase());
+
+  // Pastikan login pada PC atau device baru selalu menggunakan data pengguna terupdate saat ini dari Cloud Firestore
+  if (!user || user.password !== password) {
+    if (window.FirebaseSync) {
+      try {
+        let cloudUsers = null;
+        if (window.FirebaseSync.db) {
+          const doc = await window.FirebaseSync.db.collection('drive_dashboard_data').doc('vortex_users').get();
+          if (doc.exists && doc.data() && Array.isArray(doc.data().payload)) {
+            cloudUsers = doc.data().payload;
+          }
+        }
+        if (!cloudUsers) {
+          const cfg = (window.FirebaseSync.getConfig && window.FirebaseSync.getConfig()) || window.DRIVE_FIREBASE_CONFIG;
+          if (cfg && cfg.apiKey && cfg.projectId) {
+            const res = await fetch(`https://firestore.googleapis.com/v1/projects/${cfg.projectId}/databases/(default)/documents/drive_dashboard_data/vortex_users?key=${cfg.apiKey}`);
+            if (res.ok) {
+              const json = await res.json();
+              if (json.fields && json.fields.payload) {
+                const decodeVal = (val) => {
+                  if (!val) return null;
+                  if ('stringValue' in val) return val.stringValue;
+                  if ('integerValue' in val) return parseInt(val.integerValue, 10);
+                  if ('doubleValue' in val) return parseFloat(val.doubleValue);
+                  if ('booleanValue' in val) return val.booleanValue;
+                  if ('arrayValue' in val) return (val.arrayValue.values || []).map(decodeVal);
+                  if ('mapValue' in val) {
+                    const obj = {};
+                    for (const k in val.mapValue.fields) obj[k] = decodeVal(val.mapValue.fields[k]);
+                    return obj;
+                  }
+                  return null;
+                };
+                cloudUsers = decodeVal(json.fields.payload);
+              }
+            }
+          }
+        }
+
+        if (Array.isArray(cloudUsers) && cloudUsers.length > 0) {
+          const cleanUsers = cloudUsers.filter(u => 
+            u && !['usr_user_1', 'usr_user_2', 'usr_admin_2'].includes(u.id) &&
+            !['user', 'ahmad_fauzi', 'dewi_lestari'].includes((u.username || '').toLowerCase()) &&
+            !['siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari', 'budi santoso, s.kom', 'budi santoso'].includes((u.fullName || '').toLowerCase().trim())
+          );
+          state.saveUsers(cleanUsers);
+          users = cleanUsers;
+          user = users.find(u => u.username && u.username.toLowerCase() === username.trim().toLowerCase());
+        }
+      } catch (err) {
+        console.warn('Gagal sinkron user cloud saat login:', err);
+      }
+    }
+  }
 
   if (!user) {
     showToast('Login Gagal', 'Username tidak ditemukan di dalam sistem.', 'danger');
@@ -3847,6 +3021,7 @@ function handleLogin(username, password) {
   renderAppView();
   return true;
 }
+window.handleLogin = handleLogin;
 
 function handleLogout() {
   if (typeof window.catchUpTimersAndStopwatches === 'function') {
@@ -6389,7 +5564,18 @@ function renderUserManagementPage() {
     return;
   }
 
-  const users = state.getUsers();
+  const allRawUsers = state.getUsers();
+  const dummyUserIds = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
+  const dummyUsernames = new Set(['user', 'ahmad_fauzi', 'dewi_lestari']);
+  const dummyNames = new Set(['siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari']);
+  const users = allRawUsers.filter(u => 
+    u && !dummyUserIds.has(u.id) &&
+    !dummyUsernames.has((u.username || '').toLowerCase()) &&
+    !dummyNames.has((u.fullName || '').toLowerCase().trim())
+  );
+  if (users.length !== allRawUsers.length) {
+    state.saveUsers(users);
+  }
   
   // Calculate user counts
   const adminCount = users.filter(u => u.role === 'admin').length;
@@ -6484,6 +5670,7 @@ function renderUserManagementPage() {
     `;
   }).join('');
 }
+window.renderUserManagementPage = renderUserManagementPage;
 
 function openRegisterUserModal() {
   if (!state.isAdmin()) {
@@ -16497,24 +15684,24 @@ function initEvents() {
   }, true);
 
   // Login form submit
-  UI.loginForm.addEventListener('submit', (e) => {
+  UI.loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const u = UI.loginUsername.value;
     const p = UI.loginPassword.value;
-    handleLogin(u, p);
+    await handleLogin(u, p);
   });
 
   // Quick Demo Buttons
-  UI.btnQuickAdmin.addEventListener('click', () => {
+  UI.btnQuickAdmin.addEventListener('click', async () => {
     UI.loginUsername.value = 'admin';
     UI.loginPassword.value = 'admin123';
-    handleLogin('admin', 'admin123');
+    await handleLogin('admin', 'admin123');
   });
 
-  UI.btnQuickUser.addEventListener('click', () => {
-    UI.loginUsername.value = 'user';
-    UI.loginPassword.value = 'user123';
-    handleLogin('user', 'user123');
+  UI.btnQuickUser.addEventListener('click', async () => {
+    UI.loginUsername.value = 'sugeng.riyadi';
+    UI.loginPassword.value = 'Contact123';
+    await handleLogin('sugeng.riyadi', 'Contact123');
   });
 
   // Password visibility toggle
@@ -18698,119 +17885,12 @@ function saveTypingResult(result) {
   return { history, isNewPb };
 }
 
-// Inisialisasi Data Demo Leaderboard Tim (agar Admin langsung melihat rekor seluruh anggota)
+// Inisialisasi Data Leaderboard Tim
 function seedInitialTeamTypingData() {
   const existing = localStorage.getItem('drive_typing_team_results');
-  if (existing && JSON.parse(existing).length > 0) return;
-
-  const demoRuns = [
-    {
-      id: 'run_demo_1',
-      userId: 'usr_admin_2',
-      username: 'dewi_lestari',
-      fullName: 'Dewi Lestari, M.T.',
-      avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80',
-      role: 'admin',
-      department: 'TEAM LEADER',
-      date: '30/09/2026, 14:10',
-      timestamp: Date.now() - 3600000 * 2,
-      carId: 'hotwheels',
-      carName: 'Hot Wheels Cyber Racer GT',
-      category: 'id_general',
-      wpm: 104,
-      grossWpm: 107,
-      accuracy: 99.1,
-      topSpeed: 236,
-      correctChars: 520,
-      wrongChars: 5,
-      correctWords: 88,
-      wrongWords: 1,
-      distance: 2840,
-      maxStreak: 45,
-      rankTitle: 'HOT WHEELS HYPER SONIC',
-      rankBadge: 'Pembalap Legenda (Godspeed)'
-    },
-    {
-      id: 'run_demo_2',
-      userId: 'usr_admin_1',
-      username: 'admin',
-      fullName: 'Budi Santoso, S.Kom',
-      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-      role: 'admin',
-      department: 'CSO INBOUND',
-      date: '30/09/2026, 11:35',
-      timestamp: Date.now() - 3600000 * 5,
-      carId: 'ferrari',
-      carName: 'Ferrari SF90 Stradale',
-      category: 'id_operations',
-      wpm: 88,
-      grossWpm: 91,
-      accuracy: 98.4,
-      topSpeed: 215,
-      correctChars: 440,
-      wrongChars: 7,
-      correctWords: 74,
-      wrongWords: 2,
-      distance: 2410,
-      maxStreak: 32,
-      rankTitle: 'MASTER SIRKUIT PRO',
-      rankBadge: 'Grand Prix Pilot'
-    },
-    {
-      id: 'run_demo_3',
-      userId: 'usr_user_1',
-      username: 'user',
-      fullName: 'Siti Rahma',
-      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
-      role: 'user',
-      department: 'CSO DIGILIVE CHAT - WA',
-      date: '30/09/2026, 09:20',
-      timestamp: Date.now() - 3600000 * 8,
-      carId: 'mclaren',
-      carName: 'McLaren 720S Spider',
-      category: 'id_general',
-      wpm: 76,
-      grossWpm: 79,
-      accuracy: 97.2,
-      topSpeed: 188,
-      correctChars: 380,
-      wrongChars: 11,
-      correctWords: 64,
-      wrongWords: 2,
-      distance: 2090,
-      maxStreak: 24,
-      rankTitle: 'PEMBALAP TERAMPIL',
-      rankBadge: 'Speed Racer'
-    },
-    {
-      id: 'run_demo_4',
-      userId: 'usr_user_2',
-      username: 'ahmad_fauzi',
-      fullName: 'Ahmad Fauzi',
-      avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
-      role: 'user',
-      department: 'CSO BACK OFFICE',
-      date: '29/09/2026, 16:45',
-      timestamp: Date.now() - 3600000 * 24,
-      carId: 'porsche',
-      carName: 'Porsche 911 GT3 RS',
-      category: 'en_speed',
-      wpm: 63,
-      grossWpm: 67,
-      accuracy: 95.5,
-      topSpeed: 156,
-      correctChars: 315,
-      wrongChars: 15,
-      correctWords: 52,
-      wrongWords: 3,
-      distance: 1720,
-      maxStreak: 18,
-      rankTitle: 'PEMBALAP TERAMPIL',
-      rankBadge: 'Speed Racer'
-    }
-  ];
-
-  localStorage.setItem('drive_typing_team_results', JSON.stringify(demoRuns));
+  if (!existing) {
+    localStorage.setItem('drive_typing_team_results', '[]');
+  }
 }
 
 // Generate Kata Acak

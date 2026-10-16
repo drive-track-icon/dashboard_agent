@@ -70,15 +70,42 @@
     }
 
     /**
+     * Deteksi apakah suatu item merupakan data dummy / lama / default yang sudah dihapus
+     */
+    isDummyItem(item) {
+      if (!item) return false;
+      const DUMMY_IDS = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
+      const DUMMY_USERNAMES = new Set(['user', 'ahmad_fauzi', 'dewi_lestari']);
+      const DUMMY_NAMES = new Set([
+        'siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari',
+        'budi santoso, s.kom', 'budi santoso'
+      ]);
+      if (item.id && (DUMMY_IDS.has(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return true;
+      if (item.userId && DUMMY_IDS.has(item.userId)) return true;
+      if (item.username && DUMMY_USERNAMES.has(item.username.toLowerCase())) return true;
+      const name = (item.userFullName || item.fullName || item.userName || item.author || item.targetUser || '').toLowerCase().trim();
+      if (DUMMY_NAMES.has(name)) return true;
+      const userStr = (item.user || '').toLowerCase();
+      if (userStr.includes('siti rahma') || userStr.includes('ahmad fauzi') || userStr.includes('dewi lestari') || userStr.includes('budi santoso')) return true;
+      return false;
+    }
+
+    /**
      * Dapatkan daftar ID item yang telah dihapus secara sengaja oleh pengguna
      */
     getDeletedIds(key) {
       try {
         const raw = localStorage.getItem('vortex_deleted_ids_' + key);
         const arr = raw ? JSON.parse(raw) : [];
-        return new Set(Array.isArray(arr) ? arr : []);
+        const set = new Set(Array.isArray(arr) ? arr : []);
+        if (key === 'vortex_users') {
+          set.add('usr_user_1');
+          set.add('usr_user_2');
+          set.add('usr_admin_2');
+        }
+        return set;
       } catch (e) {
-        return new Set();
+        return (key === 'vortex_users') ? new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']) : new Set();
       }
     }
 
@@ -441,12 +468,28 @@
         return { merged: Array.from(mergedMap.values()), hasLocalOverrides };
       }
 
-      // Default pengaman untuk koleksi data lainnya
-      const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id) && !remoteArr.some(r => r && r.id === l.id));
-      if (localOnly.length > 0) {
-        return { merged: [...remoteArr, ...localOnly], hasLocalOverrides: true };
+      const cleanRemote = Array.isArray(remoteArr) ? remoteArr.filter(r => r && !this.isDummyItem(r) && !deletedIds.has(r.id)) : [];
+      const cleanLocal = Array.isArray(localArr) ? localArr.filter(l => l && !this.isDummyItem(l) && !deletedIds.has(l.id)) : [];
+
+      if (key === 'vortex_users') {
+        if (cleanRemote.length > 0) {
+          // Cloud Firestore adalah sumber kebenaran data terupdate untuk Manajemen Team
+          // Hanya tambahkan user lokal baru jika benar-benar baru dibuat dan bukan akun demo/dummy
+          const localBrandNew = cleanLocal.filter(l => l && l.id && !cleanRemote.some(r => r.id === l.id || (r.username && l.username && r.username.toLowerCase() === l.username.toLowerCase())));
+          if (localBrandNew.length > 0) {
+            return { merged: [...cleanRemote, ...localBrandNew], hasLocalOverrides: true };
+          }
+          return { merged: cleanRemote, hasLocalOverrides: false };
+        }
+        return { merged: cleanLocal, hasLocalOverrides: cleanLocal.length > 0 };
       }
-      return { merged: remoteArr, hasLocalOverrides: false };
+
+      // Default pengaman untuk koleksi data lainnya
+      const localOnly = cleanLocal.filter(l => l && l.id && !cleanRemote.some(r => r && r.id === l.id));
+      if (localOnly.length > 0) {
+        return { merged: [...cleanRemote, ...localOnly], hasLocalOverrides: true };
+      }
+      return { merged: cleanRemote, hasLocalOverrides: false };
     }
 
     /**
@@ -491,7 +534,7 @@
                 const remoteArr = Array.isArray(docData.payload) ? docData.payload : [];
                 const deletedIds = this.getDeletedIds(key);
                 const { merged, hasLocalOverrides } = this.mergeCollections(key, localArr, remoteArr, deletedIds);
-                finalPayload = merged;
+                finalPayload = Array.isArray(merged) ? merged.filter(item => item && !this.isDummyItem(item)) : merged;
                 if (hasLocalOverrides) {
                   this.notifyDataChanged(key, finalPayload, true);
                 }
@@ -831,7 +874,7 @@
                 const remoteArr = Array.isArray(data.payload) ? data.payload : [];
                 const deletedIds = this.getDeletedIds(key);
                 const { merged, hasLocalOverrides } = this.mergeCollections(key, localArr, remoteArr, deletedIds);
-                finalPayload = merged;
+                finalPayload = Array.isArray(merged) ? merged.filter(item => item && !this.isDummyItem(item)) : merged;
                 if (hasLocalOverrides) {
                   // Kirim pembaruan gabungan kembali ke cloud agar cloud juga memiliki data terbaru yang direset
                   setTimeout(() => {
