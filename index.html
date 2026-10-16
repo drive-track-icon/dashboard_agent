@@ -298,9 +298,113 @@
             <span class="pill-text" id="topbarRoleText">Admin (Akses Penuh)</span>
           </div>
 
-          <!-- Realtime Clock -->
-          <div class="realtime-clock hide-mobile" id="realtimeClock" title="Waktu Lokal">
-            00:00:00 WIB
+          <!-- Realtime Clock with Interactive Pop-up & Calendar -->
+          <div class="dropdown-container clock-dropdown-container hide-mobile" id="clockDropdownContainer">
+            <button type="button" class="realtime-clock" id="realtimeClock" aria-label="Buka Pop-up Jam &amp; Kalender" title="Klik untuk membuka Info Waktu Lengkap, Kalender &amp; Pop-up Melayang">
+              <i class="fa-regular fa-clock clock-live-icon"></i>
+              <span id="realtimeClockText">00:00:00 WIB</span>
+              <i class="fa-solid fa-chevron-down clock-caret" id="clockCaret"></i>
+            </button>
+            <div class="clock-dropdown glass-dropdown hidden" id="clockDropdownMenu" role="dialog" aria-label="Pop-up Waktu dan Kalender">
+              <div class="clock-dropdown-header">
+                <div class="clock-header-title">
+                  <i class="fa-solid fa-clock text-red"></i>
+                  <span>Waktu &amp; Kalender</span>
+                </div>
+                <div class="clock-header-actions">
+                  <button type="button" class="btn-clock-action" id="btnPopoutClockWindow" title="Buka Pop-up Jam Melayang di Luar Website (Always on Top)">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                  </button>
+                  <button type="button" class="btn-clock-action btn-clock-close" id="btnCloseClockDropdown" title="Tutup">
+                    <i class="fa-solid fa-xmark"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Live Big Clock Display -->
+              <div class="clock-main-display">
+                <div class="clock-main-time" id="clockPopupMainTime">00:00:00</div>
+                <div class="clock-main-tz-badge" id="clockPopupMainTz">WIB • GMT+7</div>
+                <div class="clock-main-date" id="clockPopupMainDate">Memuat tanggal...</div>
+              </div>
+
+              <!-- Timezones Grid -->
+              <div class="clock-tz-grid">
+                <div class="clock-tz-item active" id="clockTzWib">
+                  <span class="tz-label">WIB (Jakarta)</span>
+                  <span class="tz-time" id="tzTimeWIB">--:--:--</span>
+                </div>
+                <div class="clock-tz-item" id="clockTzWita">
+                  <span class="tz-label">WITA (Makassar)</span>
+                  <span class="tz-time" id="tzTimeWITA">--:--:--</span>
+                </div>
+                <div class="clock-tz-item" id="clockTzWit">
+                  <span class="tz-label">WIT (Jayapura)</span>
+                  <span class="tz-time" id="tzTimeWIT">--:--:--</span>
+                </div>
+                <div class="clock-tz-item" id="clockTzUtc">
+                  <span class="tz-label">UTC (Dunia)</span>
+                  <span class="tz-time" id="tzTimeUTC">--:--:--</span>
+                </div>
+              </div>
+
+              <!-- Interactive Mini Calendar -->
+              <div class="clock-calendar-section">
+                <div class="calendar-header">
+                  <button type="button" class="btn-cal-nav" id="btnCalPrevMonth" title="Bulan Sebelumnya">
+                    <i class="fa-solid fa-chevron-left"></i>
+                  </button>
+                  <div class="calendar-current-month" id="calendarCurrentMonthYear">Oktober 2026</div>
+                  <div class="calendar-nav-right">
+                    <button type="button" class="btn-cal-today" id="btnCalToday" title="Kembali ke Hari Ini">Hari Ini</button>
+                    <button type="button" class="btn-cal-nav" id="btnCalNextMonth" title="Bulan Berikutnya">
+                      <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                  </div>
+                </div>
+                <div class="calendar-weekdays">
+                  <span>Min</span><span>Sen</span><span>Sel</span><span>Rab</span><span>Kam</span><span>Jum</span><span>Sab</span>
+                </div>
+                <div class="calendar-days-grid" id="calendarDaysGrid">
+                  <!-- Populated by JS -->
+                </div>
+              </div>
+
+              <!-- Login Session Info -->
+              <div class="clock-session-card">
+                <div class="session-card-header">
+                  <span class="session-card-title"><i class="fa-solid fa-user-clock text-yellow"></i> Sesi Kerja Agen</span>
+                  <span class="session-status-badge" id="clockSessionStatusBadge"><span class="pulse-dot-green"></span> Aktif</span>
+                </div>
+                <div class="session-card-details">
+                  <div class="session-detail-row">
+                    <span class="text-muted">Waktu Login:</span>
+                    <strong id="clockSessionLoginTime">--:-- WIB</strong>
+                  </div>
+                  <div class="session-detail-row">
+                    <span class="text-muted">Durasi Sesi:</span>
+                    <strong id="clockSessionDuration">-- jam -- menit</strong>
+                  </div>
+                  <div class="session-detail-row">
+                    <span class="text-muted">Batas Maksimal:</span>
+                    <span>9 Jam (Auto Logout)</span>
+                  </div>
+                </div>
+                <div class="session-progress-track">
+                  <div class="session-progress-bar" id="clockSessionProgressBar" style="width: 0%;"></div>
+                </div>
+              </div>
+
+              <!-- Action Footer -->
+              <div class="clock-dropdown-footer">
+                <button type="button" class="btn-clock-footer-action btn-popout-float" id="btnFloatingClockFooter" title="Buka Jam Melayang di Luar Browser">
+                  <i class="fa-solid fa-arrow-up-right-from-square"></i> Pop-up di Luar Website
+                </button>
+                <button type="button" class="btn-clock-footer-action btn-nav-timer" id="btnGoToTimerPage" title="Pindah ke Menu Timer &amp; Stopwatch">
+                  <i class="fa-solid fa-stopwatch"></i> Buka Menu Timer
+                </button>
+              </div>
+            </div>
           </div>
 
           <!-- Cloud Sync Multi-Device Button -->

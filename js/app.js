@@ -1857,8 +1857,31 @@ const UI = {
   zoomDropdownMenu: document.getElementById('zoomDropdownMenu'),
   zoomRangeSlider: document.getElementById('zoomRangeSlider'),
   userRoleAlertBanner: document.getElementById('userRoleAlertBanner'),
-  btnBannerSwitchAdmin: document.getElementById('btnBannerSwitchAdmin'),
   realtimeClock: document.getElementById('realtimeClock'),
+  realtimeClockText: document.getElementById('realtimeClockText'),
+  clockDropdownContainer: document.getElementById('clockDropdownContainer'),
+  clockDropdownMenu: document.getElementById('clockDropdownMenu'),
+  clockCaret: document.getElementById('clockCaret'),
+  btnPopoutClockWindow: document.getElementById('btnPopoutClockWindow'),
+  btnCloseClockDropdown: document.getElementById('btnCloseClockDropdown'),
+  clockPopupMainTime: document.getElementById('clockPopupMainTime'),
+  clockPopupMainTz: document.getElementById('clockPopupMainTz'),
+  clockPopupMainDate: document.getElementById('clockPopupMainDate'),
+  tzTimeWIB: document.getElementById('tzTimeWIB'),
+  tzTimeWITA: document.getElementById('tzTimeWITA'),
+  tzTimeWIT: document.getElementById('tzTimeWIT'),
+  tzTimeUTC: document.getElementById('tzTimeUTC'),
+  btnCalPrevMonth: document.getElementById('btnCalPrevMonth'),
+  btnCalNextMonth: document.getElementById('btnCalNextMonth'),
+  btnCalToday: document.getElementById('btnCalToday'),
+  calendarCurrentMonthYear: document.getElementById('calendarCurrentMonthYear'),
+  calendarDaysGrid: document.getElementById('calendarDaysGrid'),
+  clockSessionStatusBadge: document.getElementById('clockSessionStatusBadge'),
+  clockSessionLoginTime: document.getElementById('clockSessionLoginTime'),
+  clockSessionDuration: document.getElementById('clockSessionDuration'),
+  clockSessionProgressBar: document.getElementById('clockSessionProgressBar'),
+  btnFloatingClockFooter: document.getElementById('btnFloatingClockFooter'),
+  btnGoToTimerPage: document.getElementById('btnGoToTimerPage'),
 
   // Change Password Modal
   modalChangePassword: document.getElementById('modalChangePassword'),
@@ -2730,14 +2753,442 @@ function startClock() {
     const hrs = String(now.getHours()).padStart(2, '0');
     const mins = String(now.getMinutes()).padStart(2, '0');
     const secs = String(now.getSeconds()).padStart(2, '0');
-    if (UI.realtimeClock) {
-      UI.realtimeClock.textContent = `${hrs}:${mins}:${secs} WIB`;
+    const timeStr = `${hrs}:${mins}:${secs} WIB`;
+    if (UI.realtimeClockText) {
+      UI.realtimeClockText.textContent = timeStr;
+    } else if (UI.realtimeClock) {
+      UI.realtimeClock.textContent = timeStr;
     }
+    // Update live clock popup flyout if open
+    updateClockDropdownLive(now);
+    // Update floating clock desktop window if open
+    updateFloatingClockWindowLive(now);
     // Cek batas waktu sesi login (otomatis logout setelah 9 jam)
     checkSessionExpiry();
   }
   update();
   setInterval(update, 1000);
+}
+
+window.currentClockCalDate = new Date();
+let currentClockCalDate = window.currentClockCalDate;
+window.vortexFloatingClockWindow = null;
+
+function updateClockDropdownLive(now = new Date()) {
+  if (!UI.clockDropdownMenu || UI.clockDropdownMenu.classList.contains('hidden')) {
+    return;
+  }
+
+  // 1. Main Time & Date
+  const hrs = String(now.getHours()).padStart(2, '0');
+  const mins = String(now.getMinutes()).padStart(2, '0');
+  const secs = String(now.getSeconds()).padStart(2, '0');
+  
+  if (UI.clockPopupMainTime) {
+    UI.clockPopupMainTime.textContent = `${hrs}:${mins}:${secs}`;
+  }
+  if (UI.clockPopupMainDate) {
+    const options = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    UI.clockPopupMainDate.textContent = now.toLocaleDateString('id-ID', options);
+  }
+
+  // 2. Multi Timezone
+  // WIB: GMT+7 (Local)
+  if (UI.tzTimeWIB) {
+    UI.tzTimeWIB.textContent = `${hrs}:${mins}:${secs}`;
+  }
+  
+  // WITA: GMT+8
+  if (UI.tzTimeWITA) {
+    const witaDate = new Date(now.getTime() + (1 * 60 * 60 * 1000));
+    const h = String(witaDate.getHours()).padStart(2, '0');
+    const m = String(witaDate.getMinutes()).padStart(2, '0');
+    const s = String(witaDate.getSeconds()).padStart(2, '0');
+    UI.tzTimeWITA.textContent = `${h}:${m}:${s}`;
+  }
+
+  // WIT: GMT+9
+  if (UI.tzTimeWIT) {
+    const witDate = new Date(now.getTime() + (2 * 60 * 60 * 1000));
+    const h = String(witDate.getHours()).padStart(2, '0');
+    const m = String(witDate.getMinutes()).padStart(2, '0');
+    const s = String(witDate.getSeconds()).padStart(2, '0');
+    UI.tzTimeWIT.textContent = `${h}:${m}:${s}`;
+  }
+
+  // UTC: GMT+0
+  if (UI.tzTimeUTC) {
+    const h = String(now.getUTCHours()).padStart(2, '0');
+    const m = String(now.getUTCMinutes()).padStart(2, '0');
+    const s = String(now.getUTCSeconds()).padStart(2, '0');
+    UI.tzTimeUTC.textContent = `${h}:${m}:${s}`;
+  }
+
+  // 3. Session Info
+  if (UI.clockSessionLoginTime && UI.clockSessionDuration) {
+    const loginTimeStr = localStorage.getItem('vortex_session_login_time');
+    if (loginTimeStr) {
+      const loginTime = parseInt(loginTimeStr, 10);
+      if (!isNaN(loginTime)) {
+        const loginDate = new Date(loginTime);
+        const lHrs = String(loginDate.getHours()).padStart(2, '0');
+        const lMins = String(loginDate.getMinutes()).padStart(2, '0');
+        UI.clockSessionLoginTime.textContent = `${lHrs}:${lMins} WIB`;
+
+        const elapsedMs = Math.max(0, now.getTime() - loginTime);
+        const totalMinutes = Math.floor(elapsedMs / (60 * 1000));
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        UI.clockSessionDuration.textContent = `${hours} jam ${minutes} menit`;
+
+        if (UI.clockSessionProgressBar) {
+          const percent = Math.min(100, Math.round((elapsedMs / SESSION_TIMEOUT_MS) * 100));
+          UI.clockSessionProgressBar.style.width = `${percent}%`;
+        }
+      }
+    } else {
+      UI.clockSessionLoginTime.textContent = 'Baru Masuk';
+      UI.clockSessionDuration.textContent = '0 jam 0 menit';
+      if (UI.clockSessionProgressBar) UI.clockSessionProgressBar.style.width = '2%';
+    }
+  }
+}
+
+function renderClockCalendar(targetDate = new Date()) {
+  if (!UI.calendarDaysGrid || !UI.calendarCurrentMonthYear) return;
+  currentClockCalDate = new Date(targetDate);
+
+  const year = currentClockCalDate.getFullYear();
+  const month = currentClockCalDate.getMonth();
+  const today = new Date();
+
+  const monthNames = [
+    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+  ];
+  UI.calendarCurrentMonthYear.textContent = `${monthNames[month]} ${year}`;
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const totalDays = new Date(year, month + 1, 0).getDate();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+
+  let cellsHtml = '';
+
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const dayNum = prevMonthDays - i;
+    cellsHtml += `<div class="cal-day-cell other-month">${dayNum}</div>`;
+  }
+
+  for (let day = 1; day <= totalDays; day++) {
+    const isToday = (
+      day === today.getDate() &&
+      month === today.getMonth() &&
+      year === today.getFullYear()
+    );
+    cellsHtml += `<div class="cal-day-cell ${isToday ? 'today' : ''}" title="${day} ${monthNames[month]} ${year}">${day}</div>`;
+  }
+
+  const currentTotalCells = firstDay + totalDays;
+  const remainingCells = currentTotalCells <= 35 ? (35 - currentTotalCells) : (42 - currentTotalCells);
+  for (let nextDay = 1; nextDay <= remainingCells; nextDay++) {
+    cellsHtml += `<div class="cal-day-cell other-month">${nextDay}</div>`;
+  }
+
+  UI.calendarDaysGrid.innerHTML = cellsHtml;
+}
+
+window.updateClockDropdownLive = updateClockDropdownLive;
+window.renderClockCalendar = renderClockCalendar;
+
+window.openFloatingClockWindow = async function() {
+  if (window.vortexFloatingClockWindow && !window.vortexFloatingClockWindow.closed) {
+    try {
+      window.vortexFloatingClockWindow.focus();
+    } catch (e) {}
+    return;
+  }
+
+  if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+  if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
+
+  const width = 360;
+  const height = 280;
+
+  if ('documentPictureInPicture' in window && typeof window.documentPictureInPicture.requestWindow === 'function') {
+    try {
+      const pipWin = await window.documentPictureInPicture.requestWindow({
+        width: width,
+        height: height
+      });
+      window.vortexFloatingClockWindow = pipWin;
+      initFloatingClockDOM(pipWin.document);
+      pipWin.addEventListener('pagehide', () => {
+        window.vortexFloatingClockWindow = null;
+      });
+      showToast('Pop-up Jam Aktif', 'Jendela jam melayang di luar browser berhasil dibuka.', 'success');
+      return;
+    } catch (err) {
+      console.warn('Document PiP gagal untuk jam, beralih ke window popup:', err);
+    }
+  }
+
+  try {
+    const screenW = (typeof window !== 'undefined' && window.screen && window.screen.width) ? window.screen.width : 1280;
+    const screenH = (typeof window !== 'undefined' && window.screen && window.screen.height) ? window.screen.height : 720;
+    const left = Math.max(0, (screenW - width) / 2);
+    const top = Math.max(0, (screenH - height) / 2);
+    const popWin = window.open(
+      'about:blank',
+      'vortex_floating_clock',
+      `width=${width},height=${height},left=${left},top=${top},menubar=no,toolbar=no,location=no,status=no,resizable=yes`
+    );
+    if (popWin) {
+      window.vortexFloatingClockWindow = popWin;
+      popWin.document.title = 'Jam & Kalender - Vortex Dashboard';
+      initFloatingClockDOM(popWin.document);
+      popWin.addEventListener('unload', () => {
+        window.vortexFloatingClockWindow = null;
+      });
+      showToast('Pop-up Jam Aktif', 'Jendela jam melayang dibuka.', 'success');
+    } else {
+      showToast('Pop-up Diblokir', 'Izinkan pop-up browser untuk menampilkan jam melayang.', 'warning');
+    }
+  } catch (e) {
+    console.error('Gagal membuka popup jam:', e);
+  }
+};
+
+window.closeFloatingClockWindow = function() {
+  if (window.vortexFloatingClockWindow && !window.vortexFloatingClockWindow.closed) {
+    try {
+      window.vortexFloatingClockWindow.close();
+    } catch (e) {}
+  }
+  window.vortexFloatingClockWindow = null;
+};
+
+function initFloatingClockDOM(doc) {
+  if (!doc) return;
+  const isLight = document.body && document.body.classList.contains('theme-light');
+  const bg = isLight ? '#ffffff' : '#0d0f17';
+  const textPrimary = isLight ? '#0f172a' : '#ffffff';
+  const textSecondary = isLight ? '#475569' : '#94a3b8';
+  const cardBg = isLight ? '#f8fafc' : '#141824';
+  const borderColor = isLight ? '#cbd5e1' : '#262c3f';
+  const redPrimary = '#dc2626';
+
+  doc.head.innerHTML = `
+    <meta charset="UTF-8">
+    <title>Jam &amp; Waktu Real-time</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+      body {
+        font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+        background: ${bg};
+        color: ${textPrimary};
+        padding: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-height: 100vh;
+        overflow: hidden;
+      }
+      .float-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 6px;
+        border-bottom: 1px solid ${borderColor};
+      }
+      .float-title {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: ${redPrimary};
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #10b981;
+        box-shadow: 0 0 8px #10b981;
+      }
+      .hero-clock {
+        background: ${cardBg};
+        border: 1px solid ${borderColor};
+        border-radius: 10px;
+        padding: 12px 10px;
+        text-align: center;
+      }
+      .hero-time {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 2.1rem;
+        font-weight: 800;
+        color: ${textPrimary};
+        letter-spacing: 2px;
+        line-height: 1.1;
+      }
+      .hero-sub {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 6px;
+      }
+      .tz-pill {
+        font-size: 10px;
+        font-weight: 700;
+        color: #fff;
+        background: ${redPrimary};
+        padding: 2px 8px;
+        border-radius: 999px;
+      }
+      .hero-date {
+        font-size: 11px;
+        font-weight: 600;
+        color: ${textSecondary};
+      }
+      .tz-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+      .tz-card {
+        background: ${cardBg};
+        border: 1px solid ${borderColor};
+        border-radius: 6px;
+        padding: 6px 4px;
+        text-align: center;
+      }
+      .tz-card-lbl {
+        font-size: 9px;
+        font-weight: 700;
+        color: ${textSecondary};
+        text-transform: uppercase;
+      }
+      .tz-card-val {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        font-weight: 700;
+        color: ${textPrimary};
+        margin-top: 2px;
+      }
+      .session-row {
+        font-size: 10px;
+        color: ${textSecondary};
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 4px 6px;
+        background: ${cardBg};
+        border-radius: 6px;
+        border: 1px solid ${borderColor};
+      }
+      .session-val {
+        font-weight: 700;
+        color: ${textPrimary};
+      }
+    </style>
+  `;
+
+  doc.body.innerHTML = `
+    <div class="float-header">
+      <div class="float-title">
+        <span class="live-dot"></span>
+        <span>Waktu Indonesia &amp; Sesi</span>
+      </div>
+      <div style="font-size: 10px; color: ${textSecondary}; font-weight: 600;">Always On Top</div>
+    </div>
+
+    <div class="hero-clock">
+      <div class="hero-time" id="floatingClockTime">00:00:00</div>
+      <div class="hero-sub">
+        <span class="tz-pill">WIB</span>
+        <span class="hero-date" id="floatingClockDate">Memuat tanggal...</span>
+      </div>
+    </div>
+
+    <div class="tz-row">
+      <div class="tz-card">
+        <div class="tz-card-lbl">WITA (GMT+8)</div>
+        <div class="tz-card-val" id="floatingTzWITA">--:--:--</div>
+      </div>
+      <div class="tz-card">
+        <div class="tz-card-lbl">WIT (GMT+9)</div>
+        <div class="tz-card-val" id="floatingTzWIT">--:--:--</div>
+      </div>
+      <div class="tz-card">
+        <div class="tz-card-lbl">UTC (Dunia)</div>
+        <div class="tz-card-val" id="floatingTzUTC">--:--:--</div>
+      </div>
+    </div>
+
+    <div class="session-row">
+      <span><i class="fa-solid fa-user-clock" style="color: #f59e0b; margin-right: 4px;"></i>Durasi Sesi Kerja:</span>
+      <span class="session-val" id="floatingSessionDuration">0 jam 0 mnt</span>
+    </div>
+  `;
+
+  updateFloatingClockWindowLive(new Date());
+}
+
+function updateFloatingClockWindowLive(now = new Date()) {
+  if (!window.vortexFloatingClockWindow || window.vortexFloatingClockWindow.closed) return;
+  const doc = window.vortexFloatingClockWindow.document;
+  if (!doc) return;
+
+  const hrs = String(now.getHours()).padStart(2, '0');
+  const mins = String(now.getMinutes()).padStart(2, '0');
+  const secs = String(now.getSeconds()).padStart(2, '0');
+
+  const timeEl = doc.getElementById('floatingClockTime');
+  if (timeEl) timeEl.textContent = `${hrs}:${mins}:${secs}`;
+
+  const dateEl = doc.getElementById('floatingClockDate');
+  if (dateEl) {
+    const opts = { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' };
+    dateEl.textContent = now.toLocaleDateString('id-ID', opts);
+  }
+
+  const witaEl = doc.getElementById('floatingTzWITA');
+  if (witaEl) {
+    const d = new Date(now.getTime() + (1 * 60 * 60 * 1000));
+    witaEl.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+  }
+
+  const witEl = doc.getElementById('floatingTzWIT');
+  if (witEl) {
+    const d = new Date(now.getTime() + (2 * 60 * 60 * 1000));
+    witEl.textContent = `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}:${String(d.getSeconds()).padStart(2, '0')}`;
+  }
+
+  const utcEl = doc.getElementById('floatingTzUTC');
+  if (utcEl) {
+    utcEl.textContent = `${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}:${String(now.getUTCSeconds()).padStart(2, '0')}`;
+  }
+
+  const sessEl = doc.getElementById('floatingSessionDuration');
+  if (sessEl) {
+    const loginTimeStr = localStorage.getItem('vortex_session_login_time');
+    if (loginTimeStr) {
+      const loginTime = parseInt(loginTimeStr, 10);
+      if (!isNaN(loginTime)) {
+        const elapsedMs = Math.max(0, now.getTime() - loginTime);
+        const totalMinutes = Math.floor(elapsedMs / (60 * 1000));
+        const hours = Math.floor(totalMinutes / 60);
+        const minutes = totalMinutes % 60;
+        sessEl.textContent = `${hours} jam ${minutes} mnt`;
+      }
+    }
+  }
 }
 
 function checkSessionExpiry() {
@@ -16323,6 +16774,8 @@ function initZoomControls() {
       UI.zoomDropdownMenu.classList.toggle('hidden');
       if (UI.userDropdownMenu) UI.userDropdownMenu.classList.add('hidden');
       if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
+      if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+      if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
     });
 
     UI.zoomDropdownMenu.addEventListener('click', (e) => {
@@ -16539,6 +16992,8 @@ function initEvents() {
     if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
     if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
     if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
+    if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+    if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
   });
 
   if (UI.btnNotifications && UI.notificationDropdown) {
@@ -16548,6 +17003,8 @@ function initEvents() {
       UI.userDropdownMenu.classList.add('hidden');
       if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
       if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
+      if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+      if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
     });
   }
 
@@ -16581,6 +17038,8 @@ function initEvents() {
       UI.userDropdownMenu.classList.add('hidden');
       if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
       if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
+      if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+      if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
     });
 
     UI.themeDropdownMenu.addEventListener('click', (e) => {
@@ -16595,12 +17054,96 @@ function initEvents() {
     });
   }
 
+  // Clock Dropdown Popup & Flyout
+  if (UI.realtimeClock && UI.clockDropdownMenu) {
+    UI.realtimeClock.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const isOpening = UI.clockDropdownMenu.classList.contains('hidden');
+      if (UI.userDropdownMenu) UI.userDropdownMenu.classList.add('hidden');
+      if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
+      if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
+      if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
+
+      UI.clockDropdownMenu.classList.toggle('hidden');
+      if (UI.clockCaret) {
+        UI.clockCaret.style.transform = isOpening ? 'rotate(180deg)' : 'rotate(0deg)';
+      }
+      if (isOpening) {
+        renderClockCalendar(new Date());
+        updateClockDropdownLive(new Date());
+      }
+    });
+
+    UI.clockDropdownMenu.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+  }
+
+  if (UI.btnCloseClockDropdown) {
+    UI.btnCloseClockDropdown.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+      if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
+    });
+  }
+
+  if (UI.btnPopoutClockWindow) {
+    UI.btnPopoutClockWindow.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.openFloatingClockWindow();
+    });
+  }
+
+  if (UI.btnFloatingClockFooter) {
+    UI.btnFloatingClockFooter.addEventListener('click', (e) => {
+      e.stopPropagation();
+      window.openFloatingClockWindow();
+    });
+  }
+
+  if (UI.btnGoToTimerPage) {
+    UI.btnGoToTimerPage.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (UI.clockDropdownMenu) UI.clockDropdownMenu.classList.add('hidden');
+      if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
+      navigateToPage('timer');
+    });
+  }
+
+  if (UI.btnCalPrevMonth) {
+    UI.btnCalPrevMonth.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentClockCalDate.setMonth(currentClockCalDate.getMonth() - 1);
+      renderClockCalendar(currentClockCalDate);
+    });
+  }
+
+  if (UI.btnCalNextMonth) {
+    UI.btnCalNextMonth.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentClockCalDate.setMonth(currentClockCalDate.getMonth() + 1);
+      renderClockCalendar(currentClockCalDate);
+    });
+  }
+
+  if (UI.btnCalToday) {
+    UI.btnCalToday.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentClockCalDate = new Date();
+      renderClockCalendar(currentClockCalDate);
+    });
+  }
+
   // Click outside to close dropdowns
   document.addEventListener('click', () => {
     if (UI.userDropdownMenu) UI.userDropdownMenu.classList.add('hidden');
     if (UI.notificationDropdown) UI.notificationDropdown.classList.add('hidden');
     if (UI.themeDropdownMenu) UI.themeDropdownMenu.classList.add('hidden');
     if (UI.zoomDropdownMenu) UI.zoomDropdownMenu.classList.add('hidden');
+    if (UI.clockDropdownMenu) {
+      UI.clockDropdownMenu.classList.add('hidden');
+      if (UI.clockCaret) UI.clockCaret.style.transform = 'rotate(0deg)';
+    }
   });
 
   if (UI.btnBannerSwitchAdmin) {
