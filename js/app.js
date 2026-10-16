@@ -251,9 +251,9 @@ const DEFAULT_TIMERS = [
     category: 'CSO INBOUND',
     desc: 'Verifikasi kesesuaian dokumen faktur dengan kondisi fisik stok.',
     totalSeconds: 2700, // 45 Menit (Waktu Ditentukan)
-    remainingSeconds: 1940,
-    isRunning: true,
-    lastTick: Date.now()
+    remainingSeconds: 2700,
+    isRunning: false,
+    lastTick: null
   },
   {
     id: 'tmr_user_2',
@@ -280,9 +280,9 @@ const DEFAULT_TIMERS = [
     category: 'CSO BACK OFFICE',
     desc: 'Pengecekan nomor seri dan label segel garansi.',
     totalSeconds: 7200, // 2 Jam
-    remainingSeconds: 4350,
-    isRunning: true,
-    lastTick: Date.now()
+    remainingSeconds: 7200,
+    isRunning: false,
+    lastTick: null
   },
   // Timers milik Admin (Budi Santoso)
   {
@@ -295,9 +295,9 @@ const DEFAULT_TIMERS = [
     category: 'CSO DIGILIVE CHAT - MY ICON+',
     desc: 'Sinkronisasi mirror database ke data center cadangan secara terenkripsi.',
     totalSeconds: 9000, // 2 Jam 30 Menit
-    remainingSeconds: 6840,
-    isRunning: true,
-    lastTick: Date.now()
+    remainingSeconds: 9000,
+    isRunning: false,
+    lastTick: null
   },
   {
     id: 'tmr_admin_2',
@@ -309,9 +309,9 @@ const DEFAULT_TIMERS = [
     category: 'CSO OUTBOUND',
     desc: 'Batas eskalasi penyelesaian kendala infrastruktur level kritis.',
     totalSeconds: 3600, // 1 Jam
-    remainingSeconds: 2415,
-    isRunning: true,
-    lastTick: Date.now()
+    remainingSeconds: 3600,
+    isRunning: false,
+    lastTick: null
   }
 ];
 
@@ -325,9 +325,9 @@ const DEFAULT_STOPWATCHES = [
     userAvatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&auto=format&fit=crop&q=80',
     name: 'Waktu Proses Packing & Labeling',
     dept: 'CSO INBOUND',
-    elapsedSeconds: 1250,
-    isRunning: true,
-    lastTick: Date.now()
+    elapsedSeconds: 0,
+    isRunning: false,
+    lastTick: null
   },
   // Stopwatch milik Ahmad Fauzi
   {
@@ -338,7 +338,7 @@ const DEFAULT_STOPWATCHES = [
     userAvatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80',
     name: 'Pencatatan Waktu Pengecekan Barcode',
     dept: 'CSO BACK OFFICE',
-    elapsedSeconds: 640,
+    elapsedSeconds: 0,
     isRunning: false,
     lastTick: null
   },
@@ -351,9 +351,9 @@ const DEFAULT_STOPWATCHES = [
     userAvatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
     name: 'Stopwatch Uji Ketahanan Bandwidth 10G',
     dept: 'CSO DIGILIVE CHAT - DM',
-    elapsedSeconds: 874,
-    isRunning: true,
-    lastTick: Date.now()
+    elapsedSeconds: 0,
+    isRunning: false,
+    lastTick: null
   }
 ];
 
@@ -1622,6 +1622,11 @@ class AppState {
     } catch (e) {
       console.warn('Error validating user departments on storage init:', e);
     }
+
+    // Pastikan timer dan stopwatch yang sedang berjalan mengejar waktu sebenarnya saat storage diinisialisasi
+    try {
+      this.catchUpTimersAndStopwatches();
+    } catch (e) {}
   }
 
   getUsers() {
@@ -1662,6 +1667,13 @@ class AppState {
 
   saveStopwatches(stopwatches) {
     this.safeSetStorage('vortex_stopwatches', stopwatches);
+  }
+
+  catchUpTimersAndStopwatches() {
+    if (typeof window !== 'undefined' && typeof window.catchUpTimersAndStopwatches === 'function') {
+      return window.catchUpTimersAndStopwatches();
+    }
+    return false;
   }
 
   getPaLogs() {
@@ -3768,6 +3780,9 @@ function checkSessionExpiry() {
 
 function handleAutoLogout() {
   if (!state.currentUser) return;
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
   const user = state.currentUser;
   state.addLog('LOGIN', 'Sesi Berakhir Otomatis', `Sesi login ${user.fullName} (${user.role.toUpperCase()}) telah mencapai batas waktu 9 jam dan otomatis dikeluarkan oleh sistem.`);
   if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
@@ -3818,6 +3833,9 @@ function handleLogin(username, password) {
 
   // Set session (tandai login baru untuk memulai siklus 9 jam)
   state.setSession(user, true);
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
   state.addLog('LOGIN', 'Login', `Pengguna ${user.fullName} berhasil masuk dengan peran ${user.role.toUpperCase()}.`);
 
   showToast(
@@ -3831,6 +3849,12 @@ function handleLogin(username, password) {
 }
 
 function handleLogout() {
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
+  if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
+    window.FirebaseSync.flushPendingSync();
+  }
   if (state.currentUser) {
     state.addLog('LOGIN', 'Keluar', `Pengguna ${state.currentUser.fullName} mengakhiri sesi dashboard.`);
     if (typeof saveActiveUserQuizSession === 'function' && typeof quizState !== 'undefined' && quizState.activeUserId && !quizState.isFinished) {
@@ -3860,6 +3884,9 @@ function switchUserRole(targetRole) {
       saveActiveUserQuizSession();
     }
     state.setSession(targetUser, true);
+    if (typeof window.catchUpTimersAndStopwatches === 'function') {
+      window.catchUpTimersAndStopwatches();
+    }
     if (typeof resetOverviewUserSync === 'function') resetOverviewUserSync();
     state.addLog('LOGIN', 'Ganti Peran', `Beralih peran secara instan ke ${targetUser.fullName} (${targetUser.role.toUpperCase()}).`);
     showToast('Peran Diperbarui', `Beralih ke akun <strong>${targetUser.fullName}</strong> (${targetUser.role.toUpperCase()}).`, 'success');
@@ -7012,6 +7039,9 @@ function formatSecondsToHMS(totalSec) {
 }
 
 function renderTimerPage() {
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('timer', state.currentUser);
   }
@@ -7518,7 +7548,7 @@ function handleSaveTimer(e) {
       }
 
       existing.isRunning = autoStart;
-      existing.lastTick = Date.now();
+      existing.lastTick = autoStart ? Date.now() : null;
       existing.updatedAt = Date.now();
 
       state.saveTimers(timers);
@@ -7542,7 +7572,7 @@ function handleSaveTimer(e) {
       totalSeconds,
       remainingSeconds: totalSeconds,
       isRunning: autoStart,
-      lastTick: Date.now(),
+      lastTick: autoStart ? Date.now() : null,
       createdAt: Date.now(),
       updatedAt: Date.now()
     };
@@ -7582,8 +7612,15 @@ window.toggleTimerRunning = function(id) {
     timer.isRunning = !timer.isRunning;
   }
 
-  timer.lastTick = Date.now();
+  timer.lastTick = timer.isRunning ? Date.now() : null;
+  if (timer.isRunning) {
+    timer.resetAt = null;
+  }
+  timer.updatedAt = Date.now();
   state.saveTimers(timers);
+  if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+    window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+  }
   renderTimerPage();
 };
 
@@ -7598,9 +7635,32 @@ window.resetTimer = function(id) {
     return;
   }
 
+  // Hentikan timer seketika dan kembalikan ke waktu semula
   timer.remainingSeconds = timer.totalSeconds;
   timer.isRunning = false;
+  timer.lastTick = null;
+  timer.resetAt = Date.now();
+  timer.updatedAt = Date.now();
   state.saveTimers(timers);
+
+  // Pastikan langsung tersinkronisasi ke Cloud Firestore agar tidak tertimpa snapshot lama
+  if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+    window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+  }
+
+  // Update DOM seketika
+  const dispEl = document.getElementById(`timerDisplay_${timer.id}`);
+  if (dispEl) {
+    dispEl.textContent = formatSecondsToHMS(timer.totalSeconds);
+    dispEl.classList.remove('text-danger-pulse');
+  }
+  const progEl = document.getElementById(`timerProgress_${timer.id}`);
+  if (progEl) progEl.style.width = '100%';
+  const pText = document.getElementById(`timerPercent_${timer.id}`);
+  if (pText) pText.textContent = '100%';
+  const cardEl = document.getElementById(`timerCard_${timer.id}`);
+  if (cardEl) cardEl.classList.remove('timer-running', 'timer-completed');
+
   showToast('Timer Direset', `Timer <strong>${timer.name}</strong> dikembalikan ke waktu awal (${formatSecondsToHMS(timer.totalSeconds)}).`, 'info');
   renderTimerPage();
 };
@@ -7673,7 +7733,7 @@ function handleSaveStopwatch(e) {
     dept: dept,
     elapsedSeconds: 0,
     isRunning: autoStart,
-    lastTick: Date.now(),
+    lastTick: autoStart ? Date.now() : null,
     createdAt: Date.now(),
     updatedAt: Date.now()
   };
@@ -7705,8 +7765,15 @@ window.toggleStopwatchRunning = function(id) {
   }
 
   sw.isRunning = !sw.isRunning;
-  sw.lastTick = Date.now();
+  sw.lastTick = sw.isRunning ? Date.now() : null;
+  if (sw.isRunning) {
+    sw.resetAt = null;
+  }
+  sw.updatedAt = Date.now();
   state.saveStopwatches(stopwatches);
+  if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+    window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
+  }
   renderTimerPage();
 };
 
@@ -7721,9 +7788,27 @@ window.resetStopwatch = function(id) {
     return;
   }
 
+  // Hentikan stopwatch seketika dan kembalikan ke 00:00:00
   sw.elapsedSeconds = 0;
   sw.isRunning = false;
+  sw.lastTick = null;
+  sw.resetAt = Date.now();
+  sw.updatedAt = Date.now();
   state.saveStopwatches(stopwatches);
+
+  // Pastikan langsung tersinkronisasi ke Cloud Firestore agar tidak tertimpa snapshot lama
+  if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+    window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
+  }
+
+  // Update DOM seketika
+  const dispEl = document.getElementById(`stopwatchDisplay_${sw.id}`);
+  if (dispEl) {
+    dispEl.textContent = formatSecondsToHMS(0);
+  }
+  const cardEl = document.getElementById(`stopwatchCard_${sw.id}`);
+  if (cardEl) cardEl.classList.remove('timer-running');
+
   showToast('Stopwatch Direset', `Stopwatch <strong>${sw.name}</strong> dikembalikan ke 00:00:00.`, 'info');
   renderTimerPage();
 };
@@ -7749,22 +7834,85 @@ window.promptDeleteStopwatch = function(id, name) {
 // REAL-TIME TICKER (TIMERS, STOPWATCHES & ADMIN MONITOR)
 // ------------------------------------------
 
+window.catchUpTimersAndStopwatches = function() {
+  if (!state || typeof state.getTimers !== 'function') return false;
+  let changed = false;
+  const now = Date.now();
+
+  const timers = state.getTimers();
+  if (Array.isArray(timers) && timers.length > 0) {
+    timers.forEach(t => {
+      if (t && t.isRunning) {
+        if (!t.lastTick) t.lastTick = now;
+        const elapsedSec = Math.floor((now - Number(t.lastTick)) / 1000);
+        if (elapsedSec > 0) {
+          t.remainingSeconds = Math.max(0, (Number(t.remainingSeconds) || 0) - elapsedSec);
+          t.lastTick = Number(t.lastTick) + (elapsedSec * 1000);
+          t.updatedAt = now;
+          changed = true;
+          if (t.remainingSeconds === 0) {
+            t.isRunning = false;
+            t.lastTick = null;
+          }
+        }
+      }
+    });
+    if (changed) {
+      if (window.FirebaseSync) window.FirebaseSync._suppressSync = true;
+      state.saveTimers(timers);
+      if (window.FirebaseSync) window.FirebaseSync._suppressSync = false;
+    }
+  }
+
+  let swChanged = false;
+  const stopwatches = state.getStopwatches();
+  if (Array.isArray(stopwatches) && stopwatches.length > 0) {
+    stopwatches.forEach(sw => {
+      if (sw && sw.isRunning) {
+        if (!sw.lastTick) sw.lastTick = now;
+        const elapsedSec = Math.floor((now - Number(sw.lastTick)) / 1000);
+        if (elapsedSec > 0) {
+          sw.elapsedSeconds = (Number(sw.elapsedSeconds) || 0) + elapsedSec;
+          sw.lastTick = Number(sw.lastTick) + (elapsedSec * 1000);
+          sw.updatedAt = now;
+          swChanged = true;
+        }
+      }
+    });
+    if (swChanged) {
+      if (window.FirebaseSync) window.FirebaseSync._suppressSync = true;
+      state.saveStopwatches(stopwatches);
+      if (window.FirebaseSync) window.FirebaseSync._suppressSync = false;
+    }
+  }
+
+  return changed || swChanged;
+};
+
 function startTimerTicker() {
   setInterval(() => {
     let hasChanges = false;
+    const now = Date.now();
     const timers = state.getTimers();
     const stopwatches = state.getStopwatches();
 
     // Tick timers
     timers.forEach(t => {
-      if (t.isRunning && t.remainingSeconds > 0) {
-        t.remainingSeconds -= 1;
-        hasChanges = true;
+      if (t.isRunning) {
+        if (!t.lastTick) t.lastTick = now;
+        const elapsedSec = Math.floor((now - Number(t.lastTick)) / 1000);
+        if (elapsedSec > 0) {
+          t.remainingSeconds = Math.max(0, (Number(t.remainingSeconds) || 0) - elapsedSec);
+          t.lastTick = Number(t.lastTick) + (elapsedSec * 1000);
+          t.updatedAt = now;
+          hasChanges = true;
 
-        if (t.remainingSeconds === 0) {
-          t.isRunning = false;
-          if (state.currentUser && t.userId === state.currentUser.id) {
-            showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
+          if (t.remainingSeconds === 0) {
+            t.isRunning = false;
+            t.lastTick = null;
+            if (state.currentUser && t.userId === state.currentUser.id) {
+              showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
+            }
           }
         }
 
@@ -7805,8 +7953,14 @@ function startTimerTicker() {
     // Tick stopwatches
     stopwatches.forEach(sw => {
       if (sw.isRunning) {
-        sw.elapsedSeconds += 1;
-        hasChanges = true;
+        if (!sw.lastTick) sw.lastTick = now;
+        const elapsedSec = Math.floor((now - Number(sw.lastTick)) / 1000);
+        if (elapsedSec > 0) {
+          sw.elapsedSeconds = (Number(sw.elapsedSeconds) || 0) + elapsedSec;
+          sw.lastTick = Number(sw.lastTick) + (elapsedSec * 1000);
+          sw.updatedAt = now;
+          hasChanges = true;
+        }
 
         // Live DOM update for personal stopwatch card
         const dispEl = document.getElementById(`stopwatchDisplay_${sw.id}`);
@@ -7827,6 +7981,15 @@ function startTimerTicker() {
       localStorage.setItem('vortex_timers', JSON.stringify(timers));
       localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
       if (window.FirebaseSync) window.FirebaseSync._suppressSync = false;
+
+      // Sinkronisasi berkala ke Cloud Firestore setiap 15 detik agar snapshot cloud tetap up-to-date
+      if (!window._lastCloudTimerSync || (now - window._lastCloudTimerSync >= 15000)) {
+        window._lastCloudTimerSync = now;
+        if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+          window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+          window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
+        }
+      }
     }
   }, 1000);
 }
@@ -22285,8 +22448,47 @@ function initQuizBattle() {
 }
 
 // ==========================================
-// 16. INITIALIZATION
+// 16. INITIALIZATION & TIMER LIVENESS LISTENERS
 // ==========================================
+
+// Liveness catch-up untuk timer & stopwatch saat tab dibuka kembali, fokus, atau halaman dimuat
+window.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    if (typeof window.catchUpTimersAndStopwatches === 'function') {
+      window.catchUpTimersAndStopwatches();
+    }
+    if (typeof state !== 'undefined' && state && state.currentPage === 'timer' && typeof renderTimerPage === 'function') {
+      renderTimerPage();
+    }
+  }
+});
+
+window.addEventListener('pageshow', () => {
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
+  if (typeof state !== 'undefined' && state && state.currentPage === 'timer' && typeof renderTimerPage === 'function') {
+    renderTimerPage();
+  }
+});
+
+window.addEventListener('focus', () => {
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
+  if (typeof state !== 'undefined' && state && state.currentPage === 'timer' && typeof renderTimerPage === 'function') {
+    renderTimerPage();
+  }
+});
+
+window.addEventListener('beforeunload', () => {
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
+  if (window.FirebaseSync && typeof window.FirebaseSync.flushPendingSync === 'function') {
+    window.FirebaseSync.flushPendingSync();
+  }
+});
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
@@ -22294,6 +22496,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initZoomControls();
   startClock();
   populateNotifications();
+  if (typeof window.catchUpTimersAndStopwatches === 'function') {
+    window.catchUpTimersAndStopwatches();
+  }
   startTimerTicker();
   initTypingTest();
   initQuizBattle();

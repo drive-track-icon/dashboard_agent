@@ -210,6 +210,162 @@
     }
 
     /**
+     * Helper cerdas untuk menggabungkan koleksi lokal dan remote dengan aman,
+     * terutama menjaga state reset, updated timestamp, dan kelangsungan waktu lintas device pada Timer & Stopwatch
+     */
+    mergeCollections(key, localArr, remoteArr, deletedIds) {
+      const isTimer = (key === 'vortex_timers');
+      const isStopwatch = (key === 'vortex_stopwatches');
+      const isTimerKey = (isTimer || isStopwatch);
+
+      const catchUpTimerOrSw = (item, nowTime) => {
+        if (!item || !item.isRunning || !item.lastTick) return item;
+        const copy = { ...item };
+        const now = nowTime || Date.now();
+        const elapsedSec = Math.floor((now - Number(copy.lastTick)) / 1000);
+        if (elapsedSec > 0) {
+          if (isTimer) {
+            copy.remainingSeconds = Math.max(0, (Number(copy.remainingSeconds) || 0) - elapsedSec);
+            copy.lastTick = Number(copy.lastTick) + (elapsedSec * 1000);
+            copy.updatedAt = now;
+            if (copy.remainingSeconds === 0) {
+              copy.isRunning = false;
+              copy.lastTick = null;
+            }
+          } else {
+            copy.elapsedSeconds = (Number(copy.elapsedSeconds) || 0) + elapsedSec;
+            copy.lastTick = Number(copy.lastTick) + (elapsedSec * 1000);
+            copy.updatedAt = now;
+          }
+        }
+        return copy;
+      };
+
+      if (!Array.isArray(localArr) || localArr.length === 0) {
+        if (isTimerKey && Array.isArray(remoteArr)) {
+          const now = Date.now();
+          const caughtUp = remoteArr.map(r => catchUpTimerOrSw(r, now));
+          return { merged: caughtUp, hasLocalOverrides: false };
+        }
+        return { merged: Array.isArray(remoteArr) ? remoteArr : [], hasLocalOverrides: false };
+      }
+      if (!Array.isArray(remoteArr) || remoteArr.length === 0) {
+        const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id));
+        return { merged: localOnly, hasLocalOverrides: localOnly.length > 0 };
+      }
+
+      if (isTimerKey) {
+        const now = Date.now();
+        const DEFAULT_DEMO_TIMER_IDS = new Set([
+          'tmr_user_1', 'tmr_user_2', 'tmr_user_3', 'tmr_admin_1', 'tmr_admin_2',
+          'sw_user_1', 'sw_user_2', 'sw_admin_1', 'sw_admin_2'
+        ]);
+
+        const mergedMap = new Map();
+        remoteArr.forEach(r => {
+          if (r && r.id && !deletedIds.has(r.id)) {
+            mergedMap.set(r.id, catchUpTimerOrSw(r, now));
+          }
+        });
+
+        let hasLocalOverrides = false;
+        localArr.forEach(rawL => {
+          if (!rawL || !rawL.id || deletedIds.has(rawL.id)) return;
+          const l = catchUpTimerOrSw(rawL, now);
+          const r = mergedMap.get(l.id);
+          if (!r) {
+            // Pengaman Pindah Device: Jika remoteArr sudah memiliki data di cloud,
+            // jangan suntikkan demo item bawaan dari device baru ke dalam cloud
+            if (DEFAULT_DEMO_TIMER_IDS.has(l.id) && remoteArr.length > 0) {
+              return;
+            }
+            mergedMap.set(l.id, l);
+            hasLocalOverrides = true;
+          } else {
+            const lEffectiveTime = Number(l.lastTick || l.resetAt || l.updatedAt || l.createdAt || 0);
+            const rEffectiveTime = Number(r.lastTick || r.resetAt || r.updatedAt || r.createdAt || 0);
+
+            // Cek apakah item benar-benar direset secara eksplisit oleh aksi user
+            const localWasExplicitlyReset = (l.isRunning === false && (
+              (isTimer && l.remainingSeconds === l.totalSeconds) ||
+              (isStopwatch && l.elapsedSeconds === 0)
+            ) && (
+              (!!l.resetAt && l.resetAt >= rEffectiveTime) ||
+              (!r.isRunning && lEffectiveTime >= rEffectiveTime) ||
+              (lEffectiveTime > rEffectiveTime + 500)
+            ));
+
+            const remoteWasExplicitlyReset = (r.isRunning === false && (
+              (isTimer && r.remainingSeconds === r.totalSeconds) ||
+              (isStopwatch && r.elapsedSeconds === 0)
+            ) && (
+              (!!r.resetAt && r.resetAt >= lEffectiveTime) ||
+              (!l.isRunning && rEffectiveTime >= lEffectiveTime) ||
+              (rEffectiveTime > lEffectiveTime + 500)
+            ));
+
+            let chosen = l;
+
+            // ATURAN 1: Remote sedang berjalan (dari Device A / Cloud), Lokal TIDAK berjalan (Device B baru buka / belum disentuh)
+            if (!l.isRunning && r.isRunning) {
+              // Hanya tolak remote jika user di device ini BENAR-BENAR mereset secara eksplisit setelah timer remote berjalan
+              if (localWasExplicitlyReset) {
+                chosen = l;
+                hasLocalOverrides = true;
+              } else {
+                chosen = r;
+              }
+            }
+            // ATURAN 2: Lokal sedang berjalan, Remote TIDAK berjalan
+            else if (l.isRunning && !r.isRunning) {
+              if (remoteWasExplicitlyReset) {
+                chosen = r;
+              } else {
+                chosen = l;
+                hasLocalOverrides = true;
+              }
+            }
+            // ATURAN 3: Keduanya sedang berjalan
+            else if (l.isRunning && r.isRunning) {
+              chosen = (lEffectiveTime >= rEffectiveTime) ? l : r;
+            }
+            // ATURAN 4: Keduanya berhenti
+            else {
+              if (localWasExplicitlyReset && !remoteWasExplicitlyReset) {
+                chosen = l;
+                hasLocalOverrides = true;
+              } else if (remoteWasExplicitlyReset) {
+                chosen = r;
+              } else if (lEffectiveTime >= rEffectiveTime) {
+                chosen = l;
+              } else {
+                chosen = r;
+              }
+            }
+
+            mergedMap.set(l.id, chosen);
+            if (chosen === l && (
+              r.isRunning !== l.isRunning ||
+              r.remainingSeconds !== l.remainingSeconds ||
+              r.elapsedSeconds !== l.elapsedSeconds
+            )) {
+              hasLocalOverrides = true;
+            }
+          }
+        });
+
+        return { merged: Array.from(mergedMap.values()), hasLocalOverrides };
+      }
+
+      // Default pengaman untuk koleksi data lainnya
+      const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id) && !remoteArr.some(r => r && r.id === l.id));
+      if (localOnly.length > 0) {
+        return { merged: [...remoteArr, ...localOnly], hasLocalOverrides: true };
+      }
+      return { merged: remoteArr, hasLocalOverrides: false };
+    }
+
+    /**
      * Mulai mendengarkan perubahan realtime dari Firestore untuk semua koleksi data
      */
     startRealtimeListeners() {
@@ -226,27 +382,24 @@
             const docData = docSnapshot.data();
             if (!docData || docData.payload === undefined) return;
 
-            // Jika update ini dipicu oleh diri sendiri dalam waktu 2.5 detik terakhir, lewati
-            if (this.skipNextRemote[key] && (Date.now() - this.skipNextRemote[key] < 2500)) {
-              delete this.skipNextRemote[key];
+            // Jika update ini dipicu oleh diri sendiri dalam waktu 3 detik terakhir, lewati (jaga double event cache & server ack)
+            if (this.skipNextRemote[key] && (Date.now() - this.skipNextRemote[key] < 3000)) {
               return;
             }
 
             const currentLocalRaw = localStorage.getItem(key);
             let finalPayload = docData.payload;
 
-            // Pengaman khusus semua koleksi data (Array of items with id): Jangan menimpa item lokal yang baru dibuat
+            // Pengaman khusus semua koleksi data (Array of items with id): Jangan menimpa item lokal yang baru dibuat / direset
             if (Array.isArray(docData.payload)) {
               try {
                 const localArr = JSON.parse(currentLocalRaw || '[]');
                 const remoteArr = Array.isArray(docData.payload) ? docData.payload : [];
-                if (Array.isArray(localArr) && localArr.length > 0) {
-                  const deletedIds = this.getDeletedIds(key);
-                  const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id) && !remoteArr.some(r => r && r.id === l.id));
-                  if (localOnly.length > 0) {
-                    finalPayload = [...remoteArr, ...localOnly];
-                    this.notifyDataChanged(key, finalPayload, true);
-                  }
+                const deletedIds = this.getDeletedIds(key);
+                const { merged, hasLocalOverrides } = this.mergeCollections(key, localArr, remoteArr, deletedIds);
+                finalPayload = merged;
+                if (hasLocalOverrides) {
+                  this.notifyDataChanged(key, finalPayload, true);
                 }
               } catch (e) {
                 console.debug(`Error in realtime ${key} merge:`, e);
@@ -258,6 +411,9 @@
               this._suppressSync = true;
               localStorage.setItem(key, finalRaw);
               this._suppressSync = false;
+              if (typeof window !== 'undefined' && typeof window.catchUpTimersAndStopwatches === 'function' && (key === 'vortex_timers' || key === 'vortex_stopwatches')) {
+                window.catchUpTimersAndStopwatches();
+              }
               this.lastSyncTime = new Date();
               this.onRemoteDataUpdated(key, finalPayload);
             }
@@ -400,7 +556,8 @@
      * Kirim pembaruan ke Firestore saat ada penambahan, pengeditan, atau penghapusan data
      */
     notifyDataChanged(key, data, immediate = false) {
-      if (!this.isConnected || !this.db || this.isHydrating || this._suppressSync) return;
+      if (!this.isConnected || !this.db || this.isHydrating) return;
+      if (!immediate && this._suppressSync) return;
 
       this.skipNextRemote[key] = Date.now();
       try {
@@ -461,6 +618,20 @@
 
       const delay = (key === 'vortex_timers' || key === 'vortex_stopwatches') ? 100 : 150;
       this._debounceTimers[key] = setTimeout(performSave, delay);
+    }
+
+    /**
+     * Segera flush dan bersihkan timer sync yang masih pending sebelum tab ditutup / direfresh
+     */
+    flushPendingSync() {
+      if (this._debounceTimers) {
+        Object.keys(this._debounceTimers).forEach((key) => {
+          if (this._debounceTimers[key]) {
+            clearTimeout(this._debounceTimers[key]);
+            delete this._debounceTimers[key];
+          }
+        });
+      }
     }
 
     /**
@@ -546,21 +717,20 @@
 
             // PENGAMAN KHUSUS SEMUA KOLEKSI DATA (Array of items with id):
             // JANGAN SAMPAI DATA LOKAL BARU / BELUM DISINKRONKAN HILANG SAAT REFRESH
+            // DAN JANGAN TIMPA TIMER/STOPWATCH LOKAL YANG TELAH DIRESET DENGAN DATA REMOTE LAMA
             if (Array.isArray(data.payload)) {
               try {
                 const localRaw = localStorage.getItem(key);
                 const localArr = localRaw ? JSON.parse(localRaw) : [];
                 const remoteArr = Array.isArray(data.payload) ? data.payload : [];
-                if (Array.isArray(localArr) && localArr.length > 0) {
-                  const deletedIds = this.getDeletedIds(key);
-                  const localOnly = localArr.filter(l => l && l.id && !deletedIds.has(l.id) && !remoteArr.some(r => r && r.id === l.id));
-                  if (localOnly.length > 0) {
-                    finalPayload = [...remoteArr, ...localOnly];
-                    // Kirim pembaruan gabungan kembali ke cloud agar cloud juga memiliki data terbaru
-                    setTimeout(() => {
-                      this.notifyDataChanged(key, finalPayload, true);
-                    }, 200);
-                  }
+                const deletedIds = this.getDeletedIds(key);
+                const { merged, hasLocalOverrides } = this.mergeCollections(key, localArr, remoteArr, deletedIds);
+                finalPayload = merged;
+                if (hasLocalOverrides) {
+                  // Kirim pembaruan gabungan kembali ke cloud agar cloud juga memiliki data terbaru yang direset
+                  setTimeout(() => {
+                    this.notifyDataChanged(key, finalPayload, true);
+                  }, 200);
                 }
               } catch (e) {
                 console.warn(`Gagal merge data untuk ${key} saat sync:`, e);
@@ -578,6 +748,11 @@
         this.lastSyncTime = new Date();
         this.isSyncing = false;
         this.updateStatusBadge('online', 'Terhubung ke Cloud (Realtime)');
+
+        // Catch-up timer & stopwatch yang sedang berjalan segera setelah unduh dari cloud
+        if (typeof window !== 'undefined' && typeof window.catchUpTimersAndStopwatches === 'function') {
+          window.catchUpTimersAndStopwatches();
+        }
 
         // Re-render dashboard setelah data cloud berhasil ditarik ke browser
         this.reRenderCurrentView('all');
