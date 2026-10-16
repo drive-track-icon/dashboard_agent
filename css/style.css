@@ -4524,6 +4524,9 @@ textarea.form-control {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
 
 .btn-timer-ctrl:hover:not(:disabled) {

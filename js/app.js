@@ -7929,6 +7929,9 @@ function startTimerTicker() {
             if (state.currentUser && t.userId === state.currentUser.id) {
               showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
             }
+            if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+              window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+            }
           }
         }
 
@@ -7996,17 +7999,47 @@ function startTimerTicker() {
       localStorage.setItem('vortex_timers', JSON.stringify(timers));
       localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
       if (window.FirebaseSync) window.FirebaseSync._suppressSync = false;
-
-      // Sinkronisasi berkala ke Cloud Firestore setiap 15 detik agar snapshot cloud tetap up-to-date
-      if (!window._lastCloudTimerSync || (now - window._lastCloudTimerSync >= 15000)) {
-        window._lastCloudTimerSync = now;
-        if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
-          window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
-          window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
-        }
-      }
     }
   }, 1000);
+}
+
+// ------------------------------------------
+// RESPONSIVITAS SIKLUS HIDUP HP & PC (Layar HP mati/hidup, sleep, tab switch)
+// ------------------------------------------
+if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') {
+      if (typeof window.catchUpTimersAndStopwatches === 'function') {
+        window.catchUpTimersAndStopwatches();
+      }
+      if (typeof renderTimerPage === 'function' && typeof state !== 'undefined' && state && state.currentPage === 'timer') {
+        renderTimerPage();
+      }
+      if (window.FirebaseSync && typeof window.FirebaseSync.syncAllFromCloud === 'function' && typeof navigator !== 'undefined' && navigator.onLine) {
+        window.FirebaseSync.syncAllFromCloud(false);
+      }
+    }
+  });
+}
+
+if (typeof window !== 'undefined' && typeof window.addEventListener === 'function') {
+  window.addEventListener('pageshow', () => {
+    if (typeof window.catchUpTimersAndStopwatches === 'function') {
+      window.catchUpTimersAndStopwatches();
+    }
+    if (typeof renderTimerPage === 'function' && typeof state !== 'undefined' && state && state.currentPage === 'timer') {
+      renderTimerPage();
+    }
+  });
+
+  window.addEventListener('focus', () => {
+    if (typeof window.catchUpTimersAndStopwatches === 'function') {
+      window.catchUpTimersAndStopwatches();
+    }
+    if (typeof renderTimerPage === 'function' && typeof state !== 'undefined' && state && state.currentPage === 'timer') {
+      renderTimerPage();
+    }
+  });
 }
 
 // ==========================================

@@ -56,6 +56,17 @@
       this._suppressSync = false;
       this._storageIntercepted = false;
       this.isHydrating = false;
+
+      // ID unik persisten untuk setiap browser / perangkat (HP atau PC)
+      this.deviceId = 'dev_' + Math.random().toString(36).substring(2, 9) + '_' + Date.now();
+      try {
+        let storedId = localStorage.getItem('vortex_device_id');
+        if (!storedId) {
+          storedId = this.deviceId;
+          localStorage.setItem('vortex_device_id', storedId);
+        }
+        this.deviceId = storedId;
+      } catch (e) {}
     }
 
     /**
@@ -455,14 +466,19 @@
             const docData = docSnapshot.data();
             if (!docData || docData.payload === undefined) return;
 
+            // 1. Abaikan jika update ini masih berstatus pending write lokal di browser device ini
+            if (docSnapshot.metadata && docSnapshot.metadata.hasPendingWrites) {
+              return;
+            }
+
+            // 2. Abaikan jika ini gema pantulan dari device ini sendiri
+            if (docData.writerDeviceId && docData.writerDeviceId === this.deviceId) {
+              return;
+            }
+
             // Sinkronisasi catatan ID item yang dihapus dari cloud ke lokal
             if (Array.isArray(docData.deletedIds) && docData.deletedIds.length > 0) {
               docData.deletedIds.forEach(dId => this.trackDeletedId(key, dId));
-            }
-
-            // Jika update ini dipicu oleh diri sendiri dalam waktu 3 detik terakhir, lewati (jaga double event cache & server ack)
-            if (this.skipNextRemote[key] && (Date.now() - this.skipNextRemote[key] < 3000)) {
-              return;
             }
 
             const currentLocalRaw = localStorage.getItem(key);
@@ -606,7 +622,9 @@
 
         const relevantKeys = PAGE_AFFECTED_KEYS[activePage] || ['all'];
         if (relevantKeys.includes(key)) {
-          if (typeof window.navigateToPage === 'function') {
+          if (activePage === 'timer' && typeof window.renderTimerPage === 'function') {
+            window.renderTimerPage();
+          } else if (typeof window.navigateToPage === 'function') {
             window.navigateToPage(activePage, false);
           } else if (typeof window.renderAppView === 'function') {
             window.renderAppView();
@@ -678,6 +696,8 @@
           await this.db.collection(COLLECTION_NAME).doc(key).set({
             payload: cleanData,
             deletedIds: [...this.getDeletedIds(key)],
+            writerDeviceId: this.deviceId,
+            actionTimestamp: Date.now(),
             updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
             updatedBy: username
           }, { merge: true });
@@ -740,6 +760,8 @@
               batch.set(ref, {
                 payload: cleanData,
                 deletedIds: [...this.getDeletedIds(key)],
+                writerDeviceId: this.deviceId,
+                actionTimestamp: Date.now(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
                 updatedBy: username
               }, { merge: true });
