@@ -7019,8 +7019,7 @@ function openAddTimerModal() {
     'CSO BACK OFFICE',
     'CSO OUTBOUND',
     'CSO EMAIL',
-    'TEAM LEADER',
-    'TIME LIDER'
+    'TEAM LEADER'
   ];
   if (UI.formTimerCategory) {
     if (userDept === 'TIME LIDER' || userDept === 'TEAM LEADER') {
@@ -7058,8 +7057,7 @@ window.openEditTimerModal = function(id) {
     'CSO BACK OFFICE',
     'CSO OUTBOUND',
     'CSO EMAIL',
-    'TEAM LEADER',
-    'TIME LIDER'
+    'TEAM LEADER'
   ];
   if (timer.category === 'TIME LIDER' || timer.category === 'TEAM LEADER') {
     UI.formTimerCategory.value = 'TEAM LEADER';
@@ -7331,8 +7329,7 @@ function openAddStopwatchModal() {
     'CSO BACK OFFICE',
     'CSO OUTBOUND',
     'CSO EMAIL',
-    'TEAM LEADER',
-    'TIME LIDER'
+    'TEAM LEADER'
   ];
   if (UI.formStopwatchDept) {
     if (userDept === 'TIME LIDER' || userDept === 'TEAM LEADER') {

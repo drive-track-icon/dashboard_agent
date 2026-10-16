@@ -25,21 +25,21 @@ assert(
 );
 console.log('✓ HTML: formFindingUser is now a <select> dropdown');
 
-// Check formTimerCategory has TEAM LEADER and TIME LIDER
+// Check formTimerCategory has TEAM LEADER and DOES NOT have TIME LIDER
 const timerCategoryMatch = htmlContent.match(/<select\s+id="formTimerCategory"[^>]*>([\s\S]*?)<\/select>/i);
 assert(timerCategoryMatch, 'formTimerCategory select must exist in index.html');
 const timerOptions = timerCategoryMatch[1];
 assert(timerOptions.includes('value="TEAM LEADER"'), 'formTimerCategory must have TEAM LEADER option');
-assert(timerOptions.includes('value="TIME LIDER"'), 'formTimerCategory must have TIME LIDER option');
-console.log('✓ HTML: formTimerCategory contains TEAM LEADER and TIME LIDER options');
+assert(!timerOptions.includes('value="TIME LIDER"'), 'formTimerCategory must NOT have TIME LIDER option (removed)');
+console.log('✓ HTML: formTimerCategory contains TEAM LEADER and does not contain TIME LIDER');
 
-// Check formStopwatchDept has TEAM LEADER and TIME LIDER
+// Check formStopwatchDept has TEAM LEADER and DOES NOT have TIME LIDER
 const swDeptMatch = htmlContent.match(/<select\s+id="formStopwatchDept"[^>]*>([\s\S]*?)<\/select>/i);
 assert(swDeptMatch, 'formStopwatchDept select must exist in index.html');
 const swOptions = swDeptMatch[1];
 assert(swOptions.includes('value="TEAM LEADER"'), 'formStopwatchDept must have TEAM LEADER option');
-assert(swOptions.includes('value="TIME LIDER"'), 'formStopwatchDept must have TIME LIDER option');
-console.log('✓ HTML: formStopwatchDept contains TEAM LEADER and TIME LIDER options');
+assert(!swOptions.includes('value="TIME LIDER"'), 'formStopwatchDept must NOT have TIME LIDER option (removed)');
+console.log('✓ HTML: formStopwatchDept contains TEAM LEADER and does not contain TIME LIDER');
 
 // 2. Mock environment to test JS behavior
 function createMockEl(id, tagName = 'div') {
@@ -237,13 +237,14 @@ console.log('✓ openAddTimerModal correctly selects TEAM LEADER for leadership 
 // Current user with dept 'TIME LIDER'
 state.currentUser = mockTeamUsers[3]; // Rian Time Lider
 openAddTimerModal();
-assert(
-  timerCatSelect.value === 'TEAM LEADER' || timerCatSelect.value === 'TIME LIDER',
-  'openAddTimerModal must accept TIME LIDER and select appropriately'
+assert.strictEqual(
+  timerCatSelect.value,
+  'TEAM LEADER',
+  'openAddTimerModal must auto-normalize TIME LIDER to TEAM LEADER'
 );
-console.log('✓ openAddTimerModal correctly handles TIME LIDER');
+console.log('✓ openAddTimerModal correctly maps to TEAM LEADER');
 
-// 6. Test Stopwatch "Layanan" with TEAM LEADER & TIME LIDER
+// 6. Test Stopwatch "Layanan" with TEAM LEADER
 const swDeptSelect = document.getElementById('formStopwatchDept');
 
 state.currentUser = mockTeamUsers[2]; // Agus Leader (dept: TEAM LEADER)
@@ -253,10 +254,11 @@ console.log('✓ openAddStopwatchModal correctly selects TEAM LEADER');
 
 state.currentUser = mockTeamUsers[3]; // Rian Time Lider (dept: TIME LIDER)
 openAddStopwatchModal();
-assert(
-  swDeptSelect.value === 'TEAM LEADER' || swDeptSelect.value === 'TIME LIDER',
-  'openAddStopwatchModal must handle TIME LIDER'
+assert.strictEqual(
+  swDeptSelect.value,
+  'TEAM LEADER',
+  'openAddStopwatchModal must auto-normalize TIME LIDER to TEAM LEADER'
 );
-console.log('✓ openAddStopwatchModal correctly handles TIME LIDER');
+console.log('✓ openAddStopwatchModal correctly maps to TEAM LEADER');
 
 console.log('--- ALL TESTS PASSED SUCCESSFULLY (100%) ---');
