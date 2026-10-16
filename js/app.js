@@ -713,6 +713,15 @@ class AppState {
       }
 
       dummyUserIds.forEach(id => this.trackDeletedId('vortex_users', id));
+      ['QZH-1001', 'QZH-1002', 'QZH-1003'].forEach(id => this.trackDeletedId('vortex_quiz_history', id));
+
+      // Bersihkan sesi aktif kuis dan hero lokal dari akun dummy
+      ['usr_user_1', 'usr_user_2', 'usr_admin_2'].forEach(uid => {
+        try {
+          localStorage.removeItem('quiz_active_session_' + uid);
+          localStorage.removeItem('quiz_selected_hero_' + uid);
+        } catch (e) {}
+      });
 
       const keysToClean = [
         'vortex_pa_logs', 'vortex_ca_logs', 'vortex_tikets',
@@ -728,8 +737,9 @@ class AppState {
               const filtered = arr.filter(item => {
                 if (!item) return false;
                 if (item.userId && dummyUserIds.has(item.userId)) return false;
-                if (item.id && (dummyUserIds.has(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return false;
+                if (item.id && (dummyUserIds.has(item.id) || ['QZH-1001', 'QZH-1002', 'QZH-1003'].includes(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return false;
                 if (item.username && dummyUsernames.has(item.username.toLowerCase())) return false;
+                if (item.userName && dummyUsernames.has(item.userName.toLowerCase())) return false;
                 const name = (item.userFullName || item.fullName || item.userName || item.author || item.targetUser || '').toLowerCase().trim();
                 if (dummyNames.has(name)) return false;
                 const userStr = (item.user || '').toLowerCase();
@@ -20966,7 +20976,10 @@ function promptDeleteSelectedQuizQuestions() {
     const questions = state.getQuizQuestions();
     const remaining = questions.filter(q => !selectedList.includes(q.id));
     state.saveQuizQuestions(remaining);
-    selectedList.forEach(id => quizState.selectedQuestionIds.delete(id));
+    selectedList.forEach(id => {
+      quizState.selectedQuestionIds.delete(id);
+      state.trackDeletedId('vortex_quiz_questions', id);
+    });
     state.addLog('Quiz Bank', 'Hapus Massal', `Menghapus ${selectedList.length} soal kuis yang ditandai.`);
     showToast('Soal Ditandai Dihapus', `Sebanyak ${selectedList.length} soal kuis yang ditandai berhasil dihapus.`, 'danger');
     renderQuizAdminQuestions();
@@ -21124,7 +21137,27 @@ function renderQuizAdminQuestions() {
 function renderQuizLeaderboard() {
   const isAdmin = state.isAdmin();
   const currentUser = state.currentUser || { id: 'U-GUEST', username: 'guest', fullName: 'Peserta Tamu', department: 'CSO LAYANAN' };
-  const allHistory = state.getQuizHistory();
+  const allRawHistory = state.getQuizHistory();
+  const dummyHistoryIds = new Set(['QZH-1001', 'QZH-1002', 'QZH-1003']);
+  const dummyUserIds = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
+  const dummyUsernames = new Set(['user', 'ahmad_fauzi', 'dewi_lestari']);
+  const dummyNames = new Set([
+    'siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari',
+    'budi santoso, s.kom', 'budi santoso'
+  ]);
+  const allHistory = allRawHistory.filter(h => {
+    if (!h) return false;
+    if (dummyHistoryIds.has(h.id)) return false;
+    if (h.userId && dummyUserIds.has(h.userId)) return false;
+    if (h.username && dummyUsernames.has(h.username.toLowerCase())) return false;
+    if (h.userName && dummyUsernames.has(h.userName.toLowerCase())) return false;
+    const name = (h.userFullName || h.fullName || h.userName || '').toLowerCase().trim();
+    if (dummyNames.has(name)) return false;
+    return true;
+  });
+  if (allHistory.length !== allRawHistory.length) {
+    state.saveQuizHistory(allHistory);
+  }
 
   const banner = document.getElementById('quizLeaderboardBanner');
   const bannerIcon = document.getElementById('quizLeaderboardBannerIcon');
@@ -21155,13 +21188,14 @@ function renderQuizLeaderboard() {
       const currentSelected = quizState.historyFilterUser || 'ALL';
       const userMap = new Map();
       allHistory.forEach(h => {
-        if (h.userId && !userMap.has(h.userId)) {
+        if (h.userId && !userMap.has(h.userId) && !dummyUserIds.has(h.userId)) {
           userMap.set(h.userId, { id: h.userId, name: h.userFullName || h.userId, dept: h.department || 'CSO' });
         }
       });
-      if (Array.isArray(state.users)) {
-        state.users.forEach(u => {
-          if (u.id && !userMap.has(u.id)) {
+      const allUsers = state.getUsers ? state.getUsers() : (Array.isArray(state.users) ? state.users : []);
+      if (Array.isArray(allUsers)) {
+        allUsers.forEach(u => {
+          if (u && u.id && !userMap.has(u.id) && !dummyUserIds.has(u.id)) {
             userMap.set(u.id, { id: u.id, name: u.fullName || u.username, dept: u.department || 'CSO' });
           }
         });
@@ -21574,6 +21608,17 @@ function initQuizBattle() {
   const btnClearHist = document.getElementById('btnClearMyQuizHistory');
   if (btnClearHist) btnClearHist.addEventListener('click', clearMyQuizHistory);
 }
+
+// Expose Quiz functions & state globally for cross-module & realtime sync
+window.quizState = quizState;
+window.renderQuizPage = renderQuizPage;
+window.renderQuizLeaderboard = renderQuizLeaderboard;
+window.renderQuizAdminQuestions = renderQuizAdminQuestions;
+window.startQuizBattle = startQuizBattle;
+window.switchQuizTab = switchQuizTab;
+window.deleteQuizHistoryRecord = deleteQuizHistoryRecord;
+window.clearAllTeamQuizHistory = clearAllTeamQuizHistory;
+window.clearMyQuizHistory = clearMyQuizHistory;
 
 // ==========================================
 // 16. INITIALIZATION & TIMER LIVENESS LISTENERS

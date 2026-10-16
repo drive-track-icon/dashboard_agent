@@ -74,7 +74,7 @@
      */
     isDummyItem(item) {
       if (!item) return false;
-      const DUMMY_IDS = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
+      const DUMMY_IDS = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2', 'QZH-1001', 'QZH-1002', 'QZH-1003']);
       const DUMMY_USERNAMES = new Set(['user', 'ahmad_fauzi', 'dewi_lestari']);
       const DUMMY_NAMES = new Set([
         'siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari',
@@ -83,6 +83,7 @@
       if (item.id && (DUMMY_IDS.has(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return true;
       if (item.userId && DUMMY_IDS.has(item.userId)) return true;
       if (item.username && DUMMY_USERNAMES.has(item.username.toLowerCase())) return true;
+      if (item.userName && DUMMY_USERNAMES.has(item.userName.toLowerCase())) return true;
       const name = (item.userFullName || item.fullName || item.userName || item.author || item.targetUser || '').toLowerCase().trim();
       if (DUMMY_NAMES.has(name)) return true;
       const userStr = (item.user || '').toLowerCase();
@@ -102,10 +103,16 @@
           set.add('usr_user_1');
           set.add('usr_user_2');
           set.add('usr_admin_2');
+        } else if (key === 'vortex_quiz_history') {
+          set.add('QZH-1001');
+          set.add('QZH-1002');
+          set.add('QZH-1003');
         }
         return set;
       } catch (e) {
-        return (key === 'vortex_users') ? new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']) : new Set();
+        if (key === 'vortex_users') return new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
+        if (key === 'vortex_quiz_history') return new Set(['QZH-1001', 'QZH-1002', 'QZH-1003']);
+        return new Set();
       }
     }
 
@@ -482,6 +489,30 @@
           return { merged: cleanRemote, hasLocalOverrides: false };
         }
         return { merged: cleanLocal, hasLocalOverrides: cleanLocal.length > 0 };
+      }
+
+      if (key === 'vortex_quiz_questions') {
+        const DEFAULT_QUIZ_IDS = new Set(['QZ-001', 'QZ-002', 'QZ-003', 'QZ-004', 'QZ-005', 'QZ-006', 'QZ-007', 'QZ-008', 'QZ-009', 'QZ-010']);
+        if (cleanRemote.length > 0) {
+          // Cloud Firestore adalah sumber kebenaran data terupdate untuk Bank Soal Kuis
+          // Jangan membangkitkan kembali soal default yang telah dihapus oleh Admin di Cloud
+          const localBrandNew = cleanLocal.filter(l => l && l.id && !cleanRemote.some(r => r.id === l.id) && !DEFAULT_QUIZ_IDS.has(l.id));
+          if (localBrandNew.length > 0) {
+            return { merged: [...cleanRemote, ...localBrandNew], hasLocalOverrides: true };
+          }
+          return { merged: cleanRemote, hasLocalOverrides: false };
+        }
+        return { merged: cleanLocal, hasLocalOverrides: cleanLocal.length > 0 };
+      }
+
+      if (key === 'vortex_quiz_history') {
+        // Cloud Firestore & Local digabungkan dengan membersihkan seluruh dummy / demo history
+        const map = new Map();
+        cleanRemote.forEach(r => { if (r && r.id) map.set(r.id, r); });
+        cleanLocal.forEach(l => { if (l && l.id && !map.has(l.id)) map.set(l.id, l); });
+        const mergedHistory = Array.from(map.values()).sort((a, b) => (new Date(b.timestamp || 0) - new Date(a.timestamp || 0)));
+        const hasLocalNew = cleanLocal.some(l => l && l.id && !cleanRemote.some(r => r.id === l.id));
+        return { merged: mergedHistory, hasLocalOverrides: hasLocalNew };
       }
 
       // Default pengaman untuk koleksi data lainnya
