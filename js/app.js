@@ -7018,10 +7018,16 @@ function openAddTimerModal() {
     'CSO DIGILIVE CHAT - WA',
     'CSO BACK OFFICE',
     'CSO OUTBOUND',
-    'CSO EMAIL'
+    'CSO EMAIL',
+    'TEAM LEADER',
+    'TIME LIDER'
   ];
   if (UI.formTimerCategory) {
-    UI.formTimerCategory.value = validTimerCats.includes(userDept) ? userDept : 'CSO INBOUND';
+    if (userDept === 'TIME LIDER' || userDept === 'TEAM LEADER') {
+      UI.formTimerCategory.value = 'TEAM LEADER';
+    } else {
+      UI.formTimerCategory.value = validTimerCats.includes(userDept) ? userDept : 'CSO INBOUND';
+    }
   }
   UI.modalTimerForm.classList.remove('hidden');
 }
@@ -7051,9 +7057,15 @@ window.openEditTimerModal = function(id) {
     'CSO DIGILIVE CHAT - WA',
     'CSO BACK OFFICE',
     'CSO OUTBOUND',
-    'CSO EMAIL'
+    'CSO EMAIL',
+    'TEAM LEADER',
+    'TIME LIDER'
   ];
-  UI.formTimerCategory.value = validTimerCats.includes(timer.category) ? timer.category : 'CSO INBOUND';
+  if (timer.category === 'TIME LIDER' || timer.category === 'TEAM LEADER') {
+    UI.formTimerCategory.value = 'TEAM LEADER';
+  } else {
+    UI.formTimerCategory.value = validTimerCats.includes(timer.category) ? timer.category : 'CSO INBOUND';
+  }
   UI.formTimerAutoStart.value = timer.isRunning ? 'running' : 'paused';
   UI.formTimerDesc.value = timer.desc || '';
 
@@ -7318,10 +7330,16 @@ function openAddStopwatchModal() {
     'CSO DIGILIVE CHAT - WA',
     'CSO BACK OFFICE',
     'CSO OUTBOUND',
-    'CSO EMAIL'
+    'CSO EMAIL',
+    'TEAM LEADER',
+    'TIME LIDER'
   ];
   if (UI.formStopwatchDept) {
-    UI.formStopwatchDept.value = validDepts.includes(userDept) ? userDept : 'CSO INBOUND';
+    if (userDept === 'TIME LIDER' || userDept === 'TEAM LEADER') {
+      UI.formStopwatchDept.value = 'TEAM LEADER';
+    } else {
+      UI.formStopwatchDept.value = validDepts.includes(userDept) ? userDept : 'CSO INBOUND';
+    }
   }
   UI.modalStopwatchForm.classList.remove('hidden');
 }
@@ -16286,8 +16304,29 @@ function openAddFindingModal() {
   if (UI.formFindingId) UI.formFindingId.value = '';
 
   if (UI.formFinding) UI.formFinding.reset();
-  if (UI.formFindingUser) UI.formFindingUser.value = u.fullName;
-  if (UI.formFindingDept) UI.formFindingDept.value = u.department || 'CSO INBOUND';
+
+  // Populate dropdown Petugas CSO dari seluruh data di Manajemen Team
+  const allTeamUsers = state.getUsers() || [];
+  if (UI.formFindingUser) {
+    if (allTeamUsers.length > 0) {
+      UI.formFindingUser.innerHTML = allTeamUsers.map(usr => {
+        const isSelected = usr.id === u.id || usr.fullName === u.fullName;
+        const dept = usr.department || 'CSO INBOUND';
+        const role = (usr.role || 'user').toUpperCase();
+        return `<option value="${usr.fullName}" data-dept="${dept}" ${isSelected ? 'selected' : ''}>${usr.fullName} (${role} - ${dept})</option>`;
+      }).join('');
+    } else {
+      UI.formFindingUser.innerHTML = `<option value="${u.fullName}" data-dept="${u.department || 'CSO INBOUND'}" selected>${u.fullName}</option>`;
+    }
+  }
+
+  // Set default departemen berdasarkan user yang sedang dipilih
+  const selectedOpt = UI.formFindingUser && UI.formFindingUser.selectedIndex >= 0
+    ? UI.formFindingUser.options[UI.formFindingUser.selectedIndex]
+    : null;
+  const userDept = selectedOpt ? selectedOpt.getAttribute('data-dept') : (u.department || 'CSO INBOUND');
+  if (UI.formFindingDept) UI.formFindingDept.value = userDept || 'CSO INBOUND';
+
   const todayStr = new Date().toISOString().slice(0, 10);
   if (UI.formFindingDate) UI.formFindingDate.value = todayStr;
   if (UI.formFindingType) UI.formFindingType.value = 'Feedback Negatif';
@@ -16316,7 +16355,29 @@ window.openEditFindingModal = function(id) {
   if (UI.modalFindingTitle) UI.modalFindingTitle.textContent = 'Edit Temuan Audit QA (Finding)';
   if (UI.btnSubmitFindingText) UI.btnSubmitFindingText.textContent = 'Perbarui Temuan';
   if (UI.formFindingId) UI.formFindingId.value = item.id;
-  if (UI.formFindingUser) UI.formFindingUser.value = item.userFullName || '';
+
+  // Populate dropdown Petugas CSO dari seluruh data di Manajemen Team
+  const allTeamUsers = state.getUsers() || [];
+  if (UI.formFindingUser) {
+    const targetName = (item.userFullName || '').trim().toLowerCase();
+    let matched = false;
+    if (allTeamUsers.length > 0) {
+      UI.formFindingUser.innerHTML = allTeamUsers.map(usr => {
+        const isMatch = !matched && usr.fullName && usr.fullName.trim().toLowerCase() === targetName;
+        if (isMatch) matched = true;
+        const dept = usr.department || 'CSO INBOUND';
+        const role = (usr.role || 'user').toUpperCase();
+        return `<option value="${usr.fullName}" data-dept="${dept}" ${isMatch ? 'selected' : ''}>${usr.fullName} (${role} - ${dept})</option>`;
+      }).join('');
+
+      if (!matched && item.userFullName) {
+        UI.formFindingUser.insertAdjacentHTML('afterbegin', `<option value="${item.userFullName}" data-dept="${item.department || 'CSO INBOUND'}" selected>${item.userFullName} (Arsip)</option>`);
+      }
+    } else {
+      UI.formFindingUser.innerHTML = `<option value="${item.userFullName || ''}" data-dept="${item.department || 'CSO INBOUND'}" selected>${item.userFullName || ''}</option>`;
+    }
+  }
+
   if (UI.formFindingDept) UI.formFindingDept.value = item.department || 'CSO INBOUND';
   if (UI.formFindingDate) UI.formFindingDate.value = item.date || new Date().toISOString().slice(0, 10);
   if (UI.formFindingType) UI.formFindingType.value = item.findingType || 'Feedback Negatif';
@@ -18175,6 +18236,15 @@ function initEvents() {
   if (UI.btnCloseFindingModal) UI.btnCloseFindingModal.addEventListener('click', closeFindingModal);
   if (UI.btnCancelFindingModal) UI.btnCancelFindingModal.addEventListener('click', closeFindingModal);
   if (UI.formFinding) UI.formFinding.addEventListener('submit', handleSaveFinding);
+  if (UI.formFindingUser) {
+    UI.formFindingUser.addEventListener('change', (e) => {
+      const selectedOpt = e.target.options[e.target.selectedIndex];
+      const dept = selectedOpt ? selectedOpt.getAttribute('data-dept') : '';
+      if (dept && UI.formFindingDept) {
+        UI.formFindingDept.value = dept;
+      }
+    });
+  }
 
   // Finding Google Spreadsheet Listeners
   if (UI.btnExportFindingExcel) UI.btnExportFindingExcel.addEventListener('click', exportFindingExcel);
