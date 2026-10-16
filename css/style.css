@@ -4582,6 +4582,37 @@ textarea.form-control {
   box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.4);
 }
 
+.btn-ctrl-pip {
+  background: rgba(168, 85, 247, 0.12);
+  border-color: rgba(168, 85, 247, 0.35);
+  color: #c084fc;
+}
+.btn-ctrl-pip:hover {
+  background: #9333ea;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.45);
+}
+
+.btn-outline-primary {
+  background: rgba(229, 9, 20, 0.12);
+  border: 1px solid rgba(229, 9, 20, 0.4);
+  color: #ff4d5a;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+.btn-outline-primary:hover {
+  background: var(--red-primary);
+  color: #ffffff;
+  box-shadow: 0 0 15px rgba(229, 9, 20, 0.45);
+  transform: translateY(-1px);
+}
+
 .btn-timer-ctrl:disabled {
   opacity: 0.4;
   cursor: not-allowed;

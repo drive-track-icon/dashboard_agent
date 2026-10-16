@@ -188,11 +188,15 @@ async function run() {
   // 11. vortex_logs
   const logsDoc = await getDoc('vortex_logs');
   if (logsDoc && Array.isArray(logsDoc.payload)) {
+    const deletedLogIds = [];
     const realLogs = logsDoc.payload.filter(l => {
-      const u = (l.user || '').toLowerCase();
-      return !u.includes('siti rahma') && !u.includes('ahmad fauzi') && !u.includes('dewi lestari') && !u.includes('budi santoso');
+      const s = JSON.stringify(l).toLowerCase();
+      const isDummy = s.includes('siti rahma') || s.includes('ahmad fauzi') || s.includes('dewi lestari') || s.includes('budi santoso');
+      if (isDummy && l.id) deletedLogIds.push(l.id);
+      return !isDummy;
     });
-    await updateDoc('vortex_logs', realLogs, logsDoc.deletedIds || []);
+    const allDeleted = [...new Set([...(logsDoc.deletedIds || []), ...deletedLogIds])];
+    await updateDoc('vortex_logs', realLogs, allDeleted);
   }
 
   console.log('--- ALL FIRESTORE DATASETS CLEANED SUCCESSFULLY ---');

@@ -331,22 +331,44 @@
       const isTimerKey = (isTimer || isStopwatch);
 
       const catchUpTimerOrSw = (item, nowTime) => {
-        if (!item || !item.isRunning || !item.lastTick) return item;
+        if (!item) return item;
         const copy = { ...item };
         const now = nowTime || Date.now();
-        const elapsedSec = Math.floor((now - Number(copy.lastTick)) / 1000);
-        if (elapsedSec > 0) {
-          if (isTimer) {
-            copy.remainingSeconds = Math.max(0, (Number(copy.remainingSeconds) || 0) - elapsedSec);
-            copy.lastTick = Number(copy.lastTick) + (elapsedSec * 1000);
-            if (copy.remainingSeconds === 0) {
+        if (!copy.isRunning) return copy;
+
+        if (isTimer) {
+          if (copy.targetEndTime) {
+            const rem = Math.max(0, Math.ceil((Number(copy.targetEndTime) - now) / 1000));
+            copy.remainingSeconds = rem;
+            if (rem === 0) {
               copy.isRunning = false;
-              copy.lastTick = null;
+              copy.targetEndTime = null;
               copy.updatedAt = now;
             }
-          } else {
-            copy.elapsedSeconds = (Number(copy.elapsedSeconds) || 0) + elapsedSec;
-            copy.lastTick = Number(copy.lastTick) + (elapsedSec * 1000);
+          } else if (copy.lastTick) {
+            const elapsedSec = Math.floor((now - Number(copy.lastTick)) / 1000);
+            if (elapsedSec > 0) {
+              copy.remainingSeconds = Math.max(0, (Number(copy.remainingSeconds) || 0) - elapsedSec);
+              if (copy.remainingSeconds === 0) {
+                copy.isRunning = false;
+                copy.lastTick = null;
+                copy.updatedAt = now;
+              } else {
+                copy.targetEndTime = now + (copy.remainingSeconds * 1000);
+              }
+            }
+          }
+        } else if (isStopwatch) {
+          if (copy.startedAt) {
+            const addedSec = Math.floor((now - Number(copy.startedAt)) / 1000);
+            copy.elapsedSeconds = Math.max(0, (Number(copy.accumulatedSeconds) || 0) + addedSec);
+          } else if (copy.lastTick) {
+            const elapsedSec = Math.floor((now - Number(copy.lastTick)) / 1000);
+            if (elapsedSec > 0) {
+              copy.elapsedSeconds = (Number(copy.elapsedSeconds) || 0) + elapsedSec;
+              copy.accumulatedSeconds = copy.elapsedSeconds;
+              copy.startedAt = now;
+            }
           }
         }
         return copy;
@@ -422,71 +444,30 @@
             mergedMap.set(l.id, l);
             hasLocalOverrides = true;
           } else {
-            const lStarted = Number(l.startedAt || (l.isRunning ? (l.lastTick || l.updatedAt || 0) : 0));
-            const lPaused = Number(l.pausedAt || (!l.isRunning ? (l.updatedAt || 0) : 0));
-            const lIsReset = (l.isRunning === false && (
-              (isTimer && l.remainingSeconds === l.totalSeconds) ||
-              (isStopwatch && l.elapsedSeconds === 0)
-            ));
-            const lReset = Number(l.resetAt || (lIsReset ? (l.updatedAt || 0) : 0));
+            const lAction = Math.max(
+              Number(l.actionAt || 0),
+              Number(l.resetAt || 0),
+              Number(l.pausedAt || 0),
+              Number(l.startedAt || 0),
+              Number(l.updatedAt || 0)
+            );
 
-            const rStarted = Number(r.startedAt || (r.isRunning ? (r.lastTick || r.updatedAt || 0) : 0));
-            const rPaused = Number(r.pausedAt || (!r.isRunning ? (r.updatedAt || 0) : 0));
-            const rIsReset = (r.isRunning === false && (
-              (isTimer && r.remainingSeconds === r.totalSeconds) ||
-              (isStopwatch && r.elapsedSeconds === 0)
-            ));
-            const rReset = Number(r.resetAt || (rIsReset ? (r.updatedAt || 0) : 0));
+            const rAction = Math.max(
+              Number(r.actionAt || 0),
+              Number(r.resetAt || 0),
+              Number(r.pausedAt || 0),
+              Number(r.startedAt || 0),
+              Number(r.updatedAt || 0)
+            );
 
             let chosen = r; // Default ke Cloud snapshot yang sudah dicatch-up
-
-            // ATURAN 1: Remote TIDAK berjalan, Lokal SEDANG berjalan
-            if (!r.isRunning && l.isRunning) {
-              if (rIsReset && (rReset >= lStarted - 500)) {
-                // Remote direset secara eksplisit di device lain setelah lokal mulai
-                chosen = r;
-              } else if (lStarted > Math.max(rPaused, rReset, Number(r.updatedAt || 0)) + 500) {
-                // User di device ini secara eksplisit mengklik Mulai SETELAH remote dijeda/direset
-                chosen = l;
-                hasLocalOverrides = true;
-              } else {
-                // Remote dijeda di device lain -> Device ini harus ikut jeda!
-                chosen = r;
-              }
-            }
-            // ATURAN 2: Remote SEDANG berjalan, Lokal TIDAK berjalan
-            else if (r.isRunning && !l.isRunning) {
-              if (lIsReset && (lReset > rStarted + 500)) {
-                // User di device ini secara eksplisit mereset setelah remote mulai
-                chosen = l;
-                hasLocalOverrides = true;
-              } else if (lPaused > rStarted + 500) {
-                // User di device ini secara eksplisit menjeda setelah remote mulai
-                chosen = l;
-                hasLocalOverrides = true;
-              } else {
-                // Remote mulai berjalan di device lain -> Device ini harus ikut berjalan!
-                chosen = r;
-              }
-            }
-            // ATURAN 3: Keduanya SEDANG berjalan
-            else if (r.isRunning && l.isRunning) {
-              // Gunakan remote sebagai acuan tunggal agar waktu sinkron realtime tanpa drift
+            if (lAction > rAction) {
+              // Pengguna di device ini baru saja mengklik aksi (Mulai/Jeda/Reset/Tambah/Edit) lebih baru dari remote
+              chosen = l;
+              hasLocalOverrides = true;
+            } else {
+              // Remote memiliki aksi yang lebih baru atau sama -> Device ini patuh sepenuhnya pada remote
               chosen = r;
-            }
-            // ATURAN 4: Keduanya TIDAK berjalan
-            else {
-              if (lIsReset && !rIsReset && lReset > Math.max(rReset, rPaused, Number(r.updatedAt || 0)) + 500) {
-                chosen = l;
-                hasLocalOverrides = true;
-              } else if (rIsReset) {
-                chosen = r;
-              } else if (Math.max(lPaused, Number(l.updatedAt || 0)) > Math.max(rPaused, Number(r.updatedAt || 0)) + 500) {
-                chosen = l;
-                hasLocalOverrides = true;
-              } else {
-                chosen = r;
-              }
             }
 
             mergedMap.set(l.id, chosen);
@@ -748,6 +729,13 @@
           }
         }
 
+        // 4. Update jendela pop-up floating luar website secara realtime jika aktif
+        if (key === 'vortex_timers' || key === 'vortex_stopwatches' || key === 'all') {
+          if (typeof window.updateFloatingTimerUI === 'function') {
+            window.updateFloatingTimerUI();
+          }
+        }
+
         // 4. Jika yang diperbarui adalah data yang memengaruhi Ringkasan (CA, Tiket, ART, PA, Item)
         // dan user sedang di halaman lain, update data overview di latar belakang
         if (activePage !== 'overview' && ['vortex_ca_logs', 'vortex_tikets', 'vortex_art_logs', 'vortex_pa_logs', 'vortex_items'].includes(key)) {
@@ -827,12 +815,12 @@
         }
       };
 
-      if (immediate) {
+      if (immediate || key === 'vortex_timers' || key === 'vortex_stopwatches') {
         performSave();
         return;
       }
 
-      const delay = (key === 'vortex_timers' || key === 'vortex_stopwatches') ? 100 : 150;
+      const delay = 150;
       this._debounceTimers[key] = setTimeout(performSave, delay);
     }
 

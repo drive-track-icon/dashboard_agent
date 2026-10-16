@@ -2565,6 +2565,7 @@ const UI = {
   timerBannerBadge: document.getElementById('timerBannerBadge'),
   activeCountdownCountBadge: document.getElementById('activeCountdownCountBadge'),
   activeStopwatchCountBadge: document.getElementById('activeStopwatchCountBadge'),
+  btnOpenFloatingTimer: document.getElementById('btnOpenFloatingTimer'),
   btnOpenAddTimerModal: document.getElementById('btnOpenAddTimerModal'),
   btnOpenAddStopwatchModal: document.getElementById('btnOpenAddStopwatchModal'),
   btnAddTimerLabel: document.getElementById('btnAddTimerLabel'),
@@ -2687,6 +2688,7 @@ function formatRupiah(amount) {
 }
 
 function showToast(title, message, type = 'info') {
+  if (!window.UI || !window.UI.toastContainer) return;
   const toast = document.createElement('div');
   toast.className = `toast toast-${type}`;
   
@@ -6078,6 +6080,75 @@ function formatSecondsToHMS(totalSec) {
   return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 }
 
+// Perhitungan sisa waktu countdown realtime akurat nol drift lintas device
+window.getTimerRemainingSeconds = function(timer, now = Date.now()) {
+  if (!timer) return 0;
+  if (!timer.isRunning) {
+    return Math.max(0, Number(timer.remainingSeconds) || 0);
+  }
+  if (timer.targetEndTime) {
+    return Math.max(0, Math.ceil((Number(timer.targetEndTime) - now) / 1000));
+  }
+  if (timer.lastTick) {
+    const elapsedSec = Math.floor((now - Number(timer.lastTick)) / 1000);
+    return Math.max(0, (Number(timer.remainingSeconds) || 0) - elapsedSec);
+  }
+  return Math.max(0, Number(timer.remainingSeconds) || 0);
+};
+
+// Perhitungan elapsed time stopwatch realtime akurat nol drift lintas device
+window.getStopwatchElapsedSeconds = function(sw, now = Date.now()) {
+  if (!sw) return 0;
+  if (!sw.isRunning) {
+    return Math.max(0, Number(sw.elapsedSeconds) || 0);
+  }
+  if (sw.startedAt) {
+    const addedSec = Math.floor((now - Number(sw.startedAt)) / 1000);
+    return Math.max(0, (Number(sw.accumulatedSeconds) || 0) + addedSec);
+  }
+  if (sw.lastTick) {
+    const elapsedSec = Math.floor((now - Number(sw.lastTick)) / 1000);
+    return Math.max(0, (Number(sw.elapsedSeconds) || 0) + elapsedSec);
+  }
+  return Math.max(0, Number(sw.elapsedSeconds) || 0);
+};
+
+// Tambah durasi cepat (+1 menit / +5 menit) sinkron lintas perangkat
+window.addTimerQuickSeconds = function(id, secondsToAdd = 60) {
+  if (!state.currentUser) return;
+  const timers = state.getTimers();
+  const timer = timers.find(t => t.id === id);
+  if (!timer) return;
+  if (timer.userId !== state.currentUser.id && !state.isAdmin()) {
+    showToast('Akses Ditolak', 'Anda hanya dapat menambah durasi timer milik Anda sendiri.', 'warning');
+    return;
+  }
+  const now = Date.now();
+  const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
+  const curRem = window.getTimerRemainingSeconds(timer, now);
+  const newRem = curRem + secondsToAdd;
+  timer.remainingSeconds = newRem;
+  if (timer.isRunning) {
+    timer.targetEndTime = now + (newRem * 1000);
+  }
+  if (newRem > timer.totalSeconds) {
+    timer.totalSeconds = newRem;
+  }
+  timer.actionAt = now;
+  timer.actionType = 'add_time';
+  timer.actionDeviceId = devId;
+  timer.updatedAt = now;
+  state.saveTimers(timers);
+  if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+    window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+  }
+  renderTimerPage();
+  if (typeof window.updateFloatingTimerUI === 'function') {
+    window.updateFloatingTimerUI();
+  }
+  showToast('Durasi Ditambah', `Waktu timer <strong>${timer.name}</strong> berhasil ditambah <strong>+${secondsToAdd >= 60 ? (secondsToAdd / 60) + ' menit' : secondsToAdd + ' detik'}</strong>.`, 'info');
+};
+
 function renderTimerPage() {
   if (typeof window.catchUpTimersAndStopwatches === 'function') {
     window.catchUpTimersAndStopwatches();
@@ -6095,7 +6166,7 @@ function renderTimerPage() {
   const personalStopwatches = allStopwatches.filter(s => s.userId === currentUserId);
 
   // Active counts badges for personal workspace
-  const activePersonalTimersCount = personalTimers.filter(t => t.isRunning && t.remainingSeconds > 0).length;
+  const activePersonalTimersCount = personalTimers.filter(t => t.isRunning && window.getTimerRemainingSeconds(t) > 0).length;
   const activePersonalSwCount = personalStopwatches.filter(s => s.isRunning).length;
 
   if (UI.activeCountdownCountBadge) {
@@ -6128,9 +6199,10 @@ function renderTimerPage() {
       `;
     } else {
       UI.countdownTimersContainer.innerHTML = personalTimers.map(timer => {
-        const isCompleted = timer.remainingSeconds === 0;
+        const remaining = window.getTimerRemainingSeconds(timer);
+        const isCompleted = remaining === 0;
         const percent = timer.totalSeconds > 0 
-          ? Math.max(0, Math.min(100, Math.round((timer.remainingSeconds / timer.totalSeconds) * 100))) 
+          ? Math.max(0, Math.min(100, Math.round((remaining / timer.totalSeconds) * 100))) 
           : 0;
 
         let statusBadge = '';
@@ -6142,7 +6214,7 @@ function renderTimerPage() {
           statusBadge = '<span class="badge badge-yellow"><i class="fa-solid fa-pause"></i> Dijeda</span>';
         }
 
-        // Action controls: User has full controls (Play/Pause, Reset, Edit Waktu, Delete) on their own timer
+        // Action controls: User has full controls (Play/Pause, Reset, Pop-up Luar Web, Edit Waktu, Delete) on their own timer
         let playPauseBtn = '';
         if (isCompleted) {
           playPauseBtn = `<button type="button" class="btn-timer-ctrl btn-ctrl-start" onclick="resetTimer('${timer.id}')" title="Mulai Ulang"><i class="fa-solid fa-rotate-left"></i> Mulai Ulang</button>`;
@@ -6158,8 +6230,11 @@ function renderTimerPage() {
             <button type="button" class="btn-timer-ctrl btn-ctrl-reset" onclick="resetTimer('${timer.id}')" title="Kembalikan ke Waktu Semula (${formatSecondsToHMS(timer.totalSeconds)})">
               <i class="fa-solid fa-arrows-rotate"></i> Reset
             </button>
+            <button type="button" class="btn-timer-ctrl btn-ctrl-pip" onclick="openFloatingTimerWindow('timer', '${timer.id}')" title="Buka Pop-up Floating di Luar Website">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Pop-up
+            </button>
             <button type="button" class="btn-timer-ctrl btn-ctrl-edit" onclick="openEditTimerModal('${timer.id}')" title="Edit Waktu Ditentukan &amp; Nama Timer">
-              <i class="fa-solid fa-pen-to-square"></i> Edit Waktu
+              <i class="fa-solid fa-pen-to-square"></i> Edit
             </button>
             <button type="button" class="btn-timer-ctrl btn-ctrl-delete" onclick="promptDeleteTimer('${timer.id}', '${timer.name.replace(/'/g, "\\'")}')" title="Hapus Timer">
               <i class="fa-solid fa-trash-can"></i>
@@ -6186,7 +6261,7 @@ function renderTimerPage() {
             <!-- SISI KANAN: DISPLAY WAKTU DIGITAL & AKSI -->
             <div class="timer-clock-right">
               <div class="timer-digital-display ${isCompleted ? 'text-danger-pulse' : ''}" id="timerDisplay_${timer.id}">
-                ${formatSecondsToHMS(timer.remainingSeconds)}
+                ${formatSecondsToHMS(remaining)}
               </div>
               
               <div class="timer-progress-track">
@@ -6216,6 +6291,7 @@ function renderTimerPage() {
       `;
     } else {
       UI.stopwatchesContainer.innerHTML = personalStopwatches.map(sw => {
+        const elapsed = window.getStopwatchElapsedSeconds(sw);
         let statusBadge = sw.isRunning
           ? '<span class="badge badge-green"><i class="fa-solid fa-play pulse-dot"></i> Berjalan</span>'
           : '<span class="badge badge-gray"><i class="fa-solid fa-stop"></i> Berhenti</span>';
@@ -6229,6 +6305,9 @@ function renderTimerPage() {
             ${playPauseBtn}
             <button type="button" class="btn-timer-ctrl btn-ctrl-reset" onclick="resetStopwatch('${sw.id}')" title="Reset ke Nol">
               <i class="fa-solid fa-arrows-rotate"></i> Reset
+            </button>
+            <button type="button" class="btn-timer-ctrl btn-ctrl-pip" onclick="openFloatingTimerWindow('stopwatch', '${sw.id}')" title="Buka Pop-up Floating di Luar Website">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> Pop-up
             </button>
             <button type="button" class="btn-timer-ctrl btn-ctrl-delete" onclick="promptDeleteStopwatch('${sw.id}', '${sw.name.replace(/'/g, "\\'")}')" title="Hapus Stopwatch">
               <i class="fa-solid fa-trash-can"></i>
@@ -6254,7 +6333,7 @@ function renderTimerPage() {
             <!-- SISI KANAN: DISPLAY WAKTU BERJALAN & KONTROL -->
             <div class="timer-clock-right">
               <div class="timer-digital-display" id="stopwatchDisplay_${sw.id}">
-                ${formatSecondsToHMS(sw.elapsedSeconds)}
+                ${formatSecondsToHMS(elapsed)}
               </div>
               ${actionControls}
             </div>
@@ -6295,9 +6374,10 @@ function renderAdminTimerMonitor(allTimers, allStopwatches) {
       role: 'user'
     };
 
-    const isCompleted = t.remainingSeconds === 0;
+    const remaining = window.getTimerRemainingSeconds(t);
+    const isCompleted = remaining === 0;
     const percent = t.totalSeconds > 0 
-      ? Math.max(0, Math.min(100, Math.round((t.remainingSeconds / t.totalSeconds) * 100))) 
+      ? Math.max(0, Math.min(100, Math.round((remaining / t.totalSeconds) * 100))) 
       : 0;
 
     monitorItems.push({
@@ -6312,7 +6392,7 @@ function renderAdminTimerMonitor(allTimers, allStopwatches) {
       category: t.category || 'Umum',
       desc: t.desc || '',
       targetSeconds: t.totalSeconds,
-      currentSeconds: t.remainingSeconds,
+      currentSeconds: remaining,
       isRunning: t.isRunning,
       isCompleted: isCompleted,
       percent: percent
@@ -6327,6 +6407,8 @@ function renderAdminTimerMonitor(allTimers, allStopwatches) {
       role: 'user'
     };
 
+    const elapsed = window.getStopwatchElapsedSeconds(sw);
+
     monitorItems.push({
       id: sw.id,
       type: 'stopwatch',
@@ -6339,7 +6421,7 @@ function renderAdminTimerMonitor(allTimers, allStopwatches) {
       category: sw.dept || 'Operasional',
       desc: 'Pencatatan waktu progresif bertambah (Stopwatch)',
       targetSeconds: 0,
-      currentSeconds: sw.elapsedSeconds,
+      currentSeconds: elapsed,
       isRunning: sw.isRunning,
       isCompleted: false,
       percent: 100
@@ -6574,6 +6656,8 @@ function handleSaveTimer(e) {
         return;
       }
 
+      const now = Date.now();
+      const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
       const oldTotal = existing.totalSeconds;
       existing.name = name;
       existing.category = category;
@@ -6588,8 +6672,14 @@ function handleSaveTimer(e) {
       }
 
       existing.isRunning = autoStart;
-      existing.lastTick = autoStart ? Date.now() : null;
-      existing.updatedAt = Date.now();
+      existing.targetEndTime = autoStart ? (now + (existing.remainingSeconds * 1000)) : null;
+      existing.startedAt = autoStart ? now : null;
+      existing.pausedAt = autoStart ? null : now;
+      existing.resetAt = null;
+      existing.actionAt = now;
+      existing.actionType = 'edit';
+      existing.actionDeviceId = devId;
+      existing.updatedAt = now;
 
       state.saveTimers(timers);
       if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
@@ -6597,11 +6687,16 @@ function handleSaveTimer(e) {
       }
       state.addLog('EDIT_TIMER', 'Ubah Timer', `${state.currentUser.fullName} memperbarui waktu ditentukan timer "${name}" menjadi ${formatSecondsToHMS(totalSeconds)}.`);
       showToast('Waktu Ditentukan Diperbarui', `Waktu ditentukan untuk <strong>${name}</strong> berhasil diatur ke <strong>${formatSecondsToHMS(totalSeconds)}</strong>.`, 'success');
+      if (typeof window.updateFloatingTimerUI === 'function') {
+        window.updateFloatingTimerUI();
+      }
     }
   } else {
     // ADD NEW TIMER (Associated with current user)
+    const now = Date.now();
+    const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
     const newTimer = {
-      id: 'tmr_' + Date.now(),
+      id: 'tmr_' + now + '_' + Math.random().toString(36).substring(2, 6),
       userId: state.currentUser.id,
       username: state.currentUser.username,
       userFullName: state.currentUser.fullName,
@@ -6612,9 +6707,15 @@ function handleSaveTimer(e) {
       totalSeconds,
       remainingSeconds: totalSeconds,
       isRunning: autoStart,
-      lastTick: autoStart ? Date.now() : null,
-      createdAt: Date.now(),
-      updatedAt: Date.now()
+      targetEndTime: autoStart ? (now + totalSeconds * 1000) : null,
+      startedAt: autoStart ? now : null,
+      pausedAt: autoStart ? null : now,
+      resetAt: null,
+      actionAt: now,
+      actionType: 'create',
+      actionDeviceId: devId,
+      createdAt: now,
+      updatedAt: now
     };
 
     timers.push(newTimer);
@@ -6627,6 +6728,9 @@ function handleSaveTimer(e) {
     }
     state.addLog('CREATE_TIMER', 'Tambah Timer', `${state.currentUser.fullName} membuat timer baru: ${name} (${formatSecondsToHMS(totalSeconds)}).`);
     showToast('Timer Ditambahkan', `Timer <strong>${name}</strong> berhasil didaftarkan ke ruang kerja Anda.`, 'success');
+    if (typeof window.updateFloatingTimerUI === 'function') {
+      window.updateFloatingTimerUI();
+    }
   }
 
   closeTimerModal();
@@ -6645,29 +6749,40 @@ window.toggleTimerRunning = function(id) {
   }
 
   const now = Date.now();
+  const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
 
   // If timer was completed and user plays again, reset to totalSeconds first
-  if (timer.remainingSeconds === 0) {
+  if (timer.remainingSeconds === 0 || window.getTimerRemainingSeconds(timer, now) === 0) {
     timer.remainingSeconds = timer.totalSeconds;
     timer.isRunning = true;
   } else {
     timer.isRunning = !timer.isRunning;
   }
 
-  timer.lastTick = timer.isRunning ? now : null;
   if (timer.isRunning) {
-    timer.resetAt = null;
-    timer.pausedAt = null;
     timer.startedAt = now;
+    timer.targetEndTime = now + (Number(timer.remainingSeconds) * 1000);
+    timer.pausedAt = null;
+    timer.resetAt = null;
+    timer.actionAt = now;
+    timer.actionType = 'start';
   } else {
+    timer.remainingSeconds = window.getTimerRemainingSeconds(timer, now);
+    timer.targetEndTime = null;
     timer.pausedAt = now;
+    timer.actionAt = now;
+    timer.actionType = 'pause';
   }
+  timer.actionDeviceId = devId;
   timer.updatedAt = now;
   state.saveTimers(timers);
   if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
     window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
   }
   renderTimerPage();
+  if (typeof window.updateFloatingTimerUI === 'function') {
+    window.updateFloatingTimerUI();
+  }
 };
 
 window.resetTimer = function(id) {
@@ -6682,17 +6797,20 @@ window.resetTimer = function(id) {
   }
 
   const now = Date.now();
-  // Hentikan timer seketika dan kembalikan ke waktu semula
+  const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
   timer.remainingSeconds = timer.totalSeconds;
   timer.isRunning = false;
+  timer.targetEndTime = null;
   timer.lastTick = null;
   timer.startedAt = null;
   timer.pausedAt = null;
   timer.resetAt = now;
+  timer.actionAt = now;
+  timer.actionType = 'reset';
+  timer.actionDeviceId = devId;
   timer.updatedAt = now;
   state.saveTimers(timers);
 
-  // Pastikan langsung tersinkronisasi ke Cloud Firestore agar tidak tertimpa snapshot lama
   if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
     window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
   }
@@ -6712,6 +6830,9 @@ window.resetTimer = function(id) {
 
   showToast('Timer Direset', `Timer <strong>${timer.name}</strong> dikembalikan ke waktu awal (${formatSecondsToHMS(timer.totalSeconds)}).`, 'info');
   renderTimerPage();
+  if (typeof window.updateFloatingTimerUI === 'function') {
+    window.updateFloatingTimerUI();
+  }
 };
 
 window.promptDeleteTimer = function(id, name) {
@@ -6771,9 +6892,11 @@ function handleSaveStopwatch(e) {
     return;
   }
 
+  const now = Date.now();
+  const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
   const stopwatches = state.getStopwatches();
   const newSw = {
-    id: 'sw_' + Date.now(),
+    id: 'sw_' + now + '_' + Math.random().toString(36).substring(2, 6),
     userId: state.currentUser.id,
     username: state.currentUser.username,
     userFullName: state.currentUser.fullName,
@@ -6781,10 +6904,16 @@ function handleSaveStopwatch(e) {
     name,
     dept: dept,
     elapsedSeconds: 0,
+    accumulatedSeconds: 0,
     isRunning: autoStart,
-    lastTick: autoStart ? Date.now() : null,
-    createdAt: Date.now(),
-    updatedAt: Date.now()
+    startedAt: autoStart ? now : null,
+    pausedAt: autoStart ? null : now,
+    resetAt: null,
+    actionAt: now,
+    actionType: 'create',
+    actionDeviceId: devId,
+    createdAt: now,
+    updatedAt: now
   };
 
   stopwatches.push(newSw);
@@ -6800,6 +6929,9 @@ function handleSaveStopwatch(e) {
 
   closeStopwatchModal();
   renderTimerPage();
+  if (typeof window.updateFloatingTimerUI === 'function') {
+    window.updateFloatingTimerUI();
+  }
 }
 
 window.toggleStopwatchRunning = function(id) {
@@ -6813,22 +6945,34 @@ window.toggleStopwatchRunning = function(id) {
     return;
   }
 
-  sw.isRunning = !sw.isRunning;
   const now = Date.now();
-  sw.lastTick = sw.isRunning ? now : null;
+  const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
+  sw.isRunning = !sw.isRunning;
   if (sw.isRunning) {
-    sw.resetAt = null;
-    sw.pausedAt = null;
     sw.startedAt = now;
+    sw.accumulatedSeconds = Number(sw.elapsedSeconds) || 0;
+    sw.pausedAt = null;
+    sw.resetAt = null;
+    sw.actionAt = now;
+    sw.actionType = 'start';
   } else {
+    sw.elapsedSeconds = window.getStopwatchElapsedSeconds(sw, now);
+    sw.accumulatedSeconds = sw.elapsedSeconds;
+    sw.startedAt = null;
     sw.pausedAt = now;
+    sw.actionAt = now;
+    sw.actionType = 'pause';
   }
+  sw.actionDeviceId = devId;
   sw.updatedAt = now;
   state.saveStopwatches(stopwatches);
   if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
     window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
   }
   renderTimerPage();
+  if (typeof window.updateFloatingTimerUI === 'function') {
+    window.updateFloatingTimerUI();
+  }
 };
 
 window.resetStopwatch = function(id) {
@@ -6843,17 +6987,21 @@ window.resetStopwatch = function(id) {
   }
 
   const now = Date.now();
-  // Hentikan stopwatch seketika dan kembalikan ke 00:00:00
+  const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
   sw.elapsedSeconds = 0;
+  sw.accumulatedSeconds = 0;
   sw.isRunning = false;
+  sw.targetEndTime = null;
   sw.lastTick = null;
   sw.startedAt = null;
   sw.pausedAt = null;
   sw.resetAt = now;
+  sw.actionAt = now;
+  sw.actionType = 'reset';
+  sw.actionDeviceId = devId;
   sw.updatedAt = now;
   state.saveStopwatches(stopwatches);
 
-  // Pastikan langsung tersinkronisasi ke Cloud Firestore agar tidak tertimpa snapshot lama
   if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
     window.FirebaseSync.notifyDataChanged('vortex_stopwatches', stopwatches, true);
   }
@@ -6868,6 +7016,9 @@ window.resetStopwatch = function(id) {
 
   showToast('Stopwatch Direset', `Stopwatch <strong>${sw.name}</strong> dikembalikan ke 00:00:00.`, 'info');
   renderTimerPage();
+  if (typeof window.updateFloatingTimerUI === 'function') {
+    window.updateFloatingTimerUI();
+  }
 };
 
 window.promptDeleteStopwatch = function(id, name) {
@@ -6900,17 +7051,18 @@ window.catchUpTimersAndStopwatches = function() {
   if (Array.isArray(timers) && timers.length > 0) {
     timers.forEach(t => {
       if (t && t.isRunning) {
-        if (!t.lastTick) t.lastTick = now;
-        const elapsedSec = Math.floor((now - Number(t.lastTick)) / 1000);
-        if (elapsedSec > 0) {
-          t.remainingSeconds = Math.max(0, (Number(t.remainingSeconds) || 0) - elapsedSec);
-          t.lastTick = Number(t.lastTick) + (elapsedSec * 1000);
+        const rem = window.getTimerRemainingSeconds(t, now);
+        if (rem !== t.remainingSeconds) {
+          t.remainingSeconds = rem;
+          t.lastTick = now;
           changed = true;
-          if (t.remainingSeconds === 0) {
-            t.isRunning = false;
-            t.lastTick = null;
-            t.updatedAt = now;
-          }
+        }
+        if (rem === 0) {
+          t.isRunning = false;
+          t.targetEndTime = null;
+          t.lastTick = null;
+          t.updatedAt = now;
+          changed = true;
         }
       }
     });
@@ -6926,11 +7078,10 @@ window.catchUpTimersAndStopwatches = function() {
   if (Array.isArray(stopwatches) && stopwatches.length > 0) {
     stopwatches.forEach(sw => {
       if (sw && sw.isRunning) {
-        if (!sw.lastTick) sw.lastTick = now;
-        const elapsedSec = Math.floor((now - Number(sw.lastTick)) / 1000);
-        if (elapsedSec > 0) {
-          sw.elapsedSeconds = (Number(sw.elapsedSeconds) || 0) + elapsedSec;
-          sw.lastTick = Number(sw.lastTick) + (elapsedSec * 1000);
+        const el = window.getStopwatchElapsedSeconds(sw, now);
+        if (el !== sw.elapsedSeconds) {
+          sw.elapsedSeconds = el;
+          sw.lastTick = now;
           swChanged = true;
         }
       }
@@ -6947,44 +7098,39 @@ window.catchUpTimersAndStopwatches = function() {
 
 function startTimerTicker() {
   setInterval(() => {
-    let hasChanges = false;
     const now = Date.now();
     const timers = state.getTimers();
     const stopwatches = state.getStopwatches();
+    let hasCompletedTimer = false;
 
     // Tick timers
     timers.forEach(t => {
       if (t.isRunning) {
-        if (!t.lastTick) t.lastTick = now;
-        const elapsedSec = Math.floor((now - Number(t.lastTick)) / 1000);
-        if (elapsedSec > 0) {
-          t.remainingSeconds = Math.max(0, (Number(t.remainingSeconds) || 0) - elapsedSec);
-          t.lastTick = Number(t.lastTick) + (elapsedSec * 1000);
-          hasChanges = true;
+        const rem = window.getTimerRemainingSeconds(t, now);
+        t.remainingSeconds = rem;
 
-          if (t.remainingSeconds === 0) {
-            t.isRunning = false;
-            t.lastTick = null;
-            t.updatedAt = now;
-            if (state.currentUser && t.userId === state.currentUser.id) {
-              showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
-            }
-            if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
-              window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
-            }
+        if (rem === 0) {
+          t.isRunning = false;
+          t.targetEndTime = null;
+          t.updatedAt = now;
+          t.actionAt = now;
+          t.actionType = 'complete';
+          hasCompletedTimer = true;
+          if (state.currentUser && t.userId === state.currentUser.id) {
+            showToast('Waktu Habis!', `Batas waktu timer <strong>${t.name}</strong> telah selesai (00:00:00).`, 'danger');
           }
         }
 
         // Live DOM update for personal timer card
         const dispEl = document.getElementById(`timerDisplay_${t.id}`);
         if (dispEl) {
-          dispEl.textContent = formatSecondsToHMS(t.remainingSeconds);
-          if (t.remainingSeconds === 0) dispEl.classList.add('text-danger-pulse');
+          dispEl.textContent = formatSecondsToHMS(rem);
+          if (rem === 0) dispEl.classList.add('text-danger-pulse');
         }
 
         const progEl = document.getElementById(`timerProgress_${t.id}`);
         if (progEl && t.totalSeconds > 0) {
-          const p = Math.max(0, Math.min(100, Math.round((t.remainingSeconds / t.totalSeconds) * 100)));
+          const p = Math.max(0, Math.min(100, Math.round((rem / t.totalSeconds) * 100)));
           progEl.style.width = `${p}%`;
           const pText = document.getElementById(`timerPercent_${t.id}`);
           if (pText) pText.textContent = `${p}%`;
@@ -6993,15 +7139,13 @@ function startTimerTicker() {
         // Live DOM update for Admin Live Monitor row
         const monDisp = document.getElementById(`monitorRemaining_${t.id}`);
         if (monDisp) {
-          monDisp.textContent = formatSecondsToHMS(t.remainingSeconds);
-          if (t.remainingSeconds === 0) {
-            monDisp.classList.remove('text-running');
-          }
+          monDisp.textContent = formatSecondsToHMS(rem);
+          if (rem === 0) monDisp.classList.remove('text-running');
         }
 
         const monProg = document.getElementById(`monitorProgressFill_${t.id}`);
         if (monProg && t.totalSeconds > 0) {
-          const p = Math.max(0, Math.min(100, Math.round((t.remainingSeconds / t.totalSeconds) * 100)));
+          const p = Math.max(0, Math.min(100, Math.round((rem / t.totalSeconds) * 100)));
           monProg.style.width = `${p}%`;
           const monPText = document.getElementById(`monitorPercentText_${t.id}`);
           if (monPText) monPText.textContent = `${p}%`;
@@ -7009,36 +7153,40 @@ function startTimerTicker() {
       }
     });
 
+    if (hasCompletedTimer) {
+      state.saveTimers(timers);
+      if (window.FirebaseSync && typeof window.FirebaseSync.notifyDataChanged === 'function') {
+        window.FirebaseSync.notifyDataChanged('vortex_timers', timers, true);
+      }
+      renderTimerPage();
+      if (typeof window.updateFloatingTimerUI === 'function') {
+        window.updateFloatingTimerUI();
+      }
+    }
+
     // Tick stopwatches
     stopwatches.forEach(sw => {
       if (sw.isRunning) {
-        if (!sw.lastTick) sw.lastTick = now;
-        const elapsedSec = Math.floor((now - Number(sw.lastTick)) / 1000);
-        if (elapsedSec > 0) {
-          sw.elapsedSeconds = (Number(sw.elapsedSeconds) || 0) + elapsedSec;
-          sw.lastTick = Number(sw.lastTick) + (elapsedSec * 1000);
-          hasChanges = true;
-        }
+        const elapsed = window.getStopwatchElapsedSeconds(sw, now);
+        sw.elapsedSeconds = elapsed;
 
         // Live DOM update for personal stopwatch card
         const dispEl = document.getElementById(`stopwatchDisplay_${sw.id}`);
         if (dispEl) {
-          dispEl.textContent = formatSecondsToHMS(sw.elapsedSeconds);
+          dispEl.textContent = formatSecondsToHMS(elapsed);
         }
 
         // Live DOM update for Admin Live Monitor row
         const monDisp = document.getElementById(`monitorRemaining_${sw.id}`);
         if (monDisp) {
-          monDisp.textContent = formatSecondsToHMS(sw.elapsedSeconds);
+          monDisp.textContent = formatSecondsToHMS(elapsed);
         }
       }
     });
 
-    if (hasChanges) {
-      if (window.FirebaseSync) window.FirebaseSync._suppressSync = true;
-      localStorage.setItem('vortex_timers', JSON.stringify(timers));
-      localStorage.setItem('vortex_stopwatches', JSON.stringify(stopwatches));
-      if (window.FirebaseSync) window.FirebaseSync._suppressSync = false;
+    // Live update for floating pop-up window
+    if (typeof window.updateFloatingTimerTick === 'function') {
+      window.updateFloatingTimerTick();
     }
   }, 1000);
 }
@@ -7081,6 +7229,798 @@ if (typeof window !== 'undefined' && typeof window.addEventListener === 'functio
     }
   });
 }
+
+// ==========================================
+// 12.4 POP-UP FLOATING DI LUAR WEBSITE (PICTURE-IN-PICTURE & DETACHED WINDOW)
+// ==========================================
+
+window.vortexFloatingWindow = null;
+window.floatingActiveTab = 'timer'; // 'timer' | 'stopwatch' | 'both'
+window.floatingSelectedTimerId = null;
+window.floatingSelectedSwId = null;
+
+window.openFloatingTimerWindow = async function(preferredType = 'timer', preferredId = null) {
+  if (preferredType) window.floatingActiveTab = preferredType;
+  if (preferredType === 'timer' && preferredId) window.floatingSelectedTimerId = preferredId;
+  if (preferredType === 'stopwatch' && preferredId) window.floatingSelectedSwId = preferredId;
+
+  // Auto-pilih timer/stopwatch pertama jika belum terpilih
+  const currentUserId = state.currentUser ? state.currentUser.id : null;
+  const timers = (state.getTimers ? state.getTimers() : []).filter(t => t.userId === currentUserId || state.isAdmin());
+  const stopwatches = (state.getStopwatches ? state.getStopwatches() : []).filter(s => s.userId === currentUserId || state.isAdmin());
+
+  if (!window.floatingSelectedTimerId && timers.length > 0) {
+    const runningT = timers.find(t => t.isRunning);
+    window.floatingSelectedTimerId = runningT ? runningT.id : timers[0].id;
+  }
+  if (!window.floatingSelectedSwId && stopwatches.length > 0) {
+    const runningS = stopwatches.find(s => s.isRunning);
+    window.floatingSelectedSwId = runningS ? runningS.id : stopwatches[0].id;
+  }
+
+  // Jika pop-up sudah terbuka, bawa ke depan dan perbarui isinya
+  if (window.vortexFloatingWindow && !window.vortexFloatingWindow.closed) {
+    try {
+      window.vortexFloatingWindow.focus();
+      window.updateFloatingTimerUI();
+      return;
+    } catch (e) {}
+  }
+
+  // Metode 1: Document Picture-in-Picture API (Chromium 111+ - Always-on-top melayang di luar website di atas semua aplikasi desktop)
+  if ('documentPictureInPicture' in window && typeof window.documentPictureInPicture.requestWindow === 'function') {
+    try {
+      const pipWin = await window.documentPictureInPicture.requestWindow({
+        width: 390,
+        height: 520
+      });
+      window.vortexFloatingWindow = pipWin;
+      initFloatingWindowDOM(pipWin, true);
+      return;
+    } catch (err) {
+      console.warn('Document Picture-in-Picture fallback ke window.open:', err);
+    }
+  }
+
+  // Metode 2: Standard Detached Popup Window (Fallback Firefox, Safari, atau browser yang membatasi PiP)
+  const width = 400;
+  const height = 540;
+  const left = Math.max(20, (window.screen.width - width) - 40);
+  const top = Math.max(20, Math.floor((window.screen.height - height) / 2));
+  
+  const popup = window.open(
+    'about:blank',
+    'vortex_timer_floating',
+    `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no,toolbar=no,menubar=no,location=no`
+  );
+
+  if (!popup) {
+    showToast('Pop-up Diblokir Browser', 'Browser Anda memblokir jendela pop-up. Izinkan pop-up pada dashboard ini agar fitur pop-up melayang di luar web dapat terbuka.', 'warning');
+    return;
+  }
+
+  window.vortexFloatingWindow = popup;
+  initFloatingWindowDOM(popup, false);
+};
+
+function initFloatingWindowDOM(win, isPiP) {
+  const doc = win.document;
+  doc.title = 'DRIVE Floating Timer & Stopwatch';
+
+  // Inject Google Fonts and FontAwesome
+  const fontLink = doc.createElement('link');
+  fontLink.rel = 'stylesheet';
+  fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap';
+  doc.head.appendChild(fontLink);
+
+  const faLink = doc.createElement('link');
+  faLink.rel = 'stylesheet';
+  faLink.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css';
+  doc.head.appendChild(faLink);
+
+  const styleEl = doc.createElement('style');
+  styleEl.textContent = `
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #090d16;
+      color: #f1f5f9;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      overflow-x: hidden;
+      overflow-y: auto;
+      padding: 12px;
+      user-select: none;
+    }
+    .pip-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      min-height: 100%;
+    }
+    .pip-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .pip-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: #ffffff;
+      letter-spacing: 0.5px;
+    }
+    .pip-brand-badge {
+      background: #e50914;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.68rem;
+      font-weight: 800;
+    }
+    .pip-sync-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.7rem;
+      color: #10b981;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.25);
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .pip-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
+      animation: pipPulse 1.8s infinite;
+    }
+    @keyframes pipPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pip-tabs {
+      display: flex;
+      background: #141b26;
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .pip-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: #94a3b8;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 6px 4px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .pip-tab-btn:hover {
+      color: #ffffff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .pip-tab-btn.active {
+      background: #e50914;
+      color: #ffffff;
+      box-shadow: 0 2px 8px rgba(229, 9, 20, 0.4);
+    }
+    .pip-card {
+      background: #141b26;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 12px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.35);
+      position: relative;
+      overflow: hidden;
+    }
+    .pip-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #e50914, #ff4d5a, #10b981);
+    }
+    .pip-card.pip-card-sw::before {
+      background: linear-gradient(90deg, #06b6d4, #3b82f6, #10b981);
+    }
+    .pip-select-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pip-select {
+      flex: 1;
+      background: #0f1520;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #f1f5f9;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 10px;
+      border-radius: 6px;
+      outline: none;
+      cursor: pointer;
+    }
+    .pip-select:focus {
+      border-color: #e50914;
+    }
+    .pip-title-badge {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+    .pip-badge {
+      font-size: 0.68rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 4px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .pip-badge-running {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .pip-badge-paused {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .pip-badge-finished {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+    }
+    .pip-display-wrap {
+      text-align: center;
+      padding: 8px 0;
+    }
+    .pip-digits {
+      font-family: 'JetBrains Mono', 'Courier New', monospace;
+      font-size: 2.8rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #ffffff;
+      text-shadow: 0 0 16px rgba(229, 9, 20, 0.35);
+      line-height: 1;
+    }
+    .pip-digits-sw {
+      text-shadow: 0 0 16px rgba(6, 182, 212, 0.35);
+    }
+    .pip-digits.pulse-red {
+      color: #ef4444;
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.7);
+      animation: pipDigitPulse 1s infinite alternate;
+    }
+    @keyframes pipDigitPulse {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0.6; transform: scale(0.97); }
+    }
+    .pip-progress-track {
+      width: 100%;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 6px;
+    }
+    .pip-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981, #06b6d4, #e50914);
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    .pip-meta-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.72rem;
+      color: #94a3b8;
+    }
+    .pip-meta-row strong {
+      color: #f1f5f9;
+    }
+    .pip-controls {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+    .pip-btn {
+      flex: 1;
+      padding: 9px 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      border-radius: 7px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      touch-action: manipulation;
+    }
+    .pip-btn:hover {
+      transform: translateY(-1px);
+    }
+    .pip-btn-play {
+      background: #10b981;
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(16, 185, 129, 0.35);
+    }
+    .pip-btn-play:hover {
+      background: #059669;
+    }
+    .pip-btn-pause {
+      background: #f59e0b;
+      color: #ffffff;
+      box-shadow: 0 2px 10px rgba(245, 158, 11, 0.35);
+    }
+    .pip-btn-pause:hover {
+      background: #d97706;
+    }
+    .pip-btn-reset {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.15);
+      color: #e2e8f0;
+    }
+    .pip-btn-reset:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #ffffff;
+    }
+    .pip-quick-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 2px;
+    }
+    .pip-btn-quick {
+      flex: 1;
+      padding: 6px;
+      font-size: 0.74rem;
+      font-weight: 600;
+      background: rgba(6, 182, 212, 0.12);
+      border: 1px solid rgba(6, 182, 212, 0.25);
+      color: #22d3ee;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      transition: all 0.15s;
+    }
+    .pip-btn-quick:hover {
+      background: #06b6d4;
+      color: #fff;
+    }
+    .pip-footer {
+      font-size: 0.68rem;
+      color: #64748b;
+      text-align: center;
+      padding-top: 6px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 5px;
+    }
+    .pip-empty {
+      text-align: center;
+      padding: 30px 10px;
+      color: #94a3b8;
+    }
+    .pip-both-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .pip-card-compact {
+      padding: 10px;
+      gap: 6px;
+    }
+    .pip-card-compact .pip-digits {
+      font-size: 2rem;
+    }
+  `;
+  doc.head.appendChild(styleEl);
+
+  doc.body.innerHTML = `
+    <div class="pip-container">
+      <div class="pip-header">
+        <div class="pip-brand">
+          <span class="pip-brand-badge">DRIVE</span>
+          <span>Floating Pop-up</span>
+        </div>
+        <div class="pip-sync-pill" title="Tersinkronisasi otomatis lintas perangkat">
+          <span class="pip-dot"></span>
+          <span>Live Sync</span>
+        </div>
+      </div>
+
+      <div class="pip-tabs">
+        <button type="button" class="pip-tab-btn" id="pipTabTimer">
+          <i class="fa-solid fa-hourglass-half"></i> Waktu Mundur
+        </button>
+        <button type="button" class="pip-tab-btn" id="pipTabSw">
+          <i class="fa-solid fa-stopwatch"></i> Stopwatch
+        </button>
+        <button type="button" class="pip-tab-btn" id="pipTabBoth">
+          <i class="fa-solid fa-layer-group"></i> Keduanya
+        </button>
+      </div>
+
+      <div id="pipContentArea">
+        <!-- Injected via render -->
+      </div>
+
+      <div class="pip-footer">
+        <i class="fa-solid fa-cloud"></i>
+        <span>Multi-device: HP &amp; PC sinkron secara realtime</span>
+      </div>
+    </div>
+  `;
+
+  const tabTimer = doc.getElementById('pipTabTimer');
+  const tabSw = doc.getElementById('pipTabSw');
+  const tabBoth = doc.getElementById('pipTabBoth');
+
+  if (tabTimer) tabTimer.onclick = () => { window.floatingActiveTab = 'timer'; window.updateFloatingTimerUI(); };
+  if (tabSw) tabSw.onclick = () => { window.floatingActiveTab = 'stopwatch'; window.updateFloatingTimerUI(); };
+  if (tabBoth) tabBoth.onclick = () => { window.floatingActiveTab = 'both'; window.updateFloatingTimerUI(); };
+
+  win.addEventListener('pagehide', () => { window.vortexFloatingWindow = null; });
+  win.addEventListener('beforeunload', () => { window.vortexFloatingWindow = null; });
+
+  window.updateFloatingTimerUI();
+}
+
+window.updateFloatingTimerUI = function() {
+  if (!window.vortexFloatingWindow || window.vortexFloatingWindow.closed) return;
+  const doc = window.vortexFloatingWindow.document;
+  if (!doc || !doc.body) return;
+
+  const contentArea = doc.getElementById('pipContentArea');
+  if (!contentArea) return;
+
+  // Update tabs active state
+  const tabTimer = doc.getElementById('pipTabTimer');
+  const tabSw = doc.getElementById('pipTabSw');
+  const tabBoth = doc.getElementById('pipTabBoth');
+  if (tabTimer) tabTimer.className = 'pip-tab-btn' + (window.floatingActiveTab === 'timer' ? ' active' : '');
+  if (tabSw) tabSw.className = 'pip-tab-btn' + (window.floatingActiveTab === 'stopwatch' ? ' active' : '');
+  if (tabBoth) tabBoth.className = 'pip-tab-btn' + (window.floatingActiveTab === 'both' ? ' active' : '');
+
+  const currentUserId = state.currentUser ? state.currentUser.id : null;
+  const allTimers = state.getTimers ? state.getTimers() : [];
+  const allStopwatches = state.getStopwatches ? state.getStopwatches() : [];
+  const personalTimers = allTimers.filter(t => t.userId === currentUserId || state.isAdmin());
+  const personalStopwatches = allStopwatches.filter(s => s.userId === currentUserId || state.isAdmin());
+
+  // Render based on active tab
+  if (window.floatingActiveTab === 'timer') {
+    if (personalTimers.length === 0) {
+      contentArea.innerHTML = `
+        <div class="pip-card pip-empty">
+          <i class="fa-solid fa-hourglass-empty" style="font-size: 2rem; color: #64748b; margin-bottom: 8px;"></i>
+          <p style="font-weight: 600;">Belum Ada Timer Waktu Mundur</p>
+          <p style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Tambahkan timer di tab utama dashboard terlebih dahulu.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let activeTimer = personalTimers.find(t => t.id === window.floatingSelectedTimerId) || personalTimers[0];
+    window.floatingSelectedTimerId = activeTimer.id;
+
+    const remaining = window.getTimerRemainingSeconds(activeTimer);
+    const isCompleted = remaining === 0;
+    const percent = activeTimer.totalSeconds > 0 
+      ? Math.max(0, Math.min(100, Math.round((remaining / activeTimer.totalSeconds) * 100))) 
+      : 0;
+
+    let badgeHtml = '';
+    if (isCompleted) {
+      badgeHtml = '<span class="pip-badge pip-badge-finished"><i class="fa-solid fa-flag-checkered"></i> Waktu Habis</span>';
+    } else if (activeTimer.isRunning) {
+      badgeHtml = '<span class="pip-badge pip-badge-running"><i class="fa-solid fa-circle-dot"></i> Berjalan</span>';
+    } else {
+      badgeHtml = '<span class="pip-badge pip-badge-paused"><i class="fa-solid fa-pause"></i> Dijeda</span>';
+    }
+
+    const selectOptions = personalTimers.map(t => 
+      `<option value="${t.id}" ${t.id === activeTimer.id ? 'selected' : ''}>${t.name} (${formatSecondsToHMS(t.totalSeconds)})</option>`
+    ).join('');
+
+    contentArea.innerHTML = `
+      <div class="pip-card">
+        <div class="pip-select-row">
+          <select class="pip-select" id="pipSelectTimer">
+            ${selectOptions}
+          </select>
+        </div>
+
+        <div class="pip-title-badge">
+          <span>Kategori: <strong>${activeTimer.category || 'Umum'}</strong></span>
+          <div id="pipTimerBadgeWrap">${badgeHtml}</div>
+        </div>
+
+        <div class="pip-display-wrap">
+          <div class="pip-digits ${isCompleted ? 'pulse-red' : ''}" id="pipTimerDigits">
+            ${formatSecondsToHMS(remaining)}
+          </div>
+          <div class="pip-progress-track">
+            <div class="pip-progress-fill" id="pipTimerFill" style="width: ${percent}%;"></div>
+          </div>
+        </div>
+
+        <div class="pip-meta-row">
+          <span>Ditentukan: <strong>${formatSecondsToHMS(activeTimer.totalSeconds)}</strong></span>
+          <span>Sisa: <strong id="pipTimerPercentText">${percent}%</strong></span>
+        </div>
+
+        <div class="pip-controls">
+          <button type="button" class="pip-btn ${activeTimer.isRunning ? 'pip-btn-pause' : 'pip-btn-play'}" id="pipBtnTimerToggle">
+            <i class="fa-solid ${activeTimer.isRunning ? 'fa-pause' : 'fa-play'}"></i>
+            <span>${activeTimer.isRunning ? 'Jeda' : (isCompleted ? 'Mulai Ulang' : 'Mulai')}</span>
+          </button>
+          <button type="button" class="pip-btn pip-btn-reset" id="pipBtnTimerReset">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Reset</span>
+          </button>
+        </div>
+
+        <div class="pip-quick-row">
+          <button type="button" class="pip-btn-quick" id="pipBtnQuickPlus1">
+            <i class="fa-solid fa-plus"></i> 1 Menit
+          </button>
+          <button type="button" class="pip-btn-quick" id="pipBtnQuickPlus5">
+            <i class="fa-solid fa-plus"></i> 5 Menit
+          </button>
+        </div>
+      </div>
+    `;
+
+    // Event bindings
+    const sel = doc.getElementById('pipSelectTimer');
+    if (sel) sel.onchange = (e) => {
+      window.floatingSelectedTimerId = e.target.value;
+      window.updateFloatingTimerUI();
+    };
+
+    const toggleBtn = doc.getElementById('pipBtnTimerToggle');
+    if (toggleBtn) toggleBtn.onclick = () => {
+      if (isCompleted) {
+        window.resetTimer(activeTimer.id);
+      } else {
+        window.toggleTimerRunning(activeTimer.id);
+      }
+    };
+
+    const resetBtn = doc.getElementById('pipBtnTimerReset');
+    if (resetBtn) resetBtn.onclick = () => {
+      window.resetTimer(activeTimer.id);
+    };
+
+    const q1 = doc.getElementById('pipBtnQuickPlus1');
+    if (q1) q1.onclick = () => window.addTimerQuickSeconds(activeTimer.id, 60);
+
+    const q5 = doc.getElementById('pipBtnQuickPlus5');
+    if (q5) q5.onclick = () => window.addTimerQuickSeconds(activeTimer.id, 300);
+
+  } else if (window.floatingActiveTab === 'stopwatch') {
+    if (personalStopwatches.length === 0) {
+      contentArea.innerHTML = `
+        <div class="pip-card pip-empty">
+          <i class="fa-solid fa-stopwatch" style="font-size: 2rem; color: #64748b; margin-bottom: 8px;"></i>
+          <p style="font-weight: 600;">Belum Ada Stopwatch Pribadi</p>
+          <p style="font-size: 0.72rem; color: #64748b; margin-top: 4px;">Tambahkan stopwatch di tab utama dashboard terlebih dahulu.</p>
+        </div>
+      `;
+      return;
+    }
+
+    let activeSw = personalStopwatches.find(s => s.id === window.floatingSelectedSwId) || personalStopwatches[0];
+    window.floatingSelectedSwId = activeSw.id;
+
+    const elapsed = window.getStopwatchElapsedSeconds(activeSw);
+
+    let badgeHtml = activeSw.isRunning
+      ? '<span class="pip-badge pip-badge-running"><i class="fa-solid fa-play"></i> Berjalan</span>'
+      : '<span class="pip-badge pip-badge-paused"><i class="fa-solid fa-stop"></i> Berhenti</span>';
+
+    const selectOptions = personalStopwatches.map(s => 
+      `<option value="${s.id}" ${s.id === activeSw.id ? 'selected' : ''}>${s.name} (${s.dept || 'Operasional'})</option>`
+    ).join('');
+
+    contentArea.innerHTML = `
+      <div class="pip-card pip-card-sw">
+        <div class="pip-select-row">
+          <select class="pip-select" id="pipSelectSw">
+            ${selectOptions}
+          </select>
+        </div>
+
+        <div class="pip-title-badge">
+          <span>Dept: <strong>${activeSw.dept || 'Operasional'}</strong></span>
+          <div id="pipSwBadgeWrap">${badgeHtml}</div>
+        </div>
+
+        <div class="pip-display-wrap">
+          <div class="pip-digits pip-digits-sw" id="pipSwDigits">
+            ${formatSecondsToHMS(elapsed)}
+          </div>
+        </div>
+
+        <div class="pip-controls">
+          <button type="button" class="pip-btn ${activeSw.isRunning ? 'pip-btn-pause' : 'pip-btn-play'}" id="pipBtnSwToggle">
+            <i class="fa-solid ${activeSw.isRunning ? 'fa-pause' : 'fa-play'}"></i>
+            <span>${activeSw.isRunning ? 'Jeda' : 'Mulai'}</span>
+          </button>
+          <button type="button" class="pip-btn pip-btn-reset" id="pipBtnSwReset">
+            <i class="fa-solid fa-arrows-rotate"></i>
+            <span>Reset (00:00:00)</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    const sel = doc.getElementById('pipSelectSw');
+    if (sel) sel.onchange = (e) => {
+      window.floatingSelectedSwId = e.target.value;
+      window.updateFloatingTimerUI();
+    };
+
+    const toggleBtn = doc.getElementById('pipBtnSwToggle');
+    if (toggleBtn) toggleBtn.onclick = () => window.toggleStopwatchRunning(activeSw.id);
+
+    const resetBtn = doc.getElementById('pipBtnSwReset');
+    if (resetBtn) resetBtn.onclick = () => window.resetStopwatch(activeSw.id);
+
+  } else if (window.floatingActiveTab === 'both') {
+    // Dual View (Timer + Stopwatch Stacked)
+    const activeTimer = personalTimers.find(t => t.id === window.floatingSelectedTimerId) || personalTimers[0];
+    const activeSw = personalStopwatches.find(s => s.id === window.floatingSelectedSwId) || personalStopwatches[0];
+
+    const timerRem = activeTimer ? window.getTimerRemainingSeconds(activeTimer) : 0;
+    const swElapsed = activeSw ? window.getStopwatchElapsedSeconds(activeSw) : 0;
+
+    let timerPart = `
+      <div class="pip-card pip-card-compact">
+        <div class="pip-title-badge">
+          <span>⏳ <strong>${activeTimer ? activeTimer.name : 'Timer'}</strong></span>
+          <span>${activeTimer && activeTimer.isRunning ? '<span class="pip-badge pip-badge-running">Play</span>' : '<span class="pip-badge pip-badge-paused">Pause</span>'}</span>
+        </div>
+        <div class="pip-display-wrap" style="padding:4px 0;">
+          <div class="pip-digits" id="pipTimerDigits">${formatSecondsToHMS(timerRem)}</div>
+        </div>
+        ${activeTimer ? `
+          <div class="pip-controls">
+            <button type="button" class="pip-btn ${activeTimer.isRunning ? 'pip-btn-pause' : 'pip-btn-play'}" id="pipBothTimerToggle">
+              <i class="fa-solid ${activeTimer.isRunning ? 'fa-pause' : 'fa-play'}"></i>
+            </button>
+            <button type="button" class="pip-btn pip-btn-reset" id="pipBothTimerReset">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+            <button type="button" class="pip-btn-quick" id="pipBothTimerPlus1">+1m</button>
+          </div>
+        ` : '<p style="font-size:0.75rem; color:#64748b;">Belum ada timer</p>'}
+      </div>
+    `;
+
+    let swPart = `
+      <div class="pip-card pip-card-compact pip-card-sw">
+        <div class="pip-title-badge">
+          <span>⏱️ <strong>${activeSw ? activeSw.name : 'Stopwatch'}</strong></span>
+          <span>${activeSw && activeSw.isRunning ? '<span class="pip-badge pip-badge-running">Play</span>' : '<span class="pip-badge pip-badge-paused">Pause</span>'}</span>
+        </div>
+        <div class="pip-display-wrap" style="padding:4px 0;">
+          <div class="pip-digits pip-digits-sw" id="pipSwDigits">${formatSecondsToHMS(swElapsed)}</div>
+        </div>
+        ${activeSw ? `
+          <div class="pip-controls">
+            <button type="button" class="pip-btn ${activeSw.isRunning ? 'pip-btn-pause' : 'pip-btn-play'}" id="pipBothSwToggle">
+              <i class="fa-solid ${activeSw.isRunning ? 'fa-pause' : 'fa-play'}"></i>
+            </button>
+            <button type="button" class="pip-btn pip-btn-reset" id="pipBothSwReset">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+        ` : '<p style="font-size:0.75rem; color:#64748b;">Belum ada stopwatch</p>'}
+      </div>
+    `;
+
+    contentArea.innerHTML = `<div class="pip-both-wrapper">${timerPart}${swPart}</div>`;
+
+    if (activeTimer) {
+      const btt = doc.getElementById('pipBothTimerToggle');
+      if (btt) btt.onclick = () => window.toggleTimerRunning(activeTimer.id);
+      const btr = doc.getElementById('pipBothTimerReset');
+      if (btr) btr.onclick = () => window.resetTimer(activeTimer.id);
+      const btp1 = doc.getElementById('pipBothTimerPlus1');
+      if (btp1) btp1.onclick = () => window.addTimerQuickSeconds(activeTimer.id, 60);
+    }
+
+    if (activeSw) {
+      const bst = doc.getElementById('pipBothSwToggle');
+      if (bst) bst.onclick = () => window.toggleStopwatchRunning(activeSw.id);
+      const bsr = doc.getElementById('pipBothSwReset');
+      if (bsr) bsr.onclick = () => window.resetStopwatch(activeSw.id);
+    }
+  }
+};
+
+window.updateFloatingTimerTick = function() {
+  if (!window.vortexFloatingWindow || window.vortexFloatingWindow.closed) return;
+  const doc = window.vortexFloatingWindow.document;
+  if (!doc) return;
+
+  const currentUserId = state.currentUser ? state.currentUser.id : null;
+  const allTimers = state.getTimers ? state.getTimers() : [];
+  const allStopwatches = state.getStopwatches ? state.getStopwatches() : [];
+
+  // Update Countdown Display if present
+  const timerDigitsEl = doc.getElementById('pipTimerDigits');
+  if (timerDigitsEl) {
+    const personalTimers = allTimers.filter(t => t.userId === currentUserId || state.isAdmin());
+    const activeTimer = personalTimers.find(t => t.id === window.floatingSelectedTimerId) || personalTimers[0];
+    if (activeTimer) {
+      const remaining = window.getTimerRemainingSeconds(activeTimer);
+      timerDigitsEl.textContent = formatSecondsToHMS(remaining);
+      if (remaining === 0) {
+        timerDigitsEl.classList.add('pulse-red');
+      } else {
+        timerDigitsEl.classList.remove('pulse-red');
+      }
+
+      const fillEl = doc.getElementById('pipTimerFill');
+      if (fillEl && activeTimer.totalSeconds > 0) {
+        const percent = Math.max(0, Math.min(100, Math.round((remaining / activeTimer.totalSeconds) * 100)));
+        fillEl.style.width = `${percent}%`;
+        const pText = doc.getElementById('pipTimerPercentText');
+        if (pText) pText.textContent = `${percent}%`;
+      }
+    }
+  }
+
+  // Update Stopwatch Display if present
+  const swDigitsEl = doc.getElementById('pipSwDigits');
+  if (swDigitsEl) {
+    const personalStopwatches = allStopwatches.filter(s => s.userId === currentUserId || state.isAdmin());
+    const activeSw = personalStopwatches.find(s => s.id === window.floatingSelectedSwId) || personalStopwatches[0];
+    if (activeSw) {
+      const elapsed = window.getStopwatchElapsedSeconds(activeSw);
+      swDigitsEl.textContent = formatSecondsToHMS(elapsed);
+    }
+  }
+};
+
+window.closeFloatingTimerWindow = function() {
+  if (window.vortexFloatingWindow && !window.vortexFloatingWindow.closed) {
+    try {
+      window.vortexFloatingWindow.close();
+    } catch (e) {}
+    window.vortexFloatingWindow = null;
+  }
+};
 
 // ==========================================
 // 12.5 UPDATE PA (PRODUCTIVITY & ACTIVITY)
@@ -15915,7 +16855,10 @@ function initEvents() {
     UI.btnOverviewLogAll.addEventListener('click', () => navigateToPage('activity-log'));
   }
 
-  // Timer & Stopwatch Modals and Forms
+  // Timer & Stopwatch Modals, Forms & Floating Pop-up
+  if (UI.btnOpenFloatingTimer) {
+    UI.btnOpenFloatingTimer.addEventListener('click', () => openFloatingTimerWindow('timer'));
+  }
   if (UI.btnOpenAddTimerModal) {
     UI.btnOpenAddTimerModal.addEventListener('click', openAddTimerModal);
   }

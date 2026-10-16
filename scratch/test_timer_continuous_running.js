@@ -103,7 +103,11 @@ global.state = {
   saveStopwatches: (s) => mockLS.setItem('vortex_stopwatches', JSON.stringify(s))
 };
 
-// Evaluate catchUpTimersAndStopwatches in context
+// Evaluate getTimerRemainingSeconds, getStopwatchElapsedSeconds, and catchUpTimersAndStopwatches in context
+const remMatch = appJsContent.match(/window\.getTimerRemainingSeconds = function[\s\S]*?\n\};/);
+if (remMatch) eval(remMatch[0]);
+const swMatch = appJsContent.match(/window\.getStopwatchElapsedSeconds = function[\s\S]*?\n\};/);
+if (swMatch) eval(swMatch[0]);
 const catchUpMatch = appJsContent.match(/window\.catchUpTimersAndStopwatches = function\(\) \{[\s\S]*?\n\};/);
 assert(catchUpMatch, 'catchUpTimersAndStopwatches definition not matched');
 eval(catchUpMatch[0]);
