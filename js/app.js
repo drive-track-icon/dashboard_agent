@@ -284,17 +284,7 @@ const DEFAULT_ITEMS = [
   }
 ];
 
-const DEFAULT_LOGS = [
-  {
-    id: 'log_1',
-    timestamp: '2026-10-14 02:30',
-    user: 'Admin Icon (ADMIN)',
-    actionType: 'SYSTEM_INIT',
-    actionBadge: 'Sistem',
-    details: 'Inisialisasi sistem manajemen operasional DRIVE Dashboard.',
-    status: 'Sukses'
-  }
-];
+const DEFAULT_LOGS = [];
 
 const DEFAULT_TIMERS = [];
 const DEFAULT_STOPWATCHES = [];
@@ -322,158 +312,7 @@ const DEFAULT_FINDINGS = [];
 // 1.10 DEFAULT QUIZ QUESTIONS (ULTRAMAN VS MONSTER)
 // ==========================================
 
-const DEFAULT_QUIZ_QUESTIONS = [
-  {
-    id: 'QZ-001',
-    category: 'Informasi',
-    isMarked: false,
-    prompt: 'Berapakah perbandingan rasio kecepatan Upload dan Download (rasio simetris) pada layanan internet fixed broadband ICONNET?',
-    options: {
-      A: '1 : 4 (Asimetris)',
-      B: '1 : 1 (Simetris Penuh)',
-      C: '1 : 2 (Asimetris)',
-      D: '1 : 8 (Best Effort)',
-      E: '1 : 10 (Dynamic Up-to)'
-    },
-    correctAnswer: 'B',
-    explanation: 'ICONNET menggunakan 100% serat optik (full fiber optic) dengan rasio simetris 1:1, di mana kecepatan unggah (upload) dan unduh (download) sama cepat dan stabil.'
-  },
-  {
-    id: 'QZ-002',
-    category: 'Informasi',
-    isMarked: true,
-    prompt: 'Berapakah batas standar SLA Response Time (ART) bagi agen Contact Center CSO dalam merespons antrean pertama pelanggan?',
-    options: {
-      A: '< 30 Detik',
-      B: '< 60 Detik',
-      C: '< 90 Detik',
-      D: '< 120 Detik',
-      E: '< 180 Detik'
-    },
-    correctAnswer: 'A',
-    explanation: 'Berdasarkan Service Level Agreement (SLA) operasional Contact Center ICONNET, ART maksimal adalah di bawah 30 detik untuk memberikan layanan prima.'
-  },
-  {
-    id: 'QZ-003',
-    category: 'Gangguan',
-    isMarked: true,
-    prompt: 'Jika lampu indikator LOS (Loss of Signal) pada modem/ONT pelanggan menyala merah berkedip, apa arti indikasi kendala tersebut?',
-    options: {
-      A: 'Perangkat modem kelebihan panas (overheat)',
-      B: 'Kabel LAN terlepas dari port ethernet',
-      C: 'Tidak ada sinyal optik / redaman kabel dropcore putus',
-      D: 'Password WiFi salah dimasukkan pelanggan',
-      E: 'Fitur DHCP Server modem dinonaktifkan'
-    },
-    correctAnswer: 'C',
-    explanation: 'Indikator LOS merah berkedip menandakan perangkat optik modem tidak menerima sinyal cahaya (sinyal rx optik terputus atau redaman di luar batas operasional -28 dBm).'
-  },
-  {
-    id: 'QZ-004',
-    category: 'Keluhan',
-    isMarked: false,
-    prompt: 'Berapa jumlah titik elemen verifikasi data identitas pelanggan yang wajib divalidasi oleh agen CSO sebelum memproses perubahan akun atau informasi sensitif?',
-    options: {
-      A: '1 Elemen data',
-      B: '2 Elemen data',
-      C: '3 Elemen data (ID Pelanggan, Nama, Nomor HP/Alamat)',
-      D: '4 Elemen data',
-      E: '5 Elemen data'
-    },
-    correctAnswer: 'C',
-    explanation: 'SOP perlindungan data privasi pelanggan (PDP) mewajibkan validasi minimal 3 elemen data: ID Pelanggan, Nama Lengkap pemilik, dan Nomor HP aktif atau alamat instalasi.'
-  },
-  {
-    id: 'QZ-005',
-    category: 'Informasi',
-    isMarked: false,
-    prompt: 'Berapakah batas standar target Average Handling Time (AHT) per interaksi panggilan/chat pada layanan Contact Center ICONNET?',
-    options: {
-      A: '180 detik (03:00 menit)',
-      B: '300 detik (05:00 menit)',
-      C: '420 detik (07:00 menit)',
-      D: '600 detik (10:00 menit)',
-      E: '900 detik (15:00 menit)'
-    },
-    correctAnswer: 'B',
-    explanation: 'Standar target AHT Contact Center ICONNET adalah 300 detik (5 menit 00 detik) untuk menjaga efisiensi penanganan serta kepuasan pelanggan.'
-  },
-  {
-    id: 'QZ-006',
-    category: 'Informasi',
-    isMarked: false,
-    prompt: 'Aplikasi mobile resmi terintegrasi manakah yang digunakan pelanggan untuk melakukan pendaftaran baru, pembayaran tagihan bulanan, serta pengaduan gangguan ICONNET?',
-    options: {
-      A: 'PLN Mobile',
-      B: 'ICONNET Care App',
-      C: 'MyTelkom',
-      D: 'Speedtest Ookla',
-      E: 'LinkAja Portal'
-    },
-    correctAnswer: 'A',
-    explanation: 'Layanan ICONNET terintegrasi penuh di dalam Super App PLN Mobile pada menu ICONNET untuk pendaftaran, tracking gangguan, dan pembayaran tagihan.'
-  },
-  {
-    id: 'QZ-007',
-    category: 'Gangguan',
-    isMarked: false,
-    prompt: 'Apa perbedaan mendasar antara frekuensi WiFi 2.4 GHz dan 5.0 GHz pada router dual-band ICONNET?',
-    options: {
-      A: '2.4 GHz lebih cepat tetapi jangkauan sempit',
-      B: '2.4 GHz jangkauan lebih luas & tembus dinding, 5.0 GHz kecepatan lebih tinggi untuk jarak dekat',
-      C: '5.0 GHz hanya bisa digunakan untuk laptop kabel',
-      D: '2.4 GHz tidak mendukung standar enkripsi WPA2/WPA3',
-      E: 'Tidak ada perbedaan performa antara kedua frekuensi'
-    },
-    correctAnswer: 'B',
-    explanation: 'Frekuensi 2.4 GHz memiliki daya tembus dinding dan jangkauan lebih luas, sedangkan 5.0 GHz menyediakan kecepatan bandwidth lebih tinggi dan latency rendah untuk jarak dekat.'
-  },
-  {
-    id: 'QZ-008',
-    category: 'Keluhan',
-    isMarked: true,
-    prompt: 'Berapakah batas nilai minimum kelulusan (passing grade standard) pada evaluasi penilaian mutu Customer Attributes (CA)?',
-    options: {
-      A: '70.0',
-      B: '75.0',
-      C: '80.0',
-      D: '85.0',
-      E: '90.0'
-    },
-    correctAnswer: 'D',
-    explanation: 'Standar mutu operasional pelayanan CA menetapkan nilai passing grade kelulusan sebesar 85.0.'
-  },
-  {
-    id: 'QZ-009',
-    category: 'Gangguan',
-    isMarked: false,
-    prompt: 'Jika terjadi gangguan massal akibat fiber optic backbone putus di suatu area klaster, tim manakah yang menjadi eskalasi penanganan teknis tingkat 2 (Tier 2)?',
-    options: {
-      A: 'Divisi Finance & Billing',
-      B: 'NOC (Network Operation Center) & Tim Pemeliharaan Jaringan',
-      C: 'Satpam Gedung',
-      D: 'Customer Service Toko',
-      E: 'Divisi Sales & Marketing'
-    },
-    correctAnswer: 'B',
-    explanation: 'Eskalasi kendala infrastruktur massal atau link optik backbone dialihkan langsung ke unit NOC (Network Operation Center) dan tim pemeliharaan jaringan fiber optik.'
-  },
-  {
-    id: 'QZ-010',
-    category: 'Gangguan',
-    isMarked: false,
-    prompt: 'Apakah fungsi utama perangkat ODP (Optical Distribution Point) yang terpasang di tiang fiber optik ICONNET?',
-    options: {
-      A: 'Mengatur tegangan arus listrik tiang',
-      B: 'Titik terminasi dan pembagi kabel serat optik distribusi ke kabel drop wire menuju rumah pelanggan',
-      C: 'Memancarkan sinyal radio WiFi publik',
-      D: 'Menyimpan baterai cadangan saat pemadaman',
-      E: 'Mengukur suhu udara tiang listrik'
-    },
-    correctAnswer: 'B',
-    explanation: 'ODP (Optical Distribution Point) adalah kotak terminasi pasif di tiang yang membagi kabel serat optik distribusi utama menjadi kabel dropcore pelanggan menggunakan splitter pasif.'
-  }
-];
+const DEFAULT_QUIZ_QUESTIONS = [];
 
 // ==========================================
 // 2. STATE MANAGER
@@ -737,7 +576,11 @@ class AppState {
               const filtered = arr.filter(item => {
                 if (!item) return false;
                 if (item.userId && dummyUserIds.has(item.userId)) return false;
-                if (item.id && (dummyUserIds.has(item.id) || ['QZH-1001', 'QZH-1002', 'QZH-1003'].includes(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return false;
+                if (item.id && (
+                  dummyUserIds.has(item.id) ||
+                  ['QZH-1001', 'QZH-1002', 'QZH-1003', 'pa_1', 'pa_2', 'pa_3', 'pa_4', 'pa_5', 'pa_6'].includes(item.id) ||
+                  (typeof item.id === 'string' && (item.id.startsWith('run_demo_') || item.id.startsWith('tkt_bs_') || item.id.startsWith('aht_bs_') || item.id.startsWith('art_bs_')))
+                )) return false;
                 if (item.username && dummyUsernames.has(item.username.toLowerCase())) return false;
                 if (item.userName && dummyUsernames.has(item.userName.toLowerCase())) return false;
                 const name = (item.userFullName || item.fullName || item.userName || item.author || item.targetUser || '').toLowerCase().trim();

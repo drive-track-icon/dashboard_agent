@@ -160,7 +160,7 @@ async function runTests() {
   console.log(`   Initial quiz questions count: ${questions.length}`);
   console.log(`   Initial quiz history count: ${history.length}`);
 
-  assert.strictEqual(questions.length, 10, 'Expected 10 active quiz questions by default');
+  assert.strictEqual(questions.length, 0, 'Questions start at 0 and hydrate directly from cloud');
   assert.strictEqual(history.length, 0, 'Expected quiz history to be empty [] on fresh device');
 
   const dummyQuizIds = ['QZH-1001', 'QZH-1002', 'QZH-1003'];
@@ -185,9 +185,9 @@ async function runTests() {
 
   // Test 2c: Authoritative Bank Soal Merging
   // Suppose cloud has 9 questions (admin intentionally deleted QZ-010)
-  const remoteQuestions9 = questions.slice(0, 9);
-  const localQuestions10 = [...questions]; // 10 questions from fresh device default
-  const mergeResult = syncManager.mergeCollections('vortex_quiz_questions', localQuestions10, remoteQuestions9, new Set());
+  const mockQuestions10 = Array.from({ length: 10 }, (_, i) => ({ id: 'QZ-' + String(i + 1).padStart(3, '0'), prompt: `Question ${i+1}` }));
+  const mockQuestions9 = mockQuestions10.slice(0, 9);
+  const mergeResult = syncManager.mergeCollections('vortex_quiz_questions', mockQuestions10, mockQuestions9, new Set());
   assert.strictEqual(mergeResult.merged.length, 9, 'Cloud must remain authoritative: deleted QZ-010 must NOT be resurrected!');
   assert.strictEqual(mergeResult.hasLocalOverrides, false, 'Fresh device default questions must not trigger local overrides on cloud');
   console.log('   ✓ Deleted default questions on cloud are NEVER resurrected by new devices!');

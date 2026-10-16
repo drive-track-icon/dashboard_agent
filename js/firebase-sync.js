@@ -74,13 +74,33 @@
      */
     isDummyItem(item) {
       if (!item) return false;
-      const DUMMY_IDS = new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2', 'QZH-1001', 'QZH-1002', 'QZH-1003']);
+      const DUMMY_IDS = new Set([
+        'usr_user_1', 'usr_user_2', 'usr_admin_2',
+        'run_demo_1', 'run_demo_2', 'run_demo_3', 'run_demo_4',
+        'QZH-1001', 'QZH-1002', 'QZH-1003',
+        'pa_1', 'pa_2', 'pa_3', 'pa_4', 'pa_5', 'pa_6',
+        'ca_1', 'ca_2', 'ca_3', 'ca_4', 'ca_5', 'ca_6',
+        'tkt_1', 'tkt_2', 'tkt_3', 'tkt_4', 'tkt_5', 'tkt_6',
+        'aht_1', 'aht_2', 'aht_3', 'aht_4', 'aht_5', 'aht_6',
+        'art_1', 'art_2', 'art_3', 'art_4', 'art_5', 'art_6',
+        'fnd_1', 'fnd_2', 'fnd_3', 'fnd_4', 'fnd_5', 'FND-2026-005',
+        'tmr_1', 'tmr_2', 'tmr_3', 'tmr_4',
+        'sw_1', 'sw_2'
+      ]);
       const DUMMY_USERNAMES = new Set(['user', 'ahmad_fauzi', 'dewi_lestari']);
       const DUMMY_NAMES = new Set([
         'siti rahma', 'ahmad fauzi', 'dewi lestari, m.t.', 'dewi lestari',
         'budi santoso, s.kom', 'budi santoso'
       ]);
-      if (item.id && (DUMMY_IDS.has(item.id) || (typeof item.id === 'string' && item.id.startsWith('run_demo_')))) return true;
+      if (item.id) {
+        if (DUMMY_IDS.has(item.id)) return true;
+        if (typeof item.id === 'string' && (
+          item.id.startsWith('run_demo_') ||
+          item.id.startsWith('tkt_bs_') ||
+          item.id.startsWith('aht_bs_') ||
+          item.id.startsWith('art_bs_')
+        )) return true;
+      }
       if (item.userId && DUMMY_IDS.has(item.userId)) return true;
       if (item.username && DUMMY_USERNAMES.has(item.username.toLowerCase())) return true;
       if (item.userName && DUMMY_USERNAMES.has(item.userName.toLowerCase())) return true;
@@ -107,12 +127,20 @@
           set.add('QZH-1001');
           set.add('QZH-1002');
           set.add('QZH-1003');
+        } else if (key === 'vortex_quiz_questions') {
+          ['QZ-001', 'QZ-002', 'QZ-003', 'QZ-004', 'QZ-005', 'QZ-006', 'QZ-007', 'QZ-008', 'QZ-009', 'QZ-010'].forEach(id => set.add(id));
+        } else if (key === 'drive_typing_team_results') {
+          ['run_demo_1', 'run_demo_2', 'run_demo_3', 'run_demo_4'].forEach(id => set.add(id));
+        } else if (key === 'vortex_pa_logs') {
+          ['pa_1', 'pa_2', 'pa_3', 'pa_4', 'pa_5', 'pa_6'].forEach(id => set.add(id));
         }
         return set;
       } catch (e) {
-        if (key === 'vortex_users') return new Set(['usr_user_1', 'usr_user_2', 'usr_admin_2']);
-        if (key === 'vortex_quiz_history') return new Set(['QZH-1001', 'QZH-1002', 'QZH-1003']);
-        return new Set();
+        const fallbackSet = new Set();
+        if (key === 'vortex_users') { fallbackSet.add('usr_user_1'); fallbackSet.add('usr_user_2'); fallbackSet.add('usr_admin_2'); }
+        if (key === 'vortex_quiz_history') { fallbackSet.add('QZH-1001'); fallbackSet.add('QZH-1002'); fallbackSet.add('QZH-1003'); }
+        if (key === 'drive_typing_team_results') { ['run_demo_1', 'run_demo_2', 'run_demo_3', 'run_demo_4'].forEach(id => fallbackSet.add(id)); }
+        return fallbackSet;
       }
     }
 
@@ -515,12 +543,27 @@
         return { merged: mergedHistory, hasLocalOverrides: hasLocalNew };
       }
 
-      // Default pengaman untuk koleksi data lainnya
-      const localOnly = cleanLocal.filter(l => l && l.id && !cleanRemote.some(r => r && r.id === l.id));
-      if (localOnly.length > 0) {
-        return { merged: [...cleanRemote, ...localOnly], hasLocalOverrides: true };
+      if (key === 'drive_typing_team_results') {
+        const map = new Map();
+        cleanRemote.forEach(r => { if (r && r.id && !this.isDummyItem(r)) map.set(r.id, r); });
+        cleanLocal.forEach(l => { if (l && l.id && !this.isDummyItem(l) && !map.has(l.id)) map.set(l.id, l); });
+        const mergedResults = Array.from(map.values()).sort((a, b) => ((b.wpm || 0) - (a.wpm || 0)));
+        const hasLocalNew = cleanLocal.some(l => l && l.id && !this.isDummyItem(l) && !cleanRemote.some(r => r.id === l.id));
+        return { merged: mergedResults, hasLocalOverrides: hasLocalNew };
       }
-      return { merged: cleanRemote, hasLocalOverrides: false };
+
+      // Default pengaman untuk seluruh koleksi data lainnya:
+      // Jika remote memiliki data, remote adalah sumber kebenaran utama yang terupdate.
+      // Hanya tambahkan data lokal baru jika item lokal tersebut memiliki ID baru yang dibuat saat offline
+      // dan bukan merupakan item dummy/default lama.
+      if (cleanRemote.length > 0) {
+        const localOnly = cleanLocal.filter(l => l && l.id && !cleanRemote.some(r => r && r.id === l.id) && !this.isDummyItem(l));
+        if (localOnly.length > 0) {
+          return { merged: [...cleanRemote, ...localOnly], hasLocalOverrides: true };
+        }
+        return { merged: cleanRemote, hasLocalOverrides: false };
+      }
+      return { merged: cleanLocal, hasLocalOverrides: cleanLocal.length > 0 };
     }
 
     /**
