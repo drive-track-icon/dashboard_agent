@@ -374,7 +374,7 @@
         } else if (isStopwatch) {
           if (copy.startedAt) {
             const addedSec = Math.floor((now - Number(copy.startedAt)) / 1000);
-            copy.elapsedSeconds = Math.max(0, (Number(copy.accumulatedSeconds) || 0) + addedSec);
+            copy.elapsedSeconds = Math.max(0, (Number(copy.accumulatedSeconds) || Number(copy.elapsedSeconds) || 0) + addedSec);
           } else if (copy.lastTick) {
             const elapsedSec = Math.floor((now - Number(copy.lastTick)) / 1000);
             if (elapsedSec > 0) {

@@ -6598,6 +6598,10 @@ window.getTimerRemainingSeconds = function(timer, now = Date.now()) {
   if (timer.targetEndTime) {
     return Math.max(0, Math.ceil((Number(timer.targetEndTime) - now) / 1000));
   }
+  if (timer.startedAt && timer.remainingSeconds) {
+    const elapsedSec = Math.floor((now - Number(timer.startedAt)) / 1000);
+    return Math.max(0, (Number(timer.remainingSeconds) || 0) - elapsedSec);
+  }
   if (timer.lastTick) {
     const elapsedSec = Math.floor((now - Number(timer.lastTick)) / 1000);
     return Math.max(0, (Number(timer.remainingSeconds) || 0) - elapsedSec);
@@ -6613,7 +6617,7 @@ window.getStopwatchElapsedSeconds = function(sw, now = Date.now()) {
   }
   if (sw.startedAt) {
     const addedSec = Math.floor((now - Number(sw.startedAt)) / 1000);
-    return Math.max(0, (Number(sw.accumulatedSeconds) || 0) + addedSec);
+    return Math.max(0, (Number(sw.accumulatedSeconds) || Number(sw.elapsedSeconds) || 0) + addedSec);
   }
   if (sw.lastTick) {
     const elapsedSec = Math.floor((now - Number(sw.lastTick)) / 1000);
@@ -7270,27 +7274,41 @@ window.toggleTimerRunning = function(id) {
   const now = Date.now();
   const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
 
-  // If timer was completed and user plays again, reset to totalSeconds first
-  if (timer.remainingSeconds === 0 || window.getTimerRemainingSeconds(timer, now) === 0) {
+  // Hitung sisa waktu aktual sebelum mengubah status isRunning
+  const curRem = window.getTimerRemainingSeconds(timer, now);
+
+  if (curRem === 0 || timer.remainingSeconds === 0) {
+    // Jika timer sudah habis dan pengguna ingin memulai kembali, reset ke totalSeconds
     timer.remainingSeconds = timer.totalSeconds;
     timer.isRunning = true;
-  } else {
-    timer.isRunning = !timer.isRunning;
-  }
-
-  if (timer.isRunning) {
     timer.startedAt = now;
     timer.targetEndTime = now + (Number(timer.remainingSeconds) * 1000);
+    timer.lastTick = now;
     timer.pausedAt = null;
     timer.resetAt = null;
     timer.actionAt = now;
     timer.actionType = 'start';
-  } else {
-    timer.remainingSeconds = window.getTimerRemainingSeconds(timer, now);
+  } else if (timer.isRunning) {
+    // JEDA (Pause): Kunci sisa waktu saat ini, matikan isRunning dan bersihkan targetEndTime
+    timer.remainingSeconds = curRem;
+    timer.isRunning = false;
     timer.targetEndTime = null;
+    timer.lastTick = null;
+    timer.startedAt = null;
     timer.pausedAt = now;
     timer.actionAt = now;
     timer.actionType = 'pause';
+  } else {
+    // MULAI (Resume dari waktu jeda sebelumnya): Lanjutkan hitung mundur dari remainingSeconds
+    timer.remainingSeconds = curRem;
+    timer.isRunning = true;
+    timer.startedAt = now;
+    timer.targetEndTime = now + (Number(curRem) * 1000);
+    timer.lastTick = now;
+    timer.pausedAt = null;
+    timer.resetAt = null;
+    timer.actionAt = now;
+    timer.actionType = 'start';
   }
   timer.actionDeviceId = devId;
   timer.updatedAt = now;
@@ -7471,21 +7489,31 @@ window.toggleStopwatchRunning = function(id) {
 
   const now = Date.now();
   const devId = (window.FirebaseSync && window.FirebaseSync.deviceId) || 'dev_' + now;
-  sw.isRunning = !sw.isRunning;
+
+  // Hitung durasi akumulasi aktual sebelum mengubah status isRunning
+  const curElapsed = window.getStopwatchElapsedSeconds(sw, now);
+
   if (sw.isRunning) {
+    // JEDA (Pause): Kunci waktu akumulasi yang dicapai, matikan isRunning
+    sw.elapsedSeconds = curElapsed;
+    sw.accumulatedSeconds = curElapsed;
+    sw.isRunning = false;
+    sw.startedAt = null;
+    sw.lastTick = null;
+    sw.pausedAt = now;
+    sw.actionAt = now;
+    sw.actionType = 'pause';
+  } else {
+    // MULAI (Resume dari waktu jeda sebelumnya): Lanjutkan maju dari accumulatedSeconds
+    sw.elapsedSeconds = curElapsed;
+    sw.accumulatedSeconds = curElapsed;
+    sw.isRunning = true;
     sw.startedAt = now;
-    sw.accumulatedSeconds = Number(sw.elapsedSeconds) || 0;
+    sw.lastTick = now;
     sw.pausedAt = null;
     sw.resetAt = null;
     sw.actionAt = now;
     sw.actionType = 'start';
-  } else {
-    sw.elapsedSeconds = window.getStopwatchElapsedSeconds(sw, now);
-    sw.accumulatedSeconds = sw.elapsedSeconds;
-    sw.startedAt = null;
-    sw.pausedAt = now;
-    sw.actionAt = now;
-    sw.actionType = 'pause';
   }
   sw.actionDeviceId = devId;
   sw.updatedAt = now;
@@ -8332,7 +8360,9 @@ window.updateFloatingTimerUI = function() {
 
     const toggleBtn = doc.getElementById('pipBtnTimerToggle');
     if (toggleBtn) toggleBtn.onclick = () => {
-      if (isCompleted) {
+      const curT = (state.getTimers ? state.getTimers() : []).find(t => t.id === activeTimer.id);
+      const rem = curT ? window.getTimerRemainingSeconds(curT) : 0;
+      if (rem === 0) {
         window.resetTimer(activeTimer.id);
       } else {
         window.toggleTimerRunning(activeTimer.id);
