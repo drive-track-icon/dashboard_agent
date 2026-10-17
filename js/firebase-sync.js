@@ -128,6 +128,13 @@
           set.add('QZH-1002');
           set.add('QZH-1003');
         } else if (key === 'vortex_quiz_questions') {
+          try {
+            const rawQuizDel = localStorage.getItem('vortex_deleted_quiz_ids');
+            if (rawQuizDel) {
+              const parsedQuizDel = JSON.parse(rawQuizDel);
+              if (Array.isArray(parsedQuizDel)) parsedQuizDel.forEach(id => set.add(id));
+            }
+          } catch (e) {}
           ['QZ-001', 'QZ-002', 'QZ-003', 'QZ-004', 'QZ-005', 'QZ-006', 'QZ-007', 'QZ-008', 'QZ-009', 'QZ-010'].forEach(id => set.add(id));
         } else if (key === 'drive_typing_team_results') {
           ['run_demo_1', 'run_demo_2', 'run_demo_3', 'run_demo_4'].forEach(id => set.add(id));
@@ -190,6 +197,9 @@
         const set = this.getDeletedIds(key);
         set.add(id);
         localStorage.setItem('vortex_deleted_ids_' + key, JSON.stringify([...set]));
+        if (key === 'vortex_quiz_questions') {
+          localStorage.setItem('vortex_deleted_quiz_ids', JSON.stringify([...set]));
+        }
         this.removeKnownSyncedId(key, id);
       } catch (e) {}
     }
@@ -203,6 +213,9 @@
         const set = this.getDeletedIds(key);
         set.delete(id);
         localStorage.setItem('vortex_deleted_ids_' + key, JSON.stringify([...set]));
+        if (key === 'vortex_quiz_questions') {
+          localStorage.setItem('vortex_deleted_quiz_ids', JSON.stringify([...set]));
+        }
       } catch (e) {}
     }
 
@@ -502,16 +515,37 @@
 
       if (key === 'vortex_quiz_questions') {
         const DEFAULT_QUIZ_IDS = new Set(['QZ-001', 'QZ-002', 'QZ-003', 'QZ-004', 'QZ-005', 'QZ-006', 'QZ-007', 'QZ-008', 'QZ-009', 'QZ-010']);
-        if (cleanRemote.length > 0) {
-          // Cloud Firestore adalah sumber kebenaran data terupdate untuk Bank Soal Kuis
-          // Jangan membangkitkan kembali soal default yang telah dihapus oleh Admin di Cloud
-          const localBrandNew = cleanLocal.filter(l => l && l.id && !cleanRemote.some(r => r.id === l.id) && !DEFAULT_QUIZ_IDS.has(l.id));
-          if (localBrandNew.length > 0) {
-            return { merged: [...cleanRemote, ...localBrandNew], hasLocalOverrides: true };
+        // Jaminan mutlak: Seluruh soal yang dihapus TIDAK BOLEH muncul kembali, dan soal di arena kuis hanya update terkini
+        const map = new Map();
+
+        // 1. Tambahkan remote questions yang valid (tidak terhapus dan bukan dummy)
+        cleanRemote.forEach(r => {
+          if (r && r.id && !DEFAULT_QUIZ_IDS.has(r.id) && !deletedIds.has(r.id)) {
+            map.set(r.id, r);
           }
-          return { merged: cleanRemote, hasLocalOverrides: false };
-        }
-        return { merged: cleanLocal, hasLocalOverrides: cleanLocal.length > 0 };
+        });
+
+        // 2. Gabungkan local questions: Utamakan versi lokal jika diperbarui atau soal baru
+        let hasLocalOverrides = false;
+        cleanLocal.forEach(l => {
+          if (l && l.id && !DEFAULT_QUIZ_IDS.has(l.id) && !deletedIds.has(l.id)) {
+            const remoteQ = map.get(l.id);
+            if (!remoteQ) {
+              map.set(l.id, l);
+              hasLocalOverrides = true;
+            } else {
+              const lTime = l.updatedAt || 0;
+              const rTime = remoteQ.updatedAt || 0;
+              if (lTime >= rTime || JSON.stringify(l) !== JSON.stringify(remoteQ)) {
+                map.set(l.id, l);
+                hasLocalOverrides = true;
+              }
+            }
+          }
+        });
+
+        const merged = Array.from(map.values());
+        return { merged, hasLocalOverrides };
       }
 
       if (key === 'vortex_quiz_history') {
@@ -688,8 +722,13 @@
 
         // KHUSUS MENU "Quiz": Jaga stabilitas jika sedang dalam arena battle aktif
         if (activePage === 'quiz') {
-          if (key === 'vortex_quiz_questions' && typeof window.renderQuizAdminQuestions === 'function') {
-            window.renderQuizAdminQuestions();
+          if (key === 'vortex_quiz_questions') {
+            if (typeof window.renderQuizAdminQuestions === 'function') {
+              window.renderQuizAdminQuestions();
+            }
+            if (typeof window.syncQuizArenaWithCurrentBank === 'function') {
+              window.syncQuizArenaWithCurrentBank();
+            }
           }
           if (key === 'vortex_quiz_history' && typeof window.renderQuizLeaderboard === 'function') {
             window.renderQuizLeaderboard();
@@ -815,7 +854,7 @@
         }
       };
 
-      if (immediate || key === 'vortex_timers' || key === 'vortex_stopwatches') {
+      if (immediate || key === 'vortex_timers' || key === 'vortex_stopwatches' || key === 'vortex_quiz_questions') {
         performSave();
         return;
       }

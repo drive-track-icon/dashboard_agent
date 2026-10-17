@@ -3217,9 +3217,9 @@
                   <i class="fa-solid fa-database"></i> <span>Kelola Bank Soal</span>
                 </button>
               </div>
-              <button class="btn btn-outline-gray" id="btnRestartQuiz" title="Mulai Ulang Kuis">
-                <i class="fa-solid fa-rotate-left"></i>
-                <span>Mulai Ulang</span>
+              <button class="btn btn-outline-gray" id="btnRestartQuiz" title="Muat Ulang Kuis (Refresh Soal Terupdate)">
+                <i class="fa-solid fa-rotate"></i>
+                <span>Muat Ulang</span>
               </button>
             </div>
           </div>
@@ -3374,10 +3374,27 @@
                 </div>
               </div>
 
-              <div class="question-body">
+              <div class="question-body" id="quizQuestionBody">
                 <h3 class="question-prompt" id="quizQuestionPrompt">
                   Memuat pertanyaan kuis...
                 </h3>
+              </div>
+
+              <!-- Empty State Box when no questions available in bank -->
+              <div class="quiz-empty-box hidden" id="quizEmptyStateBox">
+                <div class="quiz-empty-icon-wrap">
+                  <i class="fa-solid fa-clipboard-question quiz-empty-icon"></i>
+                </div>
+                <h4 class="quiz-empty-title">Tidak ada soal</h4>
+                <p class="quiz-empty-desc">Saat ini belum ada soal yang tersedia di Bank Soal. Silakan muat ulang atau minta Administrator untuk menambahkan soal kuis.</p>
+                <div class="quiz-empty-actions">
+                  <button type="button" class="btn btn-sm btn-outline-gray" id="btnQuizEmptyRefresh">
+                    <i class="fa-solid fa-rotate"></i> <span>Muat Ulang</span>
+                  </button>
+                  <button type="button" class="btn btn-sm btn-primary hidden" id="btnQuizEmptyAddQuestion">
+                    <i class="fa-solid fa-plus"></i> <span>Tambah Soal Kuis</span>
+                  </button>
+                </div>
               </div>
 
               <!-- Options Grid: 5 Interactive Choices (A, B, C, D, E) -->
@@ -3584,6 +3601,9 @@
                 </select>
                 <button type="button" class="btn btn-outline-gray btn-sm" id="btnQuizSelectAll" title="Tandai semua soal yang tampil">
                   <i class="fa-solid fa-list-check"></i> <span>Tandai Semua</span>
+                </button>
+                <button type="button" class="btn btn-outline-gray btn-sm" id="btnQuizBankRefresh" title="Muat Ulang Bank Soal (Sinkronkan Data Terkini)">
+                  <i class="fa-solid fa-rotate"></i> <span>Muat Ulang</span>
                 </button>
                 <button type="button" class="btn btn-danger btn-sm glow-effect-red" id="btnQuizDeleteSelected" disabled style="opacity: 0.5;" title="Hapus soal kuis yang ditandai">
                   <i class="fa-solid fa-trash-can"></i> <span>Hapus yang Ditandai</span> (<span id="lblCountSelectedQuiz">0</span>)

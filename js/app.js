@@ -407,6 +407,20 @@ class AppState {
 
   trackDeletedId(key, id) {
     if (!id) return;
+    try {
+      const raw = localStorage.getItem('vortex_deleted_ids_' + key);
+      const arr = raw ? JSON.parse(raw) : [];
+      const set = new Set(Array.isArray(arr) ? arr : []);
+      set.add(id);
+      const serialized = JSON.stringify([...set]);
+      localStorage.setItem('vortex_deleted_ids_' + key, serialized);
+      try { sessionStorage.setItem('backup_vortex_deleted_ids_' + key, serialized); } catch (e) {}
+      if (key === 'vortex_quiz_questions') {
+        localStorage.setItem('vortex_deleted_quiz_ids', serialized);
+        try { sessionStorage.setItem('backup_vortex_deleted_quiz_ids', serialized); } catch (e) {}
+      }
+    } catch (e) {}
+
     if (window.FirebaseSync && typeof window.FirebaseSync.trackDeletedId === 'function') {
       window.FirebaseSync.trackDeletedId(key, id);
     }
@@ -414,6 +428,20 @@ class AppState {
 
   clearDeletedId(key, id) {
     if (!id) return;
+    try {
+      const raw = localStorage.getItem('vortex_deleted_ids_' + key);
+      const arr = raw ? JSON.parse(raw) : [];
+      const set = new Set(Array.isArray(arr) ? arr : []);
+      set.delete(id);
+      const serialized = JSON.stringify([...set]);
+      localStorage.setItem('vortex_deleted_ids_' + key, serialized);
+      try { sessionStorage.setItem('backup_vortex_deleted_ids_' + key, serialized); } catch (e) {}
+      if (key === 'vortex_quiz_questions') {
+        localStorage.setItem('vortex_deleted_quiz_ids', serialized);
+        try { sessionStorage.setItem('backup_vortex_deleted_quiz_ids', serialized); } catch (e) {}
+      }
+    } catch (e) {}
+
     if (window.FirebaseSync && typeof window.FirebaseSync.clearDeletedId === 'function') {
       window.FirebaseSync.clearDeletedId(key, id);
     }
@@ -818,7 +846,29 @@ class AppState {
   }
 
   getQuizQuestions() {
-    return this.safeGetStorage('vortex_quiz_questions', []);
+    const rawQuestions = this.safeGetStorage('vortex_quiz_questions', []);
+    if (!Array.isArray(rawQuestions)) return [];
+
+    const deletedSet = new Set();
+    const localDeleted = this.safeGetStorage('vortex_deleted_ids_vortex_quiz_questions', []);
+    if (Array.isArray(localDeleted)) {
+      localDeleted.forEach(id => deletedSet.add(id));
+    }
+    const localQuizDeleted = this.safeGetStorage('vortex_deleted_quiz_ids', []);
+    if (Array.isArray(localQuizDeleted)) {
+      localQuizDeleted.forEach(id => deletedSet.add(id));
+    }
+    if (window.FirebaseSync && typeof window.FirebaseSync.getDeletedIds === 'function') {
+      const fbDeleted = window.FirebaseSync.getDeletedIds('vortex_quiz_questions');
+      if (fbDeleted && fbDeleted.size > 0) {
+        fbDeleted.forEach(id => deletedSet.add(id));
+      }
+    }
+
+    if (deletedSet.size > 0) {
+      return rawQuestions.filter(q => q && q.id && !deletedSet.has(q.id));
+    }
+    return rawQuestions;
   }
 
   saveQuizQuestions(questions) {
@@ -5819,26 +5869,34 @@ function executePendingDelete() {
     if (typeof quizState !== 'undefined' && quizState.selectedQuestionIds) {
       quizState.selectedQuestionIds.delete(id);
     }
+    if (typeof purgeQuizQuestionFromAllSessions === 'function') {
+      purgeQuizQuestionFromAllSessions(id);
+    }
     state.addLog('DELETE_QUIZ_QUESTION', 'Hapus Soal Kuis', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus soal kuis: ${name}.`);
     showToast('Soal Kuis Dihapus', `Soal kuis <strong>${name}</strong> berhasil dihapus.`, 'danger');
     if (typeof renderQuizAdminQuestions === 'function') renderQuizAdminQuestions();
-    if (typeof quizState !== 'undefined' && quizState.activeTab === 'battle' && typeof startQuizBattle === 'function') {
-      startQuizBattle();
+    if (typeof syncQuizArenaWithCurrentBank === 'function') {
+      syncQuizArenaWithCurrentBank();
     }
   } else if (type === 'quiz_batch') {
     const idsToDelete = state.pendingDelete.ids || [];
     const questions = state.getQuizQuestions();
     const remaining = questions.filter(q => !idsToDelete.includes(q.id));
     state.saveQuizQuestions(remaining);
-    idsToDelete.forEach(qId => state.trackDeletedId('vortex_quiz_questions', qId));
+    idsToDelete.forEach(qId => {
+      state.trackDeletedId('vortex_quiz_questions', qId);
+      if (typeof purgeQuizQuestionFromAllSessions === 'function') {
+        purgeQuizQuestionFromAllSessions(qId);
+      }
+    });
     if (typeof quizState !== 'undefined' && quizState.selectedQuestionIds) {
       idsToDelete.forEach(qId => quizState.selectedQuestionIds.delete(qId));
     }
     state.addLog('DELETE_QUIZ_BATCH', 'Hapus Soal Kuis Ditandai', `${state.currentUser.fullName} (${state.currentUser.role.toUpperCase()}) menghapus ${idsToDelete.length} soal kuis yang ditandai.`);
     showToast('Soal Ditandai Dihapus', `Sebanyak <strong>${idsToDelete.length} soal kuis yang ditandai</strong> berhasil dihapus secara permanen.`, 'danger');
     if (typeof renderQuizAdminQuestions === 'function') renderQuizAdminQuestions();
-    if (typeof quizState !== 'undefined' && quizState.activeTab === 'battle' && typeof startQuizBattle === 'function') {
-      startQuizBattle();
+    if (typeof syncQuizArenaWithCurrentBank === 'function') {
+      syncQuizArenaWithCurrentBank();
     }
   }
 
@@ -21238,17 +21296,15 @@ function applyAnsweredFeedbackUi(choice, q) {
 }
 
 function saveActiveUserQuizSession() {
-  const uKey = quizState.activeUserId || getQuizUserKey();
+  const uKey = quizState.activeUserId || getQuizCurrentUserId();
   if (!uKey || uKey === 'guest') return;
 
-  if (quizState.isFinished) {
+  if (quizState.isFinished || !quizState.questions || quizState.questions.length === 0) {
     try {
       localStorage.removeItem('quiz_active_session_' + uKey);
     } catch (e) {}
     return;
   }
-
-  if (!quizState.questions || quizState.questions.length === 0) return;
 
   const sessionData = {
     userId: uKey,
@@ -21278,6 +21334,143 @@ function saveActiveUserQuizSession() {
   }
 }
 
+// Menghapus ID soal kuis yang telah dihapus oleh Admin dari seluruh sesi tersimpan di browser
+function purgeQuizQuestionFromAllSessions(deletedQuestionId) {
+  if (!deletedQuestionId) return;
+  try {
+    const sessionKeys = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('quiz_active_session_')) {
+        sessionKeys.push(key);
+      }
+    }
+    sessionKeys.forEach(key => {
+      try {
+        const raw = localStorage.getItem(key);
+        if (raw) {
+          const sess = JSON.parse(raw);
+          if (sess && Array.isArray(sess.questions)) {
+            sess.questions = sess.questions.filter(q => q && q.id !== deletedQuestionId);
+            if (Array.isArray(sess.userAnswers)) {
+              sess.userAnswers = sess.userAnswers.filter(a => a && a.question && a.question.id !== deletedQuestionId);
+            }
+            if (sess.questions.length === 0) {
+              localStorage.removeItem(key);
+            } else {
+              if (sess.currentIndex >= sess.questions.length) {
+                sess.currentIndex = Math.max(0, sess.questions.length - 1);
+              }
+              localStorage.setItem(key, JSON.stringify(sess));
+            }
+          }
+        }
+      } catch (inner) {}
+    });
+  } catch (e) {}
+
+  if (quizState && Array.isArray(quizState.questions)) {
+    quizState.questions = quizState.questions.filter(q => q && q.id !== deletedQuestionId);
+    if (Array.isArray(quizState.userAnswers)) {
+      quizState.userAnswers = quizState.userAnswers.filter(a => a && a.question && a.question.id !== deletedQuestionId);
+    }
+    if (quizState.currentIndex >= quizState.questions.length) {
+      quizState.currentIndex = Math.max(0, quizState.questions.length - 1);
+    }
+    if (quizState.questions.length === 0) {
+      quizState.currentIndex = 0;
+      quizState.userAnswers = [];
+      renderQuizEmptyState();
+    }
+  }
+}
+
+// Tampilan kosong ketika tidak ada soal di Bank Soal
+function renderQuizEmptyState() {
+  const emptyBox = document.getElementById('quizEmptyStateBox');
+  const optionsGrid = document.getElementById('quizOptionsGrid');
+  const feedbackBox = document.getElementById('quizFeedbackBox');
+  const questionBody = document.getElementById('quizQuestionBody');
+  const promptEl = document.getElementById('quizQuestionPrompt');
+  const progressText = document.getElementById('quizProgressText');
+  const liveScoreText = document.getElementById('quizLiveScoreText');
+  const streakText = document.getElementById('quizStreakText');
+  const categoryBadge = document.getElementById('quizQuestionCategory');
+  const pointBadge = document.getElementById('quizQuestionPointBadge');
+  const progressFill = document.getElementById('quizQuestionProgressFill');
+  const btnEmptyAdd = document.getElementById('btnQuizEmptyAddQuestion');
+
+  if (emptyBox) emptyBox.classList.remove('hidden');
+  if (optionsGrid) optionsGrid.classList.add('hidden');
+  if (feedbackBox) feedbackBox.classList.add('hidden');
+  
+  // Tampilkan questionBody dan pastikan promptEl bertuliskan "Tidak ada soal"
+  if (questionBody) questionBody.classList.remove('hidden');
+  if (promptEl) promptEl.textContent = 'Tidak ada soal';
+
+  if (progressText) progressText.textContent = '0 / 0';
+  if (liveScoreText) liveScoreText.textContent = '0 Poin';
+  if (streakText) streakText.textContent = '0x';
+  if (categoryBadge) categoryBadge.innerHTML = '<i class="fa-solid fa-circle-exclamation text-yellow"></i> Tidak Ada Soal';
+  if (pointBadge) pointBadge.innerHTML = '<i class="fa-solid fa-star text-yellow"></i> 0 Poin';
+  if (progressFill) progressFill.style.width = '0%';
+
+  if (btnEmptyAdd) {
+    btnEmptyAdd.classList.toggle('hidden', !state.isAdmin());
+  }
+
+  // Jaminan ketat: Hasil kemenangan HANYA akan muncul setelah SEMUA soal di jawab!
+  // Bila tidak ada soal sama sekali, jangan pernah memunculkan animasi menang atau modal hasil kemenangan
+  dismissSpecialOutcomeAnimation();
+  const modal = document.getElementById('modalQuizResult');
+  if (modal) modal.classList.add('hidden');
+}
+
+// Sinkronisasi arena pertarungan kuis dengan bank soal terkini (memastikan soal terupdate dan tanpa soal terhapus)
+function syncQuizArenaWithCurrentBank() {
+  const bank = state.getQuizQuestions();
+  const uKey = getQuizCurrentUserId();
+
+  if (!bank || bank.length === 0) {
+    quizState.questions = [];
+    quizState.userAnswers = [];
+    quizState.currentIndex = 0;
+    try { localStorage.removeItem('quiz_active_session_' + uKey); } catch (e) {}
+    renderQuizEmptyState();
+    return;
+  }
+
+  const bankMap = new Map();
+  bank.forEach(q => { if (q && q.id) bankMap.set(q.id, q); });
+
+  // Update seluruh soal aktif ke versi bank soal terbaru (soal update terkini)
+  quizState.questions = bank.map(q => ({ ...q }));
+
+  // Filter jawaban user agar hanya merujuk ke soal yang masih eksis dan perbarui dengan data soal terkini
+  if (Array.isArray(quizState.userAnswers)) {
+    quizState.userAnswers = quizState.userAnswers
+      .filter(ans => ans && ans.question && bankMap.has(ans.question.id))
+      .map(ans => ({
+        ...ans,
+        question: { ...bankMap.get(ans.question.id) }
+      }));
+  } else {
+    quizState.userAnswers = [];
+  }
+
+  if (quizState.currentIndex >= quizState.questions.length) {
+    quizState.currentIndex = Math.max(0, quizState.questions.length - 1);
+  }
+
+  saveActiveUserQuizSession();
+
+  if (quizState.questions.length === 0) {
+    renderQuizEmptyState();
+  } else {
+    renderCurrentQuizQuestion();
+  }
+}
+
 function loadUserQuizSession(targetUserId) {
   const uKey = targetUserId || getQuizUserKey();
   quizState.activeUserId = uKey;
@@ -21285,6 +21478,16 @@ function loadUserQuizSession(targetUserId) {
   dismissSpecialOutcomeAnimation();
   const modal = document.getElementById('modalQuizResult');
   if (modal) modal.classList.add('hidden');
+
+  const currentBank = state.getQuizQuestions();
+  if (!currentBank || currentBank.length === 0) {
+    try { localStorage.removeItem('quiz_active_session_' + uKey); } catch (e) {}
+    startQuizBattle();
+    return false;
+  }
+
+  const bankMap = new Map();
+  currentBank.forEach(q => { if (q && q.id) bankMap.set(q.id, q); });
 
   let savedSession = null;
   try {
@@ -21298,12 +21501,23 @@ function loadUserQuizSession(targetUserId) {
 
   const hero = getSelectedQuizHero(uKey);
 
-  if (savedSession && Array.isArray(savedSession.questions) && savedSession.questions.length > 0 && !savedSession.isFinished && savedSession.currentIndex < savedSession.questions.length) {
+  if (savedSession && Array.isArray(savedSession.questions) && savedSession.questions.length > 0 && !savedSession.isFinished) {
+    // Validasi soal sesi tersimpan: HANYA gunakan soal yang masih aktif di Bank Soal terkini
+    const validQuestions = savedSession.questions
+      .filter(q => q && q.id && bankMap.has(q.id))
+      .map(q => bankMap.get(q.id));
+
+    if (validQuestions.length === 0) {
+      try { localStorage.removeItem('quiz_active_session_' + uKey); } catch (e) {}
+      startQuizBattle();
+      return false;
+    }
+
     quizState.selectedHeroId = savedSession.selectedHeroId || hero.id;
     quizState.selectedHero = ULTRAMAN_ROSTER.find(h => h.id === quizState.selectedHeroId) || hero;
     quizState.currentMonster = savedSession.currentMonster || MONSTER_ROSTER[0];
-    quizState.questions = savedSession.questions;
-    quizState.currentIndex = savedSession.currentIndex || 0;
+    quizState.questions = validQuestions;
+    quizState.currentIndex = Math.min(savedSession.currentIndex || 0, validQuestions.length - 1);
     quizState.score = savedSession.score || 0;
     quizState.correctCount = savedSession.correctCount || 0;
     quizState.wrongCount = savedSession.wrongCount || 0;
@@ -21312,7 +21526,8 @@ function loadUserQuizSession(targetUserId) {
     quizState.ultramanHp = (typeof savedSession.ultramanHp === 'number') ? savedSession.ultramanHp : 100;
     quizState.monsterHp = (typeof savedSession.monsterHp === 'number') ? savedSession.monsterHp : 100;
     quizState.answered = !!savedSession.answered;
-    quizState.userAnswers = Array.isArray(savedSession.userAnswers) ? savedSession.userAnswers : [];
+    quizState.userAnswers = Array.isArray(savedSession.userAnswers) ? 
+      savedSession.userAnswers.filter(a => a && a.question && bankMap.has(a.question.id)) : [];
     quizState.startTime = savedSession.startTime || Date.now();
     quizState.endTime = savedSession.endTime || null;
     quizState.isFinished = false;
@@ -21400,7 +21615,9 @@ function switchQuizTab(tabName) {
   if (secLeaderboard) secLeaderboard.classList.toggle('hidden', tabName !== 'leaderboard');
   if (secAdminBank) secAdminBank.classList.toggle('hidden', tabName !== 'adminBank');
 
-  if (tabName === 'leaderboard') {
+  if (tabName === 'battle') {
+    syncQuizArenaWithCurrentBank();
+  } else if (tabName === 'leaderboard') {
     renderQuizLeaderboard();
   } else if (tabName === 'adminBank') {
     renderQuizAdminQuestions();
@@ -21408,6 +21625,7 @@ function switchQuizTab(tabName) {
 }
 
 function renderQuizPage() {
+  initQuizBattle();
   if (typeof syncUserControlsForPage === 'function') {
     syncUserControlsForPage('quiz', state.currentUser);
   }
@@ -21419,17 +21637,14 @@ function renderQuizPage() {
   const quizTitleThemeSuffix = document.getElementById('quizTitleThemeSuffix');
   const quizPageDesc = document.getElementById('quizPageDesc');
 
-  // 1. Suffix ": Ultraman Iconnet vs Monster" hidden pada user & admin
   if (quizTitleThemeSuffix) {
     quizTitleThemeSuffix.classList.add('hidden');
   }
 
-  // 2. Deskripsi kuis bertema hidden pada user & admin
   if (quizPageDesc) {
     quizPageDesc.classList.add('hidden');
   }
 
-  // 3. Tab "Kelola Bank Soal" hidden pada user
   if (btnTabQuizAdminBank) {
     btnTabQuizAdminBank.classList.toggle('hidden', !isAdmin);
   }
@@ -21437,7 +21652,6 @@ function renderQuizPage() {
     btnOpenAdd.classList.toggle('hidden', !isAdmin);
   }
 
-  // 4. Banner "Otoritas Akses Kuis..." hidden pada user & admin
   if (quizPermissionBanner) {
     quizPermissionBanner.classList.add('hidden');
   }
@@ -21450,26 +21664,21 @@ function renderQuizPage() {
 
   updateBattleArenaUserHeader();
 
-  // Strict User Isolation: Ensure quiz session & hero belong to active user
+  // Strict User Isolation & Arena Freshness
   if (quizState.activeUserId !== currentUserId) {
     loadUserQuizSession(currentUserId);
   } else {
     renderHeroSelector();
-    if (quizState.activeTab === 'battle' && (!quizState.questions || quizState.questions.length === 0)) {
-      startQuizBattle();
-    }
+    syncQuizArenaWithCurrentBank();
   }
 }
 
-function startQuizBattle() {
+function startQuizBattle(forceRefresh = false) {
   const uKey = getQuizCurrentUserId();
   const bank = state.getQuizQuestions();
-  if (!bank || bank.length === 0) {
-    state.saveQuizQuestions(DEFAULT_QUIZ_QUESTIONS);
-    quizState.questions = [...DEFAULT_QUIZ_QUESTIONS];
-  } else {
-    quizState.questions = [...bank];
-  }
+
+  // Arena quiz HANYA menampilkan soal yang update terkini dari bank soal
+  quizState.questions = (Array.isArray(bank)) ? [...bank] : [];
 
   quizState.activeUserId = uKey;
 
@@ -21500,19 +21709,27 @@ function startQuizBattle() {
   quizState.endTime = null;
   quizState.isFinished = false;
 
+  dismissSpecialOutcomeAnimation();
+  const modal = document.getElementById('modalQuizResult');
+  if (modal) modal.classList.add('hidden');
+
   saveActiveUserQuizSession();
 
   updateBattleHpDisplay();
   updateBattleArenaUserHeader();
 
-  // Hidden initially per user request: "Monster Giga Lag terdeteksi mengganggu kestabilan jaringan! Pilih jawaban tepat (A-E) untuk menyerang!"
   const bubble = document.getElementById('battleAnnouncer');
   const txt = document.getElementById('battleAnnouncerText');
   if (txt) txt.textContent = '';
   if (bubble) bubble.className = 'battle-announcer-bubble hidden';
 
   renderHeroSelector();
-  renderCurrentQuizQuestion();
+
+  if (quizState.questions.length === 0) {
+    renderQuizEmptyState();
+  } else {
+    renderCurrentQuizQuestion();
+  }
 }
 
 function updateBattleHpDisplay() {
@@ -21604,13 +21821,37 @@ function triggerMonsterAttackFx(damage) {
 }
 
 function renderCurrentQuizQuestion() {
-  const total = quizState.questions.length;
+  const emptyBox = document.getElementById('quizEmptyStateBox');
+  const optionsGrid = document.getElementById('quizOptionsGrid');
+  const questionBody = document.getElementById('quizQuestionBody');
+  const total = quizState.questions ? quizState.questions.length : 0;
   const curr = quizState.currentIndex;
   quizState.answered = false;
 
+  if (total === 0) {
+    renderQuizEmptyState();
+    return;
+  }
+
+  if (emptyBox) emptyBox.classList.add('hidden');
+  if (optionsGrid) optionsGrid.classList.remove('hidden');
+  if (questionBody) questionBody.classList.remove('hidden');
+
   const q = quizState.questions[curr];
   if (!q) {
-    triggerQuizFinishWithSpecialAnim();
+    // Hasil kemenangan hanya akan muncul jika seluruh soal benar-benar telah terjawab
+    if (total > 0 && Array.isArray(quizState.userAnswers) && quizState.userAnswers.length === total) {
+      triggerQuizFinishWithSpecialAnim();
+    } else {
+      if (total === 0) {
+        renderQuizEmptyState();
+      } else {
+        quizState.currentIndex = 0;
+        quizState.answered = false;
+        saveActiveUserQuizSession();
+        renderCurrentQuizQuestion();
+      }
+    }
     return;
   }
 
@@ -21745,9 +21986,21 @@ function handleSelectQuizOption(choice) {
 }
 
 function nextQuizQuestion() {
-  const total = quizState.questions.length;
+  const total = quizState.questions ? quizState.questions.length : 0;
+  if (total === 0) {
+    renderQuizEmptyState();
+    return;
+  }
+  // Tidak boleh lanjut jika belum menjawab soal saat ini
+  if (!quizState.answered) {
+    showToast('Pilih Jawaban', 'Silakan pilih salah satu opsi jawaban (A - E) terlebih dahulu.', 'warning');
+    return;
+  }
   if (quizState.currentIndex + 1 >= total) {
-    triggerQuizFinishWithSpecialAnim();
+    // Hasil kemenangan hanya akan muncul setelah semua soal di jawab
+    if (total > 0 && Array.isArray(quizState.userAnswers) && quizState.userAnswers.length === total) {
+      triggerQuizFinishWithSpecialAnim();
+    }
   } else {
     quizState.currentIndex++;
     quizState.answered = false;
@@ -21761,7 +22014,11 @@ function nextQuizQuestion() {
 // - Nilai di atas 85: MENANG (animasi Spacium Beam menumbangkan monster)
 // - Nilai 100: SEMPURNA dengan mengeluarkan JURUS ULTIMATE (animasi kosmik pamungkas)
 function triggerQuizFinishWithSpecialAnim() {
-  const total = quizState.questions.length || 1;
+  const total = quizState.questions ? quizState.questions.length : 0;
+  // Guard ketat: Hasil kemenangan HANYA akan muncul setelah SEMUA soal di jawab
+  if (!total || total <= 0 || !Array.isArray(quizState.userAnswers) || quizState.userAnswers.length < total || quizState.isFinished) {
+    return;
+  }
   const rawScore = (quizState.correctCount / total) * 100;
   const finalScore = Math.round(rawScore);
   const outcome = (finalScore === 100 ? 'ultimate' : (finalScore >= 85 ? 'menang' : 'kalah'));
@@ -21920,10 +22177,17 @@ function dismissSpecialOutcomeAnimation() {
 }
 
 function finishQuizBattle(resolvedOutcome, resolvedScore) {
+  const total = quizState.questions ? quizState.questions.length : 0;
+  // Guard ketat: Hasil kemenangan HANYA akan muncul setelah SEMUA soal di jawab
+  if (!total || total <= 0 || !Array.isArray(quizState.userAnswers) || quizState.userAnswers.length < total) {
+    const modal = document.getElementById('modalQuizResult');
+    if (modal) modal.classList.add('hidden');
+    dismissSpecialOutcomeAnimation();
+    return;
+  }
   quizState.endTime = Date.now();
   quizState.isFinished = true;
   saveActiveUserQuizSession();
-  const total = quizState.questions.length || 1;
   const rawScore = (quizState.correctCount / total) * 100;
   const finalScore = (resolvedScore !== undefined ? resolvedScore : Math.round(rawScore));
   const durationSec = Math.round((quizState.endTime - (quizState.startTime || quizState.endTime)) / 1000);
@@ -22261,10 +22525,7 @@ function handleSaveQuizQuestion(e) {
 
   closeQuizQuestionModal();
   renderQuizAdminQuestions();
-
-  if (quizState.activeTab === 'battle') {
-    startQuizBattle();
-  }
+  syncQuizArenaWithCurrentBank();
 }
 
 function promptDeleteQuizQuestion(qId) {
@@ -22289,14 +22550,13 @@ function promptDeleteQuizQuestion(qId) {
   } else if (confirm(`Apakah Anda yakin ingin menghapus soal berikut?\n\n"${q.prompt.slice(0, 80)}..."`)) {
     const filtered = questions.filter(item => item.id !== qId);
     state.saveQuizQuestions(filtered);
+    state.trackDeletedId('vortex_quiz_questions', qId);
     if (quizState.selectedQuestionIds) quizState.selectedQuestionIds.delete(qId);
+    purgeQuizQuestionFromAllSessions(qId);
     state.addLog('Quiz Bank', 'Hapus', `Menghapus soal kuis ID ${qId}`);
     showToast('Soal Dihapus', 'Soal kuis berhasil dihapus dari bank soal.', 'info');
     renderQuizAdminQuestions();
-
-    if (quizState.activeTab === 'battle') {
-      startQuizBattle();
-    }
+    syncQuizArenaWithCurrentBank();
   }
 }
 
@@ -22375,14 +22635,12 @@ function promptDeleteSelectedQuizQuestions() {
     selectedList.forEach(id => {
       quizState.selectedQuestionIds.delete(id);
       state.trackDeletedId('vortex_quiz_questions', id);
+      purgeQuizQuestionFromAllSessions(id);
     });
     state.addLog('Quiz Bank', 'Hapus Massal', `Menghapus ${selectedList.length} soal kuis yang ditandai.`);
     showToast('Soal Ditandai Dihapus', `Sebanyak ${selectedList.length} soal kuis yang ditandai berhasil dihapus.`, 'danger');
     renderQuizAdminQuestions();
-
-    if (quizState.activeTab === 'battle') {
-      startQuizBattle();
-    }
+    syncQuizArenaWithCurrentBank();
   }
 }
 
@@ -22852,14 +23110,88 @@ function initQuizBattle() {
   const btnLeaderboard = document.getElementById('btnTabQuizLeaderboard');
   const btnAdminBank = document.getElementById('btnTabQuizAdminBank');
   const btnRestart = document.getElementById('btnRestartQuiz');
+  const btnEmptyRefresh = document.getElementById('btnQuizEmptyRefresh');
+  const btnEmptyAddQuestion = document.getElementById('btnQuizEmptyAddQuestion');
+  const btnBankRefresh = document.getElementById('btnQuizBankRefresh');
 
-  if (btnBattle) btnBattle.addEventListener('click', () => switchQuizTab('battle'));
-  if (btnLeaderboard) btnLeaderboard.addEventListener('click', () => switchQuizTab('leaderboard'));
-  if (btnAdminBank) btnAdminBank.addEventListener('click', () => switchQuizTab('adminBank'));
-  if (btnRestart) btnRestart.addEventListener('click', () => {
-    startQuizBattle();
-    showToast('Kuis Dimulai Ulang', 'Pertarungan dimulai kembali dari soal pertama.', 'info');
-  });
+  const handleReloadQuiz = async () => {
+    const uKey = getQuizCurrentUserId();
+
+    // 1. Tarik pembaruan Bank Soal dari Cloud Firestore jika online
+    if (window.FirebaseSync && window.FirebaseSync.isConnected && window.FirebaseSync.db) {
+      try {
+        const docSnap = await window.FirebaseSync.db.collection('dashboard_data').doc('vortex_quiz_questions').get();
+        if (docSnap.exists) {
+          const data = docSnap.data();
+          if (data && Array.isArray(data.payload)) {
+            const deletedIds = window.FirebaseSync.getDeletedIds('vortex_quiz_questions');
+            if (Array.isArray(data.deletedIds)) {
+              data.deletedIds.forEach(id => window.FirebaseSync.trackDeletedId('vortex_quiz_questions', id));
+            }
+            const cleanRemote = data.payload.filter(q => q && q.id && !deletedIds.has(q.id) && !window.FirebaseSync.isDummyItem(q));
+            state.saveQuizQuestions(cleanRemote);
+          }
+        }
+      } catch (e) {
+        console.warn('Gagal sync bank soal kuis saat reload:', e);
+      }
+    }
+
+    // 2. Bersihkan sesi kuis aktif pengguna agar arena benar-benar memuat soal terupdate dari awal
+    try { localStorage.removeItem('quiz_active_session_' + uKey); } catch (e) {}
+
+    // 3. Reset dan mulai ulang pertarungan kuis
+    startQuizBattle(true);
+
+    // 4. Perbarui data tabel Bank Soal jika admin
+    if (state.isAdmin() && typeof renderQuizAdminQuestions === 'function') {
+      renderQuizAdminQuestions();
+    }
+
+    // 5. Perbarui papan skor
+    if (typeof renderQuizLeaderboard === 'function') {
+      renderQuizLeaderboard();
+    }
+
+    const bank = state.getQuizQuestions();
+    if (!bank || bank.length === 0) {
+      renderQuizEmptyState();
+      showToast('Kuis Dimuat Ulang', 'Bank soal kosong. Tidak ada soal yang tersedia saat ini.', 'warning');
+    } else {
+      showToast('Kuis Dimuat Ulang', `Pertarungan kuis berhasil direfresh (${bank.length} soal terkini).`, 'info');
+    }
+  };
+
+  window.handleReloadQuiz = handleReloadQuiz;
+
+  if (btnBattle && !btnBattle.dataset.bound) {
+    btnBattle.addEventListener('click', () => switchQuizTab('battle'));
+    btnBattle.dataset.bound = 'true';
+  }
+  if (btnLeaderboard && !btnLeaderboard.dataset.bound) {
+    btnLeaderboard.addEventListener('click', () => switchQuizTab('leaderboard'));
+    btnLeaderboard.dataset.bound = 'true';
+  }
+  if (btnAdminBank && !btnAdminBank.dataset.bound) {
+    btnAdminBank.addEventListener('click', () => switchQuizTab('adminBank'));
+    btnAdminBank.dataset.bound = 'true';
+  }
+  if (btnRestart && !btnRestart.dataset.bound) {
+    btnRestart.addEventListener('click', handleReloadQuiz);
+    btnRestart.dataset.bound = 'true';
+  }
+  if (btnEmptyRefresh && !btnEmptyRefresh.dataset.bound) {
+    btnEmptyRefresh.addEventListener('click', handleReloadQuiz);
+    btnEmptyRefresh.dataset.bound = 'true';
+  }
+  if (btnBankRefresh && !btnBankRefresh.dataset.bound) {
+    btnBankRefresh.addEventListener('click', handleReloadQuiz);
+    btnBankRefresh.dataset.bound = 'true';
+  }
+  if (btnEmptyAddQuestion && !btnEmptyAddQuestion.dataset.bound) {
+    btnEmptyAddQuestion.addEventListener('click', openAddQuizQuestionModal);
+    btnEmptyAddQuestion.dataset.bound = 'true';
+  }
 
   const selectHero = document.getElementById('selectQuizHero');
   if (selectHero) {
@@ -23010,6 +23342,9 @@ window.quizState = quizState;
 window.renderQuizPage = renderQuizPage;
 window.renderQuizLeaderboard = renderQuizLeaderboard;
 window.renderQuizAdminQuestions = renderQuizAdminQuestions;
+window.renderQuizEmptyState = renderQuizEmptyState;
+window.syncQuizArenaWithCurrentBank = syncQuizArenaWithCurrentBank;
+window.purgeQuizQuestionFromAllSessions = purgeQuizQuestionFromAllSessions;
 window.startQuizBattle = startQuizBattle;
 window.switchQuizTab = switchQuizTab;
 window.deleteQuizHistoryRecord = deleteQuizHistoryRecord;
